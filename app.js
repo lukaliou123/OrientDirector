@@ -2509,10 +2509,34 @@ function initGoogleMapsAPI() {
 }
 
 // 显示指定位置的Google街景
-function showStreetViewForLocation(scene) {
+async function showStreetViewForLocation(scene) {
+    // 等待Google Maps API加载
+    const maxWaitTime = 10000; // 最多等待10秒
+    const checkInterval = 500; // 每500ms检查一次
+    let waitedTime = 0;
+    
+    while (window.googleMapsLoadStatus !== 'loaded' && waitedTime < maxWaitTime) {
+        if (window.googleMapsLoadStatus === 'failed') {
+            logger.error('❌ Google Maps API 加载失败，无法显示街景');
+            return;
+        }
+        
+        if (waitedTime === 0) {
+            logger.info('⏳ 等待Google Maps API加载...');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+        waitedTime += checkInterval;
+    }
+    
+    if (window.googleMapsLoadStatus !== 'loaded') {
+        logger.error('❌ Google Maps API 加载超时');
+        return;
+    }
+
     // 检查Google Maps API是否已加载
     if (!initGoogleMapsAPI()) {
-        logger.warning('⚠️ 跳过街景显示：Google Maps API未加载');
+        logger.warning('⚠️ 跳过街景显示：Google Maps API未正确初始化');
         return;
     }
 

@@ -13,7 +13,7 @@ import logging
 
 # 尝试导入Langchain AI服务
 try:
-    from .langchain_ai_service import get_langchain_ai_service, LangchainAIService
+    from langchain_ai_service import get_langchain_ai_service, LangchainAIService
     LANGCHAIN_AVAILABLE = True
 except ImportError as e:
     LANGCHAIN_AVAILABLE = False
@@ -85,11 +85,13 @@ class AIService:
                 logger.warning(f"⚠️ Langchain锐评生成失败，回退到传统OpenAI: {e}")
         
         # 回退到传统OpenAI方法
+        logger.info(f"🔄 正在使用传统OpenAI方法...")
         try:
             # 构建锐评提示词
             prompt = self._build_review_prompt(scene_name, scene_description, scene_type, user_context)
             
             logger.info(f"🤖 使用传统OpenAI为场景 '{scene_name}' 生成锐评...")
+            logger.info(f"🔍 提示词长度: {len(prompt)}字符")
             
             response = await self.client.chat.completions.create(
                 model=self.model,
@@ -103,13 +105,16 @@ class AIService:
                         "content": prompt
                     }
                 ],
-                max_completion_tokens=500,
-                temperature=0.8,
-                presence_penalty=0.1,
-                frequency_penalty=0.1
+                max_completion_tokens=500
             )
             
             content = response.choices[0].message.content.strip()
+            
+            # 调试：显示AI原始返回内容
+            logger.info(f"🔍 ===== OpenAI原始输出 =====")
+            logger.info(f"内容长度: {len(content)}字符")
+            logger.info(f"原始内容: <<<{content}>>>")
+            logger.info(f"================================")
             
             # 解析AI返回的结构化内容
             review_data = self._parse_ai_response(content)
@@ -285,8 +290,7 @@ class AIService:
                         "content": prompt
                     }
                 ],
-                max_completion_tokens=300,
-                temperature=0.7
+                max_completion_tokens=2000
             )
             
             result = response.choices[0].message.content.strip()

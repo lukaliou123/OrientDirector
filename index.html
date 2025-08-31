@@ -192,7 +192,7 @@
         // 尝试从后端获取API配置（生产环境推荐）
         async function loadAppConfig() {
             try {
-                const response = await fetch('/api/config/maps');
+                const response = await fetch('http://localhost:8000/api/config/maps');
                 if (response.ok) {
                     const config = await response.json();
                     window.appConfig.googleMapsApiKey = config.apiKey;
@@ -203,46 +203,67 @@
             }
         }
 
+        // 添加全局状态变量
+        window.googleMapsLoadStatus = 'pending'; // pending, loading, loaded, failed
+
         // Google Maps API 回调函数
         window.initGoogleMaps = function() {
             console.log('✅ Google Maps API 已加载');
             console.log('🏙️ Street View 服务已准备就绪');
+            window.googleMapsLoadStatus = 'loaded';
 
             // 初始化街景相关变量
             if (typeof initGoogleMapsAPI === 'function') {
                 initGoogleMapsAPI();
             }
+            
+            // 触发自定义事件，通知API已加载
+            window.dispatchEvent(new Event('googleMapsLoaded'));
         };
 
         // 动态加载Google Maps API
         function loadGoogleMapsAPI() {
             const apiKey = window.appConfig.googleMapsApiKey;
+            
+            console.log('🔍 开始加载Google Maps API');
+            console.log('   API Key:', apiKey ? apiKey.substring(0, 10) + '...' : '未设置');
 
             if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
-                console.warn('⚠️ Google Maps API Key 未配置，请在 appConfig 中设置有效的API Key');
-                console.log('💡 当前配置的API Key:', apiKey);
+                console.warn('⚠️ Google Maps API Key 未配置');
+                window.googleMapsLoadStatus = 'failed';
                 return false;
             }
 
             // 检查是否已经加载过
             if (window.google && window.google.maps) {
-                console.log('✅ Google Maps API 已存在，跳过重新加载');
+                console.log('✅ Google Maps API 已存在');
+                window.googleMapsLoadStatus = 'loaded';
                 window.initGoogleMaps();
                 return true;
             }
 
+            window.googleMapsLoadStatus = 'loading';
             console.log('🔄 正在加载 Google Maps API...');
+            
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initGoogleMaps&v=weekly&libraries=geometry`;
             script.async = true;
             script.defer = true;
-            script.onerror = function() {
+            
+            script.onload = function() {
+                console.log('✅ Google Maps script标签加载完成');
+            };
+            
+            script.onerror = function(error) {
+                window.googleMapsLoadStatus = 'failed';
                 console.error('❌ Google Maps API 加载失败');
                 console.log('🔍 请检查:');
                 console.log('   1. API Key 是否正确');
                 console.log('   2. 网络连接是否正常');
                 console.log('   3. API Key 是否有正确的权限');
+                console.log('   4. 浏览器控制台是否有其他错误');
             };
+            
             document.head.appendChild(script);
             return true;
         }

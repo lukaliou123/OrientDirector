@@ -53,8 +53,7 @@ class LangchainAIService:
         self.llm = ChatOpenAI(
             model=self.model_name,
             api_key=self.api_key,
-            temperature=0.8,
-            max_completion_tokens=500,
+            max_completion_tokens=2000,
             max_retries=3
         )
         
@@ -133,7 +132,6 @@ class LangchainAIService:
             }
             | self.review_prompt_template
             | self.llm
-            | self.review_parser
         )
         
         # 旅程总结生成链
@@ -196,28 +194,32 @@ class LangchainAIService:
             }
             
             # 执行Langchain链
-            result = await self.review_chain.ainvoke(input_data)
+            raw_result = await self.review_chain.ainvoke(input_data)
             
-            # 转换为字典格式
-            review_data = {
-                "title": result.title,
-                "review": result.review,
-                "highlights": result.highlights,
-                "tips": result.tips,
-                "rating_reason": result.rating_reason,
-                "mood": result.mood
-            }
+            # 记录AI原始输出用于调试
+            logger.info(f"🔍 AI原始输出内容:")
+            logger.info(f"类型: {type(raw_result)}")
+            logger.info(f"内容长度: {len(str(raw_result)) if raw_result else 0}字符")
+            logger.info(f"原始内容: <<<{raw_result}>>>")
+            if hasattr(raw_result, 'content'):
+                logger.info(f"content属性: <<<{raw_result.content}>>>")
             
-            logger.info(f"✅ Langchain场景锐评生成成功: {len(result.review)}字符")
+            # 手动解析AI返回的内容
+            content_to_parse = raw_result.content if hasattr(raw_result, 'content') else str(raw_result)
+            review_data = self._parse_ai_review_response(content_to_parse)
+            
+            logger.info(f"✅ Langchain场景锐评生成成功: {len(review_data.get('review', ''))}字符")
             return review_data
             
         except LangChainException as e:
             logger.error(f"❌ Langchain执行失败: {str(e)}")
-            return self._get_fallback_review(scene_name, scene_description, scene_type)
+            # 抛出异常让上层处理，而不是返回fallback
+            raise Exception(f"Langchain JSON解析失败: {str(e)}")
             
         except Exception as e:
             logger.error(f"❌ 场景锐评生成失败: {str(e)}")
-            return self._get_fallback_review(scene_name, scene_description, scene_type)
+            # 抛出异常让上层处理，而不是返回fallback
+            raise Exception(f"Langchain执行失败: {str(e)}")
     
     async def generate_journey_summary(
         self,
@@ -249,14 +251,20 @@ class LangchainAIService:
                 "journey_duration": journey_duration
             }
             
-            # 执行Langchain链
-            result = await self.summary_chain.ainvoke(input_data)
+                        # 执行Langchain链  
+            raw_result = await self.summary_chain.ainvoke(input_data)
             
-            summary_data = {
-                "summary": result.summary,
-                "highlights": result.highlights,
-                "recommendation": result.recommendation
-            }
+            # 记录AI原始输出用于调试
+            logger.info(f"🔍 AI旅程总结原始输出:")
+            logger.info(f"类型: {type(raw_result)}")  
+            logger.info(f"内容长度: {len(str(raw_result)) if raw_result else 0}字符")
+            logger.info(f"原始内容: <<<{raw_result}>>>")
+            if hasattr(raw_result, 'content'):
+                logger.info(f"content属性: <<<{raw_result.content}>>>")
+            
+            # 解析旅程总结内容
+            content_to_parse = raw_result.content if hasattr(raw_result, 'content') else str(raw_result)
+            summary_data = self._parse_ai_summary_response(content_to_parse)
             
             logger.info(f"✅ Langchain旅程总结生成成功")
             return summary_data
@@ -264,6 +272,74 @@ class LangchainAIService:
         except Exception as e:
             logger.error(f"❌ Langchain旅程总结生成失败: {str(e)}")
             return self._get_fallback_journey_summary(visited_scenes, total_distance, journey_duration)
+    
+    def _parse_ai_review_response(self, content: str) -> Dict[str, str]:
+        """手动解析AI返回的锐评内容，支持更宽松的格式"""
+        try:
+            import json
+            import re
+            
+            # 尝试直接解析JSON
+            if content.strip().startswith('{') and content.strip().endswith('}'):
+                return json.loads(content.strip())
+            
+            # 尝试提取JSON部分
+            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group()
+                return json.loads(json_str)
+            
+            # 如果无法解析，返回包含原始内容的默认格式
+            return {
+                "title": "AI锐评",
+                "review": content,
+                "highlights": ["AI生成内容"],
+                "tips": "探索愉快！",
+                "rating_reason": "值得一去",
+                "mood": "探索"
+            }
+            
+        except Exception as e:
+            logger.warning(f"⚠️ AI响应解析失败: {e}")
+            return {
+                "title": "AI锐评",
+                "review": content,
+                "highlights": ["AI生成内容"],
+                "tips": "探索愉快！",
+                "rating_reason": "值得一去", 
+                "mood": "探索"
+            }
+    
+    def _parse_ai_summary_response(self, content: str) -> Dict[str, str]:
+        """手动解析AI返回的旅程总结内容，支持更宽松的格式"""
+        try:
+            import json
+            import re
+            
+            # 尝试直接解析JSON
+            if content.strip().startswith('{') and content.strip().endswith('}'):
+                return json.loads(content.strip())
+            
+            # 尝试提取JSON部分
+            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group()
+                return json.loads(json_str)
+            
+            # 如果无法解析，返回包含原始内容的默认格式
+            return {
+                "summary": content,
+                "highlights": ["AI生成总结"],
+                "recommendation": "继续探索更多精彩地点"
+            }
+            
+        except Exception as e:
+            logger.warning(f"⚠️ AI旅程总结响应解析失败: {e}")
+            return {
+                "summary": content,
+                "highlights": ["AI生成总结"],
+                "recommendation": "继续探索更多精彩地点"
+            }
     
     def _get_fallback_review(self, scene_name: str, scene_description: str, scene_type: str) -> Dict[str, str]:
         """生成备用锐评内容（当Langchain服务不可用时）"""
