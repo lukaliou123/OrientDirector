@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方向探索派对智能工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部导航 -->
+        <header class="header">
+            <h1>🧭 方向探索派对</h1>
+            <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+        </header>
+
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="setting-group">
+                <label>目标距离:</label>
+                <select id="segmentDistance" onchange="updateSettings()">
+                    <option value="5">5km</option>
+                    <option value="10" selected>10km</option>
+                    <option value="15">15km</option>
+                    <option value="20">20km</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>模式:</label>
+                <select id="timeMode" onchange="updateSettings()">
+                    <option value="present" selected>现代模式</option>
+                    <option value="past">古代模式</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>速度 (km/h):</label>
+                <input type="number" id="speed" value="120" min="1" max="1000" onchange="updateSettings()">
+            </div>
+        </div>
+
+        <!-- 状态显示区 -->
+        <div class="status-section">
+            <div class="location-info">
+                <div class="current-location">
+                    <span class="label">当前位置:</span>
+                    <span id="currentLocation">获取中...</span>
+                </div>
+                <div class="coordinates-info">
+                    <span class="label">经纬度:</span>
+                    <span id="coordinates">--°, --°</span>
+                </div>
+                <div class="accuracy-info">
+                    <span class="label">精度:</span>
+                    <span id="accuracy">--m</span>
+                </div>
+                <div class="compass-info">
+                    <span class="label">朝向:</span>
+                    <span id="compassDirection">--°</span>
+                </div>
+                <div class="direction-text">
+                    <span class="label">方向:</span>
+                    <span id="directionText">--</span>
+                </div>
+            </div>
+            
+            <!-- 指南针显示 -->
+            <div class="compass-container">
+                <div class="compass" id="compass">
+                    <div class="compass-needle" id="compassNeedle">
+                        <div class="needle-diamond">
+                            <div class="needle-north"></div>
+                            <div class="needle-south"></div>
+                        </div>
+                    </div>
+                    <div class="compass-center"></div>
+                    <div class="compass-directions">
+                        <div class="direction north">N</div>
+                        <div class="direction east">E</div>
+                        <div class="direction south">S</div>
+                        <div class="direction west">W</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="controls">
+            <button class="explore-btn" id="exploreBtn" onclick="startExploration()">
+                🚀 开始探索
+            </button>
+            <button class="refresh-btn" onclick="refreshLocation()">
+                📍 刷新位置
+            </button>
+            <button class="end-journey-btn" id="endJourneyBtn" onclick="endJourney()" style="display: none;">
+                🏠 结束旅程
+            </button>
+        </div>
+
+        <!-- 历史访问场景 -->
+        <div class="journey-history-section" id="journeyHistorySection" style="display: none;">
+            <h3>🎒 已访问的地点</h3>
+            <div class="history-places-container" id="historyPlacesContainer">
+                <!-- 历史访问的地点卡片将在这里显示 -->
+            </div>
+        </div>
+
+        <!-- 地点卡片容器 -->
+        <div class="places-container" id="placesContainer">
+            <!-- 地点卡片将在这里动态生成 -->
+        </div>
+
+        <!-- 加载指示器 -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>正在计算路径...</p>
+        </div>
+
+        <!-- 日志显示区 -->
+        <div class="log-section">
+            <div class="log-header">
+                <h3>系统日志</h3>
+                <button class="clear-log-btn" onclick="clearLogs()">清空日志</button>
+            </div>
+            <div class="log-container" id="logContainer">
+                <!-- 日志信息将在这里显示 -->
+            </div>
+        </div>
+
+        <!-- Google街景模态框 -->
+        <div class="streetview-modal" id="streetviewModal" style="display: none;">
+            <div class="streetview-modal-content">
+                <div class="streetview-header">
+                    <h3 id="streetviewTitle">🏙️ 街景视图</h3>
+                    <button class="close-streetview-btn" onclick="closeStreetView()">✕</button>
+                </div>
+                <div class="streetview-controls">
+                    <button class="streetview-control-btn" onclick="resetStreetViewHeading()" title="重置朝向">
+                        🧭 重置视角
+                    </button>
+                    <button class="streetview-control-btn" onclick="toggleStreetViewFullscreen()" title="全屏">
+                        🔍 全屏
+                    </button>
+                    <button class="streetview-control-btn" onclick="shareStreetView()" title="分享位置">
+                        📤 分享
+                    </button>
+                </div>
+                <div class="streetview-container" id="streetviewContainer">
+                    <div class="streetview-loading" id="streetviewLoading">
+                        <div class="streetview-spinner"></div>
+                        <p>正在加载街景...</p>
+                    </div>
+                    <div class="streetview-error" id="streetviewError" style="display: none;">
+                        <div class="error-icon">🚫</div>
+                        <h4>街景不可用</h4>
+                        <p id="streetviewErrorText">该位置暂时没有街景数据</p>
+                        <button class="retry-streetview-btn" onclick="retryStreetView()">重试</button>
+                    </div>
+                </div>
+                <div class="streetview-info" id="streetviewInfo">
+                    <div class="streetview-location">
+                        <span class="info-label">📍 位置:</span>
+                        <span id="streetviewLocation">--</span>
+                    </div>
+                    <div class="streetview-coordinates">
+                        <span class="info-label">📊 坐标:</span>
+                        <span id="streetviewCoords">--</span>
+                    </div>
+                    <div class="streetview-date">
+                        <span class="info-label">📅 拍摄时间:</span>
+                        <span id="streetviewDate">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google街景遮罩层 -->
+        <div class="streetview-overlay" id="streetviewOverlay" style="display: none;" onclick="closeStreetView()"></div>
+    </div>
+
+    <!-- Google Maps JavaScript API 配置 -->
+    <script>
+        // 应用配置 - API Key配置在环境变量中
+        window.appConfig = {
+            // 注意：实际部署时应从后端或环境变量获取此值
+            // 不要将真实的API Key提交到代码库！
+            // 开发时请在 .env 文件中设置 GOOGLE_MAPS_API_KEY
+            googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY', // 将被动态替换
+            useLangchain: true
+        };
+
+        // 尝试从后端获取API配置（生产环境推荐）
+        async function loadAppConfig() {
+            try {
+                const response = await fetch('/api/config/maps');
+                if (response.ok) {
+                    const config = await response.json();
+                    window.appConfig.googleMapsApiKey = config.apiKey;
+                    console.log('✅ 从后端获取到API配置');
+                }
+            } catch (error) {
+                console.log('⚠️ 无法从后端获取API配置，使用默认配置');
+            }
+        }
+
+        // Google Maps API 回调函数
+        window.initGoogleMaps = function() {
+            console.log('✅ Google Maps API 已加载');
+            console.log('🏙️ Street View 服务已准备就绪');
+
+            // 初始化街景相关变量
+            if (typeof initGoogleMapsAPI === 'function') {
+                initGoogleMapsAPI();
+            }
+        };
+
+        // 动态加载Google Maps API
+        function loadGoogleMapsAPI() {
+            const apiKey = window.appConfig.googleMapsApiKey;
+
+            if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
+                console.warn('⚠️ Google Maps API Key 未配置，请在 appConfig 中设置有效的API Key');
+                console.log('💡 当前配置的API Key:', apiKey);
+                return false;
+            }
+
+            // 检查是否已经加载过
+            if (window.google && window.google.maps) {
+                console.log('✅ Google Maps API 已存在，跳过重新加载');
+                window.initGoogleMaps();
+                return true;
+            }
+
+            console.log('🔄 正在加载 Google Maps API...');
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initGoogleMaps&v=weekly&libraries=geometry`;
+            script.async = true;
+            script.defer = true;
+            script.onerror = function() {
+                console.error('❌ Google Maps API 加载失败');
+                console.log('🔍 请检查:');
+                console.log('   1. API Key 是否正确');
+                console.log('   2. 网络连接是否正常');
+                console.log('   3. API Key 是否有正确的权限');
+            };
+            document.head.appendChild(script);
+            return true;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 OrientDiscover 应用启动');
+
+            // 先尝试加载配置
+            await loadAppConfig();
+
+            // 然后加载Google Maps API
+            loadGoogleMapsAPI();
+        });
+    </script>
+
+    <script src="app.js"></script>
+</body>
+</html>

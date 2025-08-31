@@ -1,0 +1,236 @@
+# ==============================================
+# OrientDiscover Project .gitignore
+# ==============================================
+
+# ===== Python 相关 =====
+# 字节码文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 分发/打包
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# 单元测试/覆盖率报告
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# 虚拟环境
+venv/
+ENV/
+
+
+
+
+# API Keys 和敏感配置
+config.ini
+secrets.json
+credentials.json
+
+# ===== 缓存和临时文件 =====
+# 项目特定缓存
+data_cache.json
+*.cache
+cache/
+tmp/
+temp/
+
+# 日志文件
+*.log
+logs/
+log/
+
+# 备份文件
+*.backup
+*.bak
+*~
+
+# ===== 数据库文件 =====
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# ===== IDE 和编辑器 =====
+# VSCode
+.vscode/
+.history/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+.#*
+\#*#
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Cursor (如果使用)
+.cursor/
+
+# ===== 系统文件 =====
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ===== Node.js 相关 (未来可能需要) =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# ===== 项目特定忽略 =====
+# 意外创建的文件
+tatus
+"tatus --short"
+
+# 测试输出
+test_output/
+test_results/
+
+# 部署相关
+*.zip
+*.tar.gz
+*.rar
+
+# 用户上传的文件
+uploads/
+user_data/
+
+# 自动生成的文档
+docs/_build/
+docs/build/
+
+# AI模型文件 (如果有本地模型)
+*.model
+models/
+checkpoints/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# ===== 版本控制 =====
+# Git
+.git/
+.gitattributes
+
+# ===== 其他常见临时文件 =====
+# 压缩文件
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# 编译文件
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# 包文件
+*.jar
+*.war
+*.nar
+*.ear
+*.tar.gz
+*.rar
+
+# ===== 保留的重要文件 =====
+# 确保这些文件不会被意外忽略
+!.env.example
+!.gitignore
+!requirements.txt
+!README.md
+
+# 确保重要的数据文件被跟踪 (根据需要调整)
+!backend/data/journeys.json
+
+# ===== 开发工具 =====
+# Profiling
+*.prof
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# 性能分析
+.benchmarks/
+
+.env
