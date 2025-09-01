@@ -37,6 +37,30 @@
                 <label>速度 (km/h):</label>
                 <input type="number" id="speed" value="120" min="1" max="1000" onchange="updateSettings()">
             </div>
+
+            <!-- 漫游功能 -->
+            <div class="setting-group roaming-section">
+                <label class="roaming-title">🌍 漫游到:</label>
+                <div class="roaming-inputs">
+                    <div class="input-row">
+                        <label>国家:</label>
+                        <input type="text" id="roamingCountry" placeholder="如：中国" class="roaming-input">
+                    </div>
+                    <div class="input-row">
+                        <label>城市:</label>
+                        <input type="text" id="roamingCity" placeholder="如：北京" class="roaming-input">
+                    </div>
+                    <div class="input-row">
+                        <label>景点:</label>
+                        <input type="text" id="roamingPlace" placeholder="如：天安门广场" class="roaming-input">
+                    </div>
+                </div>
+                <button class="roaming-btn" onclick="confirmRoaming()">🚀 确认漫游到</button>
+                <div class="roaming-status" id="roamingStatus" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <span>正在搜索目标位置...</span>
+                </div>
+            </div>
         </div>
 
         <!-- 状态显示区 -->
@@ -185,7 +209,7 @@
             // 注意：实际部署时应从后端或环境变量获取此值
             // 不要将真实的API Key提交到代码库！
             // 开发时请在 .env 文件中设置 GOOGLE_MAPS_API_KEY
-            googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY', // 将被动态替换
+            googleMapsApiKey: 'AIzaSyC3fc8-5r4SWOISs0IIduiE4TOvE8-aFC0', // 将被动态替换
             useLangchain: true
         };
 

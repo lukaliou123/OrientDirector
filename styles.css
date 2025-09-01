@@ -85,6 +85,371 @@ body {
     margin-bottom: 15px;
 }
 
+/* 漫游功能样式 */
+.roaming-section {
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.roaming-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.roaming-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-row label {
+    min-width: 50px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.roaming-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.roaming-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.roaming-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.roaming-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.roaming-btn:active {
+    transform: translateY(0);
+}
+
+.roaming-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    margin-top: 10px;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 漫游成功卡片样式 */
+.roaming-success-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.roaming-header h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.location-info {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.location-info h4 {
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.location-info .coordinates {
+    color: #666;
+    font-family: monospace;
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+.location-info .location-type {
+    color: #4a5568;
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+.roaming-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.roaming-header h3 {
+    color: #4a5568;
+    font-size: 1.5em;
+    margin-bottom: 8px;
+}
+
+.roaming-header p {
+    color: #718096;
+    font-size: 1.1em;
+}
+
+.place-details {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.place-details h4 {
+    color: #2d3748;
+    margin-bottom: 12px;
+    font-size: 1.2em;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+    padding-bottom: 8px;
+}
+
+.place-details > div {
+    margin: 8px 0;
+    padding: 5px 0;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.place-details .rating {
+    color: #d69e2e;
+    font-weight: bold;
+}
+
+.place-details .address {
+    color: #2b6cb0;
+}
+
+.place-details .phone {
+    color: #38a169;
+}
+
+.place-details .website a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.place-details .website a:hover {
+    text-decoration: underline;
+}
+
+.place-details .summary {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    font-style: italic;
+    border-left: 4px solid #667eea;
+}
+
+.place-details .types {
+    color: #805ad5;
+    font-size: 0.9em;
+}
+
+.place-details h4 {
+    color: #4a5568;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+
+.place-details > div {
+    margin: 8px 0;
+    color: #718096;
+}
+
+.rating {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.website a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.website a:hover {
+    text-decoration: underline;
+}
+
+.place-photos {
+    margin: 15px 0;
+}
+
+.place-photos h5 {
+    color: #4a5568;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.place-photo {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.place-photo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.roaming-actions {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.explore-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.explore-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* 照片模态框样式 */
+.photo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.photo-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.photo-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    z-index: 10001;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    transition: background-color 0.3s;
+}
+
+.photo-modal-close:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #333;
+}
+
+.photo-modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .setting-group:last-child {
     margin-bottom: 0;
 }

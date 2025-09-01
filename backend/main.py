@@ -8,10 +8,19 @@ import json
 import os
 import asyncio
 import time
+import logging
+from datetime import datetime
 from dotenv import load_dotenv
 from real_data_service import real_data_service
 from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
 from ai_service import get_ai_service
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # 加载环境变量
 load_dotenv()
@@ -1188,6 +1197,388 @@ async def get_maps_config():
         "enabled": api_key != 'YOUR_GOOGLE_MAPS_API_KEY',
         "message": "Google Maps配置已加载"
     }
+
+# 漫游功能相关数据模型
+class GeocodeRequest(BaseModel):
+    query: str
+    language: str = "zh-CN"
+
+class PlaceDetailsRequest(BaseModel):
+    place_id: Optional[str] = None
+    location: Dict[str, float]  # {"lat": float, "lng": float}
+
+# 备用地理编码函数
+async def fallback_geocode(query: str):
+    """
+    备用地理编码方案 - 使用预定义的常见地点坐标
+    """
+    # 常见地点的坐标数据库
+    common_places = {
+        # 中国主要城市
+        "北京": {"lat": 39.9042, "lng": 116.4074, "address": "北京市, 中华人民共和国"},
+        "上海": {"lat": 31.2304, "lng": 121.4737, "address": "上海市, 中华人民共和国"},
+        "广州": {"lat": 23.1291, "lng": 113.2644, "address": "广州市, 广东省, 中华人民共和国"},
+        "深圳": {"lat": 22.5431, "lng": 114.0579, "address": "深圳市, 广东省, 中华人民共和国"},
+        "杭州": {"lat": 30.2741, "lng": 120.1551, "address": "杭州市, 浙江省, 中华人民共和国"},
+        "南京": {"lat": 32.0603, "lng": 118.7969, "address": "南京市, 江苏省, 中华人民共和国"},
+        "成都": {"lat": 30.5728, "lng": 104.0668, "address": "成都市, 四川省, 中华人民共和国"},
+        "西安": {"lat": 34.3416, "lng": 108.9398, "address": "西安市, 陕西省, 中华人民共和国"},
+        
+        # 著名景点
+        "天安门": {"lat": 39.9055, "lng": 116.3976, "address": "天安门广场, 北京市, 中华人民共和国"},
+        "天安门广场": {"lat": 39.9055, "lng": 116.3976, "address": "天安门广场, 北京市, 中华人民共和国"},
+        "故宫": {"lat": 39.9163, "lng": 116.3972, "address": "故宫博物院, 北京市, 中华人民共和国"},
+        "外滩": {"lat": 31.2396, "lng": 121.4906, "address": "外滩, 上海市, 中华人民共和国"},
+        "上海外滩": {"lat": 31.2396, "lng": 121.4906, "address": "外滩, 上海市, 中华人民共和国"},
+        "东方明珠": {"lat": 31.2397, "lng": 121.4999, "address": "东方明珠塔, 上海市, 中华人民共和国"},
+        "西湖": {"lat": 30.2369, "lng": 120.1457, "address": "西湖, 杭州市, 浙江省, 中华人民共和国"},
+        "杭州西湖": {"lat": 30.2369, "lng": 120.1457, "address": "西湖, 杭州市, 浙江省, 中华人民共和国"},
+        
+        # 国际城市
+        "东京": {"lat": 35.6762, "lng": 139.6503, "address": "东京, 日本"},
+        "纽约": {"lat": 40.7128, "lng": -74.0060, "address": "纽约, 美国"},
+        "伦敦": {"lat": 51.5074, "lng": -0.1278, "address": "伦敦, 英国"},
+        "巴黎": {"lat": 48.8566, "lng": 2.3522, "address": "巴黎, 法国"},
+    }
+    
+    # 尝试匹配查询字符串
+    query_lower = query.lower()
+    for place_name, coords in common_places.items():
+        if place_name in query or place_name.lower() in query_lower:
+            return {
+                "success": True,
+                "data": {
+                    "formatted_address": coords["address"],
+                    "place_id": f"fallback_{place_name}",
+                    "geometry": {
+                        "location": {
+                            "lat": coords["lat"],
+                            "lng": coords["lng"]
+                        },
+                        "location_type": "APPROXIMATE"
+                    },
+                    "address_components": [],
+                    "types": ["locality", "political"]
+                },
+                "message": f"使用备用数据找到位置: {coords['address']} (Google Maps API不可用)"
+            }
+    
+    # 如果没有找到匹配的地点
+    return {
+        "success": False,
+        "error": f"未找到位置: {query}。Google Maps API不可用，且备用数据库中没有匹配的地点。"
+    }
+
+@app.post("/api/geocode")
+async def geocode_location(request: GeocodeRequest):
+    """
+    地理编码API - 将地址转换为坐标
+    优先级：1. 高德地图API -> 2. Google Maps API -> 3. 备用数据库
+    """
+    logger.info(f"🌍 开始地理编码搜索: '{request.query}'")
+    start_time = time.time()
+    
+    # 方案1: 尝试使用高德地图API
+    try:
+        logger.info("📡 尝试使用高德地图地理编码API...")
+        amap_result = await try_amap_geocode(request.query)
+        if amap_result["success"]:
+            elapsed_time = time.time() - start_time
+            logger.info(f"✅ 高德地图API调用成功，耗时: {elapsed_time:.2f}秒")
+            return amap_result
+        else:
+            logger.warning(f"⚠️ 高德地图API未找到结果: {amap_result.get('error', '未知错误')}")
+    except Exception as e:
+        elapsed_time = time.time() - start_time
+        logger.warning(f"❌ 高德地图API调用失败 (耗时: {elapsed_time:.2f}秒): {e}")
+    
+    # 方案2: 尝试使用Google Maps API
+    try:
+        logger.info("📡 切换到Google Maps地理编码API...")
+        google_result = await try_google_geocode(request.query, request.language)
+        if google_result["success"]:
+            elapsed_time = time.time() - start_time
+            logger.info(f"✅ Google Maps API调用成功，耗时: {elapsed_time:.2f}秒")
+            return google_result
+        else:
+            logger.warning(f"⚠️ Google Maps API未找到结果: {google_result.get('error', '未知错误')}")
+    except Exception as e:
+        elapsed_time = time.time() - start_time
+        logger.warning(f"❌ Google Maps API调用失败 (耗时: {elapsed_time:.2f}秒): {e}")
+    
+    # 方案3: 使用备用数据库
+    logger.info("🔄 切换到备用地理编码方案...")
+    elapsed_time = time.time() - start_time
+    logger.info(f"⏱️ 前两种方案总耗时: {elapsed_time:.2f}秒")
+    return await fallback_geocode(request.query)
+
+# 高德地图地理编码
+async def try_amap_geocode(query: str):
+    """
+    使用高德地图API进行地理编码
+    """
+    try:
+        import requests
+        
+        # 获取高德地图API Key
+        amap_key = os.getenv('AMAP_API_KEY')
+        if not amap_key or amap_key == 'YOUR_AMAP_API_KEY':
+            return {
+                "success": False,
+                "error": "高德地图API Key未配置"
+            }
+        
+        # 调用高德地图地理编码API
+        url = "https://restapi.amap.com/v3/geocode/geo"
+        params = {
+            'key': amap_key,
+            'address': query,
+            'output': 'json'
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get('status') == '1' and data.get('geocodes'):
+            geocode = data['geocodes'][0]
+            location = geocode['location'].split(',')
+            
+            return {
+                "success": True,
+                "data": {
+                    "formatted_address": geocode.get('formatted_address', query),
+                    "place_id": f"amap_{geocode.get('adcode', 'unknown')}",
+                    "geometry": {
+                        "location": {
+                            "lat": float(location[1]),
+                            "lng": float(location[0])
+                        },
+                        "location_type": "ROOFTOP"
+                    },
+                    "address_components": [],
+                    "types": ["geocode"]
+                },
+                "message": f"高德地图找到位置: {geocode.get('formatted_address', query)}"
+            }
+        else:
+            return {
+                "success": False,
+                "error": f"高德地图未找到位置: {query}"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"高德地图API调用失败: {str(e)}"
+        }
+
+# Google Maps地理编码
+async def try_google_geocode(query: str, language: str = "zh-CN"):
+    """
+    使用Google Maps API进行地理编码
+    """
+    try:
+        import googlemaps
+        import asyncio
+        import concurrent.futures
+        
+        # 获取Google Maps API Key
+        api_key = os.getenv('GOOGLE_MAPS_API_KEY')
+        if not api_key or api_key == 'YOUR_GOOGLE_MAPS_API_KEY':
+            return {
+                "success": False,
+                "error": "Google Maps API Key未配置"
+            }
+        
+        # 初始化Google Maps客户端，设置超时
+        gmaps = googlemaps.Client(key=api_key, timeout=10)
+        
+        def sync_geocode():
+            return gmaps.geocode(
+                address=query,
+                language=language
+            )
+        
+        # 使用线程池执行同步操作，避免阻塞
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            geocode_result = await loop.run_in_executor(executor, sync_geocode)
+        
+        if not geocode_result:
+            return {
+                "success": False,
+                "error": f"Google Maps未找到位置: {query}"
+            }
+        
+        # 返回第一个结果
+        result = geocode_result[0]
+        
+        return {
+            "success": True,
+            "data": {
+                "formatted_address": result["formatted_address"],
+                "place_id": result["place_id"],
+                "geometry": {
+                    "location": {
+                        "lat": result["geometry"]["location"]["lat"],
+                        "lng": result["geometry"]["location"]["lng"]
+                    },
+                    "location_type": result["geometry"]["location_type"]
+                },
+                "address_components": result["address_components"],
+                "types": result["types"]
+            },
+            "message": f"Google Maps找到位置: {result['formatted_address']}"
+        }
+        
+    except ImportError:
+        return {
+            "success": False,
+            "error": "googlemaps库未安装"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Google Maps API调用失败: {str(e)}"
+        }
+
+@app.post("/api/place-details")
+async def get_place_details(request: PlaceDetailsRequest):
+    """
+    获取地点详细信息API
+    """
+    try:
+        import googlemaps
+        
+        # 获取Google Maps API Key
+        api_key = os.getenv('GOOGLE_MAPS_API_KEY')
+        if not api_key or api_key == 'YOUR_GOOGLE_MAPS_API_KEY':
+            raise HTTPException(status_code=500, detail="Google Maps API Key未配置")
+        
+        # 初始化Google Maps客户端
+        gmaps = googlemaps.Client(key=api_key)
+        
+        place_details = None
+        
+        # 如果有place_id，直接获取详情
+        if request.place_id:
+            try:
+                                    place_details = gmaps.place(
+                        place_id=request.place_id,
+                        fields=[
+                            'name', 'formatted_address', 'geometry', 'rating', 
+                            'formatted_phone_number', 'website', 'opening_hours',
+                            'photo', 'reviews', 'price_level'
+                        ],
+                        language='zh-CN'
+                    )["result"]
+            except Exception as e:
+                print(f"使用place_id获取详情失败: {e}")
+        
+        # 如果没有place_id或获取失败，使用坐标搜索附近地点
+        if not place_details:
+            try:
+                nearby_places = gmaps.places_nearby(
+                    location=(request.location["lat"], request.location["lng"]),
+                    radius=100,  # 100米范围内
+                    language='zh-CN'
+                )
+                
+                if nearby_places["results"]:
+                    # 获取第一个地点的详细信息
+                    first_place = nearby_places["results"][0]
+                    place_details = gmaps.place(
+                        place_id=first_place["place_id"],
+                        fields=[
+                            'name', 'formatted_address', 'geometry', 'rating', 
+                            'formatted_phone_number', 'website', 'opening_hours',
+                            'photo', 'reviews', 'price_level'
+                        ],
+                        language='zh-CN'
+                    )["result"]
+            except Exception as e:
+                print(f"搜索附近地点失败: {e}")
+        
+        if not place_details:
+            # 使用备用方案提供基本信息
+            return {
+                "success": True,
+                "data": {
+                    "name": "未知地点",
+                    "formatted_address": f"坐标: {request.location['lat']:.6f}, {request.location['lng']:.6f}",
+                    "rating": None,
+                    "formatted_phone_number": None,
+                    "website": None,
+                    "opening_hours": None,
+                    "photos": [],
+                    "types": ["point_of_interest"],
+                    "price_level": None,
+                    "geometry": {
+                        "location": request.location
+                    }
+                },
+                "message": "Google Maps API不可用，返回基本位置信息"
+            }
+        
+        # 处理照片URL
+        photos = []
+        if "photo" in place_details:
+            # Google Maps API现在返回单个photo字段而不是photos数组
+            photo_data = place_details["photo"]
+            if isinstance(photo_data, list):
+                for photo in photo_data[:5]:  # 最多5张照片
+                    photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo['photo_reference']}&key={api_key}"
+                    photos.append({
+                        "photo_reference": photo["photo_reference"],
+                        "photo_url": photo_url,
+                        "width": photo.get("width", 400),
+                        "height": photo.get("height", 300)
+                    })
+            elif isinstance(photo_data, dict) and "photo_reference" in photo_data:
+                # 单张照片
+                photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_data['photo_reference']}&key={api_key}"
+                photos.append({
+                    "photo_reference": photo_data["photo_reference"],
+                    "photo_url": photo_url,
+                    "width": photo_data.get("width", 400),
+                    "height": photo_data.get("height", 300)
+                })
+        
+        # 构建返回数据
+        result_data = {
+            "name": place_details.get("name", "未知地点"),
+            "formatted_address": place_details.get("formatted_address", ""),
+            "rating": place_details.get("rating"),
+            "formatted_phone_number": place_details.get("formatted_phone_number"),
+            "website": place_details.get("website"),
+            "opening_hours": place_details.get("opening_hours"),
+            "photos": photos,
+            "types": place_details.get("types", []),
+            "price_level": place_details.get("price_level"),
+            "geometry": place_details.get("geometry", {})
+        }
+        
+        # 处理评论
+        if "reviews" in place_details:
+            result_data["reviews"] = place_details["reviews"][:3]  # 最多3条评论
+        
+        return {
+            "success": True,
+            "data": result_data,
+            "message": f"成功获取地点详情: {result_data['name']}"
+        }
+        
+    except ImportError:
+        return {
+            "success": False,
+            "error": "googlemaps库未安装，请运行: pip install googlemaps"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"获取地点详情失败: {str(e)}"
+        }
 
 if __name__ == "__main__":
     import uvicorn

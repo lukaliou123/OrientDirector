@@ -1,1196 +1,475 @@
 {
-  "1b4306cd-2bba-4487-b69c-4fcfbb15aa80": {
-    "journey_id": "1b4306cd-2bba-4487-b69c-4fcfbb15aa80",
-    "start_time": "2025-08-30T18:49:00.947982",
-    "end_time": "2025-08-30T18:49:42.667649",
-    "start_location": {
-      "lat": 40.048489,
-      "lng": 116.35299699999997,
-      "name": "位置 40.0485, 116.3530",
-      "address": null
+  "beijing_top_attractions": {
+    "description": "北京TOP 20历史文化古迹、现代场馆、典型商业景点、科技历史文化博物馆数据库",
+    "last_updated": "2025-09-01",
+    "total_attractions": 20,
+    "categories": {
+      "历史文化古迹": 5,
+      "现代场馆": 5,
+      "典型商业景点": 5,
+      "科技历史文化博物馆": 5
     },
-    "current_location": {
-      "lat": 40.020603,
-      "lng": 116.614743,
-      "name": "见龙寺",
-      "address": "距此约3.2公里 - 见龙寺位于窑管路306号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "66dad5d8-5535-4803-b738-2ecc1a5f9fe0",
-        "name": "娘娘庙遗址",
-        "location": {
-          "lat": 40.044603,
-          "lng": 116.467709,
-          "name": "娘娘庙遗址",
-          "address": "距此约0.3公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
+    "attractions": {
+      "forbidden_city": {
+        "id": "forbidden_city",
+        "name": "故宫博物院",
+        "category": "历史文化古迹",
+        "coordinates": {
+          "lat": 39.9163,
+          "lng": 116.3972
         },
-        "visit_time": "2025-08-30T18:49:07.994696",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市东城区景山前街4号",
+        "description": "明清两朝的皇家宫殿，世界文化遗产，中国古代宫廷建筑之精华",
+        "opening_hours": "08:30-17:00（4月-10月）08:30-16:30（11月-3月）",
+        "ticket_price": "60元（淡季）80元（旺季）",
+        "rating": 4.8,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["太和殿", "中和殿", "保和殿", "乾清宫", "坤宁宫"],
+        "visit_duration": "3-4小时",
+        "best_visit_time": "早上8:30开门时或下午4点后",
+        "transportation": "地铁1号线天安门东站"
       },
-      {
-        "scene_id": "7bf010c2-ef42-4658-8ad2-aa40ec16e3e2",
-        "name": "见龙寺",
-        "location": {
-          "lat": 40.020603,
-          "lng": 116.614743,
-          "name": "见龙寺",
-          "address": "距此约3.2公里 - 见龙寺位于窑管路306号，是一处著名的自然风景区，拥有优美的自然风光。"
+      "temple_of_heaven": {
+        "id": "temple_of_heaven",
+        "name": "天坛",
+        "category": "历史文化古迹",
+        "coordinates": {
+          "lat": 39.8822,
+          "lng": 116.4066
         },
-        "visit_time": "2025-08-30T18:49:37.929530",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/30 18:49:00",
-    "created_at": "2025-08-30T18:49:00.947982"
-  },
-  "c433fcc9-51f0-4eb3-8da4-337b238dbf95": {
-    "journey_id": "c433fcc9-51f0-4eb3-8da4-337b238dbf95",
-    "start_time": "2025-08-30T18:50:34.585626",
-    "end_time": null,
-    "start_location": {
-      "lat": 40.020603,
-      "lng": 116.614743,
-      "name": "位置 40.0206, 116.6147",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.020603,
-      "lng": 116.614743,
-      "name": "位置 40.0206, 116.6147",
-      "address": null
-    },
-    "visited_scenes": [],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/30 18:50:34",
-    "created_at": "2025-08-30T18:50:34.585626"
-  },
-  "b55826f5-4329-476a-992c-69c92123b65d": {
-    "journey_id": "b55826f5-4329-476a-992c-69c92123b65d",
-    "start_time": "2025-08-30T18:59:51.466404",
-    "end_time": "2025-08-30T19:00:56.657844",
-    "start_location": {
-      "lat": 40.048489,
-      "lng": 116.352997,
-      "name": "位置 40.0485, 116.3530",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.978526,
-      "lng": 116.354815,
-      "name": "中国电信博物馆",
-      "address": "距此约0.7公里 - 中国电信博物馆位于学院路42号(西土城地铁站B东北口步行260米)，是展示历史文化和艺术珍品的重要场所。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "7547fd4f-10fb-42a1-a785-a5b0edb2f86e",
-        "name": "半塔郊野公园",
-        "location": {
-          "lat": 40.088812,
-          "lng": 116.396434,
-          "name": "半塔郊野公园",
-          "address": "距此约4.5公里 - 半塔郊野公园位于回南路62号，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-30T18:59:59.377751",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市东城区天坛路",
+        "description": "明清皇帝祭天祈谷的场所，世界文化遗产，中国古代建筑艺术的杰作",
+        "opening_hours": "06:00-22:00",
+        "ticket_price": "15元（公园）35元（联票）",
+        "rating": 4.7,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["祈年殿", "圜丘坛", "皇穹宇", "回音壁"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "早上6-8点或傍晚5-7点",
+        "transportation": "地铁5号线天坛东门站"
       },
-      {
-        "scene_id": "889edbd8-b3d5-46ba-973a-a4acd4e76947",
-        "name": "华清池康美",
-        "location": {
-          "lat": 40.008101,
-          "lng": 116.46012,
-          "name": "华清池康美",
-          "address": "距此约0.8公里 - 华清池康美位于望京西路与利泽西街交叉口东160米，是当地的重要地标建筑。"
+      "summer_palace": {
+        "id": "summer_palace",
+        "name": "颐和园",
+        "category": "历史文化古迹",
+        "coordinates": {
+          "lat": 39.9991,
+          "lng": 116.2755
         },
-        "visit_time": "2025-08-30T19:00:20.318076",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市海淀区新建宫门路19号",
+        "description": "清朝皇家园林，世界文化遗产，中国古典园林艺术的集大成者",
+        "opening_hours": "06:30-18:00（4月-10月）07:00-17:00（11月-3月）",
+        "ticket_price": "30元（淡季）60元（旺季）",
+        "rating": 4.6,
+        "photos": [
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["万寿山", "昆明湖", "长廊", "佛香阁", "十七孔桥"],
+        "visit_duration": "3-4小时",
+        "best_visit_time": "春夏秋季，避开周末",
+        "transportation": "地铁4号线北宫门站"
       },
-      {
-        "scene_id": "5e27d7f1-9b6e-481c-8a8b-4c451e1a1283",
-        "name": "中国电信博物馆",
-        "location": {
-          "lat": 39.978526,
-          "lng": 116.354815,
-          "name": "中国电信博物馆",
-          "address": "距此约0.7公里 - 中国电信博物馆位于学院路42号(西土城地铁站B东北口步行260米)，是展示历史文化和艺术珍品的重要场所。"
+      "great_wall_badaling": {
+        "id": "great_wall_badaling",
+        "name": "八达岭长城",
+        "category": "历史文化古迹",
+        "coordinates": {
+          "lat": 40.3598,
+          "lng": 116.0207
         },
-        "visit_time": "2025-08-30T19:00:38.109243",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/30 18:59:51",
-    "created_at": "2025-08-30T18:59:51.466404"
-  },
-  "fb3d5e12-5e24-4226-bbbb-8b8c1c19e0cf": {
-    "journey_id": "fb3d5e12-5e24-4226-bbbb-8b8c1c19e0cf",
-    "start_time": "2025-08-30T19:30:16.504241",
-    "end_time": null,
-    "start_location": {
-      "lat": 40.048489,
-      "lng": 116.35299699999997,
-      "name": "位置 40.0485, 116.3530",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.048489,
-      "lng": 116.35299699999997,
-      "name": "位置 40.0485, 116.3530",
-      "address": null
-    },
-    "visited_scenes": [],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/30 19:30:16",
-    "created_at": "2025-08-30T19:30:16.504241"
-  },
-  "7756646c-9921-4427-8c7a-409ddcec9fbd": {
-    "journey_id": "7756646c-9921-4427-8c7a-409ddcec9fbd",
-    "start_time": "2025-08-31T14:09:20.228813",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.96672533710751,
-      "lng": 116.32635676879282,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.0153,
-      "lng": 116.555955,
-      "name": "特斯拉GIGA博物馆",
-      "address": "距此约2.8公里 - 特斯拉GIGA博物馆位于金盏乡蟹岛路1号北京蟹岛特斯拉中心，是展示历史文化和艺术珍品的重要场所。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "0fa21a31-7b48-4697-a126-777ae67d814e",
-        "name": "特斯拉GIGA博物馆",
-        "location": {
-          "lat": 40.0153,
-          "lng": 116.555955,
-          "name": "特斯拉GIGA博物馆",
-          "address": "距此约2.8公里 - 特斯拉GIGA博物馆位于金盏乡蟹岛路1号北京蟹岛特斯拉中心，是展示历史文化和艺术珍品的重要场所。"
-        },
-        "visit_time": "2025-08-31T14:10:04.550022",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 14:09:20",
-    "created_at": "2025-08-31T14:09:20.228813"
-  },
-  "17cb9dab-f2b2-4c34-b5f5-88c70fa24636": {
-    "journey_id": "17cb9dab-f2b2-4c34-b5f5-88c70fa24636",
-    "start_time": "2025-08-31T14:22:44.028603",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.966704314410485,
-      "lng": 116.32648905953886,
-      "name": "位置 39.9667, 116.3265",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.971389,
-      "lng": 116.448143,
-      "name": "星空博物馆",
-      "address": "距此约0.4公里 - 星空博物馆位于太阳宫中路12号凯德MALL·太阳宫店，是展示历史文化和艺术珍品的重要场所。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "c649a6ee-5108-4a80-8771-0757d87dc023",
-        "name": "星空博物馆",
-        "location": {
-          "lat": 39.971389,
-          "lng": 116.448143,
-          "name": "星空博物馆",
-          "address": "距此约0.4公里 - 星空博物馆位于太阳宫中路12号凯德MALL·太阳宫店，是展示历史文化和艺术珍品的重要场所。"
-        },
-        "visit_time": "2025-08-31T14:22:51.885173",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 14:22:44",
-    "created_at": "2025-08-31T14:22:44.028603"
-  },
-  "15f6779e-bd6f-4881-a301-3c970354f92b": {
-    "journey_id": "15f6779e-bd6f-4881-a301-3c970354f92b",
-    "start_time": "2025-08-31T14:36:24.962238",
-    "end_time": "2025-08-31T14:37:34.026805",
-    "start_location": {
-      "lat": 39.96668524026447,
-      "lng": 116.32635629185927,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.996385,
-      "lng": 116.520445,
-      "name": "中国电影博物馆",
-      "address": "距此约1.7公里 - 中国电影博物馆位于草场地南影路9号，是展示历史文化和艺术珍品的重要场所。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "a636486c-9c6d-4cb6-8d83-7d8a9946e423",
-        "name": "北京奥林匹克公园-洼里湖",
-        "location": {
-          "lat": 40.018523,
-          "lng": 116.397652,
-          "name": "北京奥林匹克公园-洼里湖",
-          "address": "距此约1.7公里 - 北京奥林匹克公园-洼里湖位于科荟路33号奥林匹克森林公园南园内(东侧)，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T14:36:32.612669",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市延庆区八达岭镇",
+        "description": "万里长城的精华段落，世界文化遗产，中华民族的象征",
+        "opening_hours": "06:30-19:00（4月-10月）07:00-18:00（11月-3月）",
+        "ticket_price": "40元（淡季）45元（旺季）",
+        "rating": 4.5,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["北八楼", "南四楼", "关城", "熊乐园"],
+        "visit_duration": "4-6小时",
+        "best_visit_time": "春秋季节，避开节假日",
+        "transportation": "京张高铁八达岭长城站"
       },
-      {
-        "scene_id": "1062cdaf-42f2-4bf7-9b21-31bf666e59d4",
-        "name": "中国电影博物馆",
-        "location": {
-          "lat": 39.996385,
-          "lng": 116.520445,
-          "name": "中国电影博物馆",
-          "address": "距此约1.7公里 - 中国电影博物馆位于草场地南影路9号，是展示历史文化和艺术珍品的重要场所。"
+      "beihai_park": {
+        "id": "beihai_park",
+        "name": "北海公园",
+        "category": "历史文化古迹",
+        "coordinates": {
+          "lat": 39.9250,
+          "lng": 116.3893
         },
-        "visit_time": "2025-08-31T14:37:05.945688",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 14:36:24",
-    "created_at": "2025-08-31T14:36:24.962238"
-  },
-  "c7eefc73-0518-4453-b25e-5e6f255432fc": {
-    "journey_id": "c7eefc73-0518-4453-b25e-5e6f255432fc",
-    "start_time": "2025-08-31T14:47:29.417913",
-    "end_time": "2025-08-31T14:47:46.737848",
-    "start_location": {
-      "lat": 39.996385,
-      "lng": 116.520445,
-      "name": "位置 39.9964, 116.5204",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.996385,
-      "lng": 116.520445,
-      "name": "位置 39.9964, 116.5204",
-      "address": null
-    },
-    "visited_scenes": [],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 14:47:29",
-    "created_at": "2025-08-31T14:47:29.417913"
-  },
-  "aa1c7450-1cf8-4cd3-a672-71b4920840f4": {
-    "journey_id": "aa1c7450-1cf8-4cd3-a672-71b4920840f4",
-    "start_time": "2025-08-31T14:48:48.176703",
-    "end_time": "2025-08-31T14:49:35.231267",
-    "start_location": {
-      "lat": 39.966752789968034,
-      "lng": 116.32638775584604,
-      "name": "位置 39.9668, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.95131,
-      "lng": 116.147752,
-      "name": "龙王庙",
-      "address": "距此约1.8公里 - 龙王庙位于石门路77号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "ff9a1db7-1c53-42a0-ac20-04c3ec086df3",
-        "name": "梁启超墓",
-        "location": {
-          "lat": 40.004514,
-          "lng": 116.213655,
-          "name": "梁启超墓",
-          "address": "距此约1.8公里 - 梁启超墓位于香山路国家植物园(东北角)，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T14:48:53.077401",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市西城区文津街1号",
+        "description": "中国现存最古老最完整的皇家园林之一，有近千年历史",
+        "opening_hours": "06:30-20:00（4月-10月）06:30-19:00（11月-3月）",
+        "ticket_price": "10元",
+        "rating": 4.4,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["白塔", "琼华岛", "九龙壁", "静心斋"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "春夏季节，荷花盛开时",
+        "transportation": "地铁6号线北海北站"
       },
-      {
-        "scene_id": "4887edd3-3401-438e-94e6-82d31c3323e7",
-        "name": "龙王庙",
-        "location": {
-          "lat": 39.95131,
-          "lng": 116.147752,
-          "name": "龙王庙",
-          "address": "距此约1.8公里 - 龙王庙位于石门路77号，是一处著名的自然风景区，拥有优美的自然风光。"
+      "birds_nest": {
+        "id": "birds_nest",
+        "name": "国家体育场（鸟巢）",
+        "category": "现代场馆",
+        "coordinates": {
+          "lat": 39.9917,
+          "lng": 116.3906
         },
-        "visit_time": "2025-08-31T14:49:13.169962",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 14:48:48",
-    "created_at": "2025-08-31T14:48:48.176703"
-  },
-  "382991f7-bdc1-4e49-bd44-5696c0ec8bc2": {
-    "journey_id": "382991f7-bdc1-4e49-bd44-5696c0ec8bc2",
-    "start_time": "2025-08-31T15:02:39.213467",
-    "end_time": "2025-08-31T15:03:40.469717",
-    "start_location": {
-      "lat": 39.96671818135588,
-      "lng": 116.32633931181213,
-      "name": "位置 39.9667, 116.3263",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.808961,
-      "lng": 116.290602,
-      "name": "世界公园-悉尼港观鱼",
-      "address": "距此约3.1公里 - 世界公园-悉尼港观鱼位于花乡丰葆路158号世界公园亚洲景区内，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "3fb1310b-9e5d-4924-993e-f8e497f952a0",
-        "name": "中国铁道博物馆办公区",
-        "location": {
-          "lat": 39.884372,
-          "lng": 116.330067,
-          "name": "中国铁道博物馆办公区",
-          "address": "距此约1.3公里 - 中国铁道博物馆办公区位于广安门外街道马连道南街2号院1号楼，是展示历史文化和艺术珍品的重要场所。"
-        },
-        "visit_time": "2025-08-31T15:02:48.703368",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市朝阳区国家体育场南路1号",
+        "description": "2008年北京奥运会主体育场，现代建筑艺术的杰作",
+        "opening_hours": "09:00-19:00",
+        "ticket_price": "50元",
+        "rating": 4.3,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["钢结构外观", "奥运展厅", "观景台", "夜景灯光"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "傍晚时分，可观赏夜景",
+        "transportation": "地铁8号线奥体中心站"
       },
-      {
-        "scene_id": "c21a90bb-5559-4356-8720-b427523ab1e6",
-        "name": "世界公园-悉尼港观鱼",
-        "location": {
-          "lat": 39.808961,
-          "lng": 116.290602,
-          "name": "世界公园-悉尼港观鱼",
-          "address": "距此约3.1公里 - 世界公园-悉尼港观鱼位于花乡丰葆路158号世界公园亚洲景区内，是一处著名的自然风景区，拥有优美的自然风光。"
+      "water_cube": {
+        "id": "water_cube",
+        "name": "国家游泳中心（水立方）",
+        "category": "现代场馆",
+        "coordinates": {
+          "lat": 39.9929,
+          "lng": 116.3965
         },
-        "visit_time": "2025-08-31T15:03:29.843376",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 15:02:39",
-    "created_at": "2025-08-31T15:02:39.213467"
-  },
-  "6ff14bbc-a402-4326-b8e0-7f0fe80e48f8": {
-    "journey_id": "6ff14bbc-a402-4326-b8e0-7f0fe80e48f8",
-    "start_time": "2025-08-31T15:24:19.847452",
-    "end_time": "2025-08-31T15:25:00.425926",
-    "start_location": {
-      "lat": 39.96671372311351,
-      "lng": 116.32641975741834,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.878916,
-      "lng": 116.104187,
-      "name": "月严寺",
-      "address": "距此约2.0公里 - 月严寺位于108国道与苛萝坨桥交叉口东南480米，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "e4944cf8-f8d8-49e0-8464-1269c5c229a6",
-        "name": "石景山区博物馆",
-        "location": {
-          "lat": 39.930994,
-          "lng": 116.199652,
-          "name": "石景山区博物馆",
-          "address": "距此约1.7公里 - 石景山区博物馆位于石景山区文化中心，是展示历史文化和艺术珍品的重要场所。"
-        },
-        "visit_time": "2025-08-31T15:24:27.450319",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市朝阳区天辰东路11号",
+        "description": "2008年北京奥运会游泳、跳水、花样游泳项目比赛场馆",
+        "opening_hours": "09:00-18:00",
+        "ticket_price": "30元",
+        "rating": 4.2,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["ETFE膜结构", "水上乐园", "奥运展览", "蓝色夜景"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "夏季可体验水上乐园",
+        "transportation": "地铁8号线奥体中心站"
       },
-      {
-        "scene_id": "617faad7-4ad3-4835-bd5d-88da4e65cc04",
-        "name": "月严寺",
-        "location": {
-          "lat": 39.878916,
-          "lng": 116.104187,
-          "name": "月严寺",
-          "address": "距此约2.0公里 - 月严寺位于108国道与苛萝坨桥交叉口东南480米，是一处著名的自然风景区，拥有优美的自然风光。"
+      "olympic_park": {
+        "id": "olympic_park",
+        "name": "奥林匹克公园",
+        "category": "现代场馆",
+        "coordinates": {
+          "lat": 40.0000,
+          "lng": 116.4000
         },
-        "visit_time": "2025-08-31T15:24:47.042439",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 15:24:19",
-    "created_at": "2025-08-31T15:24:19.847452"
-  },
-  "97395d92-18fe-4e72-9a4d-bff79d8270f7": {
-    "journey_id": "97395d92-18fe-4e72-9a4d-bff79d8270f7",
-    "start_time": "2025-08-31T15:26:24.582535",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.966703746389655,
-      "lng": 116.32641649487834,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.966703746389655,
-      "lng": 116.32641649487834,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "visited_scenes": [],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 15:26:24",
-    "created_at": "2025-08-31T15:26:24.582535"
-  },
-  "6032120d-b4bb-4a7d-be37-f34aeff2c8a0": {
-    "journey_id": "6032120d-b4bb-4a7d-be37-f34aeff2c8a0",
-    "start_time": "2025-08-31T15:32:28.170012",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.9666752780377,
-      "lng": 116.3264829815495,
-      "name": "位置 39.9667, 116.3265",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.9666752780377,
-      "lng": 116.3264829815495,
-      "name": "位置 39.9667, 116.3265",
-      "address": null
-    },
-    "visited_scenes": [],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 15:32:28",
-    "created_at": "2025-08-31T15:32:28.170012"
-  },
-  "1d33a999-d2ae-4267-b5c6-9e5ed513c026": {
-    "journey_id": "1d33a999-d2ae-4267-b5c6-9e5ed513c026",
-    "start_time": "2025-08-31T16:08:22.961871",
-    "end_time": "2025-08-31T16:11:44.807784",
-    "start_location": {
-      "lat": 39.969378,
-      "lng": 116.377223,
-      "name": "位置 39.9694, 116.3772",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.969613,
-      "lng": 116.546692,
-      "name": "郑村坝遗址",
-      "address": "距此约1.8公里 - 郑村坝遗址位于东坝中路与康源路交叉口西北100米，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "5df388d9-f107-4d34-b9f8-0633d5100492",
-        "name": "华清池康美",
-        "location": {
-          "lat": 40.008101,
-          "lng": 116.46012,
-          "name": "华清池康美",
-          "address": "距此约1.7公里 - 华清池康美位于望京西路与利泽西街交叉口东160米，是当地的重要地标建筑。"
-        },
-        "visit_time": "2025-08-31T16:08:43.832191",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市朝阳区",
+        "description": "2008年北京奥运会主要场馆集中区域，现代体育文化中心",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费（部分场馆收费）",
+        "rating": 4.3,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["奥林匹克森林公园", "国家会议中心", "玲珑塔", "下沉花园"],
+        "visit_duration": "4-6小时",
+        "best_visit_time": "全年适宜，春秋最佳",
+        "transportation": "地铁8号线奥林匹克公园站"
       },
-      {
-        "scene_id": "51c2ecbd-2a03-405e-899b-1c7521149172",
-        "name": "郑村坝遗址",
-        "location": {
-          "lat": 39.969613,
-          "lng": 116.546692,
-          "name": "郑村坝遗址",
-          "address": "距此约1.8公里 - 郑村坝遗址位于东坝中路与康源路交叉口西北100米，是一处著名的自然风景区，拥有优美的自然风光。"
+      "zhongguancun": {
+        "id": "zhongguancun",
+        "name": "中关村科技园",
+        "category": "现代场馆",
+        "coordinates": {
+          "lat": 39.9794,
+          "lng": 116.3147
         },
-        "visit_time": "2025-08-31T16:10:30.425729",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 16:08:22",
-    "created_at": "2025-08-31T16:08:22.961871"
-  },
-  "bfaba9d0-cc9b-4c83-9cc8-f83c79527d6f": {
-    "journey_id": "bfaba9d0-cc9b-4c83-9cc8-f83c79527d6f",
-    "start_time": "2025-08-31T16:22:22.806256",
-    "end_time": "2025-08-31T16:34:09.119293",
-    "start_location": {
-      "lat": 39.969322876219444,
-      "lng": 116.3772242582246,
-      "name": "位置 39.9693, 116.3772",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.044603,
-      "lng": 116.467709,
-      "name": "娘娘庙遗址",
-      "address": "距此约1.4公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "8973d552-bcdc-4eaf-bdfe-5e52272675df",
-        "name": "娘娘庙遗址",
-        "location": {
-          "lat": 40.044603,
-          "lng": 116.467709,
-          "name": "娘娘庙遗址",
-          "address": "距此约1.4公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T16:22:28.201305",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 16:22:22",
-    "created_at": "2025-08-31T16:22:22.806256"
-  },
-  "9af4cda6-e8ec-404e-a886-1a53826d3da4": {
-    "journey_id": "9af4cda6-e8ec-404e-a886-1a53826d3da4",
-    "start_time": "2025-08-31T17:29:50.001142",
-    "end_time": "2025-08-31T17:31:31.249877",
-    "start_location": {
-      "lat": 39.96933412566296,
-      "lng": 116.3772281683158,
-      "name": "位置 39.9693, 116.3772",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.020603,
-      "lng": 116.614743,
-      "name": "见龙寺",
-      "address": "距此约3.7公里 - 见龙寺位于窑管路306号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "ba5562cd-e2d8-44bf-85b7-5a1714e5bb50",
-        "name": "孔网民俗典籍博物馆",
-        "location": {
-          "lat": 40.037638,
-          "lng": 116.493162,
-          "name": "孔网民俗典籍博物馆",
-          "address": "距此约3.0公里 - 孔网民俗典籍博物馆位于香江北路与电子城大街交叉口北500米，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T17:29:56.977968",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市海淀区中关村大街",
+        "description": "中国硅谷，高科技产业聚集地",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费",
+        "rating": 4.0,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["中关村创业大街", "海龙大厦", "鼎好大厦", "科技企业"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "工作日可感受科技氛围",
+        "transportation": "地铁4号线中关村站"
       },
-      {
-        "scene_id": "0f3127c5-2a83-49d6-a75f-315059c2548e",
-        "name": "见龙寺",
-        "location": {
-          "lat": 40.020603,
-          "lng": 116.614743,
-          "name": "见龙寺",
-          "address": "距此约3.7公里 - 见龙寺位于窑管路306号，是一处著名的自然风景区，拥有优美的自然风光。"
+      "cctv_tower": {
+        "id": "cctv_tower",
+        "name": "中央电视塔",
+        "category": "现代场馆",
+        "coordinates": {
+          "lat": 39.9069,
+          "lng": 116.2975
         },
-        "visit_time": "2025-08-31T17:31:19.594142",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 17:29:49",
-    "created_at": "2025-08-31T17:29:50.001142"
-  },
-  "5ce0252e-eb13-4d4e-a648-93ff94a026df": {
-    "journey_id": "5ce0252e-eb13-4d4e-a648-93ff94a026df",
-    "start_time": "2025-08-31T17:41:06.083836",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.96932657031542,
-      "lng": 116.37722735264714,
-      "name": "位置 39.9693, 116.3772",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.02686,
-      "lng": 116.485016,
-      "name": "善各庄娘娘庙",
-      "address": "距此约1.4公里 - 善各庄娘娘庙位于来广营东路23号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "cac548ac-234c-479f-b65b-5672aed1e6ae",
-        "name": "善各庄娘娘庙",
-        "location": {
-          "lat": 40.02686,
-          "lng": 116.485016,
-          "name": "善各庄娘娘庙",
-          "address": "距此约1.4公里 - 善各庄娘娘庙位于来广营东路23号，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T17:41:13.845452",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 17:41:06",
-    "created_at": "2025-08-31T17:41:06.083836"
-  },
-  "89741081-97e1-44a3-82b1-566853199543": {
-    "journey_id": "89741081-97e1-44a3-82b1-566853199543",
-    "start_time": "2025-08-31T17:45:31.746098",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.96934038355091,
-      "lng": 116.3772265120637,
-      "name": "位置 39.9693, 116.3772",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.044603,
-      "lng": 116.467709,
-      "name": "娘娘庙遗址",
-      "address": "距此约2.3公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "d3357c2b-636e-4d8f-94bc-272484e37fd4",
-        "name": "娘娘庙遗址",
-        "location": {
-          "lat": 40.044603,
-          "lng": 116.467709,
-          "name": "娘娘庙遗址",
-          "address": "距此约2.3公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T17:45:36.102714",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 17:45:31",
-    "created_at": "2025-08-31T17:45:31.746098"
-  },
-  "d8f0efe1-d255-4720-939d-f01199ebbaae": {
-    "journey_id": "d8f0efe1-d255-4720-939d-f01199ebbaae",
-    "start_time": "2025-08-31T17:46:58.684362",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.96934326239986,
-      "lng": 116.37722976528843,
-      "name": "位置 39.9693, 116.3772",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.044603,
-      "lng": 116.467709,
-      "name": "娘娘庙遗址",
-      "address": "距此约1.7公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "23675bfb-50a9-419e-92a5-8a7eb3a8a9f4",
-        "name": "娘娘庙遗址",
-        "location": {
-          "lat": 40.044603,
-          "lng": 116.467709,
-          "name": "娘娘庙遗址",
-          "address": "距此约1.7公里 - 娘娘庙遗址位于来广营北路奶西村，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T17:47:03.794209",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 17:46:58",
-    "created_at": "2025-08-31T17:46:58.684362"
-  },
-  "0c90b93d-0b6a-40e3-aee2-bf31e887adf2": {
-    "journey_id": "0c90b93d-0b6a-40e3-aee2-bf31e887adf2",
-    "start_time": "2025-08-31T20:00:55.950282",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.9666752780377,
-      "lng": 116.3264829815495,
-      "name": "位置 39.9667, 116.3265",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.859605,
-      "lng": 116.11925,
-      "name": "江南九曲",
-      "address": "距此约1.8公里 - 江南九曲位于长辛店镇大灰厂东路55号北宫国家森林公园内(南侧)，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "e16aaab2-b5fb-4883-a3f2-e30f78b3b567",
-        "name": "北京聚福林博物馆",
-        "location": {
-          "lat": 39.905099,
-          "lng": 116.227721,
-          "name": "北京聚福林博物馆",
-          "address": "距此约0.9公里 - 北京聚福林博物馆位于政达路2号CRD银座B座2层，是展示历史文化和艺术珍品的重要场所。"
-        },
-        "visit_time": "2025-08-31T20:00:59.797766",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市海淀区西三环中路11号",
+        "description": "北京地标性建筑，可俯瞰全城美景",
+        "opening_hours": "08:30-22:00",
+        "ticket_price": "70元",
+        "rating": 4.1,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["观景台", "旋转餐厅", "城市全景", "夜景灯光"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "傍晚时分，可观日落夜景",
+        "transportation": "地铁1号线公主坟站"
       },
-      {
-        "scene_id": "51c6ffa5-5dc0-4115-88e6-53da97745b0d",
-        "name": "江南九曲",
-        "location": {
-          "lat": 39.859605,
-          "lng": 116.11925,
-          "name": "江南九曲",
-          "address": "距此约1.8公里 - 江南九曲位于长辛店镇大灰厂东路55号北宫国家森林公园内(南侧)，是一处著名的自然风景区，拥有优美的自然风光。"
+      "wangfujing": {
+        "id": "wangfujing",
+        "name": "王府井大街",
+        "category": "典型商业景点",
+        "coordinates": {
+          "lat": 39.9097,
+          "lng": 116.4074
         },
-        "visit_time": "2025-08-31T20:01:28.127145",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 20:00:55",
-    "created_at": "2025-08-31T20:00:55.950282"
-  },
-  "13d108a8-b1ca-40f8-b6b3-f262b807b415": {
-    "journey_id": "13d108a8-b1ca-40f8-b6b3-f262b807b415",
-    "start_time": "2025-08-31T20:08:54.005778",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.96669778793998,
-      "lng": 116.32629511853328,
-      "name": "位置 39.9667, 116.3263",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.027647,
-      "lng": 116.393173,
-      "name": "奥林匹克森林公园北园",
-      "address": "距此约1.2公里 - 奥林匹克森林公园北园位于奥运村街道科荟路33号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "5b21d3c7-6f80-49cb-b340-e01aa2ce30f7",
-        "name": "奥林匹克森林公园北园",
-        "location": {
-          "lat": 40.027647,
-          "lng": 116.393173,
-          "name": "奥林匹克森林公园北园",
-          "address": "距此约1.2公里 - 奥林匹克森林公园北园位于奥运村街道科荟路33号，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T20:09:02.807480",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 20:08:53",
-    "created_at": "2025-08-31T20:08:54.005778"
-  },
-  "956c02af-449c-43c8-b9e8-5eba99570b8b": {
-    "journey_id": "956c02af-449c-43c8-b9e8-5eba99570b8b",
-    "start_time": "2025-08-31T20:21:11.959582",
-    "end_time": "2025-08-31T20:22:07.020978",
-    "start_location": {
-      "lat": 39.96670097434436,
-      "lng": 116.3264829179924,
-      "name": "位置 39.9667, 116.3265",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.027647,
-      "lng": 116.393173,
-      "name": "奥林匹克森林公园北园",
-      "address": "距此约2.0公里 - 奥林匹克森林公园北园位于奥运村街道科荟路33号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "b6cfb6ba-7e51-41f3-84bb-4bddd2fbde67",
-        "name": "奥林匹克森林公园北园",
-        "location": {
-          "lat": 40.027647,
-          "lng": 116.393173,
-          "name": "奥林匹克森林公园北园",
-          "address": "距此约2.0公里 - 奥林匹克森林公园北园位于奥运村街道科荟路33号，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T20:21:16.353855",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 20:21:11",
-    "created_at": "2025-08-31T20:21:11.959582"
-  },
-  "524093bc-6128-40a4-98a9-6afe41d5b9a7": {
-    "journey_id": "524093bc-6128-40a4-98a9-6afe41d5b9a7",
-    "start_time": "2025-08-31T20:25:26.609214",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.9666724214861,
-      "lng": 116.326366550833,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.018248,
-      "lng": 116.547685,
-      "name": "荷花池",
-      "address": "距此约0.4公里 - 荷花池位于蟹岛路1号蟹岛绿色生态度假村内，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "71c79ccd-b177-4126-9176-14aad71e20ea",
-        "name": "黄草湾郊野公园-太清观",
-        "location": {
-          "lat": 40.004955,
-          "lng": 116.43388,
-          "name": "黄草湾郊野公园-太清观",
-          "address": "距此约0.9公里 - 黄草湾郊野公园-太清观位于黄草湾郊野公园内，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T20:25:30.676550",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市东城区王府井大街",
+        "description": "北京最著名的商业街之一，有百年商业历史",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费",
+        "rating": 4.2,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["王府井百货", "东方新天地", "小吃街", "天主教堂"],
+        "visit_duration": "2-4小时",
+        "best_visit_time": "傍晚时分，夜市热闹",
+        "transportation": "地铁1号线王府井站"
       },
-      {
-        "scene_id": "28df681c-75e1-4b1f-a838-d01df4027bcc",
-        "name": "荷花池",
-        "location": {
-          "lat": 40.018248,
-          "lng": 116.547685,
-          "name": "荷花池",
-          "address": "距此约0.4公里 - 荷花池位于蟹岛路1号蟹岛绿色生态度假村内，是一处著名的自然风景区，拥有优美的自然风光。"
+      "sanlitun": {
+        "id": "sanlitun",
+        "name": "三里屯",
+        "category": "典型商业景点",
+        "coordinates": {
+          "lat": 39.9364,
+          "lng": 116.4472
         },
-        "visit_time": "2025-08-31T20:26:33.131490",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 20:25:26",
-    "created_at": "2025-08-31T20:25:26.609214"
-  },
-  "af93fdbb-0392-4cd0-ac10-8f41676cc370": {
-    "journey_id": "af93fdbb-0392-4cd0-ac10-8f41676cc370",
-    "start_time": "2025-08-31T20:33:40.688320",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.9666895640638,
-      "lng": 116.32639388275045,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.002004,
-      "lng": 116.448062,
-      "name": "护国天仙圣母庙",
-      "address": "距此约2.0公里 - 护国天仙圣母庙位于鼎成路2号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "3ff17152-8f9c-440d-b608-b89a421402fb",
-        "name": "护国天仙圣母庙",
-        "location": {
-          "lat": 40.002004,
-          "lng": 116.448062,
-          "name": "护国天仙圣母庙",
-          "address": "距此约2.0公里 - 护国天仙圣母庙位于鼎成路2号，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T20:33:44.710506",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 20:33:40",
-    "created_at": "2025-08-31T20:33:40.688320"
-  },
-  "a49d1fe7-91d6-4960-bcf5-d00311c81732": {
-    "journey_id": "a49d1fe7-91d6-4960-bcf5-d00311c81732",
-    "start_time": "2025-08-31T20:45:42.096549",
-    "end_time": "2025-08-31T20:46:28.932738",
-    "start_location": {
-      "lat": 39.9666724214861,
-      "lng": 116.326366550833,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.133705,
-      "lng": 116.368329,
-      "name": "吕各庄休闲景观林",
-      "address": "距此约0.6公里 - 吕各庄休闲景观林位于苍龙街1-29号，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "564e1299-bd95-475f-b5a7-19f015dae5e5",
-        "name": "元界紫砂工艺博物馆",
-        "location": {
-          "lat": 40.048339,
-          "lng": 116.339578,
-          "name": "元界紫砂工艺博物馆",
-          "address": "距此约2.0公里 - 元界紫砂工艺博物馆位于西三旗文化科技园A8座2层，是展示历史文化和艺术珍品的重要场所。"
-        },
-        "visit_time": "2025-08-31T20:45:46.006974",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市朝阳区三里屯路",
+        "description": "北京时尚潮流地标，国际化商业娱乐区",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费",
+        "rating": 4.1,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["太古里", "Village", "酒吧街", "Apple Store"],
+        "visit_duration": "3-5小时",
+        "best_visit_time": "晚上夜生活丰富",
+        "transportation": "地铁10号线团结湖站"
       },
-      {
-        "scene_id": "5e5652bb-2bc1-4742-8d6e-b78b1f2e8aa9",
-        "name": "吕各庄休闲景观林",
-        "location": {
-          "lat": 40.133705,
-          "lng": 116.368329,
-          "name": "吕各庄休闲景观林",
-          "address": "距此约0.6公里 - 吕各庄休闲景观林位于苍龙街1-29号，是一处著名的自然风景区，拥有优美的自然风光。"
+      "qianmen_street": {
+        "id": "qianmen_street",
+        "name": "前门大街",
+        "category": "典型商业景点",
+        "coordinates": {
+          "lat": 39.8950,
+          "lng": 116.3975
         },
-        "visit_time": "2025-08-31T20:46:19.133187",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": false,
-    "journey_title": "探索之旅 2025/8/31 20:45:42",
-    "created_at": "2025-08-31T20:45:42.096549"
-  },
-  "df43bb9c-3305-4674-a209-46a36038a054": {
-    "journey_id": "df43bb9c-3305-4674-a209-46a36038a054",
-    "start_time": "2025-08-31T20:56:07.141545",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.96669778793998,
-      "lng": 116.32629511853328,
-      "name": "位置 39.9667, 116.3263",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.953274,
-      "lng": 116.434787,
-      "name": "董海川文化园",
-      "address": "距此约0.9公里 - 董海川文化园位于柳芳南里社区(西坝河南路东)，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "bca8fc7f-169a-4b3f-b72d-4608090f7c8d",
-        "name": "董海川文化园",
-        "location": {
-          "lat": 39.953274,
-          "lng": 116.434787,
-          "name": "董海川文化园",
-          "address": "距此约0.9公里 - 董海川文化园位于柳芳南里社区(西坝河南路东)，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T20:56:12.619946",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市东城区前门大街",
+        "description": "明清时期的商业街，传统与现代结合的商业区",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费",
+        "rating": 4.0,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["大栅栏", "鲜鱼口", "老字号", "传统建筑"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "白天可感受传统文化",
+        "transportation": "地铁2号线前门站"
       },
-      {
-        "scene_id": "62da56d5-0bb1-4c27-8e96-bb420b8a25b3",
-        "name": "董海川文化园",
-        "location": {
-          "lat": 39.953274,
-          "lng": 116.434787,
-          "name": "董海川文化园",
-          "address": "距此约0.9公里 - 董海川文化园位于柳芳南里社区(西坝河南路东)，是一处著名的自然风景区，拥有优美的自然风光。"
+      "beijing_fang": {
+        "id": "beijing_fang",
+        "name": "北京坊",
+        "category": "典型商业景点",
+        "coordinates": {
+          "lat": 39.8955,
+          "lng": 116.3985
         },
-        "visit_time": "2025-08-31T20:56:13.204213",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 20:56:07",
-    "created_at": "2025-08-31T20:56:07.141545"
-  },
-  "4f17088a-2e4a-45f8-8142-757c9b06c53b": {
-    "journey_id": "4f17088a-2e4a-45f8-8142-757c9b06c53b",
-    "start_time": "2025-08-31T21:04:20.079794",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.966668349193384,
-      "lng": 116.32634867694506,
-      "name": "位置 39.9667, 116.3263",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.883649,
-      "lng": 116.375594,
-      "name": "关帝庙",
-      "address": "距此约0.3公里 - 关帝庙位于南横东街与米市胡同交叉口西北40米，是一处著名的自然风景区，拥有优美的自然风光。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "04ab485c-1e37-4322-a179-61f2801ee53d",
-        "name": "关帝庙",
-        "location": {
-          "lat": 39.883649,
-          "lng": 116.375594,
-          "name": "关帝庙",
-          "address": "距此约0.3公里 - 关帝庙位于南横东街与米市胡同交叉口西北40米，是一处著名的自然风景区，拥有优美的自然风光。"
-        },
-        "visit_time": "2025-08-31T21:04:23.823946",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 21:04:20",
-    "created_at": "2025-08-31T21:04:20.079794"
-  },
-  "81021577-4fa4-413d-bbbb-d4a570e0b4b4": {
-    "journey_id": "81021577-4fa4-413d-bbbb-d4a570e0b4b4",
-    "start_time": "2025-08-31T21:15:40.200008",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.966703746389655,
-      "lng": 116.32641649487834,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.991221,
-      "lng": 116.432256,
-      "name": "波庞宫",
-      "address": "距此约0.6公里 - 波庞宫位于北四环东路73号，是当地的重要地标建筑。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "1dbef601-a533-427f-b974-3ba47d10395b",
-        "name": "波庞宫",
-        "location": {
-          "lat": 39.991221,
-          "lng": 116.432256,
-          "name": "波庞宫",
-          "address": "距此约0.6公里 - 波庞宫位于北四环东路73号，是当地的重要地标建筑。"
-        },
-        "visit_time": "2025-08-31T21:15:48.971644",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市西城区大栅栏历史文化保护区",
+        "description": "传统胡同与现代商业完美融合的文化商业区",
+        "opening_hours": "10:00-22:00",
+        "ticket_price": "免费",
+        "rating": 4.2,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["Page One书店", "精品酒店", "文创商店", "胡同文化"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "下午到晚上，文艺氛围浓厚",
+        "transportation": "地铁2号线前门站"
       },
-      {
-        "scene_id": "64a2b762-00ac-4626-9706-78904926a6f3",
-        "name": "波庞宫",
-        "location": {
-          "lat": 39.991221,
-          "lng": 116.432256,
-          "name": "波庞宫",
-          "address": "距此约0.6公里 - 波庞宫位于北四环东路73号，是当地的重要地标建筑。"
+      "xiushui_street": {
+        "id": "xiushui_street",
+        "name": "秀水街",
+        "category": "典型商业景点",
+        "coordinates": {
+          "lat": 39.9097,
+          "lng": 116.4574
         },
-        "visit_time": "2025-08-31T21:15:49.020174",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
-      }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 21:15:40",
-    "created_at": "2025-08-31T21:15:40.200008"
-  },
-  "a3570c7e-8a84-4df3-8bb8-ab64c0ddc497": {
-    "journey_id": "a3570c7e-8a84-4df3-8bb8-ab64c0ddc497",
-    "start_time": "2025-08-31T21:27:07.337311",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.966695739097595,
-      "lng": 116.32640372814924,
-      "name": "位置 39.9667, 116.3264",
-      "address": null
-    },
-    "current_location": {
-      "lat": 40.039041,
-      "lng": 116.261647,
-      "name": "百望山庄",
-      "address": "距此约0.3公里 - 百望山庄位于西北旺甲1号，是当地的重要地标建筑。"
-    },
-    "visited_scenes": [
-      {
-        "scene_id": "1e1c2b0e-70db-4f7c-9c55-9fafdd9a162f",
-        "name": "百望山庄",
-        "location": {
-          "lat": 40.039041,
-          "lng": 116.261647,
-          "name": "百望山庄",
-          "address": "距此约0.3公里 - 百望山庄位于西北旺甲1号，是当地的重要地标建筑。"
+        "address": "北京市朝阳区秀水东街8号",
+        "description": "著名的购物市场，以丝绸和工艺品闻名",
+        "opening_hours": "09:30-21:00",
+        "ticket_price": "免费",
+        "rating": 3.9,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["丝绸制品", "工艺品", "珍珠饰品", "讨价还价"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "工作日人少，便于购物",
+        "transportation": "地铁1号线永安里站"
+      },
+      "national_museum": {
+        "id": "national_museum",
+        "name": "中国国家博物馆",
+        "category": "科技历史文化博物馆",
+        "coordinates": {
+          "lat": 39.9030,
+          "lng": 116.3988
         },
-        "visit_time": "2025-08-31T21:27:55.352091",
-        "duration_minutes": null,
-        "user_rating": null,
-        "notes": "通过OrientDiscover探索发现的场景"
+        "address": "北京市东城区东长安街16号",
+        "description": "世界上单体建筑面积最大的博物馆，展示中华文明历史",
+        "opening_hours": "09:00-17:00（周一闭馆）",
+        "ticket_price": "免费（需预约）",
+        "rating": 4.6,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["古代中国", "复兴之路", "青铜器", "瓷器"],
+        "visit_duration": "3-4小时",
+        "best_visit_time": "工作日，避开人流高峰",
+        "transportation": "地铁1号线天安门东站"
+      },
+      "capital_museum": {
+        "id": "capital_museum",
+        "name": "首都博物馆",
+        "category": "科技历史文化博物馆",
+        "coordinates": {
+          "lat": 39.9075,
+          "lng": 116.3561
+        },
+        "address": "北京市西城区复兴门外大街16号",
+        "description": "北京市大型综合性博物馆，展示北京历史文化",
+        "opening_hours": "09:00-17:00（周一闭馆）",
+        "ticket_price": "免费（需预约）",
+        "rating": 4.5,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["北京通史", "京剧文物", "古代瓷器", "古代佛教艺术"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "周二至周日，建议上午参观",
+        "transportation": "地铁1号线木樨地站"
+      },
+      "beijing_planetarium": {
+        "id": "beijing_planetarium",
+        "name": "北京天文馆",
+        "category": "科技历史文化博物馆",
+        "coordinates": {
+          "lat": 39.9405,
+          "lng": 116.3317
+        },
+        "address": "北京市西城区西直门外大街138号",
+        "description": "中国第一座大型天文馆，普及天文科学知识",
+        "opening_hours": "09:30-16:30（周一、周二闭馆）",
+        "ticket_price": "10-45元（不同展厅）",
+        "rating": 4.3,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["天象厅", "太阳厅", "宇宙剧场", "4D剧场"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "周末适合亲子参观",
+        "transportation": "地铁2号线西直门站"
+      },
+      "china_science_museum": {
+        "id": "china_science_museum",
+        "name": "中国科学技术馆",
+        "category": "科技历史文化博物馆",
+        "coordinates": {
+          "lat": 39.9847,
+          "lng": 116.3833
+        },
+        "address": "北京市朝阳区北辰东路5号",
+        "description": "国家级综合性科技馆，展示科学技术成就",
+        "opening_hours": "09:30-17:00（周一闭馆）",
+        "ticket_price": "30元",
+        "rating": 4.4,
+        "photos": [
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+        ],
+        "highlights": ["科学乐园", "华夏之光", "探索与发现", "科技与未来"],
+        "visit_duration": "3-4小时",
+        "best_visit_time": "周末适合家庭参观",
+        "transportation": "地铁8号线奥林匹克公园站"
+      },
+      "military_museum": {
+        "id": "military_museum",
+        "name": "中国人民革命军事博物馆",
+        "category": "科技历史文化博物馆",
+        "coordinates": {
+          "lat": 39.9069,
+          "lng": 116.3172
+        },
+        "address": "北京市海淀区复兴路9号",
+        "description": "展示中国军事历史和国防科技成就的国家级博物馆",
+        "opening_hours": "09:00-17:00（周一闭馆）",
+        "ticket_price": "免费（需预约）",
+        "rating": 4.4,
+        "photos": [
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
+          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+        ],
+        "highlights": ["古代战争", "近现代战争", "兵器陈列", "英雄模范"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "工作日参观人数较少",
+        "transportation": "地铁1号线军事博物馆站"
       }
-    ],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/8/31 21:27:07",
-    "created_at": "2025-08-31T21:27:07.337311"
+    }
   }
 }

@@ -2562,25 +2562,50 @@ async function showStreetViewForLocation(scene) {
     // 显示街景模态框
     showStreetViewModal(scene);
 
-    // 查找附近的街景数据
-    streetViewService.getPanorama({
-        location: location,
-        radius: 1000, // 搜索半径1公里
-        source: google.maps.StreetViewSource.OUTDOOR
-    })
-    .then((result) => {
-        if (result.data && result.data.location) {
-            // 有街景数据，显示街景
-            displayStreetViewPanorama(result.data, scene);
-        } else {
-            // 无街景数据，显示错误信息
-            showStreetViewError('该位置附近暂无街景数据', 'NO_STREET_VIEW');
+    // 尝试多个搜索半径查找街景数据
+    async function tryFindStreetView() {
+        const searchRadii = [500, 1000, 2000, 5000]; // 逐步扩大搜索半径
+        
+        for (let i = 0; i < searchRadii.length; i++) {
+            const radius = searchRadii[i];
+            logger.info(`🔍 搜索半径 ${radius}m 内的街景数据...`);
+            
+            try {
+                const result = await streetViewService.getPanorama({
+                    location: location,
+                    radius: radius,
+                    source: google.maps.StreetViewSource.OUTDOOR
+                });
+                
+                if (result.data && result.data.location) {
+                    logger.success(`✅ 在 ${radius}m 半径内找到街景数据`);
+                    displayStreetViewPanorama(result.data, scene);
+                    return; // 找到了，退出函数
+                }
+            } catch (error) {
+                logger.info(`半径 ${radius}m 搜索失败: ${error.message}`);
+                
+                // 如果是ZERO_RESULTS，继续尝试更大半径
+                if (error.code === 'ZERO_RESULTS' && i < searchRadii.length - 1) {
+                    continue;
+                }
+                
+                // 其他错误或最后一次尝试失败
+                if (i === searchRadii.length - 1) {
+                    logger.error(`❌ 所有搜索半径都失败: ${error.message}`);
+                    showStreetViewError(`街景加载失败: ${error.message}`, 'API_ERROR');
+                    return;
+                }
+            }
         }
-    })
-    .catch((error) => {
-        logger.error(`❌ 街景加载失败: ${error.message}`);
-        showStreetViewError(`街景加载失败: ${error.message}`, 'API_ERROR');
-    });
+        
+        // 所有半径都没找到街景数据
+        logger.warning('⚠️ 在所有搜索半径内都未找到街景数据');
+        showStreetViewError('该位置附近暂无街景数据', 'NO_STREET_VIEW');
+    }
+    
+    // 执行搜索
+    tryFindStreetView();
 }
 
 // 显示街景模态框
@@ -2708,10 +2733,29 @@ function showStreetViewError(message, errorType) {
         errorEl.style.display = 'block';
 
         if (errorTextEl) {
-            errorTextEl.textContent = message;
+            // 根据错误类型提供更友好的错误信息
+            let friendlyMessage = message;
+            
+            if (errorType === 'NO_STREET_VIEW' || message.includes('ZERO_RESULTS')) {
+                friendlyMessage = '该位置暂无街景数据，这在某些地区是正常现象。您可以尝试：\n• 选择附近的其他地点\n• 使用地图查看该区域\n• 继续探索其他有趣的地方';
+            } else if (errorType === 'API_ERROR' && message.includes('unsupported_country_region_territory')) {
+                friendlyMessage = '该地区的街景服务暂时不可用。这可能是由于地理位置限制导致的。';
+            } else if (errorType === 'PANORAMA_ERROR') {
+                friendlyMessage = '街景加载遇到技术问题，请稍后重试。';
+            }
+            
+            errorTextEl.textContent = friendlyMessage;
         }
 
         logger.warning(`⚠️ 街景错误: ${message} (${errorType})`);
+        
+        // 自动关闭街景模态框（延迟3秒）
+        setTimeout(() => {
+            if (errorType === 'NO_STREET_VIEW' || message.includes('ZERO_RESULTS')) {
+                closeStreetView();
+                showSuccess('💡 该地点暂无街景，但您可以继续探索其他功能！');
+            }
+        }, 3000);
     }
 }
 
@@ -2798,7 +2842,79 @@ function shareStreetView() {
 function retryStreetView() {
     if (currentStreetViewLocation) {
         logger.info('🔄 重试加载街景...');
-        showStreetViewForLocation(currentStreetViewLocation.scene);
+        
+        // 隐藏错误信息，显示加载状态
+        const errorEl = document.getElementById('streetviewError');
+        const loadingEl = document.getElementById('streetviewLoading');
+        
+        if (errorEl) errorEl.style.display = 'none';
+        if (loadingEl) loadingEl.style.display = 'block';
+        
+        // 稍微调整坐标，尝试附近位置
+        const originalScene = currentStreetViewLocation.scene;
+        const adjustedScenes = [
+            originalScene, // 原始位置
+            { // 向北偏移
+                ...originalScene,
+                latitude: parseFloat(originalScene.latitude) + 0.001,
+                name: originalScene.name + ' (北侧)'
+            },
+            { // 向南偏移
+                ...originalScene,
+                latitude: parseFloat(originalScene.latitude) - 0.001,
+                name: originalScene.name + ' (南侧)'
+            },
+            { // 向东偏移
+                ...originalScene,
+                longitude: parseFloat(originalScene.longitude) + 0.001,
+                name: originalScene.name + ' (东侧)'
+            },
+            { // 向西偏移
+                ...originalScene,
+                longitude: parseFloat(originalScene.longitude) - 0.001,
+                name: originalScene.name + ' (西侧)'
+            }
+        ];
+        
+        // 尝试每个调整后的位置
+        tryMultipleLocations(adjustedScenes, 0);
+    }
+}
+
+// 尝试多个位置的街景
+async function tryMultipleLocations(scenes, index) {
+    if (index >= scenes.length) {
+        logger.warning('⚠️ 所有位置都无法加载街景');
+        showStreetViewError('该区域暂无可用的街景数据', 'NO_STREET_VIEW');
+        return;
+    }
+    
+    const scene = scenes[index];
+    logger.info(`🔍 尝试位置 ${index + 1}/${scenes.length}: ${scene.name}`);
+    
+    try {
+        const location = {
+            lat: parseFloat(scene.latitude),
+            lng: parseFloat(scene.longitude)
+        };
+        
+        const result = await streetViewService.getPanorama({
+            location: location,
+            radius: 2000, // 使用较大的搜索半径
+            source: google.maps.StreetViewSource.OUTDOOR
+        });
+        
+        if (result.data && result.data.location) {
+            logger.success(`✅ 在位置 "${scene.name}" 找到街景数据`);
+            displayStreetViewPanorama(result.data, scene);
+        } else {
+            // 尝试下一个位置
+            setTimeout(() => tryMultipleLocations(scenes, index + 1), 500);
+        }
+    } catch (error) {
+        logger.info(`位置 "${scene.name}" 失败: ${error.message}`);
+        // 尝试下一个位置
+        setTimeout(() => tryMultipleLocations(scenes, index + 1), 500);
     }
 }
 
@@ -2828,7 +2944,352 @@ window.toggleStreetViewFullscreen = toggleStreetViewFullscreen;
 window.shareStreetView = shareStreetView;
 window.retryStreetView = retryStreetView;
 
+// 清理结果显示
+function clearResults() {
+    const container = document.getElementById('placesContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    // 清理到达确认界面
+    const confirmationDiv = document.getElementById('arrivalConfirmation');
+    if (confirmationDiv) {
+        confirmationDiv.remove();
+    }
+    
+    // 隐藏历史记录区域
+    const historySection = document.getElementById('journeyHistorySection');
+    if (historySection) {
+        historySection.style.display = 'none';
+    }
+    
+    logger.info('🧹 已清理探索结果显示');
+}
+
+// 漫游功能实现
+async function confirmRoaming() {
+    const countryInput = document.getElementById('roamingCountry');
+    const cityInput = document.getElementById('roamingCity');
+    const placeInput = document.getElementById('roamingPlace');
+    const statusDiv = document.getElementById('roamingStatus');
+    
+    // 获取输入值
+    const country = countryInput.value.trim();
+    const city = cityInput.value.trim();
+    const place = placeInput.value.trim();
+    
+    // 验证输入
+    if (!country && !city && !place) {
+        alert('请至少填写一个位置信息（国家、城市或景点）');
+        return;
+    }
+    
+    // 构建搜索查询
+    const searchQuery = [country, city, place].filter(Boolean).join(', ');
+    logger.info(`🌍 开始漫游搜索: "${searchQuery}"`);
+    
+    // 显示加载状态
+    statusDiv.style.display = 'flex';
+    statusDiv.innerHTML = `
+        <div class="loading-spinner"></div>
+        <span>正在搜索 "${searchQuery}"...</span>
+    `;
+    
+    try {
+        // 调用Google Maps地理编码API
+        const geocodeResult = await geocodeLocation(searchQuery);
+        
+        if (geocodeResult.success) {
+            const locationData = geocodeResult.data;
+            logger.success(`✅ 找到位置: ${locationData.formatted_address}`);
+            
+            // 立即隐藏加载状态
+            statusDiv.style.display = 'none';
+            
+            // 获取地点详细信息
+            const placeDetails = await getPlaceDetails(locationData);
+            
+            // 执行漫游跳转
+            await executeRoaming(locationData, placeDetails);
+            
+            // 清空输入框
+            countryInput.value = '';
+            cityInput.value = '';
+            placeInput.value = '';
+            
+            // 关闭设置面板
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsPanel) {
+                settingsPanel.classList.remove('show');
+            }
+            
+        } else {
+            throw new Error(geocodeResult.error || '未找到指定位置');
+        }
+        
+    } catch (error) {
+        logger.error(`❌ 漫游失败: ${error.message}`);
+        statusDiv.innerHTML = `
+            <span style="color: #e53e3e;">❌ ${error.message}</span>
+        `;
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// 地理编码API调用
+async function geocodeLocation(query) {
+    try {
+        const response = await fetch('http://localhost:8000/api/geocode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: query,
+                language: 'zh-CN'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        return result;
+        
+    } catch (error) {
+        logger.error(`地理编码API调用失败: ${error.message}`);
+        return {
+            success: false,
+            error: `无法连接到地理编码服务: ${error.message}`
+        };
+    }
+}
+
+// 获取地点详细信息
+async function getPlaceDetails(locationData) {
+    try {
+        const response = await fetch('http://localhost:8000/api/place-details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                place_id: locationData.place_id,
+                location: {
+                    lat: locationData.geometry.location.lat,
+                    lng: locationData.geometry.location.lng
+                }
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return result.success ? result.data : null;
+        }
+        
+    } catch (error) {
+        logger.warning(`获取地点详情失败: ${error.message}`);
+    }
+    
+    return null;
+}
+
+// 执行漫游跳转
+async function executeRoaming(locationData, placeDetails) {
+    const location = locationData.geometry.location;
+    
+    logger.info(`🚀 执行漫游到: ${locationData.formatted_address}`);
+    
+    // 更新当前位置
+    window.currentPosition = {
+        latitude: location.lat,
+        longitude: location.lng,
+        accuracy: 10 // 高精度
+    };
+    
+    // 更新UI显示
+    updateLocationDisplay(locationData, placeDetails);
+    
+    // 显示漫游成功信息
+    showRoamingSuccess(locationData, placeDetails);
+    
+    // 重置探索状态
+    resetExplorationState();
+    
+    logger.success(`✅ 漫游成功! 当前位置: ${locationData.formatted_address}`);
+}
+
+// 更新位置显示
+function updateLocationDisplay(locationData, placeDetails) {
+    const location = locationData.geometry.location;
+    
+    // 更新坐标显示
+    const coordinatesEl = document.getElementById('coordinates');
+    if (coordinatesEl) {
+        coordinatesEl.textContent = `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
+    }
+    
+    // 更新位置名称
+    const currentLocationEl = document.getElementById('currentLocation');
+    if (currentLocationEl) {
+        currentLocationEl.textContent = locationData.formatted_address;
+    }
+    
+    // 更新精度显示
+    const accuracyEl = document.getElementById('accuracy');
+    if (accuracyEl) {
+        accuracyEl.textContent = '±10m (漫游)';
+    }
+    
+    // 更新位置状态
+    const locationStatusEl = document.getElementById('locationStatus');
+    if (locationStatusEl) {
+        locationStatusEl.textContent = '✅ 漫游定位';
+        locationStatusEl.className = 'status-success';
+    }
+}
+
+// 显示漫游成功信息
+function showRoamingSuccess(locationData, placeDetails) {
+    const container = document.getElementById('placesContainer');
+    if (!container) return;
+    
+    // 清空现有内容
+    container.innerHTML = '';
+    
+    // 创建漫游成功卡片
+    const successCard = document.createElement('div');
+    successCard.className = 'roaming-success-card';
+    
+    let cardContent = `
+        <div class="roaming-header">
+            <h3>🎉 漫游成功!</h3>
+            <div class="location-info">
+                <h4>📍 ${locationData.formatted_address}</h4>
+                <p class="coordinates">坐标: ${locationData.geometry.location.lat.toFixed(6)}, ${locationData.geometry.location.lng.toFixed(6)}</p>
+                <p class="location-type">位置类型: ${locationData.geometry.location_type || '精确位置'}</p>
+            </div>
+        </div>
+    `;
+    
+    // 如果有地点详情，显示详细信息
+    if (placeDetails) {
+        cardContent += `
+            <div class="place-details">
+                <h4>🏛️ ${placeDetails.name || '未知地点'}</h4>
+                ${placeDetails.rating ? `<div class="rating">⭐ 评分: ${placeDetails.rating}/5 (${placeDetails.user_ratings_total || 0}条评价)</div>` : ''}
+                ${placeDetails.formatted_address ? `<div class="address">🏠 地址: ${placeDetails.formatted_address}</div>` : ''}
+                ${placeDetails.formatted_phone_number ? `<div class="phone">📞 电话: ${placeDetails.formatted_phone_number}</div>` : ''}
+                ${placeDetails.website ? `<div class="website"><a href="${placeDetails.website}" target="_blank">🌐 官方网站</a></div>` : ''}
+                ${placeDetails.opening_hours ? `<div class="hours">🕒 营业时间: ${placeDetails.opening_hours.weekday_text ? placeDetails.opening_hours.weekday_text[0] : '营业时间未知'}</div>` : ''}
+                ${placeDetails.editorial_summary ? `<div class="summary">📝 简介: ${placeDetails.editorial_summary.overview}</div>` : ''}
+                ${placeDetails.types ? `<div class="types">🏷️ 类型: ${placeDetails.types.slice(0, 3).join(', ')}</div>` : ''}
+            </div>
+        `;
+        
+        // 显示照片
+        if (placeDetails.photos && placeDetails.photos.length > 0) {
+            cardContent += `
+                <div class="place-photos">
+                    <h5>📸 地点照片</h5>
+                    <div class="photos-grid">
+                        ${placeDetails.photos.slice(0, 3).map(photo => `
+                            <img src="${photo.photo_url}" alt="地点照片" class="place-photo" onclick="showPhotoModal('${photo.photo_url}')">
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    cardContent += `
+        <div class="roaming-actions">
+            <button class="explore-btn" onclick="startExplorationFromHere()">🧭 从这里开始探索</button>
+        </div>
+    `;
+    
+    successCard.innerHTML = cardContent;
+    container.appendChild(successCard);
+    
+    // 滚动到结果区域
+    container.scrollIntoView({ behavior: 'smooth' });
+}
+
+// 从当前位置开始探索
+function startExplorationFromHere() {
+    logger.info('🧭 从漫游位置开始探索');
+    
+    // 清空漫游结果
+    const container = document.getElementById('placesContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    // 如果有方向，直接开始探索
+    if (window.currentHeading !== null && window.currentHeading !== undefined) {
+        startExploration();
+    } else {
+        // 提示用户设置方向
+        alert('请先设置探索方向，然后点击"开始探索"按钮');
+    }
+}
+
+// 重置探索状态
+function resetExplorationState() {
+    // 清空地点容器
+    const container = document.getElementById('placesContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    // 重置旅程状态
+    if (window.currentJourney) {
+        window.currentJourney = null;
+    }
+    
+    // 隐藏历史记录
+    const historySection = document.getElementById('journeyHistorySection');
+    if (historySection) {
+        historySection.style.display = 'none';
+    }
+}
+
+// 显示照片模态框
+function showPhotoModal(photoUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'photo-modal';
+    modal.innerHTML = `
+        <div class="photo-modal-content">
+            <span class="photo-modal-close" onclick="closePhotoModal()">&times;</span>
+            <img src="${photoUrl}" alt="地点照片" class="photo-modal-image">
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closePhotoModal();
+        }
+    });
+}
+
+// 关闭照片模态框
+function closePhotoModal() {
+    const modal = document.querySelector('.photo-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 window.startJourney = startJourney;
 window.journeyManagement = journeyManagement;
 window.setManualLocation = setManualLocation;
 window.generateAndShowSceneReview = generateAndShowSceneReview;
+window.clearResults = clearResults;
+window.confirmRoaming = confirmRoaming;
+window.startExplorationFromHere = startExplorationFromHere;
+window.showPhotoModal = showPhotoModal;
+window.closePhotoModal = closePhotoModal;
