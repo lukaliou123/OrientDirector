@@ -769,7 +769,7 @@ function createPlaceCard(place, index) {
             </div>
             
             <div class="place-actions">
-                <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}'${place.city ? `, '${place.city.replace(/'/g, "\\'")}'` : `, '${place.country ? place.country.replace(/'/g, "\\'") : ""}'`})" title="生成景点合影">
+                <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
                     📸 生成合影
                 </button>
                 ${place.latitude && place.longitude ? `
@@ -3402,8 +3402,287 @@ function closeImageModal() {
     }
 }
 
+// 景点合影生成功能
+function openSelfieGenerator(placeIndex, attractionName, location) {
+    logger.info(`打开合影生成器 - 景点: ${attractionName}, 位置: ${location || '未知'}`);
+    
+    // 创建照片上传模态框
+    const modal = document.createElement('div');
+    modal.className = 'photo-upload-modal';
+    modal.innerHTML = `
+        <div class="photo-upload-content">
+            <div class="photo-upload-header">
+                <h3>📸 生成${attractionName}合影照片</h3>
+                <button class="close-btn" onclick="closeSelfieGenerator()">&times;</button>
+            </div>
+            
+            <div class="photo-upload-body">
+                <div class="upload-section">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-placeholder">
+                            <div class="upload-icon">📷</div>
+                            <p>点击或拖拽上传您的照片</p>
+                            <p class="upload-hint">支持 JPG, PNG 格式，建议人脸清晰的照片</p>
+                        </div>
+                        <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <div class="photo-preview" id="photoPreview" style="display: none;">
+                        <img id="previewImage" src="" alt="预览图片">
+                        <button class="change-photo-btn" onclick="changePhoto()">更换照片</button>
+                    </div>
+                </div>
+                
+                <div class="prompt-section">
+                    <label for="customPrompt">自定义提示词（可选）：</label>
+                    <textarea id="customPrompt" placeholder="留空将使用默认的${attractionName}合影提示词..." rows="3"></textarea>
+                </div>
+                
+                <div class="generate-section">
+                    <button class="generate-btn" id="generateBtn" onclick="generateAttractionPhoto('${attractionName}', '${location || ''}', ${placeIndex})" disabled>
+                        🎨 生成合影照片
+                    </button>
+                    <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>正在生成合影照片，请稍候...</p>
+                    </div>
+                </div>
+                
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h4>生成结果：</h4>
+                    <div class="result-image-container">
+                        <img id="resultImage" src="" alt="生成的合影照片">
+                        <div class="result-actions">
+                            <button class="download-btn" onclick="downloadGeneratedPhoto()">💾 下载照片</button>
+                            <button class="regenerate-btn" onclick="regeneratePhoto()">🔄 重新生成</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 设置上传区域事件
+    setupPhotoUpload();
+    
+    // 显示模态框
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+}
+
+function closeSelfieGenerator() {
+    const modal = document.querySelector('.photo-upload-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+function setupPhotoUpload() {
+    const uploadArea = document.getElementById('uploadArea');
+    const photoInput = document.getElementById('photoInput');
+    const photoPreview = document.getElementById('photoPreview');
+    const previewImage = document.getElementById('previewImage');
+    const generateBtn = document.getElementById('generateBtn');
+    
+    // 点击上传区域触发文件选择
+    uploadArea.addEventListener('click', () => {
+        photoInput.click();
+    });
+    
+    // 拖拽上传
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+    
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            handlePhotoSelect(files[0]);
+        }
+    });
+    
+    // 文件选择
+    photoInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handlePhotoSelect(e.target.files[0]);
+        }
+    });
+}
+
+function handlePhotoSelect(file) {
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+        alert('请选择有效的图片文件');
+        return;
+    }
+    
+    // 验证文件大小（限制为10MB）
+    if (file.size > 10 * 1024 * 1024) {
+        alert('图片文件过大，请选择小于10MB的图片');
+        return;
+    }
+    
+    // 读取并预览图片
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const previewImage = document.getElementById('previewImage');
+        const uploadArea = document.getElementById('uploadArea');
+        const photoPreview = document.getElementById('photoPreview');
+        const generateBtn = document.getElementById('generateBtn');
+        
+        previewImage.src = e.target.result;
+        uploadArea.style.display = 'none';
+        photoPreview.style.display = 'block';
+        generateBtn.disabled = false;
+        
+        // 存储文件以供后续使用
+        window.selectedPhotoFile = file;
+        
+        logger.success(`照片已选择: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function changePhoto() {
+    const uploadArea = document.getElementById('uploadArea');
+    const photoPreview = document.getElementById('photoPreview');
+    const generateBtn = document.getElementById('generateBtn');
+    const photoInput = document.getElementById('photoInput');
+    
+    uploadArea.style.display = 'block';
+    photoPreview.style.display = 'none';
+    generateBtn.disabled = true;
+    photoInput.value = '';
+    window.selectedPhotoFile = null;
+}
+
+async function generateAttractionPhoto(attractionName, location, placeIndex) {
+    if (!window.selectedPhotoFile) {
+        alert('请先选择照片');
+        return;
+    }
+    
+    const generateBtn = document.getElementById('generateBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const customPrompt = document.getElementById('customPrompt').value.trim();
+    
+    try {
+        // 显示加载状态
+        generateBtn.disabled = true;
+        loadingIndicator.style.display = 'block';
+        
+        logger.info(`开始生成${attractionName}合影照片...`);
+        
+        // 创建FormData
+        const formData = new FormData();
+        formData.append('user_photo', window.selectedPhotoFile);
+        formData.append('attraction_name', attractionName);
+        if (location) {
+            formData.append('location', location);
+        }
+        if (customPrompt) {
+            formData.append('custom_prompt', customPrompt);
+        }
+        
+        // 调用后端API
+        const response = await fetch('/api/generate-attraction-photo', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || '生成失败');
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // 显示生成结果
+            showGeneratedPhoto(result.data);
+            logger.success(`✅ ${attractionName}合影照片生成成功！`);
+        } else {
+            throw new Error(result.message || '生成失败');
+        }
+        
+    } catch (error) {
+        logger.error(`❌ 生成合影照片失败: ${error.message}`);
+        alert(`生成失败: ${error.message}`);
+    } finally {
+        // 隐藏加载状态
+        generateBtn.disabled = false;
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+function showGeneratedPhoto(data) {
+    const resultSection = document.getElementById('resultSection');
+    const resultImage = document.getElementById('resultImage');
+    
+    // 显示生成的图片
+    resultImage.src = data.base64;
+    resultSection.style.display = 'block';
+    
+    // 存储结果数据以供下载使用
+    window.generatedPhotoData = data;
+    
+    // 滚动到结果区域
+    resultSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function downloadGeneratedPhoto() {
+    if (!window.generatedPhotoData) {
+        alert('没有可下载的照片');
+        return;
+    }
+    
+    const data = window.generatedPhotoData;
+    
+    // 创建下载链接
+    const link = document.createElement('a');
+    link.href = data.base64;
+    link.download = data.filename || `${data.attraction}_合影_${new Date().getTime()}.png`;
+    
+    // 触发下载
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    logger.success(`📥 合影照片已下载: ${link.download}`);
+}
+
+function regeneratePhoto() {
+    const resultSection = document.getElementById('resultSection');
+    resultSection.style.display = 'none';
+    window.generatedPhotoData = null;
+    
+    logger.info('🔄 准备重新生成合影照片');
+}
+
 // 暴露新的全局函数
 window.playVideo = playVideo;
 window.closeVideoModal = closeVideoModal;
 window.showImageModal = showImageModal;
 window.closeImageModal = closeImageModal;
+window.openSelfieGenerator = openSelfieGenerator;
+window.closeSelfieGenerator = closeSelfieGenerator;
+window.changePhoto = changePhoto;
+window.generateAttractionPhoto = generateAttractionPhoto;
+window.downloadGeneratedPhoto = downloadGeneratedPhoto;
+window.regeneratePhoto = regeneratePhoto;
