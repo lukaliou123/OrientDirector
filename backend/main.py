@@ -13,6 +13,7 @@ from real_data_service import real_data_service
 from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
 from ai_service import get_ai_service
 from historical_service import historical_service
+from nano_banana_service import nano_banana_service
 
 # 加载环境变量
 load_dotenv()
@@ -82,6 +83,29 @@ class HistoricalQueryResponse(BaseModel):
     historical_info: Optional[HistoricalLocationInfo] = None
     calculation_time: float
     data_source: str = "Historical-basemaps"
+    error: Optional[str] = None
+
+# 历史场景生成相关数据模型
+class HistoricalSceneRequest(BaseModel):
+    latitude: float
+    longitude: float
+    year: int
+
+class HistoricalSceneInfo(BaseModel):
+    success: bool
+    scene_description: Optional[str] = None
+    generation_model: Optional[str] = None
+    generation_time: Optional[float] = None
+    demo_mode: Optional[bool] = False
+    note: Optional[str] = None
+    error: Optional[str] = None
+
+class HistoricalSceneResponse(BaseModel):
+    success: bool
+    historical_info: Optional[HistoricalLocationInfo] = None
+    generated_scene: Optional[HistoricalSceneInfo] = None
+    calculation_time: float
+    data_source: str = "Historical-basemaps + Gemini"
     error: Optional[str] = None
 
 # 全局变量
@@ -963,6 +987,109 @@ async def get_dataset_info(year: int):
             'success': True,
             'dataset_info': dataset_info
         }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+@app.post("/api/generate-historical-scene", response_model=HistoricalSceneResponse)
+async def generate_historical_scene(request: HistoricalSceneRequest):
+    """
+    历史场景生成API
+    
+    结合Historical-basemaps查询和Gemini图像生成，创建完整的历史场景体验
+    
+    Args:
+        request: 包含纬度、经度和年份的场景生成请求
+        
+    Returns:
+        包含历史信息和AI生成场景的完整响应
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🎨 历史场景生成请求: {request.year}年 ({request.latitude}, {request.longitude})")
+        
+        # 验证输入参数
+        if not (-90 <= request.latitude <= 90):
+            raise HTTPException(status_code=400, detail="纬度必须在-90到90之间")
+        if not (-180 <= request.longitude <= 180):
+            raise HTTPException(status_code=400, detail="经度必须在-180到180之间")
+        if not (-3000 <= request.year <= 2024):
+            raise HTTPException(status_code=400, detail="年份必须在公元前3000年到2024年之间")
+        
+        # 1. 查询Historical-basemaps获取真实历史位置信息
+        historical_result = await historical_service.query_historical_location(
+            request.latitude, 
+            request.longitude, 
+            request.year
+        )
+        
+        if not historical_result['success']:
+            raise HTTPException(status_code=404, detail="未找到该时空点的历史信息")
+        
+        # 2. 使用Gemini生成历史场景描述/图像
+        scene_result = await nano_banana_service.generate_historical_scene_image(
+            historical_result, request.latitude, request.longitude
+        )
+        
+        # 格式化响应
+        calculation_time = time.time() - start_time
+        
+        # 转换为响应模型
+        historical_info = HistoricalLocationInfo(**historical_result)
+        scene_info = HistoricalSceneInfo(**scene_result)
+        
+        response = HistoricalSceneResponse(
+            success=True,
+            historical_info=historical_info,
+            generated_scene=scene_info,
+            calculation_time=calculation_time,
+            data_source="Historical-basemaps + Gemini"
+        )
+        
+        print(f"✅ 历史场景生成完成: {historical_result['political_entity']} ({request.year})")
+        print(f"⚡ 总耗时: {calculation_time:.3f}秒")
+        print(f"🎨 生成模式: {scene_result.get('generation_model', 'Unknown')}")
+        
+        return response
+        
+    except HTTPException:
+        # 重新抛出HTTP异常
+        raise
+    except Exception as e:
+        # 处理其他异常
+        calculation_time = time.time() - start_time
+        print(f"❌ 历史场景生成API异常: {e}")
+        
+        raise HTTPException(
+            status_code=500, 
+            detail=f"历史场景生成失败: {str(e)}"
+        )
+
+@app.get("/api/historical/generation-capabilities")
+async def get_historical_generation_capabilities():
+    """
+    获取当前历史场景生成能力
+    
+    Returns:
+        当前支持的生成功能和配置状态
+    """
+    try:
+        # 使用新版Nano Banana服务
+        return {
+            'success': True,
+            'capabilities': {
+                'client_available': nano_banana_service.client_available,
+                'api_version': 'google-genai 1.32.0',
+                'supported_model': 'gemini-2.5-flash-image-preview',
+                'demo_mode': not nano_banana_service.client_available
+            },
+            'api_configured': nano_banana_service.client_available,
+            'demo_mode_available': True
+        }
+        
     except Exception as e:
         return {
             'success': False,

@@ -1,0 +1,77 @@
+{
+  "demo_scenes": [
+    {
+      "id": "tokugawa_1600_tokyo",
+      "political_entity": "Tokugawa Shogunate",
+      "year": 1600,
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "title": "德川幕府的江户城下町",
+      "description": "1600年德川家康建立江户幕府时期的东京街景",
+      "image_filename": "tokugawa_shogunate_1600_tokyo.png",
+      "generated": true,
+      "scene_description": "在1600年的江户（现东京），德川幕府的城下町呈现出严谨而繁荣的景象。木质的传统建筑沿街排列，青瓦屋顶在晨光中闪耀。武士们身着正式和服，腰间佩戴双刀，体现着士农工商社会秩序的顶层。町人商贾们穿着素色和服，在店铺前忙碌。妇女身着华美振袖，发髻上装饰着精致的簪子。孩童们在街边嬉戏。街道两旁悬挂着传统暖帘，汉字招牌昭示着各行各业。远处江户城的天守阁巍然屹立，象征着德川政权的威严统治。",
+      "generated_time": "2025-09-02 19:38:12"
+    },
+    {
+      "id": "tang_800_changan",
+      "political_entity": "Tang Empire",
+      "year": 800,
+      "lat": 39.9042,
+      "lng": 116.4074,
+      "title": "盛世大唐的长安都城",
+      "description": "800年唐朝鼎盛时期的国际化都市",
+      "image_filename": "tang_empire_800_changan.png",
+      "generated": true,
+      "scene_description": "800年的大唐长安城，盛世帝国的辉煌气象尽显。雄伟的木构宫殿群采用精湛的斗拱技术，琉璃瓦片金光闪闪。身着宽袖仙裙的贵族们丝绸华服上绣着凤凰牡丹，男性官员头戴进贤冠。街市上胡商云集，丝绸之路的奇珍异宝琳琅满目。遣唐使、高句丽使节等各国人士在此交流，体现唐朝开放包容的气度。佛寺道观香烟袅袅，诗词歌赋在酒肆茶楼间传唱，这是中华文明最自信繁荣的黄金时代。",
+      "generated_time": "2025-09-02 19:38:42"
+    },
+    {
+      "id": "papal_800_rome",
+      "political_entity": "Papal States",
+      "year": 800,
+      "lat": 41.9028,
+      "lng": 12.4964,
+      "title": "查理大帝时代的教皇国",
+      "description": "800年基督教欧洲精神中心的罗马",
+      "image_filename": "papal_states_800_rome.png",
+      "generated": true,
+      "scene_description": "800年教皇国的罗马，作为基督教世界的精神圣地散发着神圣威严。罗马式教堂高耸云霄，圆拱石门雕刻着精美圣像。红衣主教身着华丽法衣主持仪式，修道士们穿着朴素僧袍诵经祈祷。虔诚信徒跪拜于教堂门前，手工业者在石板街巷中劳作。钟楼传来悠扬钟声，古罗马废墟与新建教堂形成历史对话。这是查理大帝加冕的时代，永恒之城承载着沟通天地的神圣使命。",
+      "generated_time": "2025-09-02 19:39:11"
+    },
+    {
+      "id": "france_1945_paris",
+      "political_entity": "France",
+      "year": 1945,
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "title": "二战后的巴黎",
+      "description": "1945年战争结束后重建的法国首都",
+      "image_filename": "france_1945_paris.png",
+      "generated": true,
+      "scene_description": "1945年战后的巴黎，在废墟中重建的希望之城。石灰岩建筑虽经战火洗礼但依然矗立，体现着法兰西民族的坚韧。人们穿着简朴的战后服装，脸上洋溢着和平来临的喜悦。香榭丽舍大街上联军士兵与法国市民共同庆祝胜利。咖啡馆重新开放，艺术家们在蒙马特高地重新聚集。这是一个重生的时代，巴黎再次成为自由和文化的象征。",
+      "generated_time": "2025-09-02 19:39:39"
+    },
+    {
+      "id": "usa_japan_1945_tokyo",
+      "political_entity": "Japan (USA)",
+      "year": 1945,
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "title": "美军占领下的东京",
+      "description": "1945年美军占领期的日本首都",
+      "image_filename": "japan_usa_1945_tokyo.png",
+      "generated": true,
+      "scene_description": "1945年美军占领下的东京，展现着复杂的政治现实。传统的木质建筑与美军军事设施形成鲜明对比。日本民众穿着传统和服，但街头可见美军吉普车和士兵。麦克阿瑟将军的政策正在改变着日本社会，民主化进程悄然开始。空袭后的废墟正在重建，混凝土建筑开始出现。这是日本历史的转折点，传统与现代化的碰撞在此上演。"
+    }
+  ],
+  "generation_info": {
+    "created_time": "2025-09-02",
+    "total_scenes": 5,
+    "api_model": "gemini-2.5-flash-image-preview",
+    "generation_status": "partial",
+    "demo_mode_enabled": true,
+    "generated_count": 4,
+    "last_generation_time": "2025-09-02 19:39:59"
+  }
+}

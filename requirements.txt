@@ -17,4 +17,5 @@ shapely>=2.0.0        # GeoJSON空间几何计算
 geopandas>=0.14.0     # 地理数据处理 (可选，增强功能用)
 
 # Google AI依赖 (for Nano Banana)
-google-generativeai>=0.3.0
+google-genai>=1.32.0        # 新版Gemini SDK，支持Nano Banana
+Pillow>=11.0.0              # 图像处理库
