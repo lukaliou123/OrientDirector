@@ -31,6 +31,69 @@ load_dotenv()
 
 app = FastAPI(title="方向探索派对API", version="1.0.0")
 
+def load_attractions_from_json() -> Dict:
+    """从journeys.json文件加载景点数据"""
+    try:
+        json_path = os.path.join(os.path.dirname(__file__), "data", "journeys.json")
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get("beijing_top_attractions", {}).get("attractions", {})
+    except Exception as e:
+        logger.error(f"加载景点数据失败: {e}")
+        return {}
+
+def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """计算两点之间的距离（公里）"""
+    geod = Geodesic.WGS84
+    result = geod.Inverse(lat1, lon1, lat2, lon2)
+    return result['s12'] / 1000  # 转换为公里
+
+def get_nearby_attractions_from_json(target_lat: float, target_lon: float, max_distance_km: float = 50) -> List[Dict]:
+    """从JSON文件中获取附近的景点，按距离排序"""
+    attractions_data = load_attractions_from_json()
+    nearby_attractions = []
+    
+    for attraction_id, attraction in attractions_data.items():
+        # 获取景点坐标
+        coords = attraction.get("coordinates", {})
+        attr_lat = coords.get("lat")
+        attr_lon = coords.get("lng")
+        
+        if attr_lat is None or attr_lon is None:
+            continue
+            
+        # 计算距离
+        distance_km = calculate_distance(target_lat, target_lon, attr_lat, attr_lon)
+        
+        # 只包含指定距离内的景点
+        if distance_km <= max_distance_km:
+            attraction_info = {
+                "id": attraction_id,
+                "name": attraction.get("name", "未知景点"),
+                "latitude": attr_lat,
+                "longitude": attr_lon,
+                "distance": round(distance_km, 2),
+                "description": attraction.get("description", ""),
+                "category": attraction.get("category", ""),
+                "address": attraction.get("address", ""),
+                "opening_hours": attraction.get("opening_hours", ""),
+                "ticket_price": attraction.get("ticket_price", ""),
+                "rating": attraction.get("rating", 0),
+                "photos": attraction.get("photos", []),
+                "highlights": attraction.get("highlights", []),
+                "visit_duration": attraction.get("visit_duration", ""),
+                "best_visit_time": attraction.get("best_visit_time", ""),
+                "transportation": attraction.get("transportation", "")
+            }
+            nearby_attractions.append(attraction_info)
+    
+    # 按距离排序（从近到远）
+    nearby_attractions.sort(key=lambda x: x["distance"])
+    
+    logger.info(f"从JSON文件中找到 {len(nearby_attractions)} 个景点，距离目标点 ({target_lat:.4f}, {target_lon:.4f}) {max_distance_km}km 以内")
+    
+    return nearby_attractions
+
 # 添加CORS中间件
 app.add_middleware(
     CORSMiddleware,
@@ -763,24 +826,31 @@ async def explore_direction_real(request: ExploreRequest):
             'distance': target_distance
         }]
         
-        # 使用真实数据服务获取地点信息
-        places_data_list = await real_data_service.get_real_places_along_route(points, request.time_mode)
+        # 使用本地JSON数据获取附近景点信息
+        target_lat = target_point['lat2']
+        target_lon = target_point['lon2']
+        
+        # 从JSON文件中获取附近景点，搜索半径50km
+        places_data_list = get_nearby_attractions_from_json(target_lat, target_lon, max_distance_km=50)
         
         # 转换为PlaceInfo对象
         places = []
         for place_data in places_data_list:
+            # 构建图片URL（取第一张图片）
+            image_url = place_data.get('photos', [None])[0] if place_data.get('photos') else None
+            
             place_info = PlaceInfo(
                 name=place_data['name'],
                 latitude=place_data['latitude'],
                 longitude=place_data['longitude'],
                 distance=place_data['distance'],
                 description=place_data['description'],
-                image=place_data.get('image'),
-                country=place_data.get('country'),
-                city=place_data.get('city'),
+                image=image_url,
+                country="中国",
+                city="北京",
                 opening_hours=place_data.get('opening_hours'),
                 ticket_price=place_data.get('ticket_price'),
-                booking_method=place_data.get('booking_method'),
+                booking_method="现场购票或在线预约",
                 category=place_data.get('category')
             )
             places.append(place_info)
