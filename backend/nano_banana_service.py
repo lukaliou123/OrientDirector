@@ -109,8 +109,8 @@ class NanoBananaHistoricalService:
         for scene in self.demo_scenes_index['demo_scenes']:
             if (scene['political_entity'] == political_entity and 
                 scene['year'] == year and
-                abs(scene['lat'] - lat) < 0.01 and 
-                abs(scene['lng'] - lng) < 0.01):
+                abs(scene['lat'] - lat) < 0.15 and 
+                abs(scene['lng'] - lng) < 0.15):
                 
                 image_path = os.path.join(self.pregenerated_dir, scene['image_filename'])
                 if os.path.exists(image_path):
@@ -123,8 +123,8 @@ class NanoBananaHistoricalService:
         
         for scene in self.demo_scenes_index['demo_scenes']:
             if (scene['political_entity'] == political_entity and
-                abs(scene['lat'] - lat) < 0.01 and 
-                abs(scene['lng'] - lng) < 0.01):
+                abs(scene['lat'] - lat) < 0.15 and 
+                abs(scene['lng'] - lng) < 0.15):
                 
                 year_diff = abs(scene['year'] - year)
                 

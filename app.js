@@ -48,10 +48,17 @@ const PRESET_LOCATIONS = {
     },
     rome: {
         name: "罗马斗兽场",
-        latitude: 41.8902,
-        longitude: 12.4922,
+        latitude: 41.9028,
+        longitude: 12.4964,
         country: "意大利",
         description: "永恒之城的历史见证，古罗马帝国的辉煌"
+    },
+    beijing: {
+        name: "北京故宫",
+        latitude: 39.9042,
+        longitude: 116.4074,
+        country: "中国",
+        description: "中华文明的瑰宝，紫禁城见证千年历史变迁"
     },
     amsterdam: {
         name: "阿姆斯特丹运河区",
