@@ -32,7 +32,7 @@ class HistoricalDataLoader:
             1815: "world_1815.geojson",
             1783: "world_1783.geojson",
             1715: "world_1715.geojson",
-            1648: "world_1648.geojson",
+            1650: "world_1650.geojson",
             1530: "world_1530.geojson",
             1492: "world_1492.geojson",
             1279: "world_1279.geojson",
@@ -399,7 +399,7 @@ class HistoricalDataLoader:
         """
         if years is None:
             # 默认预加载一些关键历史时期
-            years = [2000, 1945, 1914, 1880, 1648, 1492, 1000, 400]
+            years = [2000, 1945, 1914, 1880, 1650, 1492, 1000, 400]
         
         print(f"📥 开始预加载历史数据集: {len(years)} 个时期")
         
