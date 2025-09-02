@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from real_data_service import real_data_service
 from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
 from ai_service import get_ai_service
+from historical_service import historical_service
 
 # 加载环境变量
 load_dotenv()
@@ -54,6 +55,34 @@ class ExploreResponse(BaseModel):
     places: List[PlaceInfo]
     total_distance: float
     calculation_time: float
+
+# 历史模式相关数据模型
+class HistoricalQueryRequest(BaseModel):
+    latitude: float
+    longitude: float
+    year: int
+    
+class HistoricalLocationInfo(BaseModel):
+    success: bool
+    political_entity: Optional[str] = None
+    ruler_or_power: Optional[str] = None
+    cultural_region: Optional[str] = None
+    border_precision: Optional[int] = None
+    query_year: Optional[int] = None
+    coordinates: Optional[Dict] = None
+    description: Optional[str] = None
+    time_period: Optional[str] = None
+    cultural_context: Optional[Dict] = None
+    is_approximate: Optional[bool] = False
+    distance_to_border: Optional[float] = None
+    error: Optional[str] = None
+
+class HistoricalQueryResponse(BaseModel):
+    success: bool
+    historical_info: Optional[HistoricalLocationInfo] = None
+    calculation_time: float
+    data_source: str = "Historical-basemaps"
+    error: Optional[str] = None
 
 # 全局变量
 geod = Geodesic.WGS84
@@ -805,6 +834,140 @@ async def health_check():
         "service": "方向探索派对API",
         "version": "1.0.0"
     }
+
+# ========== 历史模式API端点 ==========
+
+@app.post("/api/query-historical", response_model=HistoricalQueryResponse)
+async def query_historical_location(request: HistoricalQueryRequest):
+    """
+    历史位置查询API
+    
+    根据坐标和年份查询该时空点的历史政治实体信息
+    基于Historical-basemaps学术项目的历史边界数据
+    
+    Args:
+        request: 包含纬度、经度和年份的查询请求
+        
+    Returns:
+        历史位置信息，包括政治实体、统治者、文化圈等
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🏛️ 历史查询请求: {request.year}年 ({request.latitude}, {request.longitude})")
+        
+        # 验证输入参数
+        if not (-90 <= request.latitude <= 90):
+            raise HTTPException(status_code=400, detail="纬度必须在-90到90之间")
+        if not (-180 <= request.longitude <= 180):
+            raise HTTPException(status_code=400, detail="经度必须在-180到180之间")
+        if not (-3000 <= request.year <= 2024):
+            raise HTTPException(status_code=400, detail="年份必须在公元前3000年到2024年之间")
+        
+        # 调用历史查询服务
+        historical_result = await historical_service.query_historical_location(
+            request.latitude, 
+            request.longitude, 
+            request.year
+        )
+        
+        # 格式化响应
+        calculation_time = time.time() - start_time
+        
+        if historical_result['success']:
+            # 转换为响应模型
+            historical_info = HistoricalLocationInfo(**historical_result)
+            
+            response = HistoricalQueryResponse(
+                success=True,
+                historical_info=historical_info,
+                calculation_time=calculation_time,
+                data_source="Historical-basemaps (GitHub)"
+            )
+            
+            print(f"✅ 历史查询成功: {historical_result['political_entity']} ({request.year})")
+            print(f"⚡ 查询耗时: {calculation_time:.3f}秒")
+            
+            return response
+        else:
+            # 查询失败的情况
+            response = HistoricalQueryResponse(
+                success=False,
+                historical_info=None,
+                calculation_time=calculation_time,
+                error=historical_result.get('error', '历史查询失败')
+            )
+            
+            print(f"❌ 历史查询失败: {historical_result.get('error')}")
+            return response
+        
+    except HTTPException:
+        # 重新抛出HTTP异常
+        raise
+    except Exception as e:
+        # 处理其他异常
+        calculation_time = time.time() - start_time
+        print(f"❌ 历史查询API异常: {e}")
+        
+        raise HTTPException(
+            status_code=500, 
+            detail=f"历史查询处理失败: {str(e)}"
+        )
+
+@app.get("/api/historical/available-years")
+async def get_available_historical_years():
+    """
+    获取可用的历史年份列表
+    
+    Returns:
+        可用年份列表和数据集信息
+    """
+    try:
+        available_years = await historical_service.data_loader.get_available_years()
+        cache_info = historical_service.data_loader.get_cache_info()
+        
+        return {
+            'success': True,
+            'available_years': available_years,
+            'total_datasets': len(available_years),
+            'year_range': {
+                'earliest': min(available_years),
+                'latest': max(available_years)
+            },
+            'cache_info': {
+                'cached_datasets': cache_info['cache_count'],
+                'cache_size_mb': cache_info['total_cache_size_mb']
+            }
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+@app.get("/api/historical/dataset-info/{year}")
+async def get_dataset_info(year: int):
+    """
+    获取指定年份的数据集信息
+    
+    Args:
+        year: 目标年份
+        
+    Returns:
+        数据集详细信息
+    """
+    try:
+        dataset_info = historical_service.data_loader.get_dataset_info(year)
+        return {
+            'success': True,
+            'dataset_info': dataset_info
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 # ========== 旅程管理API端点 ==========
 

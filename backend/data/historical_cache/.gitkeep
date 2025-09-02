@@ -1,0 +1,3 @@
+# 历史数据缓存目录
+# 用于存储从Historical-basemaps下载的GeoJSON文件
+# 文件会自动缓存7天后过期重新下载
