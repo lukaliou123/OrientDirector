@@ -1414,20 +1414,22 @@ function showJourneySummary(journeyResult) {
         </div>
     `;
     
-    // 在结果区域显示摘要
-    const resultsContainer = document.getElementById('results');
-    if (resultsContainer) {
-        resultsContainer.insertAdjacentHTML('afterbegin', summaryHtml);
+    // 在旅程总结区域显示摘要
+    const summaryContainer = document.getElementById('journeySummaryContainer');
+    if (summaryContainer) {
+        summaryContainer.style.display = 'block';
+        summaryContainer.innerHTML = summaryHtml;
         
-        // 3秒后自动隐藏摘要
-        setTimeout(() => {
-            const summaryDiv = document.querySelector('.journey-summary');
-            if (summaryDiv) {
-                summaryDiv.style.opacity = '0';
-                summaryDiv.style.transition = 'opacity 1s ease';
-                setTimeout(() => summaryDiv.remove(), 1000);
-            }
-        }, 5000);
+        // 隐藏地点容器
+        const placesContainer = document.getElementById('placesContainer');
+        if (placesContainer) {
+            placesContainer.style.display = 'none';
+        }
+        
+        // 滚动到总结位置
+        summaryContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        logger.success('📊 旅程总结已显示');
     }
 }
 
@@ -2159,20 +2161,38 @@ async function showJourneySummary(journeyResult) {
         </div>
     `;
     
-    const resultsContainer = document.getElementById('results') || document.getElementById('placesContainer');
-    if (resultsContainer) {
-        resultsContainer.innerHTML = summaryHtml;
+    const summaryContainer = document.getElementById('journeySummaryContainer');
+    if (summaryContainer) {
+        summaryContainer.style.display = 'block';
+        summaryContainer.innerHTML = summaryHtml;
+        
+        // 隐藏地点容器
+        const placesContainer = document.getElementById('placesContainer');
+        if (placesContainer) {
+            placesContainer.style.display = 'none';
+        }
+        
+        // 滚动到总结位置
+        summaryContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
         logger.success(`📊 旅程总结已生成: ${stats.scenesCount}个场景, ${stats.totalDistance}km, ${stats.totalTimeMinutes}分钟`);
     }
 }
 
 // 关闭旅程总结
 function closeSummary() {
-    const summary = document.getElementById('journeySummary');
-    if (summary) {
-        summary.style.animation = 'fadeOut 0.3s ease';
-        setTimeout(() => summary.remove(), 300);
+    const summaryContainer = document.getElementById('journeySummaryContainer');
+    const placesContainer = document.getElementById('placesContainer');
+    
+    if (summaryContainer) {
+        summaryContainer.style.display = 'none';
+        summaryContainer.innerHTML = '';
         logger.info('📊 旅程总结已关闭');
+    }
+    
+    // 恢复地点容器显示
+    if (placesContainer) {
+        placesContainer.style.display = 'block';
     }
 }
 
