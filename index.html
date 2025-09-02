@@ -200,6 +200,80 @@
 
         <!-- Google街景遮罩层 -->
         <div class="streetview-overlay" id="streetviewOverlay" style="display: none;" onclick="closeStreetView()"></div>
+        
+        <!-- 景点合影生成模态框 -->
+        <div class="selfie-modal" id="selfieModal" style="display: none;">
+            <div class="selfie-modal-content">
+                <div class="selfie-header">
+                    <h3>📸 生成景点合影</h3>
+                    <button class="close-selfie-btn" onclick="closeSelfieModal()">✕</button>
+                </div>
+                
+                <div class="selfie-body">
+                    <div class="selfie-info">
+                        <h4 id="selfieAttractionName">景点名称</h4>
+                        <p id="selfieAttractionLocation">位置信息</p>
+                    </div>
+                    
+                    <div class="selfie-upload-section" id="selfieUploadSection">
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="selfiePhotoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                <div class="upload-icon">📷</div>
+                                <p>点击上传您的照片</p>
+                                <p class="upload-hint">支持 JPG、PNG 格式</p>
+                            </div>
+                            <img id="uploadPreview" class="upload-preview" style="display: none;" alt="预览图">
+                        </div>
+                        
+                        <div class="prompt-section">
+                            <label for="customPrompt">自定义提示词（可选）：</label>
+                            <textarea id="customPrompt" rows="3" placeholder="留空将使用默认提示词，例如：让我穿着当地传统服装..."></textarea>
+                        </div>
+                        
+                        <div class="selfie-actions">
+                            <button class="generate-btn" id="generateBtn" onclick="generateSelfie()" disabled>
+                                ✨ 生成合影
+                            </button>
+                            <button class="cancel-btn" onclick="closeSelfieModal()">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="selfie-loading" id="selfieLoading" style="display: none;">
+                        <div class="selfie-spinner"></div>
+                        <p>正在生成您的景点合影...</p>
+                        <p class="loading-hint">这可能需要 10-30 秒，请耐心等待</p>
+                    </div>
+                    
+                    <div class="selfie-result" id="selfieResult" style="display: none;">
+                        <img id="generatedSelfie" class="generated-selfie" alt="生成的合影">
+                        <div class="result-actions">
+                            <button class="download-btn" onclick="downloadSelfie()">
+                                💾 下载合影
+                            </button>
+                            <button class="regenerate-btn" onclick="resetSelfieGenerator()">
+                                🔄 重新生成
+                            </button>
+                            <button class="share-btn" onclick="shareSelfie()">
+                                📤 分享
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="selfie-error" id="selfieError" style="display: none;">
+                        <div class="error-icon">❌</div>
+                        <h4>生成失败</h4>
+                        <p id="selfieErrorMessage">生成合影时出现错误，请重试</p>
+                        <button class="retry-btn" onclick="resetSelfieGenerator()">重试</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 合影生成遮罩层 -->
+        <div class="selfie-overlay" id="selfieOverlay" style="display: none;"></div>
     </div>
 
     <!-- Google Maps JavaScript API 配置 -->

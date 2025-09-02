@@ -768,6 +768,17 @@ function createPlaceCard(place, index) {
                 </div>
             </div>
             
+            <div class="place-actions">
+                <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}'${place.city ? `, '${place.city.replace(/'/g, "\\'")}'` : `, '${place.country ? place.country.replace(/'/g, "\\'") : ""}'`})" title="生成景点合影">
+                    📸 生成合影
+                </button>
+                ${place.latitude && place.longitude ? `
+                <button class="action-btn streetview-btn" onclick="openStreetView(${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
+                    🏙️ 查看街景
+                </button>
+                ` : ''}
+            </div>
+            
             <span class="place-mode">${modeText}模式</span>
         </div>
     `;

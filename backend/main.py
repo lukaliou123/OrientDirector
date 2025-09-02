@@ -12,6 +12,11 @@ import requests
 from dotenv import load_dotenv
 from real_data_service import real_data_service
 from local_attractions_db import local_attractions_db
+from gemini_service import gemini_service
+from fastapi import File, UploadFile, Form
+from fastapi.responses import FileResponse
+import tempfile
+import shutil
 
 # 加载环境变量
 load_dotenv()
@@ -1033,6 +1038,114 @@ async def health_check():
         "service": "方向探索派对API",
         "version": "1.0.0"
     }
+
+@app.post("/api/generate-attraction-photo")
+async def generate_attraction_photo(
+    user_photo: UploadFile = File(...),
+    attraction_name: str = Form(...),
+    location: Optional[str] = Form(None),
+    custom_prompt: Optional[str] = Form(None)
+):
+    """
+    生成景点合影照片
+    
+    Args:
+        user_photo: 用户上传的照片
+        attraction_name: 景点名称
+        location: 景点位置（可选）
+        custom_prompt: 自定义提示词（可选）
+        
+    Returns:
+        生成的合影照片信息
+    """
+    try:
+        logger.info(f"收到景点合影生成请求: {attraction_name}")
+        
+        # 验证文件类型
+        if not user_photo.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="请上传有效的图片文件")
+        
+        # 调用Gemini服务生成合影
+        success, message, result = await gemini_service.generate_attraction_photo(
+            user_photo=user_photo,
+            attraction_name=attraction_name,
+            location=location,
+            custom_prompt=custom_prompt
+        )
+        
+        if success and result:
+            return {
+                "success": True,
+                "message": message,
+                "data": {
+                    "image_url": result["base64"],  # 返回base64编码的图片
+                    "filename": result["filename"],
+                    "attraction": result["attraction"],
+                    "prompt": result["prompt"]
+                }
+            }
+        else:
+            raise HTTPException(status_code=500, detail=message)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"生成景点合影时出错: {e}")
+        raise HTTPException(status_code=500, detail=f"生成景点合影失败: {str(e)}")
+
+@app.get("/api/generated-images")
+async def get_generated_images(limit: int = 10):
+    """
+    获取最近生成的合影照片列表
+    
+    Args:
+        limit: 返回的图片数量限制
+        
+    Returns:
+        生成的图片列表
+    """
+    try:
+        images = gemini_service.get_generated_images(limit=limit)
+        return {
+            "success": True,
+            "data": images
+        }
+    except Exception as e:
+        logger.error(f"获取生成的图片列表时出错: {e}")
+        raise HTTPException(status_code=500, detail=f"获取图片列表失败: {str(e)}")
+
+@app.get("/api/download-image/{filename}")
+async def download_generated_image(filename: str):
+    """
+    下载生成的合影照片
+    
+    Args:
+        filename: 图片文件名
+        
+    Returns:
+        图片文件
+    """
+    try:
+        filepath = os.path.join("backend/generated_images", filename)
+        
+        if not os.path.exists(filepath):
+            raise HTTPException(status_code=404, detail="图片文件不存在")
+        
+        # 确保文件名安全
+        if ".." in filename or "/" in filename or "\\" in filename:
+            raise HTTPException(status_code=400, detail="无效的文件名")
+        
+        return FileResponse(
+            path=filepath,
+            media_type="image/png",
+            filename=filename
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"下载图片时出错: {e}")
+        raise HTTPException(status_code=500, detail=f"下载图片失败: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
