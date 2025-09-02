@@ -28,7 +28,13 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["太和殿", "中和殿", "保和殿", "乾清宫", "坤宁宫"],
+        "highlights": [
+          "太和殿",
+          "中和殿",
+          "保和殿",
+          "乾清宫",
+          "坤宁宫"
+        ],
         "visit_duration": "3-4小时",
         "best_visit_time": "早上8:30开门时或下午4点后",
         "transportation": "地铁1号线天安门东站"
@@ -51,7 +57,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["祈年殿", "圜丘坛", "皇穹宇", "回音壁"],
+        "highlights": [
+          "祈年殿",
+          "圜丘坛",
+          "皇穹宇",
+          "回音壁"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "早上6-8点或傍晚5-7点",
         "transportation": "地铁5号线天坛东门站"
@@ -74,7 +85,13 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["万寿山", "昆明湖", "长廊", "佛香阁", "十七孔桥"],
+        "highlights": [
+          "万寿山",
+          "昆明湖",
+          "长廊",
+          "佛香阁",
+          "十七孔桥"
+        ],
         "visit_duration": "3-4小时",
         "best_visit_time": "春夏秋季，避开周末",
         "transportation": "地铁4号线北宫门站"
@@ -97,7 +114,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["北八楼", "南四楼", "关城", "熊乐园"],
+        "highlights": [
+          "北八楼",
+          "南四楼",
+          "关城",
+          "熊乐园"
+        ],
         "visit_duration": "4-6小时",
         "best_visit_time": "春秋季节，避开节假日",
         "transportation": "京张高铁八达岭长城站"
@@ -107,7 +129,7 @@
         "name": "北海公园",
         "category": "历史文化古迹",
         "coordinates": {
-          "lat": 39.9250,
+          "lat": 39.925,
           "lng": 116.3893
         },
         "address": "北京市西城区文津街1号",
@@ -120,7 +142,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["白塔", "琼华岛", "九龙壁", "静心斋"],
+        "highlights": [
+          "白塔",
+          "琼华岛",
+          "九龙壁",
+          "静心斋"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "春夏季节，荷花盛开时",
         "transportation": "地铁6号线北海北站"
@@ -143,7 +170,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["钢结构外观", "奥运展厅", "观景台", "夜景灯光"],
+        "highlights": [
+          "钢结构外观",
+          "奥运展厅",
+          "观景台",
+          "夜景灯光"
+        ],
         "visit_duration": "1-2小时",
         "best_visit_time": "傍晚时分，可观赏夜景",
         "transportation": "地铁8号线奥体中心站"
@@ -166,7 +198,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["ETFE膜结构", "水上乐园", "奥运展览", "蓝色夜景"],
+        "highlights": [
+          "ETFE膜结构",
+          "水上乐园",
+          "奥运展览",
+          "蓝色夜景"
+        ],
         "visit_duration": "1-2小时",
         "best_visit_time": "夏季可体验水上乐园",
         "transportation": "地铁8号线奥体中心站"
@@ -176,8 +213,8 @@
         "name": "奥林匹克公园",
         "category": "现代场馆",
         "coordinates": {
-          "lat": 40.0000,
-          "lng": 116.4000
+          "lat": 40.0,
+          "lng": 116.4
         },
         "address": "北京市朝阳区",
         "description": "2008年北京奥运会主要场馆集中区域，现代体育文化中心",
@@ -189,7 +226,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["奥林匹克森林公园", "国家会议中心", "玲珑塔", "下沉花园"],
+        "highlights": [
+          "奥林匹克森林公园",
+          "国家会议中心",
+          "玲珑塔",
+          "下沉花园"
+        ],
         "visit_duration": "4-6小时",
         "best_visit_time": "全年适宜，春秋最佳",
         "transportation": "地铁8号线奥林匹克公园站"
@@ -212,7 +254,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["中关村创业大街", "海龙大厦", "鼎好大厦", "科技企业"],
+        "highlights": [
+          "中关村创业大街",
+          "海龙大厦",
+          "鼎好大厦",
+          "科技企业"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "工作日可感受科技氛围",
         "transportation": "地铁4号线中关村站"
@@ -235,7 +282,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["观景台", "旋转餐厅", "城市全景", "夜景灯光"],
+        "highlights": [
+          "观景台",
+          "旋转餐厅",
+          "城市全景",
+          "夜景灯光"
+        ],
         "visit_duration": "1-2小时",
         "best_visit_time": "傍晚时分，可观日落夜景",
         "transportation": "地铁1号线公主坟站"
@@ -258,7 +310,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["王府井百货", "东方新天地", "小吃街", "天主教堂"],
+        "highlights": [
+          "王府井百货",
+          "东方新天地",
+          "小吃街",
+          "天主教堂"
+        ],
         "visit_duration": "2-4小时",
         "best_visit_time": "傍晚时分，夜市热闹",
         "transportation": "地铁1号线王府井站"
@@ -281,7 +338,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["太古里", "Village", "酒吧街", "Apple Store"],
+        "highlights": [
+          "太古里",
+          "Village",
+          "酒吧街",
+          "Apple Store"
+        ],
         "visit_duration": "3-5小时",
         "best_visit_time": "晚上夜生活丰富",
         "transportation": "地铁10号线团结湖站"
@@ -291,7 +353,7 @@
         "name": "前门大街",
         "category": "典型商业景点",
         "coordinates": {
-          "lat": 39.8950,
+          "lat": 39.895,
           "lng": 116.3975
         },
         "address": "北京市东城区前门大街",
@@ -304,7 +366,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["大栅栏", "鲜鱼口", "老字号", "传统建筑"],
+        "highlights": [
+          "大栅栏",
+          "鲜鱼口",
+          "老字号",
+          "传统建筑"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "白天可感受传统文化",
         "transportation": "地铁2号线前门站"
@@ -327,7 +394,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["Page One书店", "精品酒店", "文创商店", "胡同文化"],
+        "highlights": [
+          "Page One书店",
+          "精品酒店",
+          "文创商店",
+          "胡同文化"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "下午到晚上，文艺氛围浓厚",
         "transportation": "地铁2号线前门站"
@@ -350,7 +422,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["丝绸制品", "工艺品", "珍珠饰品", "讨价还价"],
+        "highlights": [
+          "丝绸制品",
+          "工艺品",
+          "珍珠饰品",
+          "讨价还价"
+        ],
         "visit_duration": "1-2小时",
         "best_visit_time": "工作日人少，便于购物",
         "transportation": "地铁1号线永安里站"
@@ -360,7 +437,7 @@
         "name": "中国国家博物馆",
         "category": "科技历史文化博物馆",
         "coordinates": {
-          "lat": 39.9030,
+          "lat": 39.903,
           "lng": 116.3988
         },
         "address": "北京市东城区东长安街16号",
@@ -373,7 +450,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["古代中国", "复兴之路", "青铜器", "瓷器"],
+        "highlights": [
+          "古代中国",
+          "复兴之路",
+          "青铜器",
+          "瓷器"
+        ],
         "visit_duration": "3-4小时",
         "best_visit_time": "工作日，避开人流高峰",
         "transportation": "地铁1号线天安门东站"
@@ -396,7 +478,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["北京通史", "京剧文物", "古代瓷器", "古代佛教艺术"],
+        "highlights": [
+          "北京通史",
+          "京剧文物",
+          "古代瓷器",
+          "古代佛教艺术"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "周二至周日，建议上午参观",
         "transportation": "地铁1号线木樨地站"
@@ -419,7 +506,12 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["天象厅", "太阳厅", "宇宙剧场", "4D剧场"],
+        "highlights": [
+          "天象厅",
+          "太阳厅",
+          "宇宙剧场",
+          "4D剧场"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "周末适合亲子参观",
         "transportation": "地铁2号线西直门站"
@@ -442,7 +534,12 @@
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
           "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
         ],
-        "highlights": ["科学乐园", "华夏之光", "探索与发现", "科技与未来"],
+        "highlights": [
+          "科学乐园",
+          "华夏之光",
+          "探索与发现",
+          "科技与未来"
+        ],
         "visit_duration": "3-4小时",
         "best_visit_time": "周末适合家庭参观",
         "transportation": "地铁8号线奥林匹克公园站"
@@ -465,11 +562,38 @@
           "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
           "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
         ],
-        "highlights": ["古代战争", "近现代战争", "兵器陈列", "英雄模范"],
+        "highlights": [
+          "古代战争",
+          "近现代战争",
+          "兵器陈列",
+          "英雄模范"
+        ],
         "visit_duration": "2-3小时",
         "best_visit_time": "工作日参观人数较少",
         "transportation": "地铁1号线军事博物馆站"
       }
     }
+  },
+  "ea5808ce-3975-426b-ace8-448e1e305278": {
+    "journey_id": "ea5808ce-3975-426b-ace8-448e1e305278",
+    "start_time": "2025-09-02T15:40:00.357957",
+    "end_time": null,
+    "start_location": {
+      "lat": 39.954201524109614,
+      "lng": 116.31004870200141,
+      "name": "位置 39.9542, 116.3100",
+      "address": null
+    },
+    "current_location": {
+      "lat": 39.954201524109614,
+      "lng": 116.31004870200141,
+      "name": "位置 39.9542, 116.3100",
+      "address": null
+    },
+    "visited_scenes": [],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/2 15:40:00",
+    "created_at": "2025-09-02T15:40:00.357957"
   }
 }
