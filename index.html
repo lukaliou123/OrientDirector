@@ -120,6 +120,101 @@
                     </button>
                 </div>
             </div>
+
+            <!-- 时光自拍功能面板 -->
+            <div class="historical-selfie-panel" id="historicalSelfiePanel" style="display: none;">
+                <div class="selfie-header">
+                    <h3>📸 时光自拍</h3>
+                    <p>与历史时刻留下永恒回忆</p>
+                </div>
+                
+                <!-- 自拍询问对话框 -->
+                <div class="selfie-question" id="selfieQuestion">
+                    <div class="question-content">
+                        <!-- 用户头像预览 -->
+                        <div class="user-avatar-preview">
+                            <img src="http://localhost:8000/static/profile_photo/profile.jpg" 
+                                 alt="您的头像" 
+                                 class="avatar-image" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="avatar-placeholder" style="display: none;">
+                                👤
+                            </div>
+                            <p class="avatar-label">您的角色</p>
+                        </div>
+                        
+                        <div class="selfie-question-text">
+                            <p>🎭 想要与这个历史时代合影留念吗？</p>
+                            <p class="question-subtitle">选择一个场景，生成专属的时光自拍！</p>
+                        </div>
+                        
+                        <div class="question-actions">
+                            <button class="selfie-yes-btn" onclick="startHistoricalSelfie()">
+                                📸 是的，我要自拍！
+                            </button>
+                            <button class="selfie-no-btn" onclick="skipSelfie()">
+                                ❌ 不了，直接总结
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 场景选择界面 -->
+                <div class="selfie-scene-selector" id="selfieSceneSelector" style="display: none;">
+                    <h4>🏛️ 选择自拍场景</h4>
+                    <div class="visited-scenes" id="visitedScenes">
+                        <!-- 动态填充已访问的场景 -->
+                    </div>
+                    <div class="selfie-controls">
+                        <button class="back-btn" onclick="backToSelfieQuestion()">
+                            ← 返回
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 自拍结果显示 -->
+                <div class="selfie-result" id="selfieResult" style="display: none;">
+                    <h4>🤳 您的时光自拍</h4>
+                    <div class="selfie-image-container">
+                        <img id="selfieImage" alt="时光自拍" />
+                        <div class="selfie-info">
+                            <p id="selfieDescription">正在生成您的专属时光自拍...</p>
+                        </div>
+                    </div>
+                    <div class="selfie-actions">
+                        <button class="share-selfie-btn" onclick="shareSelfie()">
+                            🔗 分享自拍
+                        </button>
+                        <button class="continue-journey-btn" onclick="continueToSummary()">
+                            📖 查看旅途总结
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 旅途总结 -->
+                <div class="journey-summary" id="journeySummary" style="display: none;">
+                    <h3>📖 时光穿越旅途总结</h3>
+                    <div class="summary-content">
+                        <div class="visited-places" id="summaryPlaces">
+                            <!-- 动态填充访问的地点 -->
+                        </div>
+                        <div class="journey-selfie" id="journeySelfie">
+                            <!-- 显示自拍照片 -->
+                        </div>
+                        <div class="journey-text" id="journeyText">
+                            <!-- AI生成的旅途总结文字 -->
+                        </div>
+                    </div>
+                    <div class="summary-actions">
+                        <button class="new-journey-btn" onclick="startNewJourney()">
+                            🚀 开始新旅途
+                        </button>
+                        <button class="share-journey-btn" onclick="shareJourney()">
+                            🔗 分享旅途
+                        </button>
+                    </div>
+                </div>
+            </div>
             
             <div class="location-info">
                 <div class="current-location">

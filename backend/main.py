@@ -117,6 +117,21 @@ class HistoricalSceneResponse(BaseModel):
     data_source: str = "Historical-basemaps + Gemini"
     error: Optional[str] = None
 
+# 时光自拍相关模型
+class HistoricalSelfieRequest(BaseModel):
+    scene_id: str  # 场景ID
+    political_entity: str  # 政治实体
+    year: int  # 年份
+    user_image: Optional[str] = None  # 用户照片（演示模式可选）
+
+class HistoricalSelfieResponse(BaseModel):
+    success: bool
+    selfie_url: Optional[str] = None  # 生成的自拍图片URL
+    scene_info: Optional[Dict] = None  # 场景信息
+    generation_time: float
+    demo_mode: bool = True
+    error: Optional[str] = None
+
 # 全局变量
 geod = Geodesic.WGS84
 places_data = {}
@@ -1085,6 +1100,73 @@ async def generate_historical_scene(request: HistoricalSceneRequest):
         raise HTTPException(
             status_code=500, 
             detail=f"历史场景生成失败: {str(e)}"
+        )
+
+@app.post("/api/generate-historical-selfie", response_model=HistoricalSelfieResponse)
+async def generate_historical_selfie(request: HistoricalSelfieRequest):
+    """
+    历史自拍生成API
+    
+    在演示模式中使用预设的自拍照片，
+    在实际模式中将使用Gemini的图生图功能合成用户照片与历史场景
+    
+    Args:
+        request: 包含场景信息和用户图片的自拍请求
+        
+    Returns:
+        包含生成的自拍图片URL的响应
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"📸 历史自拍生成请求: {request.political_entity} ({request.year}年)")
+        
+        # 演示模式：使用预设自拍照片
+        demo_mode = os.getenv('DEMO_MODE', 'false').lower() == 'true'
+        
+        if demo_mode:
+            print("🎭 演示模式：使用预设时光自拍照片")
+            
+            # 预设自拍照片URL
+            demo_selfie_url = "http://localhost:8000/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg"
+            
+            # 构建场景信息
+            scene_info = {
+                "political_entity": request.political_entity,
+                "year": request.year,
+                "selfie_description": f"与{request.political_entity}({request.year}年)的时光合影",
+                "demo_character": "时光旅行者",
+                "generation_method": "预设演示图片"
+            }
+            
+            calculation_time = time.time() - start_time
+            
+            print(f"✅ 演示自拍生成完成: {request.political_entity}")
+            print(f"⚡ 响应时间: {calculation_time:.3f}秒")
+            
+            return HistoricalSelfieResponse(
+                success=True,
+                selfie_url=demo_selfie_url,
+                scene_info=scene_info,
+                generation_time=calculation_time,
+                demo_mode=True
+            )
+        else:
+            # 实际模式：将来使用Gemini图生图
+            raise HTTPException(
+                status_code=501, 
+                detail="实际模式的图生图功能尚未实现，请使用演示模式"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        calculation_time = time.time() - start_time
+        print(f"❌ 历史自拍生成API异常: {e}")
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"历史自拍生成失败: {str(e)}"
         )
 
 @app.get("/api/historical/generation-capabilities")

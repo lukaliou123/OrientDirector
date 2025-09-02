@@ -3397,6 +3397,9 @@ function displayHistoricalScene(data) {
             
             <!-- 操作按钮 -->
             <div class="historical-actions">
+                <button class="action-btn featured" onclick="endHistoricalJourney()">
+                    🏁 结束旅途
+                </button>
                 <button class="action-btn primary" onclick="exploreAnotherPeriod()">
                     ⏰ 探索其他时期
                 </button>
@@ -3619,3 +3622,396 @@ window.shareHistoricalScene = shareHistoricalScene;
 window.returnToRegularMode = returnToRegularMode;
 window.openHistoricalImageModal = openHistoricalImageModal;
 window.closeHistoricalImageModal = closeHistoricalImageModal;
+
+// ================ 时光自拍功能 ================
+
+// 自拍功能全局变量
+let visitedHistoricalScenes = []; // 已访问的历史场景记录
+let currentSelfieData = null;     // 当前自拍数据
+let journeyStartTime = null;      // 旅途开始时间
+
+/**
+ * 结束历史旅途，询问是否要自拍
+ */
+function endHistoricalJourney() {
+    logger.info('🏁 用户选择结束历史旅途');
+    
+    // 显示自拍面板，隐藏当前场景
+    const container = document.getElementById('placesContainer');
+    const selfiePanel = document.getElementById('historicalSelfiePanel');
+    const selfieQuestion = document.getElementById('selfieQuestion');
+    
+    if (container) container.style.display = 'none';
+    if (selfiePanel) selfiePanel.style.display = 'block';
+    if (selfieQuestion) selfieQuestion.style.display = 'block';
+    
+    // 重置自拍相关UI
+    document.getElementById('selfieSceneSelector').style.display = 'none';
+    document.getElementById('selfieResult').style.display = 'none';
+    document.getElementById('journeySummary').style.display = 'none';
+    
+    logger.info('📸 显示自拍询问对话框');
+}
+
+/**
+ * 开始历史自拍流程
+ */
+function startHistoricalSelfie() {
+    logger.info('📸 用户选择进行时光自拍');
+    
+    // 显示场景选择界面
+    document.getElementById('selfieQuestion').style.display = 'none';
+    document.getElementById('selfieSceneSelector').style.display = 'block';
+    
+    // 填充已访问的场景
+    populateVisitedScenes();
+}
+
+/**
+ * 跳过自拍，直接进入旅途总结
+ */
+function skipSelfie() {
+    logger.info('❌ 用户跳过自拍，直接总结旅途');
+    
+    // 直接显示旅途总结
+    showJourneySummary();
+}
+
+/**
+ * 填充已访问的历史场景选择器
+ */
+function populateVisitedScenes() {
+    const container = document.getElementById('visitedScenes');
+    
+    if (!container) {
+        logger.error('❌ 找不到场景选择器容器');
+        return;
+    }
+    
+    // 如果没有访问过场景，显示当前场景
+    if (visitedHistoricalScenes.length === 0 && currentHistoricalInfo) {
+        visitedHistoricalScenes.push({
+            political_entity: currentHistoricalInfo.political_entity,
+            year: currentHistoricalInfo.query_year,
+            coordinates: currentHistoricalInfo.coordinates,
+            description: currentHistoricalInfo.description,
+            scene_data: historicalSceneData
+        });
+    }
+    
+    const scenesHtml = visitedHistoricalScenes.map((scene, index) => `
+        <div class="scene-card selectable" onclick="selectSelfieScene(${index})">
+            <div class="scene-preview">
+                ${scene.scene_data && scene.scene_data.images ? 
+                    `<img src="${scene.scene_data.images[0]}" alt="${scene.political_entity}" class="scene-thumb">` :
+                    `<div class="scene-placeholder">🏛️</div>`
+                }
+            </div>
+            <div class="scene-info">
+                <h5>${scene.political_entity}</h5>
+                <p>${scene.year}年</p>
+                <p class="scene-desc">${scene.description.substring(0, 50)}...</p>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = scenesHtml;
+    logger.info(`🏛️ 显示 ${visitedHistoricalScenes.length} 个已访问场景`);
+}
+
+/**
+ * 选择自拍场景
+ */
+function selectSelfieScene(sceneIndex) {
+    const scene = visitedHistoricalScenes[sceneIndex];
+    if (!scene) {
+        logger.error('❌ 无效的场景索引');
+        return;
+    }
+    
+    logger.info(`🎯 用户选择与 ${scene.political_entity} (${scene.year}年) 自拍`);
+    
+    // 显示自拍结果界面
+    document.getElementById('selfieSceneSelector').style.display = 'none';
+    document.getElementById('selfieResult').style.display = 'block';
+    
+    // 开始生成自拍
+    generateHistoricalSelfie(scene);
+}
+
+/**
+ * 生成历史自拍（调用后端API）
+ */
+async function generateHistoricalSelfie(scene) {
+    try {
+        showLoading(true, '🤳 正在生成您的时光自拍...');
+        
+        // 调用后端自拍生成API
+        const requestData = {
+            scene_id: `${scene.political_entity}_${scene.year}`,
+            political_entity: scene.political_entity,
+            year: scene.year,
+            user_image: null  // 演示模式不需要用户图片
+        };
+        
+        const response = await fetch('http://localhost:8000/api/generate-historical-selfie', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API请求失败: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const selfieImage = document.getElementById('selfieImage');
+            const selfieDescription = document.getElementById('selfieDescription');
+            
+            // 显示生成的自拍照片
+            if (selfieImage && data.selfie_url) {
+                selfieImage.src = data.selfie_url;
+                selfieImage.style.display = 'block';
+            }
+            
+            // 更新描述信息
+            if (selfieDescription && data.scene_info) {
+                selfieDescription.innerHTML = `
+                    <p>🎉 太棒了！您与 <strong>${data.scene_info.political_entity}</strong> (${data.scene_info.year}年) 的时光自拍已生成！</p>
+                    <p class="selfie-note">✨ ${data.demo_mode ? '演示模式：使用预设时光旅行者角色' : '实时生成模式'}</p>
+                    <p class="selfie-note">⚡ 生成时间: ${data.generation_time.toFixed(2)}秒</p>
+                `;
+            }
+            
+            // 保存自拍数据
+            currentSelfieData = {
+                scene: scene,
+                image_url: data.selfie_url,
+                generated_time: new Date().toISOString(),
+                demo_mode: data.demo_mode,
+                api_response: data
+            };
+            
+            logger.success(`🤳 ${scene.political_entity} 时光自拍生成完成`);
+            
+        } else {
+            throw new Error(data.error || '自拍生成失败');
+        }
+        
+    } catch (error) {
+        logger.error(`❌ 自拍生成失败: ${error.message}`);
+        showError(`自拍生成失败: ${error.message}`);
+        
+        // 演示模式失败时的备用方案
+        const selfieImage = document.getElementById('selfieImage');
+        const selfieDescription = document.getElementById('selfieDescription');
+        
+        if (selfieImage) {
+            selfieImage.src = 'http://localhost:8000/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg';
+            selfieImage.style.display = 'block';
+        }
+        
+        if (selfieDescription) {
+            selfieDescription.innerHTML = `
+                <p>🎭 使用备用演示自拍（API调用失败）</p>
+                <p class="selfie-note">✨ 与 ${scene.political_entity} (${scene.year}年) 的时光合影</p>
+            `;
+        }
+        
+    } finally {
+        showLoading(false);
+    }
+}
+
+/**
+ * 继续到旅途总结
+ */
+function continueToSummary() {
+    logger.info('📖 进入旅途总结');
+    showJourneySummary();
+}
+
+/**
+ * 显示旅途总结
+ */
+function showJourneySummary() {
+    // 显示总结界面
+    document.getElementById('selfieQuestion').style.display = 'none';
+    document.getElementById('selfieSceneSelector').style.display = 'none'; 
+    document.getElementById('selfieResult').style.display = 'none';
+    document.getElementById('journeySummary').style.display = 'block';
+    
+    // 填充总结内容
+    populateJourneySummary();
+}
+
+/**
+ * 填充旅途总结内容
+ */
+function populateJourneySummary() {
+    // 填充访问地点
+    const placesContainer = document.getElementById('summaryPlaces');
+    const selfieContainer = document.getElementById('journeySelfie');
+    const textContainer = document.getElementById('journeyText');
+    
+    // 访问地点总结
+    if (placesContainer && visitedHistoricalScenes.length > 0) {
+        const placesHtml = `
+            <h4>🗺️ 时空足迹</h4>
+            <div class="visited-places-grid">
+                ${visitedHistoricalScenes.map(scene => `
+                    <div class="summary-scene-card">
+                        <div class="scene-year">${scene.year}年</div>
+                        <div class="scene-name">${scene.political_entity}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        placesContainer.innerHTML = placesHtml;
+    }
+    
+    // 自拍照片
+    if (selfieContainer && currentSelfieData) {
+        const selfieHtml = `
+            <h4>📸 时光留影</h4>
+            <div class="summary-selfie">
+                <img src="${currentSelfieData.image_url}" alt="时光自拍" class="summary-selfie-image">
+                <p class="selfie-caption">与 ${currentSelfieData.scene.political_entity} (${currentSelfieData.scene.year}年) 的珍贵合影</p>
+            </div>
+        `;
+        selfieContainer.innerHTML = selfieHtml;
+    }
+    
+    // AI生成的旅途总结文字
+    if (textContainer) {
+        const summaryText = generateJourneySummaryText();
+        textContainer.innerHTML = `
+            <h4>✨ 旅途感悟</h4>
+            <div class="journey-summary-text">
+                ${summaryText}
+            </div>
+        `;
+    }
+    
+    logger.success('📖 旅途总结已生成');
+}
+
+/**
+ * 生成旅途总结文字
+ */
+function generateJourneySummaryText() {
+    if (visitedHistoricalScenes.length === 0) {
+        return '<p>这是一次短暂但精彩的时空探索之旅！</p>';
+    }
+    
+    const totalScenes = visitedHistoricalScenes.length;
+    const yearSpan = visitedHistoricalScenes.length > 1 ? 
+        Math.abs(visitedHistoricalScenes[visitedHistoricalScenes.length-1].year - visitedHistoricalScenes[0].year) : 0;
+    
+    const hasSelfie = currentSelfieData ? '还与历史时刻留下了珍贵合影' : '体验了历史文化的魅力';
+    
+    return `
+        <p>🌟 在这次奇妙的时光穿越之旅中，您探索了 <strong>${totalScenes}</strong> 个历史时空点，${yearSpan > 0 ? `跨越了 ${yearSpan} 年的历史长河，` : ''}${hasSelfie}。</p>
+        
+        <p>💫 从 ${visitedHistoricalScenes.map(s => `${s.political_entity}(${s.year}年)`).join(' 到 ')}，每一个历史瞬间都诉说着人类文明的辉煌篇章。</p>
+        
+        ${currentSelfieData ? `
+            <p>📸 特别值得纪念的是，您与 <strong>${currentSelfieData.scene.political_entity}</strong> 的时光合影将永远见证这次跨越时空的奇妙邂逅！</p>
+        ` : ''}
+        
+        <p>🚀 感谢您使用 OrientDiscover 进行时光探索，期待下次与您一起穿越历史的长河！</p>
+    `;
+}
+
+/**
+ * 分享自拍照片
+ */
+function shareSelfie() {
+    if (!currentSelfieData) {
+        showError('没有可分享的自拍照片');
+        return;
+    }
+    
+    const shareText = `我刚刚与${currentSelfieData.scene.political_entity}(${currentSelfieData.scene.year}年)进行了时光自拍！#OrientDiscover #时光穿越`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: '时光自拍 - OrientDiscover',
+            text: shareText,
+            url: currentSelfieData.image_url
+        });
+    } else {
+        copyToClipboard(shareText + ' ' + currentSelfieData.image_url);
+        showSuccess('🔗 自拍信息已复制到剪贴板');
+    }
+    
+    logger.info('📤 用户分享时光自拍');
+}
+
+/**
+ * 开始新旅途
+ */
+function startNewJourney() {
+    // 重置所有状态
+    visitedHistoricalScenes = [];
+    currentSelfieData = null;
+    journeyStartTime = new Date();
+    
+    // 隐藏自拍面板
+    document.getElementById('historicalSelfiePanel').style.display = 'none';
+    
+    // 显示主界面
+    const container = document.getElementById('placesContainer');
+    if (container) {
+        container.style.display = 'block';
+        container.innerHTML = '<p>🚀 准备开始新的时光探索之旅...</p>';
+    }
+    
+    logger.info('🚀 开始新的历史探索旅途');
+    showSuccess('🌟 新的时光探索之旅即将开始！');
+}
+
+/**
+ * 分享完整旅途
+ */
+function shareJourney() {
+    const scenesText = visitedHistoricalScenes.map(s => `${s.political_entity}(${s.year}年)`).join(', ');
+    const shareText = `我刚完成了一次精彩的时光穿越！探索了：${scenesText}。${currentSelfieData ? '还留下了珍贵的时光自拍！' : ''} #OrientDiscover #历史探索`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: '时光穿越旅途 - OrientDiscover',
+            text: shareText
+        });
+    } else {
+        copyToClipboard(shareText);
+        showSuccess('🔗 旅途信息已复制到剪贴板');
+    }
+    
+    logger.info('📤 用户分享完整旅途');
+}
+
+/**
+ * 返回自拍询问
+ */
+function backToSelfieQuestion() {
+    document.getElementById('selfieSceneSelector').style.display = 'none';
+    document.getElementById('selfieQuestion').style.display = 'block';
+    logger.info('🔙 返回自拍询问对话框');
+}
+
+// 全局暴露时光自拍功能
+window.endHistoricalJourney = endHistoricalJourney;
+window.startHistoricalSelfie = startHistoricalSelfie;
+window.skipSelfie = skipSelfie;
+window.selectSelfieScene = selectSelfieScene;
+window.generateHistoricalSelfie = generateHistoricalSelfie;
+window.continueToSummary = continueToSummary;
+window.shareSelfie = shareSelfie;
+window.startNewJourney = startNewJourney;
+window.shareJourney = shareJourney;
+window.backToSelfieQuestion = backToSelfieQuestion;

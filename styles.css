@@ -2104,3 +2104,455 @@ body {
         min-height: 300px;
     }
 }
+
+/* ================ 时光自拍功能样式 ================ */
+
+.historical-selfie-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    color: white;
+}
+
+.selfie-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.selfie-header h3 {
+    font-size: 28px;
+    margin: 0 0 10px 0;
+    background: linear-gradient(45deg, #FFE066, #FF6B6B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 自拍询问对话框 */
+.selfie-question {
+    text-align: center;
+    padding: 20px;
+}
+
+/* 用户头像预览 */
+.user-avatar-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0 30px 0;
+}
+
+.avatar-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.avatar-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.avatar-label {
+    margin: 8px 0 0 0 !important;
+    font-size: 12px;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.selfie-question-text {
+    margin: 20px 0;
+}
+
+.selfie-question-text p {
+    font-size: 18px;
+    margin: 15px 0;
+}
+
+.question-content p {
+    font-size: 18px;
+    margin: 15px 0;
+}
+
+.question-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 25px !important;
+}
+
+.question-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.selfie-yes-btn, .selfie-no-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.selfie-yes-btn {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.selfie-yes-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.selfie-no-btn {
+    background: linear-gradient(45deg, #f44336, #da190b);
+    color: white;
+}
+
+.selfie-no-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+}
+
+/* 场景选择界面 */
+.selfie-scene-selector h4 {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.visited-scenes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.scene-card.selectable {
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.scene-card.selectable:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.scene-preview {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.scene-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scene-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+    font-size: 30px;
+}
+
+.scene-info h5 {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.scene-info p {
+    margin: 3px 0;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.selfie-controls {
+    display: flex;
+    justify-content: center;
+}
+
+.back-btn {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+}
+
+/* 自拍结果显示 */
+.selfie-result {
+    text-align: center;
+}
+
+.selfie-result h4 {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.selfie-image-container {
+    margin: 20px 0;
+}
+
+.selfie-image-container img {
+    max-width: 400px;
+    width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+}
+
+.selfie-info {
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin: 15px auto;
+    max-width: 500px;
+}
+
+.selfie-note {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 5px !important;
+}
+
+.selfie-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+
+.share-selfie-btn, .continue-journey-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+}
+
+.share-selfie-btn {
+    background: linear-gradient(45deg, #FF6B6B, #ee5a52);
+    color: white;
+}
+
+.continue-journey-btn {
+    background: linear-gradient(45deg, #4ECDC4, #44A08D);
+    color: white;
+}
+
+.share-selfie-btn:hover, .continue-journey-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* 旅途总结 */
+.journey-summary {
+    text-align: center;
+}
+
+.journey-summary h3 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    background: linear-gradient(45deg, #FFE066, #FF8A65);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.summary-content {
+    display: grid;
+    gap: 25px;
+    margin: 25px 0;
+}
+
+.visited-places-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.summary-scene-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+}
+
+.scene-year {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.scene-name {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.summary-selfie {
+    margin: 20px 0;
+}
+
+.summary-selfie-image {
+    max-width: 300px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+}
+
+.selfie-caption {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 10px 0;
+}
+
+.journey-summary-text {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    line-height: 1.6;
+    margin: 15px 0;
+}
+
+.summary-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.new-journey-btn, .share-journey-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.new-journey-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+}
+
+.share-journey-btn {
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.new-journey-btn:hover, .share-journey-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* 特色按钮样式 */
+.action-btn.featured {
+    background: linear-gradient(45deg, #FF6B6B, #4ECDC4) !important;
+    color: white !important;
+    font-weight: bold;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+.action-btn.featured:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .user-avatar-preview {
+        margin: 15px 0 20px 0;
+    }
+    
+    .avatar-image, .avatar-placeholder {
+        width: 60px;
+        height: 60px;
+        border-width: 3px;
+    }
+    
+    .avatar-placeholder {
+        font-size: 24px;
+    }
+    
+    .avatar-label {
+        font-size: 11px;
+    }
+    
+    .selfie-question-text p {
+        font-size: 16px;
+    }
+    
+    .question-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .selfie-yes-btn, .selfie-no-btn {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .visited-scenes {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .new-journey-btn, .share-journey-btn {
+        width: 100%;
+        max-width: 250px;
+    }
+}

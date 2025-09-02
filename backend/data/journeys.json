@@ -1214,5 +1214,93 @@
     "is_active": true,
     "journey_title": "探索之旅 2025/9/2 13:27:41",
     "created_at": "2025-09-02T13:27:41.381692"
+  },
+  "a87e427c-cc81-46fa-abb0-d469a5463de3": {
+    "journey_id": "a87e427c-cc81-46fa-abb0-d469a5463de3",
+    "start_time": "2025-09-02T23:35:24.186521",
+    "end_time": null,
+    "start_location": {
+      "lat": 39.96666532338027,
+      "lng": 116.32607723782046,
+      "name": "位置 39.9667, 116.3261",
+      "address": null
+    },
+    "current_location": {
+      "lat": 40.047815,
+      "lng": 116.336728,
+      "name": "天后宫",
+      "address": "距此约1.2公里 - 天后宫位于西三旗街道悦秀路95号通厦公元99A座，是一处著名的自然风景区，拥有优美的自然风光。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "c9e6cc9e-2f88-4828-97b9-f5cfd0499e3c",
+        "name": "天后宫",
+        "location": {
+          "lat": 40.047815,
+          "lng": 116.336728,
+          "name": "天后宫",
+          "address": "距此约1.2公里 - 天后宫位于西三旗街道悦秀路95号通厦公元99A座，是一处著名的自然风景区，拥有优美的自然风光。"
+        },
+        "visit_time": "2025-09-02T23:35:30.609491",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/2 23:35:24",
+    "created_at": "2025-09-02T23:35:24.186521"
+  },
+  "3061ef76-2e7c-403b-8988-2adb80da7290": {
+    "journey_id": "3061ef76-2e7c-403b-8988-2adb80da7290",
+    "start_time": "2025-09-03T00:06:03.492568",
+    "end_time": "2025-09-03T00:07:36.089449",
+    "start_location": {
+      "lat": 39.96671818135588,
+      "lng": 116.32633931181213,
+      "name": "位置 39.9667, 116.3263",
+      "address": null
+    },
+    "current_location": {
+      "lat": 39.949126,
+      "lng": 116.473697,
+      "name": "BEIGEL TREE贝果树·纽约贝果博物馆(蓝色港湾店)",
+      "address": "距此约0.7公里 - BEIGEL TREE贝果树·纽约贝果博物馆(蓝色港湾店)位于朝阳公园路6号SOLANA蓝色港湾1号楼，是当地的重要地标建筑。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "a0431323-a448-4cc1-b5a0-ac09da977ee1",
+        "name": "北京中轴线仰山坐标",
+        "location": {
+          "lat": 40.018836,
+          "lng": 116.392224,
+          "name": "北京中轴线仰山坐标",
+          "address": "距此约2.6公里 - 北京中轴线仰山坐标位于科荟路33号，是一处著名的自然风景区，拥有优美的自然风光。"
+        },
+        "visit_time": "2025-09-03T00:06:24.441541",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "940b4f86-b260-43fc-a26b-771ea8bc573e",
+        "name": "BEIGEL TREE贝果树·纽约贝果博物馆(蓝色港湾店)",
+        "location": {
+          "lat": 39.949126,
+          "lng": 116.473697,
+          "name": "BEIGEL TREE贝果树·纽约贝果博物馆(蓝色港湾店)",
+          "address": "距此约0.7公里 - BEIGEL TREE贝果树·纽约贝果博物馆(蓝色港湾店)位于朝阳公园路6号SOLANA蓝色港湾1号楼，是当地的重要地标建筑。"
+        },
+        "visit_time": "2025-09-03T00:07:13.343735",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/3 00:06:03",
+    "created_at": "2025-09-03T00:06:03.492568"
   }
 }
