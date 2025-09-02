@@ -41,9 +41,12 @@ class NanoBananaHistoricalService:
                 self.client = None  
                 self.client_available = False
         
-        # 图像保存目录
-        self.images_dir = "static/generated_images"
-        self.pregenerated_dir = os.getenv('PREGENERATED_IMAGES_PATH', 'static/pregenerated_images/')
+        # 图像保存目录 - 统一到项目根目录
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.images_dir = os.path.join(project_root, "static", "generated_images")
+        self.pregenerated_dir = os.path.join(project_root, "static", "pregenerated_images")
+        
+        # 确保目录存在
         os.makedirs(self.images_dir, exist_ok=True)
         os.makedirs(self.pregenerated_dir, exist_ok=True)
         
@@ -66,42 +69,87 @@ class NanoBananaHistoricalService:
         index_path = os.path.join(self.pregenerated_dir, 'demo_scenes_index.json')
         
         try:
+            print(f"🔍 尝试加载演示索引: {index_path}")
+            
             if os.path.exists(index_path):
                 with open(index_path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    scene_count = len(data.get('demo_scenes', []))
+                    print(f"✅ 演示索引加载成功: {scene_count} 个场景")
+                    
+                    # 调试：显示加载的场景
+                    if scene_count > 0:
+                        for scene in data['demo_scenes'][:3]:  # 显示前3个
+                            print(f"   - {scene.get('title', 'N/A')} ({scene.get('year', 'N/A')}年)")
+                    
+                    return data
             else:
+                print(f"⚠️ 演示索引文件不存在: {index_path}")
                 return {'demo_scenes': []}
+                
         except Exception as e:
-            print(f"⚠️ 加载预生成索引失败: {e}")
+            print(f"❌ 加载预生成索引失败: {e}")
+            print(f"   文件路径: {index_path}")
+            print(f"   文件存在: {os.path.exists(index_path)}")
             return {'demo_scenes': []}
     
     def find_matching_demo_scene(self, historical_info: Dict, lat: float, lng: float) -> Optional[Dict]:
-        """查找匹配的预生成演示场景"""
+        """查找匹配的预生成演示场景 - 支持近似匹配"""
         if not self.demo_scenes_index or 'demo_scenes' not in self.demo_scenes_index:
+            print("🔍 无演示索引数据，无法匹配预生成场景")
             return None
         
         political_entity = historical_info.get('political_entity', '')
         year = historical_info.get('query_year', 0)
         
-        # 查找完全匹配的场景
+        print(f"🔍 查找预生成场景:")
+        print(f"   目标: {political_entity} ({year}年) 坐标({lat:.4f}, {lng:.4f})")
+        
+        # 1. 优先查找完全匹配的场景
         for scene in self.demo_scenes_index['demo_scenes']:
             if (scene['political_entity'] == political_entity and 
                 scene['year'] == year and
                 abs(scene['lat'] - lat) < 0.01 and 
                 abs(scene['lng'] - lng) < 0.01):
                 
-                # 检查图片文件是否存在
                 image_path = os.path.join(self.pregenerated_dir, scene['image_filename'])
                 if os.path.exists(image_path):
+                    print(f"✅ 找到完全匹配场景: {scene['title']}")
                     return scene
+        
+        # 2. 如果没有完全匹配，查找近似匹配（政治实体相同，年份接近）
+        best_match = None
+        min_year_diff = float('inf')
+        
+        for scene in self.demo_scenes_index['demo_scenes']:
+            if (scene['political_entity'] == political_entity and
+                abs(scene['lat'] - lat) < 0.01 and 
+                abs(scene['lng'] - lng) < 0.01):
+                
+                year_diff = abs(scene['year'] - year)
+                
+                # 允许50年内的年份差异
+                if year_diff <= 50 and year_diff < min_year_diff:
+                    image_path = os.path.join(self.pregenerated_dir, scene['image_filename'])
+                    if os.path.exists(image_path):
+                        best_match = scene
+                        min_year_diff = year_diff
+        
+        if best_match:
+            print(f"✅ 找到近似匹配场景: {best_match['title']} (年份差距: {min_year_diff}年)")
+            return best_match
+        
+        print(f"❌ 未找到匹配的预生成场景")
+        available_scenes = [f"{s['political_entity']}({s['year']})" for s in self.demo_scenes_index['demo_scenes']]
+        print(f"   可用场景: {', '.join(available_scenes[:3])}")
         
         return None
     
     def return_pregenerated_scene(self, scene_data: Dict, historical_info: Dict) -> Dict:
         """返回预生成的场景数据"""
         
-        # 构建图片URL
-        image_url = f"/static/pregenerated_images/{scene_data['image_filename']}"
+        # 构建图片URL - 指向后端静态服务
+        image_url = f"http://localhost:8000/static/pregenerated_images/{scene_data['image_filename']}"
         image_path = os.path.join(self.pregenerated_dir, scene_data['image_filename'])
         
         # 获取图片信息
@@ -198,8 +246,8 @@ class NanoBananaHistoricalService:
                     # 保存图像
                     image.save(filepath)
                     
-                    # 构建URL
-                    image_url = f"/static/generated_images/{filename}"
+                    # 构建URL - 指向后端静态服务
+                    image_url = f"http://localhost:8000/static/generated_images/{filename}"
                     generated_images.append(image_url)
                     
                     print(f"💾 Nano Banana图像已保存: {filepath}")

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 import math
@@ -28,6 +29,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 配置静态文件服务 - 支持历史模式图片访问
+# 由于后端从backend/目录启动，需要使用../static指向项目根目录的static
+app.mount("/static", StaticFiles(directory="../static"), name="static")
 
 # 数据模型
 class ExploreRequest(BaseModel):
@@ -97,6 +102,8 @@ class HistoricalSceneInfo(BaseModel):
     generation_model: Optional[str] = None
     generation_time: Optional[float] = None
     demo_mode: Optional[bool] = False
+    images: Optional[List[str]] = None  # 添加图片URL列表字段
+    image_count: Optional[int] = None   # 添加图片数量字段
     note: Optional[str] = None
     error: Optional[str] = None
 
@@ -105,6 +112,7 @@ class HistoricalSceneResponse(BaseModel):
     historical_info: Optional[HistoricalLocationInfo] = None
     generated_scene: Optional[HistoricalSceneInfo] = None
     ai_review: Optional[Dict] = None
+    image_url: Optional[str] = None  # 添加主图片URL字段，方便前端直接访问
     calculation_time: float
     data_source: str = "Historical-basemaps + Gemini"
     error: Optional[str] = None
@@ -1045,10 +1053,16 @@ async def generate_historical_scene(request: HistoricalSceneRequest):
         historical_info = HistoricalLocationInfo(**historical_result)
         scene_info = HistoricalSceneInfo(**scene_result)
         
+        # 提取主要图片URL（用于前端直接显示）
+        main_image_url = None
+        if scene_result.get('images') and len(scene_result['images']) > 0:
+            main_image_url = scene_result['images'][0]  # 使用第一张图片作为主图
+        
         response = HistoricalSceneResponse(
             success=True,
             historical_info=historical_info,
             generated_scene=scene_info,
+            image_url=main_image_url,  # 添加主图片URL
             calculation_time=calculation_time,
             data_source="Historical-basemaps + Gemini",
             ai_review=historical_review  # 添加AI历史锐评
