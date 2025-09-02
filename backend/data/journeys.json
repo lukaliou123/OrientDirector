@@ -1192,5 +1192,27 @@
     "is_active": true,
     "journey_title": "探索之旅 2025/8/31 21:27:07",
     "created_at": "2025-08-31T21:27:07.337311"
+  },
+  "e0cbea1a-8df0-43aa-8a46-77b16901b553": {
+    "journey_id": "e0cbea1a-8df0-43aa-8a46-77b16901b553",
+    "start_time": "2025-09-02T13:27:41.381692",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "visited_scenes": [],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/2 13:27:41",
+    "created_at": "2025-09-02T13:27:41.381692"
   }
 }

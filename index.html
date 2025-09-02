@@ -41,6 +41,31 @@
 
         <!-- 状态显示区 -->
         <div class="status-section">
+            <!-- 预设地址选择器 -->
+            <div class="preset-location-selector">
+                <div class="preset-selector-header">
+                    <span class="preset-label">📍 选择起始位置:</span>
+                </div>
+                <div class="preset-selector-controls">
+                    <select id="presetLocationSelect" onchange="handlePresetLocationChange()">
+                        <option value="">🌍 选择预设地址...</option>
+                        <option value="tokyo">🏯 东京 - 浅草寺区域</option>
+                        <option value="paris">🗼 巴黎 - 埃菲尔铁塔</option>
+                        <option value="newyork">🗽 纽约 - 时代广场</option>
+                        <option value="london">🏰 伦敦 - 大本钟</option>
+                        <option value="sydney">🎭 悉尼 - 歌剧院</option>
+                        <option value="sanfrancisco">🌉 旧金山 - 金门大桥</option>
+                        <option value="rome">🏛️ 罗马 - 斗兽场</option>
+                        <option value="amsterdam">🌷 阿姆斯特丹 - 运河区</option>
+                        <option value="current" selected>📱 使用当前位置</option>
+                        <option value="manual">✋ 手动输入坐标</option>
+                    </select>
+                    <button class="quick-switch-btn" onclick="quickSwitchLocation()" title="快速切换">
+                        🔄
+                    </button>
+                </div>
+            </div>
+            
             <div class="location-info">
                 <div class="current-location">
                     <span class="label">当前位置:</span>

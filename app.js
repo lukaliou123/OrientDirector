@@ -2,6 +2,69 @@
 let currentPosition = null;
 let currentHeading = 0;
 
+// 预设地址数据 - 全球知名景点
+const PRESET_LOCATIONS = {
+    tokyo: {
+        name: "东京浅草寺区域",
+        latitude: 35.7148,
+        longitude: 139.7967,
+        country: "日本",
+        description: "传统与现代交融的东京文化中心，浅草寺历史悠久"
+    },
+    paris: {
+        name: "巴黎埃菲尔铁塔",
+        latitude: 48.8584,
+        longitude: 2.2945,
+        country: "法国",
+        description: "浪漫之都的标志性建筑，艺术与文化的圣地"
+    },
+    newyork: {
+        name: "纽约时代广场",
+        latitude: 40.7580,
+        longitude: -73.9855,
+        country: "美国",
+        description: "世界十字路口，国际化大都市的繁华中心"
+    },
+    london: {
+        name: "伦敦大本钟",
+        latitude: 51.4994,
+        longitude: -0.1245,
+        country: "英国",
+        description: "历史悠久的英伦象征，泰晤士河畔的经典地标"
+    },
+    sydney: {
+        name: "悉尼歌剧院",
+        latitude: -33.8568,
+        longitude: 151.2153,
+        country: "澳大利亚",
+        description: "南半球璀璨明珠，现代建筑艺术的杰作"
+    },
+    sanfrancisco: {
+        name: "旧金山金门大桥",
+        latitude: 37.8199,
+        longitude: -122.4783,
+        country: "美国",
+        description: "科技与自然完美结合的西海岸明珠"
+    },
+    rome: {
+        name: "罗马斗兽场",
+        latitude: 41.8902,
+        longitude: 12.4922,
+        country: "意大利",
+        description: "永恒之城的历史见证，古罗马帝国的辉煌"
+    },
+    amsterdam: {
+        name: "阿姆斯特丹运河区",
+        latitude: 52.3676,
+        longitude: 4.9041,
+        country: "荷兰",
+        description: "欧洲独特水城风情，艺术与自由的完美融合"
+    }
+};
+
+// 当前位置来源类型
+let currentLocationSource = 'gps'; // 'gps', 'preset', 'manual'
+
 // Google街景相关变量
 let streetViewPanorama = null;
 let streetViewService = null;
@@ -2103,6 +2166,170 @@ function closeSummary() {
 // 全局暴露关闭函数
 window.closeSummary = closeSummary;
 
+// ================ 预设地址功能 ================
+
+/**
+ * 处理预设地址选择变化
+ */
+function handlePresetLocationChange() {
+    const selector = document.getElementById('presetLocationSelect');
+    const selectedValue = selector.value;
+    
+    logger.info(`📍 预设地址选择: ${selectedValue}`);
+    
+    if (!selectedValue || selectedValue === '') {
+        // 未选择任何选项
+        return;
+    }
+    
+    if (selectedValue === 'current') {
+        // 选择使用当前GPS位置
+        currentLocationSource = 'gps';
+        logger.info('📱 切换到GPS定位模式');
+        refreshLocation();
+        
+    } else if (selectedValue === 'manual') {
+        // 选择手动输入
+        currentLocationSource = 'manual';
+        logger.info('✋ 切换到手动输入模式');
+        showManualLocationInput();
+        
+    } else if (PRESET_LOCATIONS[selectedValue]) {
+        // 选择预设地址
+        currentLocationSource = 'preset';
+        setPresetLocation(selectedValue);
+    }
+}
+
+/**
+ * 设置预设地址位置
+ * @param {string} locationKey - 预设地址键名
+ */
+async function setPresetLocation(locationKey) {
+    const location = PRESET_LOCATIONS[locationKey];
+    
+    if (!location) {
+        logger.error(`❌ 未找到预设地址: ${locationKey}`);
+        return;
+    }
+    
+    logger.info(`🌍 设置预设地址: ${location.name}`);
+    
+    // 设置位置信息
+    currentPosition = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy: 100, // 预设地址精度设为100米
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+        timestamp: Date.now(),
+        source: 'preset'
+    };
+    
+    // 更新UI显示
+    document.getElementById('coordinates').textContent = 
+        `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+    document.getElementById('accuracy').textContent = '±100m (预设)';
+    document.getElementById('currentLocation').textContent = location.name;
+    
+    // 启用探索按钮
+    const exploreBtn = document.getElementById('exploreBtn');
+    if (exploreBtn) {
+        exploreBtn.disabled = false;
+    }
+    
+    logger.success(`✅ 预设地址设置完成: ${location.name} (${location.country})`);
+    logger.info(`坐标: ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`);
+    
+    showSuccess(`📍 已切换到: ${location.name}`);
+    
+    // 可选：显示地址描述信息
+    if (location.description) {
+        setTimeout(() => {
+            logger.info(`🏛️ ${location.description}`);
+        }, 500);
+    }
+}
+
+/**
+ * 快速切换位置功能
+ * 在几个常用预设地址之间快速循环切换
+ */
+function quickSwitchLocation() {
+    const quickSwitchOrder = ['tokyo', 'paris', 'newyork', 'london', 'sydney'];
+    const selector = document.getElementById('presetLocationSelect');
+    
+    let currentIndex = quickSwitchOrder.indexOf(selector.value);
+    
+    // 如果当前不在快速切换列表中，从第一个开始
+    if (currentIndex === -1) {
+        currentIndex = 0;
+    } else {
+        // 切换到下一个
+        currentIndex = (currentIndex + 1) % quickSwitchOrder.length;
+    }
+    
+    const nextLocation = quickSwitchOrder[currentIndex];
+    
+    logger.info(`🔄 快速切换到: ${PRESET_LOCATIONS[nextLocation].name}`);
+    
+    // 更新选择器并触发变化
+    selector.value = nextLocation;
+    handlePresetLocationChange();
+    
+    // 显示切换提示
+    const location = PRESET_LOCATIONS[nextLocation];
+    showSuccess(`🔄 快速切换: ${location.name}`);
+}
+
+/**
+ * 获取当前位置的来源类型和描述
+ */
+function getCurrentLocationInfo() {
+    const selector = document.getElementById('presetLocationSelect');
+    const selectedValue = selector.value;
+    
+    let sourceInfo = {
+        type: currentLocationSource,
+        name: '未知',
+        description: ''
+    };
+    
+    switch(currentLocationSource) {
+        case 'gps':
+            sourceInfo.name = 'GPS定位';
+            sourceInfo.description = '使用设备GPS获取当前真实位置';
+            break;
+        case 'preset':
+            if (PRESET_LOCATIONS[selectedValue]) {
+                const location = PRESET_LOCATIONS[selectedValue];
+                sourceInfo.name = location.name;
+                sourceInfo.description = location.description;
+            }
+            break;
+        case 'manual':
+            sourceInfo.name = '手动输入';
+            sourceInfo.description = '用户手动输入的坐标位置';
+            break;
+    }
+    
+    return sourceInfo;
+}
+
+/**
+ * 重置预设地址选择器到默认状态
+ */
+function resetPresetLocationSelector() {
+    const selector = document.getElementById('presetLocationSelect');
+    if (selector) {
+        selector.value = 'current';
+        currentLocationSource = 'gps';
+        logger.info('🔄 预设地址选择器已重置为GPS模式');
+    }
+}
+
 // 生成旅程亮点
 function generateJourneyHighlights() {
     const highlights = [];
@@ -2832,3 +3059,11 @@ window.startJourney = startJourney;
 window.journeyManagement = journeyManagement;
 window.setManualLocation = setManualLocation;
 window.generateAndShowSceneReview = generateAndShowSceneReview;
+
+// 全局暴露预设地址功能
+window.handlePresetLocationChange = handlePresetLocationChange;
+window.quickSwitchLocation = quickSwitchLocation;
+window.setPresetLocation = setPresetLocation;
+window.getCurrentLocationInfo = getCurrentLocationInfo;
+window.resetPresetLocationSelector = resetPresetLocationSelector;
+window.PRESET_LOCATIONS = PRESET_LOCATIONS;
