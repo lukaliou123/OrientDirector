@@ -713,10 +713,23 @@ function createPlaceCard(place, index) {
             </button>
         </div>
         ` : ''}
-        <img src="${place.image || 'https://via.placeholder.com/400x200?text=暂无图片'}" 
-             alt="${place.name}" 
-             class="place-image"
-             onerror="this.src='https://via.placeholder.com/400x200?text=暂无图片'">
+        <div class="place-media">
+            <img src="${place.image || 'https://via.placeholder.com/400x200?text=暂无图片'}" 
+                 alt="${place.name}" 
+                 class="place-image"
+                 onerror="this.src='https://via.placeholder.com/400x200?text=暂无图片'"
+                 onclick="showImageModal('${place.image}', '${place.name}')">
+            ${place.video ? `
+                <div class="video-overlay" onclick="playVideo('${place.video}', '${place.name}')">
+                    <div class="play-button">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="white">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                    <div class="video-label">📹 观看视频</div>
+                </div>
+            ` : ''}
+        </div>
         <div class="place-content">
             <div class="place-header">
                 <h3 class="place-name">${place.name}</h3>
@@ -3293,3 +3306,93 @@ window.confirmRoaming = confirmRoaming;
 window.startExplorationFromHere = startExplorationFromHere;
 window.showPhotoModal = showPhotoModal;
 window.closePhotoModal = closePhotoModal;
+
+// 视频播放功能
+function playVideo(videoUrl, placeName) {
+    // 创建视频模态框
+    const modal = document.createElement('div');
+    modal.className = 'video-modal';
+    modal.innerHTML = `
+        <div class="video-modal-content">
+            <div class="video-modal-header">
+                <h3>${placeName} - 视频介绍</h3>
+                <button class="close-btn" onclick="closeVideoModal()">&times;</button>
+            </div>
+            <div class="video-container">
+                <iframe 
+                    src="${getEmbedUrl(videoUrl)}" 
+                    frameborder="0" 
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                </iframe>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 添加关闭事件
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeVideoModal();
+        }
+    });
+}
+
+function closeVideoModal() {
+    const modal = document.querySelector('.video-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function getEmbedUrl(videoUrl) {
+    // 转换YouTube URL为嵌入格式
+    if (videoUrl.includes('youtube.com/watch?v=')) {
+        const videoId = videoUrl.split('v=')[1].split('&')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+    } else if (videoUrl.includes('youtu.be/')) {
+        const videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+    }
+    return videoUrl; // 如果已经是嵌入格式，直接返回
+}
+
+// 图片模态框功能
+function showImageModal(imageUrl, placeName) {
+    if (!imageUrl || imageUrl.includes('placeholder')) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.innerHTML = `
+        <div class="image-modal-content">
+            <div class="image-modal-header">
+                <h3>${placeName}</h3>
+                <button class="close-btn" onclick="closeImageModal()">&times;</button>
+            </div>
+            <img src="${imageUrl}" alt="${placeName}" class="modal-image">
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 添加关闭事件
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeImageModal();
+        }
+    });
+}
+
+function closeImageModal() {
+    const modal = document.querySelector('.image-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 暴露新的全局函数
+window.playVideo = playVideo;
+window.closeVideoModal = closeVideoModal;
+window.showImageModal = showImageModal;
+window.closeImageModal = closeImageModal;

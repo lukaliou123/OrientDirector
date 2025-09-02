@@ -1,599 +1,521 @@
 {
   "beijing_top_attractions": {
-    "description": "北京TOP 20历史文化古迹、现代场馆、典型商业景点、科技历史文化博物馆数据库",
-    "last_updated": "2025-09-01",
-    "total_attractions": 20,
+    "description": "北京TOP 22精选景点数据库 - 基于local_attractions_db.py",
+    "last_updated": "2025-09-02",
+    "total_attractions": 22,
     "categories": {
-      "历史文化古迹": 5,
-      "现代场馆": 5,
-      "典型商业景点": 5,
-      "科技历史文化博物馆": 5
+      "文化古迹": 14,
+      "休闲娱乐": 2,
+      "现代建筑": 2,
+      "自然景观": 1,
+      "现代艺术": 1
     },
     "attractions": {
       "forbidden_city": {
         "id": "forbidden_city",
         "name": "故宫博物院",
-        "category": "历史文化古迹",
+        "category": "文化古迹",
         "coordinates": {
           "lat": 39.9163,
           "lng": 116.3972
         },
         "address": "北京市东城区景山前街4号",
-        "description": "明清两朝的皇家宫殿，世界文化遗产，中国古代宫廷建筑之精华",
-        "opening_hours": "08:30-17:00（4月-10月）08:30-16:30（11月-3月）",
-        "ticket_price": "60元（淡季）80元（旺季）",
+        "description": "中国明清两代的皇家宫殿，世界文化遗产，是世界上现存规模最大、保存最为完整的木质结构古建筑群。",
+        "opening_hours": "08:30-17:00",
+        "ticket_price": "成人票：60元",
         "rating": 4.8,
         "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+          "https://images.unsplash.com/photo-1548013146-72479768bada?w=800",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "太和殿",
-          "中和殿",
-          "保和殿",
-          "乾清宫",
-          "坤宁宫"
+        "video": "https://www.youtube.com/watch?v=WibmcsEGLKo",
+        "highlights": ["太和殿", "乾清宫", "御花园", "珍宝馆"],
+        "visit_duration": "4-6小时",
+        "best_visit_time": "春秋季节，避开节假日",
+        "transportation": "地铁1号线天安门东站",
+        "booking_method": "官方网站实名预约"
+      },
+      "tiananmen_square": {
+        "id": "tiananmen_square",
+        "name": "天安门广场",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.9042,
+          "lng": 116.3974
+        },
+        "address": "北京市东城区东长安街",
+        "description": "世界上最大的城市广场之一，中华人民共和国的象征，见证了中国现代史的重要时刻。",
+        "opening_hours": "05:00-22:00",
+        "ticket_price": "免费",
+        "rating": 4.7,
+        "photos": [
+          "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=800",
+          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800"
         ],
-        "visit_duration": "3-4小时",
-        "best_visit_time": "早上8:30开门时或下午4点后",
-        "transportation": "地铁1号线天安门东站"
+        "video": "https://www.youtube.com/watch?v=bQVdAb0cw5k",
+        "highlights": ["人民英雄纪念碑", "毛主席纪念堂", "国旗升降仪式"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "清晨看升旗，傍晚看降旗",
+        "transportation": "地铁1号线天安门东/西站",
+        "booking_method": "无需预约"
       },
       "temple_of_heaven": {
         "id": "temple_of_heaven",
-        "name": "天坛",
-        "category": "历史文化古迹",
+        "name": "天坛公园",
+        "category": "文化古迹",
         "coordinates": {
           "lat": 39.8822,
           "lng": 116.4066
         },
-        "address": "北京市东城区天坛路",
-        "description": "明清皇帝祭天祈谷的场所，世界文化遗产，中国古代建筑艺术的杰作",
-        "opening_hours": "06:00-22:00",
-        "ticket_price": "15元（公园）35元（联票）",
-        "rating": 4.7,
+        "address": "北京市东城区天坛内东里7号",
+        "description": "明清两朝皇帝祭天的场所，世界文化遗产，中国古代建筑艺术的杰作。",
+        "opening_hours": "06:00-21:00",
+        "ticket_price": "成人票：15元",
+        "rating": 4.6,
         "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+          "https://images.unsplash.com/photo-1583416750470-965b2707b355?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "祈年殿",
-          "圜丘坛",
-          "皇穹宇",
-          "回音壁"
-        ],
+        "video": "https://www.youtube.com/watch?v=dUQABjvHPWM",
+        "highlights": ["祈年殿", "回音壁", "圜丘坛", "皇穹宇"],
         "visit_duration": "2-3小时",
-        "best_visit_time": "早上6-8点或傍晚5-7点",
-        "transportation": "地铁5号线天坛东门站"
+        "best_visit_time": "春秋季节，建筑与自然和谐统一",
+        "transportation": "地铁5号线天坛东门站",
+        "booking_method": "现场购票或官方网站预约"
       },
       "summer_palace": {
         "id": "summer_palace",
         "name": "颐和园",
-        "category": "历史文化古迹",
+        "category": "文化古迹",
         "coordinates": {
-          "lat": 39.9991,
-          "lng": 116.2755
+          "lat": 39.9999,
+          "lng": 116.2750
         },
         "address": "北京市海淀区新建宫门路19号",
-        "description": "清朝皇家园林，世界文化遗产，中国古典园林艺术的集大成者",
-        "opening_hours": "06:30-18:00（4月-10月）07:00-17:00（11月-3月）",
-        "ticket_price": "30元（淡季）60元（旺季）",
-        "rating": 4.6,
+        "description": "中国现存规模最大、保存最完整的皇家园林，清朝皇室的夏宫。",
+        "opening_hours": "06:30-18:00",
+        "ticket_price": "成人票：30元",
+        "rating": 4.7,
         "photos": [
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+          "https://images.unsplash.com/photo-1534050359320-02900022671e?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "万寿山",
-          "昆明湖",
-          "长廊",
-          "佛香阁",
-          "十七孔桥"
-        ],
+        "video": "https://www.youtube.com/watch?v=E2aV6RHAEwE",
+        "highlights": ["万寿山", "昆明湖", "长廊", "佛香阁"],
         "visit_duration": "3-4小时",
-        "best_visit_time": "春夏秋季，避开周末",
-        "transportation": "地铁4号线北宫门站"
+        "best_visit_time": "春夏季节，湖光山色最美",
+        "transportation": "地铁4号线西苑站",
+        "booking_method": "现场购票或官方网站预约"
       },
-      "great_wall_badaling": {
-        "id": "great_wall_badaling",
-        "name": "八达岭长城",
-        "category": "历史文化古迹",
+      "old_summer_palace": {
+        "id": "old_summer_palace",
+        "name": "圆明园",
+        "category": "文化古迹",
         "coordinates": {
-          "lat": 40.3598,
-          "lng": 116.0207
+          "lat": 40.0084,
+          "lng": 116.2972
         },
-        "address": "北京市延庆区八达岭镇",
-        "description": "万里长城的精华段落，世界文化遗产，中华民族的象征",
-        "opening_hours": "06:30-19:00（4月-10月）07:00-18:00（11月-3月）",
-        "ticket_price": "40元（淡季）45元（旺季）",
-        "rating": 4.5,
+        "address": "北京市海淀区清华西路28号",
+        "description": "清朝皇室的离宫别苑，被誉为\"万园之园\"，现为遗址公园。",
+        "opening_hours": "07:00-19:30",
+        "ticket_price": "成人票：25元",
+        "rating": 4.2,
         "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+          "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "北八楼",
-          "南四楼",
-          "关城",
-          "熊乐园"
-        ],
-        "visit_duration": "4-6小时",
-        "best_visit_time": "春秋季节，避开节假日",
-        "transportation": "京张高铁八达岭长城站"
+        "video": "https://www.youtube.com/watch?v=jP7Z4rNmfQA",
+        "highlights": ["西洋楼遗址", "大水法", "荷花池", "历史教育"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "夏季，荷花盛开",
+        "transportation": "地铁4号线圆明园站",
+        "booking_method": "现场购票或官方网站预约"
       },
       "beihai_park": {
         "id": "beihai_park",
         "name": "北海公园",
-        "category": "历史文化古迹",
+        "category": "文化古迹",
         "coordinates": {
-          "lat": 39.925,
-          "lng": 116.3893
+          "lat": 39.9254,
+          "lng": 116.3888
         },
         "address": "北京市西城区文津街1号",
-        "description": "中国现存最古老最完整的皇家园林之一，有近千年历史",
-        "opening_hours": "06:30-20:00（4月-10月）06:30-19:00（11月-3月）",
-        "ticket_price": "10元",
+        "description": "中国现存最古老、最完整、最具综合性和代表性的皇家园林之一。",
+        "opening_hours": "06:30-20:00",
+        "ticket_price": "成人票：10元",
+        "rating": 4.5,
+        "photos": [
+          "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=K5ZjjX8f2lE",
+        "highlights": ["白塔", "琼华岛", "九龙壁", "静心斋"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "春夏季节，荷花盛开",
+        "transportation": "地铁6号线北海北站",
+        "booking_method": "现场购票"
+      },
+      "jingshan_park": {
+        "id": "jingshan_park",
+        "name": "景山公园",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.9233,
+          "lng": 116.3953
+        },
+        "address": "北京市西城区景山西街44号",
+        "description": "明清两朝的皇家园林，是俯瞰紫禁城全景的最佳位置。",
+        "opening_hours": "06:30-20:00",
+        "ticket_price": "成人票：2元",
         "rating": 4.4,
         "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+          "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "白塔",
-          "琼华岛",
-          "九龙壁",
-          "静心斋"
-        ],
-        "visit_duration": "2-3小时",
-        "best_visit_time": "春夏季节，荷花盛开时",
-        "transportation": "地铁6号线北海北站"
-      },
-      "birds_nest": {
-        "id": "birds_nest",
-        "name": "国家体育场（鸟巢）",
-        "category": "现代场馆",
-        "coordinates": {
-          "lat": 39.9917,
-          "lng": 116.3906
-        },
-        "address": "北京市朝阳区国家体育场南路1号",
-        "description": "2008年北京奥运会主体育场，现代建筑艺术的杰作",
-        "opening_hours": "09:00-19:00",
-        "ticket_price": "50元",
-        "rating": 4.3,
-        "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
-        ],
-        "highlights": [
-          "钢结构外观",
-          "奥运展厅",
-          "观景台",
-          "夜景灯光"
-        ],
+        "video": "https://www.youtube.com/watch?v=N6PW8LTAkBs",
+        "highlights": ["万春亭", "俯瞰故宫", "牡丹园", "崇祯自缢处"],
         "visit_duration": "1-2小时",
-        "best_visit_time": "傍晚时分，可观赏夜景",
-        "transportation": "地铁8号线奥体中心站"
+        "best_visit_time": "傍晚，夕阳西下时分",
+        "transportation": "地铁6号线东四站",
+        "booking_method": "现场购票"
       },
-      "water_cube": {
-        "id": "water_cube",
-        "name": "国家游泳中心（水立方）",
-        "category": "现代场馆",
+      "badaling_great_wall": {
+        "id": "badaling_great_wall",
+        "name": "八达岭长城",
+        "category": "文化古迹",
         "coordinates": {
-          "lat": 39.9929,
-          "lng": 116.3965
+          "lat": 40.3594,
+          "lng": 116.0144
         },
-        "address": "北京市朝阳区天辰东路11号",
-        "description": "2008年北京奥运会游泳、跳水、花样游泳项目比赛场馆",
-        "opening_hours": "09:00-18:00",
-        "ticket_price": "30元",
-        "rating": 4.2,
+        "address": "北京市延庆区G6京藏高速58号出口",
+        "description": "万里长城最著名的一段，世界文化遗产，中国古代防御工程的杰作。",
+        "opening_hours": "06:30-19:00",
+        "ticket_price": "成人票：40元",
+        "rating": 4.6,
         "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800",
+          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800"
         ],
-        "highlights": [
-          "ETFE膜结构",
-          "水上乐园",
-          "奥运展览",
-          "蓝色夜景"
-        ],
-        "visit_duration": "1-2小时",
-        "best_visit_time": "夏季可体验水上乐园",
-        "transportation": "地铁8号线奥体中心站"
+        "video": "https://www.youtube.com/watch?v=VgdSGPXzUqA",
+        "highlights": ["好汉坡", "北八楼", "南四楼", "长城博物馆"],
+        "visit_duration": "3-5小时",
+        "best_visit_time": "春秋季节，避开酷暑严寒",
+        "transportation": "S2线至八达岭站或旅游专线",
+        "booking_method": "官方网站预约"
       },
-      "olympic_park": {
-        "id": "olympic_park",
-        "name": "奥林匹克公园",
-        "category": "现代场馆",
+      "ming_tombs": {
+        "id": "ming_tombs",
+        "name": "明十三陵",
+        "category": "文化古迹",
         "coordinates": {
-          "lat": 40.0,
-          "lng": 116.4
+          "lat": 40.2917,
+          "lng": 116.2333
         },
-        "address": "北京市朝阳区",
-        "description": "2008年北京奥运会主要场馆集中区域，现代体育文化中心",
-        "opening_hours": "全天开放",
-        "ticket_price": "免费（部分场馆收费）",
-        "rating": 4.3,
-        "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
-        ],
-        "highlights": [
-          "奥林匹克森林公园",
-          "国家会议中心",
-          "玲珑塔",
-          "下沉花园"
-        ],
-        "visit_duration": "4-6小时",
-        "best_visit_time": "全年适宜，春秋最佳",
-        "transportation": "地铁8号线奥林匹克公园站"
-      },
-      "zhongguancun": {
-        "id": "zhongguancun",
-        "name": "中关村科技园",
-        "category": "现代场馆",
-        "coordinates": {
-          "lat": 39.9794,
-          "lng": 116.3147
-        },
-        "address": "北京市海淀区中关村大街",
-        "description": "中国硅谷，高科技产业聚集地",
-        "opening_hours": "全天开放",
-        "ticket_price": "免费",
-        "rating": 4.0,
-        "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
-        ],
-        "highlights": [
-          "中关村创业大街",
-          "海龙大厦",
-          "鼎好大厦",
-          "科技企业"
-        ],
-        "visit_duration": "2-3小时",
-        "best_visit_time": "工作日可感受科技氛围",
-        "transportation": "地铁4号线中关村站"
-      },
-      "cctv_tower": {
-        "id": "cctv_tower",
-        "name": "中央电视塔",
-        "category": "现代场馆",
-        "coordinates": {
-          "lat": 39.9069,
-          "lng": 116.2975
-        },
-        "address": "北京市海淀区西三环中路11号",
-        "description": "北京地标性建筑，可俯瞰全城美景",
-        "opening_hours": "08:30-22:00",
-        "ticket_price": "70元",
+        "address": "北京市昌平区十三陵镇",
+        "description": "明朝十三位皇帝的陵墓群，是中国明清皇家陵寝的杰出代表。",
+        "opening_hours": "08:00-17:30",
+        "ticket_price": "成人票：45元",
         "rating": 4.1,
         "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+          "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "观景台",
-          "旋转餐厅",
-          "城市全景",
-          "夜景灯光"
+        "video": "https://www.youtube.com/watch?v=XdJ0O9nHtqk",
+        "highlights": ["定陵地宫", "长陵", "神道", "皇家陵寝建筑"],
+        "visit_duration": "4-6小时",
+        "best_visit_time": "春秋季节，气候宜人",
+        "transportation": "地铁昌平线至昌平站转公交",
+        "booking_method": "现场购票或官方网站预约"
+      },
+      "yonghe_temple": {
+        "id": "yonghe_temple",
+        "name": "雍和宫",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.9473,
+          "lng": 116.4177
+        },
+        "address": "北京市东城区雍和宫大街12号",
+        "description": "北京市内最大的藏传佛教寺院，清朝雍正皇帝的潜邸。",
+        "opening_hours": "09:00-16:30",
+        "ticket_price": "成人票：25元",
+        "rating": 4.4,
+        "photos": [
+          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
+        "video": "https://www.youtube.com/watch?v=8xZH8WcqMnY",
+        "highlights": ["万福阁", "弥勒佛", "藏传佛教文化", "香火鼎盛"],
         "visit_duration": "1-2小时",
-        "best_visit_time": "傍晚时分，可观日落夜景",
-        "transportation": "地铁1号线公主坟站"
+        "best_visit_time": "上午，香火旺盛",
+        "transportation": "地铁2号线雍和宫站",
+        "booking_method": "现场购票"
+      },
+      "sanlitun": {
+        "id": "sanlitun",
+        "name": "三里屯太古里",
+        "category": "休闲娱乐",
+        "coordinates": {
+          "lat": 39.9368,
+          "lng": 116.4478
+        },
+        "address": "北京市朝阳区三里屯路11号",
+        "description": "北京最时尚的购物和娱乐区域，汇集国际品牌、餐厅和夜生活场所。",
+        "opening_hours": "10:00-22:00",
+        "ticket_price": "免费",
+        "rating": 4.1,
+        "photos": [
+          "https://images.unsplash.com/photo-1549813069-f95e44d7f498?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=2X5F0X0Y8JQ",
+        "highlights": ["三里屯太古里", "酒吧街", "时尚购物", "国际美食"],
+        "visit_duration": "3-5小时",
+        "best_visit_time": "夜晚，体验北京夜生活",
+        "transportation": "地铁10号线团结湖站",
+        "booking_method": "无需预约"
+      },
+      "shichahai": {
+        "id": "shichahai",
+        "name": "什刹海",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.9369,
+          "lng": 116.3831
+        },
+        "address": "北京市西城区羊房胡同23号",
+        "description": "北京内城唯一一处具有开阔水面的开放型景区，胡同文化的代表。",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费",
+        "rating": 4.3,
+        "photos": [
+          "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=L8xqP7GdF4M",
+        "highlights": ["前海", "后海", "酒吧街", "胡同游"],
+        "visit_duration": "2-4小时",
+        "best_visit_time": "傍晚至夜晚，灯火阑珊",
+        "transportation": "地铁8号线什刹海站",
+        "booking_method": "无需预约"
       },
       "wangfujing": {
         "id": "wangfujing",
         "name": "王府井大街",
-        "category": "典型商业景点",
+        "category": "休闲娱乐",
         "coordinates": {
           "lat": 39.9097,
           "lng": 116.4074
         },
         "address": "北京市东城区王府井大街",
-        "description": "北京最著名的商业街之一，有百年商业历史",
+        "description": "北京最著名的商业街之一，有700多年的历史，是购物和美食的天堂。",
         "opening_hours": "全天开放",
         "ticket_price": "免费",
         "rating": 4.2,
         "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+          "https://images.unsplash.com/photo-1549813069-f95e44d7f498?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "王府井百货",
-          "东方新天地",
-          "小吃街",
-          "天主教堂"
-        ],
+        "video": "https://www.youtube.com/watch?v=cH8Q7Zb8K9A",
+        "highlights": ["王府井百货", "小吃街", "步行街", "东方新天地"],
         "visit_duration": "2-4小时",
-        "best_visit_time": "傍晚时分，夜市热闹",
-        "transportation": "地铁1号线王府井站"
+        "best_visit_time": "傍晚至夜晚，霓虹灯闪烁",
+        "transportation": "地铁1号线王府井站",
+        "booking_method": "无需预约"
       },
-      "sanlitun": {
-        "id": "sanlitun",
-        "name": "三里屯",
-        "category": "典型商业景点",
+      "nanluoguxiang": {
+        "id": "nanluoguxiang",
+        "name": "南锣鼓巷",
+        "category": "文化古迹",
         "coordinates": {
-          "lat": 39.9364,
-          "lng": 116.4472
+          "lat": 39.9368,
+          "lng": 116.4033
         },
-        "address": "北京市朝阳区三里屯路",
-        "description": "北京时尚潮流地标，国际化商业娱乐区",
-        "opening_hours": "全天开放",
-        "ticket_price": "免费",
-        "rating": 4.1,
-        "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
-        ],
-        "highlights": [
-          "太古里",
-          "Village",
-          "酒吧街",
-          "Apple Store"
-        ],
-        "visit_duration": "3-5小时",
-        "best_visit_time": "晚上夜生活丰富",
-        "transportation": "地铁10号线团结湖站"
-      },
-      "qianmen_street": {
-        "id": "qianmen_street",
-        "name": "前门大街",
-        "category": "典型商业景点",
-        "coordinates": {
-          "lat": 39.895,
-          "lng": 116.3975
-        },
-        "address": "北京市东城区前门大街",
-        "description": "明清时期的商业街，传统与现代结合的商业区",
+        "address": "北京市东城区南锣鼓巷",
+        "description": "北京最古老的街区之一，保存完好的四合院建筑群，体现老北京胡同文化。",
         "opening_hours": "全天开放",
         "ticket_price": "免费",
         "rating": 4.0,
         "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
+          "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "大栅栏",
-          "鲜鱼口",
-          "老字号",
-          "传统建筑"
-        ],
+        "video": "https://www.youtube.com/watch?v=9Tm1yD4Ot8E",
+        "highlights": ["四合院", "胡同文化", "特色小店", "传统建筑"],
         "visit_duration": "2-3小时",
-        "best_visit_time": "白天可感受传统文化",
-        "transportation": "地铁2号线前门站"
+        "best_visit_time": "下午至傍晚，体验胡同生活",
+        "transportation": "地铁6号线南锣鼓巷站",
+        "booking_method": "无需预约"
       },
-      "beijing_fang": {
-        "id": "beijing_fang",
-        "name": "北京坊",
-        "category": "典型商业景点",
+      "birds_nest": {
+        "id": "birds_nest",
+        "name": "鸟巢（国家体育场）",
+        "category": "现代建筑",
         "coordinates": {
-          "lat": 39.8955,
-          "lng": 116.3985
+          "lat": 39.9928,
+          "lng": 116.3975
         },
-        "address": "北京市西城区大栅栏历史文化保护区",
-        "description": "传统胡同与现代商业完美融合的文化商业区",
-        "opening_hours": "10:00-22:00",
+        "address": "北京市朝阳区国家体育场南路1号",
+        "description": "2008年北京奥运会主体育场，现代建筑的杰作，因其独特的钢结构外观而得名。",
+        "opening_hours": "09:00-21:00",
+        "ticket_price": "成人票：50元",
+        "rating": 4.4,
+        "photos": [
+          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=3wK4d0r0h6Y",
+        "highlights": ["钢结构建筑", "奥运展览", "夜景灯光"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "傍晚时分，灯光效果最佳",
+        "transportation": "地铁8号线奥体中心站",
+        "booking_method": "现场购票或在线预约"
+      },
+      "water_cube": {
+        "id": "water_cube",
+        "name": "水立方（国家游泳中心）",
+        "category": "现代建筑",
+        "coordinates": {
+          "lat": 39.9934,
+          "lng": 116.3906
+        },
+        "address": "北京市朝阳区天辰东路11号",
+        "description": "2008年北京奥运会游泳、跳水、花样游泳项目的比赛场地，独特的蓝色泡泡外观。",
+        "opening_hours": "09:00-21:00",
+        "ticket_price": "成人票：30元",
+        "rating": 4.3,
+        "photos": [
+          "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=ZL5oKzlqGEw",
+        "highlights": ["ETFE膜结构", "水上乐园", "蓝色梦幻"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "夜晚，蓝色灯光璀璨",
+        "transportation": "地铁8号线奥体中心站",
+        "booking_method": "现场购票或在线预约"
+      },
+      "prince_gong_mansion": {
+        "id": "prince_gong_mansion",
+        "name": "恭王府",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.9354,
+          "lng": 116.3828
+        },
+        "address": "北京市西城区柳荫街甲14号",
+        "description": "清朝规模最大的王府，和珅的宅邸，现存最完整的清代王府建筑群。",
+        "opening_hours": "08:30-17:00",
+        "ticket_price": "成人票：40元",
+        "rating": 4.3,
+        "photos": [
+          "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=mH8K6YdS4Ns",
+        "highlights": ["福字碑", "大戏楼", "花园", "王府建筑"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "春夏季节，花园景色优美",
+        "transportation": "地铁6号线北海北站",
+        "booking_method": "现场购票或官方网站预约"
+      },
+      "fragrant_hills": {
+        "id": "fragrant_hills",
+        "name": "香山公园",
+        "category": "自然景观",
+        "coordinates": {
+          "lat": 39.9961,
+          "lng": 116.1889
+        },
+        "address": "北京市海淀区买卖街40号",
+        "description": "北京著名的森林公园，以红叶闻名，是观赏秋景的绝佳去处。",
+        "opening_hours": "06:00-18:30",
+        "ticket_price": "成人票：10元",
+        "rating": 4.2,
+        "photos": [
+          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=QrK8xS2Vr7M",
+        "highlights": ["红叶", "森林公园", "秋景", "登山"],
+        "visit_duration": "3-4小时",
+        "best_visit_time": "秋季，红叶满山",
+        "transportation": "地铁4号线北宫门站转公交",
+        "booking_method": "现场购票"
+      },
+      "zhongshan_park": {
+        "id": "zhongshan_park",
+        "name": "中山公园",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.9048,
+          "lng": 116.3869
+        },
+        "address": "北京市东城区中华路4号",
+        "description": "位于天安门西侧，原为明清两朝的社稷坛，现为纪念孙中山先生的公园。",
+        "opening_hours": "06:00-21:00",
+        "ticket_price": "成人票：3元",
+        "rating": 4.1,
+        "photos": [
+          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=mQwX8f9K2lM",
+        "highlights": ["社稷坛", "孙中山纪念", "古柏", "花卉展"],
+        "visit_duration": "1-2小时",
+        "best_visit_time": "春季，花卉盛开",
+        "transportation": "地铁1号线天安门西站",
+        "booking_method": "现场购票"
+      },
+      "qianmen_street": {
+        "id": "qianmen_street",
+        "name": "前门大街",
+        "category": "文化古迹",
+        "coordinates": {
+          "lat": 39.8979,
+          "lng": 116.3967
+        },
+        "address": "北京市东城区前门大街",
+        "description": "北京著名的商业古街，有600多年历史，保留了明清时期的建筑风格。",
+        "opening_hours": "全天开放",
+        "ticket_price": "免费",
+        "rating": 4.0,
+        "photos": [
+          "https://images.unsplash.com/photo-1549813069-f95e44d7f498?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
+        ],
+        "video": "https://www.youtube.com/watch?v=QH8vK9N2f5s",
+        "highlights": ["明清建筑", "老字号", "传统商业", "历史街区"],
+        "visit_duration": "2-3小时",
+        "best_visit_time": "下午至傍晚，体验传统商业文化",
+        "transportation": "地铁2号线前门站",
+        "booking_method": "无需预约"
+      },
+      "798_art_district": {
+        "id": "798_art_district",
+        "name": "798艺术区",
+        "category": "现代艺术",
+        "coordinates": {
+          "lat": 39.9847,
+          "lng": 116.4972
+        },
+        "address": "北京市朝阳区酒仙桥路4号",
+        "description": "由废弃工厂改造的当代艺术区，汇集了众多画廊、艺术工作室和创意空间。",
+        "opening_hours": "10:00-18:00",
         "ticket_price": "免费",
         "rating": 4.2,
         "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
+          "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
+          "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800"
         ],
-        "highlights": [
-          "Page One书店",
-          "精品酒店",
-          "文创商店",
-          "胡同文化"
-        ],
-        "visit_duration": "2-3小时",
-        "best_visit_time": "下午到晚上，文艺氛围浓厚",
-        "transportation": "地铁2号线前门站"
-      },
-      "xiushui_street": {
-        "id": "xiushui_street",
-        "name": "秀水街",
-        "category": "典型商业景点",
-        "coordinates": {
-          "lat": 39.9097,
-          "lng": 116.4574
-        },
-        "address": "北京市朝阳区秀水东街8号",
-        "description": "著名的购物市场，以丝绸和工艺品闻名",
-        "opening_hours": "09:30-21:00",
-        "ticket_price": "免费",
-        "rating": 3.9,
-        "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
-        ],
-        "highlights": [
-          "丝绸制品",
-          "工艺品",
-          "珍珠饰品",
-          "讨价还价"
-        ],
-        "visit_duration": "1-2小时",
-        "best_visit_time": "工作日人少，便于购物",
-        "transportation": "地铁1号线永安里站"
-      },
-      "national_museum": {
-        "id": "national_museum",
-        "name": "中国国家博物馆",
-        "category": "科技历史文化博物馆",
-        "coordinates": {
-          "lat": 39.903,
-          "lng": 116.3988
-        },
-        "address": "北京市东城区东长安街16号",
-        "description": "世界上单体建筑面积最大的博物馆，展示中华文明历史",
-        "opening_hours": "09:00-17:00（周一闭馆）",
-        "ticket_price": "免费（需预约）",
-        "rating": 4.6,
-        "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
-        ],
-        "highlights": [
-          "古代中国",
-          "复兴之路",
-          "青铜器",
-          "瓷器"
-        ],
+        "video": "https://www.youtube.com/watch?v=H9xK8rL2fNM",
+        "highlights": ["当代艺术", "画廊", "创意空间", "工业遗产"],
         "visit_duration": "3-4小时",
-        "best_visit_time": "工作日，避开人流高峰",
-        "transportation": "地铁1号线天安门东站"
-      },
-      "capital_museum": {
-        "id": "capital_museum",
-        "name": "首都博物馆",
-        "category": "科技历史文化博物馆",
-        "coordinates": {
-          "lat": 39.9075,
-          "lng": 116.3561
-        },
-        "address": "北京市西城区复兴门外大街16号",
-        "description": "北京市大型综合性博物馆，展示北京历史文化",
-        "opening_hours": "09:00-17:00（周一闭馆）",
-        "ticket_price": "免费（需预约）",
-        "rating": 4.5,
-        "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
-        ],
-        "highlights": [
-          "北京通史",
-          "京剧文物",
-          "古代瓷器",
-          "古代佛教艺术"
-        ],
-        "visit_duration": "2-3小时",
-        "best_visit_time": "周二至周日，建议上午参观",
-        "transportation": "地铁1号线木樨地站"
-      },
-      "beijing_planetarium": {
-        "id": "beijing_planetarium",
-        "name": "北京天文馆",
-        "category": "科技历史文化博物馆",
-        "coordinates": {
-          "lat": 39.9405,
-          "lng": 116.3317
-        },
-        "address": "北京市西城区西直门外大街138号",
-        "description": "中国第一座大型天文馆，普及天文科学知识",
-        "opening_hours": "09:30-16:30（周一、周二闭馆）",
-        "ticket_price": "10-45元（不同展厅）",
-        "rating": 4.3,
-        "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
-        ],
-        "highlights": [
-          "天象厅",
-          "太阳厅",
-          "宇宙剧场",
-          "4D剧场"
-        ],
-        "visit_duration": "2-3小时",
-        "best_visit_time": "周末适合亲子参观",
-        "transportation": "地铁2号线西直门站"
-      },
-      "china_science_museum": {
-        "id": "china_science_museum",
-        "name": "中国科学技术馆",
-        "category": "科技历史文化博物馆",
-        "coordinates": {
-          "lat": 39.9847,
-          "lng": 116.3833
-        },
-        "address": "北京市朝阳区北辰东路5号",
-        "description": "国家级综合性科技馆，展示科学技术成就",
-        "opening_hours": "09:30-17:00（周一闭馆）",
-        "ticket_price": "30元",
-        "rating": 4.4,
-        "photos": [
-          "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80",
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80"
-        ],
-        "highlights": [
-          "科学乐园",
-          "华夏之光",
-          "探索与发现",
-          "科技与未来"
-        ],
-        "visit_duration": "3-4小时",
-        "best_visit_time": "周末适合家庭参观",
-        "transportation": "地铁8号线奥林匹克公园站"
-      },
-      "military_museum": {
-        "id": "military_museum",
-        "name": "中国人民革命军事博物馆",
-        "category": "科技历史文化博物馆",
-        "coordinates": {
-          "lat": 39.9069,
-          "lng": 116.3172
-        },
-        "address": "北京市海淀区复兴路9号",
-        "description": "展示中国军事历史和国防科技成就的国家级博物馆",
-        "opening_hours": "09:00-17:00（周一闭馆）",
-        "ticket_price": "免费（需预约）",
-        "rating": 4.4,
-        "photos": [
-          "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80",
-          "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80",
-          "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=800&q=80"
-        ],
-        "highlights": [
-          "古代战争",
-          "近现代战争",
-          "兵器陈列",
-          "英雄模范"
-        ],
-        "visit_duration": "2-3小时",
-        "best_visit_time": "工作日参观人数较少",
-        "transportation": "地铁1号线军事博物馆站"
+        "best_visit_time": "周末，艺术活动丰富",
+        "transportation": "地铁14号线望京南站转公交",
+        "booking_method": "无需预约"
       }
     }
-  },
-  "ea5808ce-3975-426b-ace8-448e1e305278": {
-    "journey_id": "ea5808ce-3975-426b-ace8-448e1e305278",
-    "start_time": "2025-09-02T15:40:00.357957",
-    "end_time": null,
-    "start_location": {
-      "lat": 39.954201524109614,
-      "lng": 116.31004870200141,
-      "name": "位置 39.9542, 116.3100",
-      "address": null
-    },
-    "current_location": {
-      "lat": 39.954201524109614,
-      "lng": 116.31004870200141,
-      "name": "位置 39.9542, 116.3100",
-      "address": null
-    },
-    "visited_scenes": [],
-    "total_distance_km": 0.0,
-    "is_active": true,
-    "journey_title": "探索之旅 2025/9/2 15:40:00",
-    "created_at": "2025-09-02T15:40:00.357957"
   }
 }

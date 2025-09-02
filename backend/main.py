@@ -1,98 +1,33 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional
 import math
 from geographiclib.geodesic import Geodesic
 import json
 import os
 import asyncio
-import time
 import logging
-from datetime import datetime
+import requests
 from dotenv import load_dotenv
 from real_data_service import real_data_service
-from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
-from ai_service import get_ai_service
-
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('backend.log', encoding='utf-8'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+from local_attractions_db import local_attractions_db
 
 # 加载环境变量
 load_dotenv()
 
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('backend.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
 app = FastAPI(title="方向探索派对API", version="1.0.0")
-
-def load_attractions_from_json() -> Dict:
-    """从journeys.json文件加载景点数据"""
-    try:
-        json_path = os.path.join(os.path.dirname(__file__), "data", "journeys.json")
-        with open(json_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            return data.get("beijing_top_attractions", {}).get("attractions", {})
-    except Exception as e:
-        logger.error(f"加载景点数据失败: {e}")
-        return {}
-
-def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """计算两点之间的距离（公里）"""
-    geod = Geodesic.WGS84
-    result = geod.Inverse(lat1, lon1, lat2, lon2)
-    return result['s12'] / 1000  # 转换为公里
-
-def get_nearby_attractions_from_json(target_lat: float, target_lon: float, max_distance_km: float = 50) -> List[Dict]:
-    """从JSON文件中获取附近的景点，按距离排序"""
-    attractions_data = load_attractions_from_json()
-    nearby_attractions = []
-    
-    for attraction_id, attraction in attractions_data.items():
-        # 获取景点坐标
-        coords = attraction.get("coordinates", {})
-        attr_lat = coords.get("lat")
-        attr_lon = coords.get("lng")
-        
-        if attr_lat is None or attr_lon is None:
-            continue
-            
-        # 计算距离
-        distance_km = calculate_distance(target_lat, target_lon, attr_lat, attr_lon)
-        
-        # 只包含指定距离内的景点
-        if distance_km <= max_distance_km:
-            attraction_info = {
-                "id": attraction_id,
-                "name": attraction.get("name", "未知景点"),
-                "latitude": attr_lat,
-                "longitude": attr_lon,
-                "distance": round(distance_km, 2),
-                "description": attraction.get("description", ""),
-                "category": attraction.get("category", ""),
-                "address": attraction.get("address", ""),
-                "opening_hours": attraction.get("opening_hours", ""),
-                "ticket_price": attraction.get("ticket_price", ""),
-                "rating": attraction.get("rating", 0),
-                "photos": attraction.get("photos", []),
-                "highlights": attraction.get("highlights", []),
-                "visit_duration": attraction.get("visit_duration", ""),
-                "best_visit_time": attraction.get("best_visit_time", ""),
-                "transportation": attraction.get("transportation", "")
-            }
-            nearby_attractions.append(attraction_info)
-    
-    # 按距离排序（从近到远）
-    nearby_attractions.sort(key=lambda x: x["distance"])
-    
-    logger.info(f"从JSON文件中找到 {len(nearby_attractions)} 个景点，距离目标点 ({target_lat:.4f}, {target_lon:.4f}) {max_distance_km}km 以内")
-    
-    return nearby_attractions
 
 # 添加CORS中间件
 app.add_middleware(
@@ -119,6 +54,7 @@ class PlaceInfo(BaseModel):
     distance: float
     description: str
     image: Optional[str] = None
+    video: Optional[str] = None
     country: Optional[str] = None
     city: Optional[str] = None
     opening_hours: Optional[str] = None
@@ -826,31 +762,34 @@ async def explore_direction_real(request: ExploreRequest):
             'distance': target_distance
         }]
         
-        # 使用本地JSON数据获取附近景点信息
+        # 使用本地数据库获取附近景点信息
         target_lat = target_point['lat2']
         target_lon = target_point['lon2']
         
-        # 从JSON文件中获取附近景点，搜索半径50km
-        places_data_list = get_nearby_attractions_from_json(target_lat, target_lon, max_distance_km=50)
+        # 从本地数据库中获取附近景点，搜索半径50km
+        places_data_list = local_attractions_db.find_nearby_attractions(target_lat, target_lon, radius_km=50)
+        
+        logger.info(f"从本地数据库中找到 {len(places_data_list)} 个景点，距离目标点 ({target_lat:.4f}, {target_lon:.4f}) 50km 以内")
         
         # 转换为PlaceInfo对象
         places = []
         for place_data in places_data_list:
             # 构建图片URL（取第一张图片）
-            image_url = place_data.get('photos', [None])[0] if place_data.get('photos') else None
+            image_url = place_data.get('image', None)
             
             place_info = PlaceInfo(
                 name=place_data['name'],
                 latitude=place_data['latitude'],
                 longitude=place_data['longitude'],
-                distance=place_data['distance'],
+                distance=place_data['distance_to_point'],
                 description=place_data['description'],
                 image=image_url,
-                country="中国",
-                city="北京",
-                opening_hours=place_data.get('opening_hours'),
+                video=place_data.get('video', None),
+                country=place_data.get('country', '中国'),
+                city=place_data.get('city', '北京'),
+                opening_hours=place_data.get('opening_hours', '详询景点'),
                 ticket_price=place_data.get('ticket_price'),
-                booking_method="现场购票或在线预约",
+                booking_method=place_data.get('booking_method'),
                 category=place_data.get('category')
             )
             places.append(place_info)
@@ -880,6 +819,212 @@ async def get_places(time_mode: str):
     
     return {"places": places_data[time_mode]}
 
+# 地理编码相关的数据模型
+class GeocodeRequest(BaseModel):
+    query: str
+
+class GeocodeResponse(BaseModel):
+    success: bool
+    data: Optional[dict] = None
+    message: str
+
+class PlaceDetailsRequest(BaseModel):
+    place_id: str
+    lat: float
+    lng: float
+
+@app.post("/api/geocode", response_model=GeocodeResponse)
+async def geocode_location(request: GeocodeRequest):
+    """地理编码服务 - 优先使用高德地图，备用Google Maps"""
+    try:
+        # 导入必要的库
+        import googlemaps
+        import requests
+        from dotenv import load_dotenv
+        
+        load_dotenv()
+        
+        # 首先尝试高德地图API
+        amap_key = os.getenv("AMAP_API_KEY")
+        if amap_key:
+            try:
+                url = "https://restapi.amap.com/v3/geocode/geo"
+                params = {
+                    'key': amap_key,
+                    'address': request.query,
+                    'output': 'json'
+                }
+                
+                response = requests.get(url, params=params, timeout=5)
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get('status') == '1' and data.get('geocodes'):
+                        geocode = data['geocodes'][0]
+                        location = geocode['location'].split(',')
+                        
+                        result = {
+                            "formatted_address": geocode.get('formatted_address', request.query),
+                            "geometry": {
+                                "location": {
+                                    "lat": float(location[1]),
+                                    "lng": float(location[0])
+                                },
+                                "location_type": "APPROXIMATE"
+                            },
+                            "place_id": f"amap_{geocode.get('adcode', 'unknown')}",
+                            "address_components": [
+                                {
+                                    "long_name": geocode.get('district', ''),
+                                    "short_name": geocode.get('district', ''),
+                                    "types": ["administrative_area_level_3", "political"]
+                                },
+                                {
+                                    "long_name": geocode.get('city', ''),
+                                    "short_name": geocode.get('city', ''),
+                                    "types": ["administrative_area_level_2", "political"]
+                                },
+                                {
+                                    "long_name": geocode.get('province', ''),
+                                    "short_name": geocode.get('province', ''),
+                                    "types": ["administrative_area_level_1", "political"]
+                                },
+                                {
+                                    "long_name": "中国",
+                                    "short_name": "CN",
+                                    "types": ["country", "political"]
+                                }
+                            ],
+                            "types": ["geocode"]
+                        }
+                        
+                        return GeocodeResponse(
+                            success=True,
+                            data=result,
+                            message=f"高德地图找到位置: {result['formatted_address']}"
+                        )
+            except Exception as e:
+                logger.warning(f"高德地图地理编码失败: {e}")
+        
+        # 备用Google Maps API
+        google_key = os.getenv("GOOGLE_MAPS_API_KEY")
+        if google_key:
+            try:
+                gmaps = googlemaps.Client(key=google_key)
+                geocode_result = gmaps.geocode(request.query)
+                
+                if geocode_result:
+                    result = geocode_result[0]
+                    return GeocodeResponse(
+                        success=True,
+                        data=result,
+                        message=f"Google Maps找到位置: {result['formatted_address']}"
+                    )
+            except Exception as e:
+                logger.warning(f"Google Maps地理编码失败: {e}")
+        
+        # 本地备用数据
+        fallback_locations = {
+            "北京": {"lat": 39.9042, "lng": 116.4074, "address": "北京市"},
+            "上海": {"lat": 31.2304, "lng": 121.4737, "address": "上海市"},
+            "广州": {"lat": 23.1291, "lng": 113.2644, "address": "广州市"},
+            "深圳": {"lat": 22.5431, "lng": 114.0579, "address": "深圳市"},
+            "天安门": {"lat": 39.9042, "lng": 116.4074, "address": "北京市东城区天安门"},
+            "故宫": {"lat": 39.9163, "lng": 116.3972, "address": "北京市东城区故宫"},
+        }
+        
+        for city, info in fallback_locations.items():
+            if city in request.query:
+                result = {
+                    "formatted_address": info["address"],
+                    "geometry": {
+                        "location": {"lat": info["lat"], "lng": info["lng"]},
+                        "location_type": "APPROXIMATE"
+                    },
+                    "place_id": f"fallback_{city}",
+                    "address_components": [],
+                    "types": ["locality", "political"]
+                }
+                return GeocodeResponse(
+                    success=True,
+                    data=result,
+                    message=f"使用本地数据找到位置: {info['address']}"
+                )
+        
+        return GeocodeResponse(
+            success=False,
+            message=f"无法找到位置: {request.query}"
+        )
+        
+    except Exception as e:
+        logger.error(f"地理编码服务错误: {e}")
+        return GeocodeResponse(
+            success=False,
+            message=f"地理编码服务错误: {str(e)}"
+        )
+
+@app.post("/api/place-details")
+async def get_place_details(request: PlaceDetailsRequest):
+    """获取地点详细信息"""
+    try:
+        # 从本地数据库查找匹配的景点
+        for attraction in local_attractions_db.attractions:
+            # 计算距离，如果很近就认为是同一个地点
+            distance = local_attractions_db.calculate_distance(
+                request.lat, request.lng,
+                attraction['latitude'], attraction['longitude']
+            )
+            
+            if distance < 1000:  # 1公里内认为是同一地点
+                return {
+                    "success": True,
+                    "data": {
+                        "name": attraction['name'],
+                        "formatted_address": attraction.get('address', f"{attraction['city']}{attraction['name']}"),
+                        "photos": [{"photo_reference": attraction.get('image', '')}] if attraction.get('image') else [],
+                        "rating": 4.5,
+                        "user_ratings_total": 1000,
+                        "opening_hours": {"weekday_text": [attraction.get('opening_hours', '详询景点')]},
+                        "geometry": {
+                            "location": {
+                                "lat": attraction['latitude'],
+                                "lng": attraction['longitude']
+                            }
+                        }
+                    },
+                    "message": f"找到地点详情: {attraction['name']}"
+                }
+        
+        # 如果本地没找到，返回基本信息
+        return {
+            "success": True,
+            "data": {
+                "name": "未知地点",
+                "formatted_address": f"纬度: {request.lat:.4f}, 经度: {request.lng:.4f}",
+                "photos": [],
+                "rating": 0,
+                "user_ratings_total": 0,
+                "opening_hours": {"weekday_text": ["营业时间未知"]},
+                "geometry": {
+                    "location": {"lat": request.lat, "lng": request.lng}
+                }
+            },
+            "message": "返回基本位置信息"
+        }
+        
+    except Exception as e:
+        logger.error(f"获取地点详情错误: {e}")
+        raise HTTPException(status_code=500, detail=f"获取地点详情错误: {str(e)}")
+
+@app.get("/api/config/maps")
+async def get_maps_config():
+    """获取地图配置信息"""
+    return {
+        "google_maps_api_key": os.getenv("GOOGLE_MAPS_API_KEY", ""),
+        "amap_api_key": os.getenv("AMAP_API_KEY", ""),
+        "default_location": {"lat": 39.9042, "lng": 116.4074},
+        "default_zoom": 10
+    }
+
 @app.get("/api/health")
 async def health_check():
     """健康检查端点"""
@@ -888,771 +1033,6 @@ async def health_check():
         "service": "方向探索派对API",
         "version": "1.0.0"
     }
-
-# ========== 旅程管理API端点 ==========
-
-# 旅程管理的请求模型
-class StartJourneyRequest(BaseModel):
-    """开始新旅程的请求模型"""
-    start_lat: float
-    start_lng: float
-    start_name: str
-    start_address: Optional[str] = None
-    journey_title: Optional[str] = None
-
-class VisitSceneRequest(BaseModel):
-    """访问场景的请求模型"""
-    journey_id: str
-    scene_name: str
-    scene_lat: float
-    scene_lng: float
-    scene_address: Optional[str] = None
-    user_rating: Optional[int] = None
-    notes: Optional[str] = None
-
-class SceneReviewRequest(BaseModel):
-    """场景锐评请求模型"""
-    scene_name: str
-    scene_description: str
-    scene_type: Optional[str] = "自然景观"
-    scene_lat: Optional[float] = None
-    scene_lng: Optional[float] = None
-    user_context: Optional[Dict] = None
-
-class SceneReviewResponse(BaseModel):
-    """场景锐评响应模型"""
-    success: bool
-    review_data: Dict
-    generation_time: float
-    message: str
-
-class JourneySummaryRequest(BaseModel):
-    """旅程总结请求模型"""
-    visited_scenes: List[Dict]
-    total_distance: float
-    journey_duration: str
-    scenes_count: int
-
-class JourneySummaryResponse(BaseModel):
-    """旅程总结响应模型"""
-    success: bool
-    summary: str
-    generation_time: float
-    message: str
-
-@app.post("/api/journey/start")
-async def start_journey(request: StartJourneyRequest):
-    """
-    开始新的旅程
-    
-    Args:
-        request: 包含起始位置和旅程标题的请求
-        
-    Returns:
-        新创建的旅程ID和基本信息
-    """
-    try:
-        # 创建起始位置对象
-        start_location = JourneyLocation(
-            lat=request.start_lat,
-            lng=request.start_lng,
-            name=request.start_name,
-            address=request.start_address
-        )
-        
-        # 创建新旅程
-        journey_id = journey_service.create_journey(
-            start_location=start_location,
-            journey_title=request.journey_title
-        )
-        
-        # 获取创建的旅程信息
-        journey = journey_service.get_journey(journey_id)
-        
-        return {
-            "success": True,
-            "journey_id": journey_id,
-            "journey_title": journey.journey_title,
-            "start_time": journey.start_time,
-            "start_location": journey.start_location.dict(),
-            "message": f"🎒 新旅程已开始：{journey.journey_title}"
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"创建旅程失败：{str(e)}")
-
-@app.post("/api/journey/visit")
-async def visit_scene(request: VisitSceneRequest):
-    """
-    记录访问场景
-    
-    Args:
-        request: 包含旅程ID和场景信息的请求
-        
-    Returns:
-        访问记录的结果
-    """
-    try:
-        # 创建场景位置对象
-        scene_location = JourneyLocation(
-            lat=request.scene_lat,
-            lng=request.scene_lng,
-            name=request.scene_name,
-            address=request.scene_address
-        )
-        
-        # 记录场景访问
-        success = journey_service.visit_scene(
-            journey_id=request.journey_id,
-            scene_name=request.scene_name,
-            scene_location=scene_location,
-            user_rating=request.user_rating,
-            notes=request.notes
-        )
-        
-        if not success:
-            raise HTTPException(status_code=404, detail="旅程不存在")
-        
-        # 获取更新后的旅程信息
-        journey = journey_service.get_journey(request.journey_id)
-        
-        return {
-            "success": True,
-            "journey_id": request.journey_id,
-            "visited_scenes_count": len(journey.visited_scenes),
-            "current_location": journey.current_location.dict(),
-            "message": f"🏁 已到达：{request.scene_name}"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"记录访问失败：{str(e)}")
-
-@app.get("/api/journey/{journey_id}")
-async def get_journey(journey_id: str):
-    """
-    获取指定旅程的详细信息
-    
-    Args:
-        journey_id: 旅程ID
-        
-    Returns:
-        完整的旅程信息
-    """
-    try:
-        journey = journey_service.get_journey(journey_id)
-        
-        if not journey:
-            raise HTTPException(status_code=404, detail="旅程不存在")
-        
-        return {
-            "success": True,
-            "journey": journey.dict()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取旅程失败：{str(e)}")
-
-@app.get("/api/journey/{journey_id}/summary")
-async def get_journey_summary(journey_id: str):
-    """
-    获取旅程摘要信息
-    
-    Args:
-        journey_id: 旅程ID
-        
-    Returns:
-        旅程摘要信息
-    """
-    try:
-        summary = journey_service.get_journey_summary(journey_id)
-        
-        if not summary:
-            raise HTTPException(status_code=404, detail="旅程不存在")
-        
-        return {
-            "success": True,
-            "summary": summary
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取旅程摘要失败：{str(e)}")
-
-@app.post("/api/journey/{journey_id}/end")
-async def end_journey(journey_id: str):
-    """
-    结束指定的旅程
-    
-    Args:
-        journey_id: 旅程ID
-        
-    Returns:
-        结束操作的结果
-    """
-    try:
-        success = journey_service.end_journey(journey_id)
-        
-        if not success:
-            raise HTTPException(status_code=404, detail="旅程不存在")
-        
-        # 获取结束后的旅程信息
-        journey = journey_service.get_journey(journey_id)
-        
-        return {
-            "success": True,
-            "journey_id": journey_id,
-            "end_time": journey.end_time,
-            "visited_scenes_count": len(journey.visited_scenes),
-            "total_distance_km": journey.total_distance_km,
-            "message": f"🏠 旅程结束：{journey.journey_title}"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"结束旅程失败：{str(e)}")
-
-@app.get("/api/journeys/active")
-async def get_active_journeys():
-    """
-    获取所有活跃的旅程
-    
-    Returns:
-        活跃旅程列表
-    """
-    try:
-        active_journeys = journey_service.get_active_journeys()
-        
-        return {
-            "success": True,
-            "count": len(active_journeys),
-            "journeys": [journey.dict() for journey in active_journeys]
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取活跃旅程失败：{str(e)}")
-
-@app.post("/api/scene-review", response_model=SceneReviewResponse)
-async def generate_scene_review(request: SceneReviewRequest):
-    """
-    生成场景锐评
-    
-    Args:
-        request: 场景锐评请求，包含场景信息和用户上下文
-    
-    Returns:
-        SceneReviewResponse: 包含AI生成的锐评内容
-    """
-    start_time = time.time()
-    
-    try:
-        # 获取AI服务
-        ai_service = get_ai_service()
-        
-        if not ai_service:
-            # AI服务不可用，返回备用内容
-            return SceneReviewResponse(
-                success=False,
-                review_data={
-                    "title": f"探索发现：{request.scene_name}",
-                    "review": f"欢迎来到{request.scene_name}！{request.scene_description} 虽然AI服务暂时不可用，但这个地方仍然值得您深入探索。",
-                    "highlights": ["真实场景探索", "独特地理位置", "值得记录的时刻"],
-                    "tips": "用心感受每个地方的独特魅力",
-                    "rating_reason": "探索本身就是最好的理由",
-                    "mood": "冒险"
-                },
-                generation_time=time.time() - start_time,
-                message="AI服务不可用，返回备用锐评内容"
-            )
-        
-        # 准备用户上下文
-        user_context = request.user_context or {}
-        
-        # 调用AI服务生成锐评
-        review_data = await ai_service.generate_scene_review(
-            scene_name=request.scene_name,
-            scene_description=request.scene_description,
-            scene_type=request.scene_type,
-            user_context=user_context
-        )
-        
-        generation_time = time.time() - start_time
-        
-        return SceneReviewResponse(
-            success=True,
-            review_data=review_data,
-            generation_time=generation_time,
-            message=f"🤖 AI锐评生成成功：{request.scene_name}"
-        )
-        
-    except Exception as e:
-        generation_time = time.time() - start_time
-        
-        # 错误处理：返回备用内容
-        return SceneReviewResponse(
-            success=False,
-            review_data={
-                "title": f"探索发现：{request.scene_name}",
-                "review": f"这里是{request.scene_name}，{request.scene_description} 每个地方都有其独特的魅力，值得您亲自体验和发现。",
-                "highlights": ["独特的地理位置", "值得记录的探索", "真实的旅行体验"],
-                "tips": "保持好奇心，用心感受",
-                "rating_reason": "探索的乐趣",
-                "mood": "发现"
-            },
-            generation_time=generation_time,
-            message=f"AI服务错误，返回备用内容：{str(e)}"
-        )
-
-@app.post("/api/journey-summary", response_model=JourneySummaryResponse)
-async def generate_journey_summary(request: JourneySummaryRequest):
-    """
-    生成AI旅程总结
-    
-    Args:
-        request: 旅程总结请求，包含访问场景、距离、时长等信息
-    
-    Returns:
-        JourneySummaryResponse: 包含AI生成的旅程总结文本
-    """
-    start_time = time.time()
-    
-    try:
-        # 获取AI服务
-        ai_service = get_ai_service()
-        
-        if not ai_service:
-            raise HTTPException(status_code=503, detail="AI服务不可用")
-        
-        # 调用AI服务生成旅程总结
-        summary_text = await ai_service.generate_journey_summary_ai(
-            visited_scenes=request.visited_scenes,
-            total_distance=request.total_distance,
-            journey_duration=request.journey_duration
-        )
-        
-        generation_time = time.time() - start_time
-        
-        return JourneySummaryResponse(
-            success=True,
-            summary=summary_text,
-            generation_time=generation_time,
-            message=f"🤖 AI旅程总结生成成功：{request.scenes_count}个场景"
-        )
-        
-    except Exception as e:
-        generation_time = time.time() - start_time
-        
-        # 错误处理：返回备用总结
-        fallback_summary = f"🎉 恭喜完成这次精彩的探索之旅！您访问了{request.scenes_count}个地点，总共行进了{request.total_distance:.1f}公里，耗时{request.journey_duration}。每一步都是独特的发现，每一处风景都值得珍藏。感谢您选择方向探索派对，期待您的下次冒险！🧭✨"
-        
-        return JourneySummaryResponse(
-            success=False,
-            summary=fallback_summary,
-            generation_time=generation_time,
-            message=f"AI服务错误，返回备用总结：{str(e)}"
-        )
-
-@app.get("/api/config/maps")
-async def get_maps_config():
-    """
-    获取Google Maps相关配置
-    注意：生产环境应该从环境变量或配置文件读取
-    """
-    # 从环境变量获取API Key
-    api_key = os.getenv('GOOGLE_MAPS_API_KEY', 'YOUR_GOOGLE_MAPS_API_KEY')
-
-    return {
-        "apiKey": api_key,
-        "enabled": api_key != 'YOUR_GOOGLE_MAPS_API_KEY',
-        "message": "Google Maps配置已加载"
-    }
-
-# 漫游功能相关数据模型
-class GeocodeRequest(BaseModel):
-    query: str
-    language: str = "zh-CN"
-
-class PlaceDetailsRequest(BaseModel):
-    place_id: Optional[str] = None
-    location: Dict[str, float]  # {"lat": float, "lng": float}
-
-# 备用地理编码函数
-async def fallback_geocode(query: str):
-    """
-    备用地理编码方案 - 使用预定义的常见地点坐标
-    """
-    # 常见地点的坐标数据库
-    common_places = {
-        # 中国主要城市
-        "北京": {"lat": 39.9042, "lng": 116.4074, "address": "北京市, 中华人民共和国"},
-        "上海": {"lat": 31.2304, "lng": 121.4737, "address": "上海市, 中华人民共和国"},
-        "广州": {"lat": 23.1291, "lng": 113.2644, "address": "广州市, 广东省, 中华人民共和国"},
-        "深圳": {"lat": 22.5431, "lng": 114.0579, "address": "深圳市, 广东省, 中华人民共和国"},
-        "杭州": {"lat": 30.2741, "lng": 120.1551, "address": "杭州市, 浙江省, 中华人民共和国"},
-        "南京": {"lat": 32.0603, "lng": 118.7969, "address": "南京市, 江苏省, 中华人民共和国"},
-        "成都": {"lat": 30.5728, "lng": 104.0668, "address": "成都市, 四川省, 中华人民共和国"},
-        "西安": {"lat": 34.3416, "lng": 108.9398, "address": "西安市, 陕西省, 中华人民共和国"},
-        
-        # 著名景点
-        "天安门": {"lat": 39.9055, "lng": 116.3976, "address": "天安门广场, 北京市, 中华人民共和国"},
-        "天安门广场": {"lat": 39.9055, "lng": 116.3976, "address": "天安门广场, 北京市, 中华人民共和国"},
-        "故宫": {"lat": 39.9163, "lng": 116.3972, "address": "故宫博物院, 北京市, 中华人民共和国"},
-        "外滩": {"lat": 31.2396, "lng": 121.4906, "address": "外滩, 上海市, 中华人民共和国"},
-        "上海外滩": {"lat": 31.2396, "lng": 121.4906, "address": "外滩, 上海市, 中华人民共和国"},
-        "东方明珠": {"lat": 31.2397, "lng": 121.4999, "address": "东方明珠塔, 上海市, 中华人民共和国"},
-        "西湖": {"lat": 30.2369, "lng": 120.1457, "address": "西湖, 杭州市, 浙江省, 中华人民共和国"},
-        "杭州西湖": {"lat": 30.2369, "lng": 120.1457, "address": "西湖, 杭州市, 浙江省, 中华人民共和国"},
-        
-        # 国际城市
-        "东京": {"lat": 35.6762, "lng": 139.6503, "address": "东京, 日本"},
-        "纽约": {"lat": 40.7128, "lng": -74.0060, "address": "纽约, 美国"},
-        "伦敦": {"lat": 51.5074, "lng": -0.1278, "address": "伦敦, 英国"},
-        "巴黎": {"lat": 48.8566, "lng": 2.3522, "address": "巴黎, 法国"},
-    }
-    
-    # 尝试匹配查询字符串
-    query_lower = query.lower()
-    for place_name, coords in common_places.items():
-        if place_name in query or place_name.lower() in query_lower:
-            return {
-                "success": True,
-                "data": {
-                    "formatted_address": coords["address"],
-                    "place_id": f"fallback_{place_name}",
-                    "geometry": {
-                        "location": {
-                            "lat": coords["lat"],
-                            "lng": coords["lng"]
-                        },
-                        "location_type": "APPROXIMATE"
-                    },
-                    "address_components": [],
-                    "types": ["locality", "political"]
-                },
-                "message": f"使用备用数据找到位置: {coords['address']} (Google Maps API不可用)"
-            }
-    
-    # 如果没有找到匹配的地点
-    return {
-        "success": False,
-        "error": f"未找到位置: {query}。Google Maps API不可用，且备用数据库中没有匹配的地点。"
-    }
-
-@app.post("/api/geocode")
-async def geocode_location(request: GeocodeRequest):
-    """
-    地理编码API - 将地址转换为坐标
-    优先级：1. 高德地图API -> 2. Google Maps API -> 3. 备用数据库
-    """
-    logger.info(f"🌍 开始地理编码搜索: '{request.query}'")
-    start_time = time.time()
-    
-    # 方案1: 尝试使用高德地图API
-    try:
-        logger.info("📡 尝试使用高德地图地理编码API...")
-        amap_result = await try_amap_geocode(request.query)
-        if amap_result["success"]:
-            elapsed_time = time.time() - start_time
-            logger.info(f"✅ 高德地图API调用成功，耗时: {elapsed_time:.2f}秒")
-            return amap_result
-        else:
-            logger.warning(f"⚠️ 高德地图API未找到结果: {amap_result.get('error', '未知错误')}")
-    except Exception as e:
-        elapsed_time = time.time() - start_time
-        logger.warning(f"❌ 高德地图API调用失败 (耗时: {elapsed_time:.2f}秒): {e}")
-    
-    # 方案2: 尝试使用Google Maps API
-    try:
-        logger.info("📡 切换到Google Maps地理编码API...")
-        google_result = await try_google_geocode(request.query, request.language)
-        if google_result["success"]:
-            elapsed_time = time.time() - start_time
-            logger.info(f"✅ Google Maps API调用成功，耗时: {elapsed_time:.2f}秒")
-            return google_result
-        else:
-            logger.warning(f"⚠️ Google Maps API未找到结果: {google_result.get('error', '未知错误')}")
-    except Exception as e:
-        elapsed_time = time.time() - start_time
-        logger.warning(f"❌ Google Maps API调用失败 (耗时: {elapsed_time:.2f}秒): {e}")
-    
-    # 方案3: 使用备用数据库
-    logger.info("🔄 切换到备用地理编码方案...")
-    elapsed_time = time.time() - start_time
-    logger.info(f"⏱️ 前两种方案总耗时: {elapsed_time:.2f}秒")
-    return await fallback_geocode(request.query)
-
-# 高德地图地理编码
-async def try_amap_geocode(query: str):
-    """
-    使用高德地图API进行地理编码
-    """
-    try:
-        import requests
-        
-        # 获取高德地图API Key
-        amap_key = os.getenv('AMAP_API_KEY')
-        if not amap_key or amap_key == 'YOUR_AMAP_API_KEY':
-            return {
-                "success": False,
-                "error": "高德地图API Key未配置"
-            }
-        
-        # 调用高德地图地理编码API
-        url = "https://restapi.amap.com/v3/geocode/geo"
-        params = {
-            'key': amap_key,
-            'address': query,
-            'output': 'json'
-        }
-        
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        if data.get('status') == '1' and data.get('geocodes'):
-            geocode = data['geocodes'][0]
-            location = geocode['location'].split(',')
-            
-            return {
-                "success": True,
-                "data": {
-                    "formatted_address": geocode.get('formatted_address', query),
-                    "place_id": f"amap_{geocode.get('adcode', 'unknown')}",
-                    "geometry": {
-                        "location": {
-                            "lat": float(location[1]),
-                            "lng": float(location[0])
-                        },
-                        "location_type": "ROOFTOP"
-                    },
-                    "address_components": [],
-                    "types": ["geocode"]
-                },
-                "message": f"高德地图找到位置: {geocode.get('formatted_address', query)}"
-            }
-        else:
-            return {
-                "success": False,
-                "error": f"高德地图未找到位置: {query}"
-            }
-            
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"高德地图API调用失败: {str(e)}"
-        }
-
-# Google Maps地理编码
-async def try_google_geocode(query: str, language: str = "zh-CN"):
-    """
-    使用Google Maps API进行地理编码
-    """
-    try:
-        import googlemaps
-        import asyncio
-        import concurrent.futures
-        
-        # 获取Google Maps API Key
-        api_key = os.getenv('GOOGLE_MAPS_API_KEY')
-        if not api_key or api_key == 'YOUR_GOOGLE_MAPS_API_KEY':
-            return {
-                "success": False,
-                "error": "Google Maps API Key未配置"
-            }
-        
-        # 初始化Google Maps客户端，设置超时
-        gmaps = googlemaps.Client(key=api_key, timeout=10)
-        
-        def sync_geocode():
-            return gmaps.geocode(
-                address=query,
-                language=language
-            )
-        
-        # 使用线程池执行同步操作，避免阻塞
-        loop = asyncio.get_event_loop()
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            geocode_result = await loop.run_in_executor(executor, sync_geocode)
-        
-        if not geocode_result:
-            return {
-                "success": False,
-                "error": f"Google Maps未找到位置: {query}"
-            }
-        
-        # 返回第一个结果
-        result = geocode_result[0]
-        
-        return {
-            "success": True,
-            "data": {
-                "formatted_address": result["formatted_address"],
-                "place_id": result["place_id"],
-                "geometry": {
-                    "location": {
-                        "lat": result["geometry"]["location"]["lat"],
-                        "lng": result["geometry"]["location"]["lng"]
-                    },
-                    "location_type": result["geometry"]["location_type"]
-                },
-                "address_components": result["address_components"],
-                "types": result["types"]
-            },
-            "message": f"Google Maps找到位置: {result['formatted_address']}"
-        }
-        
-    except ImportError:
-        return {
-            "success": False,
-            "error": "googlemaps库未安装"
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"Google Maps API调用失败: {str(e)}"
-        }
-
-@app.post("/api/place-details")
-async def get_place_details(request: PlaceDetailsRequest):
-    """
-    获取地点详细信息API
-    """
-    try:
-        import googlemaps
-        
-        # 获取Google Maps API Key
-        api_key = os.getenv('GOOGLE_MAPS_API_KEY')
-        if not api_key or api_key == 'YOUR_GOOGLE_MAPS_API_KEY':
-            raise HTTPException(status_code=500, detail="Google Maps API Key未配置")
-        
-        # 初始化Google Maps客户端
-        gmaps = googlemaps.Client(key=api_key)
-        
-        place_details = None
-        
-        # 如果有place_id，直接获取详情
-        if request.place_id:
-            try:
-                                    place_details = gmaps.place(
-                        place_id=request.place_id,
-                        fields=[
-                            'name', 'formatted_address', 'geometry', 'rating', 
-                            'formatted_phone_number', 'website', 'opening_hours',
-                            'photo', 'reviews', 'price_level'
-                        ],
-                        language='zh-CN'
-                    )["result"]
-            except Exception as e:
-                print(f"使用place_id获取详情失败: {e}")
-        
-        # 如果没有place_id或获取失败，使用坐标搜索附近地点
-        if not place_details:
-            try:
-                nearby_places = gmaps.places_nearby(
-                    location=(request.location["lat"], request.location["lng"]),
-                    radius=100,  # 100米范围内
-                    language='zh-CN'
-                )
-                
-                if nearby_places["results"]:
-                    # 获取第一个地点的详细信息
-                    first_place = nearby_places["results"][0]
-                    place_details = gmaps.place(
-                        place_id=first_place["place_id"],
-                        fields=[
-                            'name', 'formatted_address', 'geometry', 'rating', 
-                            'formatted_phone_number', 'website', 'opening_hours',
-                            'photo', 'reviews', 'price_level'
-                        ],
-                        language='zh-CN'
-                    )["result"]
-            except Exception as e:
-                print(f"搜索附近地点失败: {e}")
-        
-        if not place_details:
-            # 使用备用方案提供基本信息
-            return {
-                "success": True,
-                "data": {
-                    "name": "未知地点",
-                    "formatted_address": f"坐标: {request.location['lat']:.6f}, {request.location['lng']:.6f}",
-                    "rating": None,
-                    "formatted_phone_number": None,
-                    "website": None,
-                    "opening_hours": None,
-                    "photos": [],
-                    "types": ["point_of_interest"],
-                    "price_level": None,
-                    "geometry": {
-                        "location": request.location
-                    }
-                },
-                "message": "Google Maps API不可用，返回基本位置信息"
-            }
-        
-        # 处理照片URL
-        photos = []
-        if "photo" in place_details:
-            # Google Maps API现在返回单个photo字段而不是photos数组
-            photo_data = place_details["photo"]
-            if isinstance(photo_data, list):
-                for photo in photo_data[:5]:  # 最多5张照片
-                    photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo['photo_reference']}&key={api_key}"
-                    photos.append({
-                        "photo_reference": photo["photo_reference"],
-                        "photo_url": photo_url,
-                        "width": photo.get("width", 400),
-                        "height": photo.get("height", 300)
-                    })
-            elif isinstance(photo_data, dict) and "photo_reference" in photo_data:
-                # 单张照片
-                photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_data['photo_reference']}&key={api_key}"
-                photos.append({
-                    "photo_reference": photo_data["photo_reference"],
-                    "photo_url": photo_url,
-                    "width": photo_data.get("width", 400),
-                    "height": photo_data.get("height", 300)
-                })
-        
-        # 构建返回数据
-        result_data = {
-            "name": place_details.get("name", "未知地点"),
-            "formatted_address": place_details.get("formatted_address", ""),
-            "rating": place_details.get("rating"),
-            "formatted_phone_number": place_details.get("formatted_phone_number"),
-            "website": place_details.get("website"),
-            "opening_hours": place_details.get("opening_hours"),
-            "photos": photos,
-            "types": place_details.get("types", []),
-            "price_level": place_details.get("price_level"),
-            "geometry": place_details.get("geometry", {})
-        }
-        
-        # 处理评论
-        if "reviews" in place_details:
-            result_data["reviews"] = place_details["reviews"][:3]  # 最多3条评论
-        
-        return {
-            "success": True,
-            "data": result_data,
-            "message": f"成功获取地点详情: {result_data['name']}"
-        }
-        
-    except ImportError:
-        return {
-            "success": False,
-            "error": "googlemaps库未安装，请运行: pip install googlemaps"
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"获取地点详情失败: {str(e)}"
-        }
 
 if __name__ == "__main__":
     import uvicorn
