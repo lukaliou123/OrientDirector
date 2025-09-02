@@ -104,6 +104,7 @@ class HistoricalSceneResponse(BaseModel):
     success: bool
     historical_info: Optional[HistoricalLocationInfo] = None
     generated_scene: Optional[HistoricalSceneInfo] = None
+    ai_review: Optional[Dict] = None
     calculation_time: float
     data_source: str = "Historical-basemaps + Gemini"
     error: Optional[str] = None
@@ -1034,6 +1035,9 @@ async def generate_historical_scene(request: HistoricalSceneRequest):
             historical_result, request.latitude, request.longitude
         )
         
+        # 3. 生成AI历史锐评（使用现有AI服务）
+        historical_review = await generate_historical_review(historical_result, scene_result)
+        
         # 格式化响应
         calculation_time = time.time() - start_time
         
@@ -1046,7 +1050,8 @@ async def generate_historical_scene(request: HistoricalSceneRequest):
             historical_info=historical_info,
             generated_scene=scene_info,
             calculation_time=calculation_time,
-            data_source="Historical-basemaps + Gemini"
+            data_source="Historical-basemaps + Gemini",
+            ai_review=historical_review  # 添加AI历史锐评
         )
         
         print(f"✅ 历史场景生成完成: {historical_result['political_entity']} ({request.year})")
@@ -1094,6 +1099,73 @@ async def get_historical_generation_capabilities():
         return {
             'success': False,
             'error': str(e)
+        }
+
+async def generate_historical_review(historical_info: Dict, scene_data: Dict) -> Dict:
+    """
+    生成AI历史锐评 - 基于现有AI服务
+    """
+    try:
+        print(f"🤖 开始生成历史锐评: {historical_info['political_entity']} ({historical_info['query_year']}年)")
+        
+        # 获取现有AI服务
+        ai_service = get_ai_service()
+        
+        # 构建适合历史场景的参数
+        historical_scene_name = f"{historical_info['political_entity']} ({historical_info['query_year']}年)"
+        historical_scene_type = f"历史文明场景 - {historical_info.get('time_period', '古代')}"
+        
+        # 构建丰富的历史场景描述
+        enhanced_description = f"""
+🏛️ 政治实体：{historical_info['political_entity']}
+👑 统治者：{historical_info.get('ruler_or_power', '未知')}
+🌍 文化圈：{historical_info['cultural_region']}
+📊 边界精度：{historical_info.get('border_precision', 1)}级 (Historical-basemaps数据)
+
+🎨 AI场景重现：
+{scene_data.get('scene_description', '历史场景已生成')}
+
+🕰️ 历史背景：
+{historical_info.get('description', '')}
+
+这是基于Historical-basemaps学术数据和Nano Banana AI技术重现的{historical_info['query_year']}年真实历史场景。
+        """
+        
+        # 构建历史探索的用户上下文
+        historical_user_context = {
+            'visit_count': 0,  # 历史探索通常是单次体验
+            'time_of_day': time.strftime('%H:%M'),
+            'previous_places': [],
+            'exploration_type': 'historical_time_travel',
+            'data_source': 'Historical-basemaps + Nano Banana AI',
+            'special_note': f'这是一次时空穿越体验，用户探索了{historical_info["query_year"]}年的{historical_info["political_entity"]}'
+        }
+        
+        # 调用现有AI服务生成锐评
+        review_result = await ai_service.generate_scene_review(
+            scene_name=historical_scene_name,
+            scene_description=enhanced_description.strip(),
+            scene_type=historical_scene_type,
+            user_context=historical_user_context
+        )
+        
+        print(f"✅ AI历史锐评生成成功: {review_result.get('title', 'N/A')}")
+        
+        return review_result
+        
+    except Exception as e:
+        print(f"❌ AI历史锐评生成失败: {e}")
+        
+        # 返回简单的历史锐评
+        return {
+            'success': False,
+            'title': f"历史探索：{historical_info['political_entity']}",
+            'review': f"您探索了{historical_info['query_year']}年的{historical_info['political_entity']}！这个时代充满了独特的文化魅力和历史价值。通过AI重现的历史场景，我们得以一窥那个时代的政治制度、社会生活和文化特色。这样的时空探索体验具有珍贵的教育意义。",
+            'highlights': ['时空穿越体验', '历史文化学习', 'AI场景重现'],
+            'tips': '用心感受历史文明的独特魅力',
+            'rating_reason': '珍贵的历史探索体验',
+            'mood': '穿越时空',
+            'fallback': True
         }
 
 # ========== 旅程管理API端点 ==========

@@ -66,6 +66,59 @@
                 </div>
             </div>
             
+            <!-- 历史模式面板 -->
+            <div class="historical-mode-panel" id="historicalModePanel">
+                <div class="historical-header">
+                    <span class="historical-label">⏰ 时光机模式</span>
+                    <button class="historical-toggle" id="historicalToggle" onclick="toggleHistoricalMode()">
+                        🕰️ 启用历史探索
+                    </button>
+                </div>
+                
+                <div class="historical-controls" id="historicalControls" style="display: none;">
+                    <div class="time-period-selector">
+                        <label>📅 选择历史时期:</label>
+                        <select id="historicalPeriod" onchange="updateHistoricalYear()">
+                            <option value="">选择历史时期...</option>
+                            <option value="2000">现代 (2000年)</option>
+                            <option value="1945">二战后 (1945年)</option>
+                            <option value="1914">一战前 (1914年)</option>
+                            <option value="1880">工业革命 (1880年)</option>
+                            <option value="1815">拿破仑战争后 (1815年)</option>
+                            <option value="1650">威斯特伐利亚和约 (1650年)</option>
+                            <option value="1492">大航海时代 (1492年)</option>
+                            <option value="1279">元朝建立 (1279年)</option>
+                            <option value="800">查理大帝加冕 (800年)</option>
+                            <option value="400">罗马帝国分裂 (400年)</option>
+                            <option value="-1">古典时期 (公元前1年)</option>
+                            <option value="custom">自定义年份...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="custom-year-input" id="customYearDiv" style="display: none;">
+                        <label>🎯 自定义年份:</label>
+                        <input type="number" id="customYearInput" placeholder="输入年份" 
+                               min="-3000" max="2024" value="1000">
+                        <span class="year-hint">（公元前年份请输入负数）</span>
+                    </div>
+                    
+                    <div class="historical-info-display" id="historicalInfoDisplay">
+                        <div class="selected-year">
+                            <span class="label">🗓️ 探索年份:</span>
+                            <span id="selectedYear">未选择</span>
+                        </div>
+                        <div class="mode-indicator">
+                            <span class="label">🎭 模式:</span>
+                            <span id="modeIndicator">演示模式</span>
+                        </div>
+                    </div>
+                    
+                    <button class="time-travel-btn" id="timeTravelBtn" onclick="startHistoricalExploration()" disabled>
+                        🚀 开始时空探索
+                    </button>
+                </div>
+            </div>
+            
             <div class="location-info">
                 <div class="current-location">
                     <span class="label">当前位置:</span>

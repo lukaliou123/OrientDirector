@@ -65,6 +65,12 @@ const PRESET_LOCATIONS = {
 // 当前位置来源类型
 let currentLocationSource = 'gps'; // 'gps', 'preset', 'manual'
 
+// 历史模式相关变量
+let isHistoricalMode = false;           // 是否启用历史模式
+let selectedHistoricalYear = null;     // 选择的历史年份
+let currentHistoricalInfo = null;      // 当前历史查询结果
+let historicalSceneData = null;        // 当前历史场景数据
+
 // Google街景相关变量
 let streetViewPanorama = null;
 let streetViewService = null;
@@ -3067,3 +3073,542 @@ window.setPresetLocation = setPresetLocation;
 window.getCurrentLocationInfo = getCurrentLocationInfo;
 window.resetPresetLocationSelector = resetPresetLocationSelector;
 window.PRESET_LOCATIONS = PRESET_LOCATIONS;
+
+// ================ 历史模式功能 ================
+
+/**
+ * 切换历史模式开关
+ */
+function toggleHistoricalMode() {
+    const controls = document.getElementById('historicalControls');
+    const toggleBtn = document.getElementById('historicalToggle');
+    const modeIndicator = document.getElementById('modeIndicator');
+    
+    isHistoricalMode = !isHistoricalMode;
+    
+    if (isHistoricalMode) {
+        // 启用历史模式
+        controls.style.display = 'block';
+        toggleBtn.textContent = '🌍 常规探索模式';
+        toggleBtn.classList.add('active');
+        modeIndicator.textContent = '历史模式';
+        
+        logger.info('✅ 已切换到历史模式');
+        showSuccess('🏛️ 历史模式已启用！选择时期开始时空探索');
+        
+        // 隐藏常规探索按钮
+        const exploreBtn = document.getElementById('exploreBtn');
+        if (exploreBtn) {
+            exploreBtn.style.display = 'none';
+        }
+        
+    } else {
+        // 关闭历史模式
+        controls.style.display = 'none';
+        toggleBtn.textContent = '🕰️ 启用历史探索';
+        toggleBtn.classList.remove('active');
+        modeIndicator.textContent = '常规模式';
+        
+        logger.info('📍 已切换到常规模式');
+        showSuccess('🌍 已返回常规探索模式');
+        
+        // 恢复常规探索按钮
+        const exploreBtn = document.getElementById('exploreBtn');
+        if (exploreBtn) {
+            exploreBtn.style.display = 'block';
+        }
+        
+        // 清理历史模式数据
+        selectedHistoricalYear = null;
+        currentHistoricalInfo = null;
+        historicalSceneData = null;
+        clearHistoricalResults();
+    }
+}
+
+/**
+ * 更新历史年份选择
+ */
+function updateHistoricalYear() {
+    const periodSelect = document.getElementById('historicalPeriod');
+    const customYearDiv = document.getElementById('customYearDiv');
+    const selectedYearSpan = document.getElementById('selectedYear');
+    const timeTravelBtn = document.getElementById('timeTravelBtn');
+    
+    const selectedValue = periodSelect.value;
+    
+    if (selectedValue === 'custom') {
+        // 显示自定义年份输入
+        customYearDiv.style.display = 'block';
+        selectedYearSpan.textContent = '自定义年份';
+        selectedHistoricalYear = null;
+        timeTravelBtn.disabled = true;
+        
+    } else if (selectedValue) {
+        // 选择预设年份
+        customYearDiv.style.display = 'none';
+        selectedHistoricalYear = parseInt(selectedValue);
+        
+        // 格式化显示年份
+        if (selectedHistoricalYear < 0) {
+            selectedYearSpan.textContent = `公元前${Math.abs(selectedHistoricalYear)}年`;
+        } else {
+            selectedYearSpan.textContent = `公元${selectedHistoricalYear}年`;
+        }
+        
+        timeTravelBtn.disabled = false;
+        logger.info(`📅 选择历史年份: ${selectedHistoricalYear}`);
+        
+    } else {
+        // 未选择
+        customYearDiv.style.display = 'none';
+        selectedYearSpan.textContent = '未选择';
+        selectedHistoricalYear = null;
+        timeTravelBtn.disabled = true;
+    }
+}
+
+/**
+ * 开始历史探索
+ */
+async function startHistoricalExploration() {
+    if (!currentPosition) {
+        showError('请先选择位置或获取当前位置');
+        return;
+    }
+    
+    if (!selectedHistoricalYear) {
+        showError('请先选择历史年份');
+        return;
+    }
+    
+    logger.info(`🏛️ 开始历史探索: ${selectedHistoricalYear}年`);
+    logger.info(`📍 探索坐标: ${currentPosition.latitude}, ${currentPosition.longitude}`);
+    
+    showLoading(true, '正在穿越时空，探索历史场景...');
+    
+    try {
+        const requestData = {
+            latitude: currentPosition.latitude,
+            longitude: currentPosition.longitude,
+            year: selectedHistoricalYear
+        };
+        
+        const startTime = Date.now();
+        
+        const response = await fetch('http://localhost:8000/api/generate-historical-scene', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const requestTime = Date.now() - startTime;
+        logger.info(`历史场景API请求耗时: ${requestTime}ms`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            logger.success(`🎉 时空探索成功！发现：${data.historical_info.political_entity}`);
+            
+            // 保存历史数据
+            currentHistoricalInfo = data.historical_info;
+            historicalSceneData = data.generated_scene;
+            
+            // 显示历史场景
+            displayHistoricalScene(data);
+            
+        } else {
+            throw new Error(data.error || '历史探索返回失败结果');
+        }
+        
+    } catch (error) {
+        logger.error(`❌ 时空探索失败: ${error.message}`);
+        showError(`时空探索失败: ${error.message}`);
+    } finally {
+        showLoading(false);
+    }
+}
+
+/**
+ * 显示历史场景结果
+ */
+function displayHistoricalScene(data) {
+    const container = document.getElementById('placesContainer');
+    
+    if (!container) {
+        logger.error('❌ 找不到显示容器');
+        return;
+    }
+    
+    const historicalInfo = data.historical_info;
+    const sceneData = data.generated_scene;
+    
+    // 构建历史场景显示HTML
+    const sceneHtml = `
+        <div class="historical-scene-container">
+            <!-- 历史信息卡片 -->
+            <div class="historical-info-card">
+                <div class="info-header">
+                    <h2>🏛️ ${historicalInfo.political_entity}</h2>
+                    <div class="year-badge">${historicalInfo.query_year}年</div>
+                </div>
+                
+                <div class="historical-details">
+                    <div class="detail-row">
+                        <span class="label">👑 统治者:</span>
+                        <span class="value">${historicalInfo.ruler_or_power || '未知'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">🌍 文化圈:</span>
+                        <span class="value">${historicalInfo.cultural_region}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">📍 坐标:</span>
+                        <span class="value">${historicalInfo.coordinates.lat.toFixed(4)}, ${historicalInfo.coordinates.lng.toFixed(4)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">📊 边界精度:</span>
+                        <span class="value">${getHistoricalPrecisionText(historicalInfo.border_precision)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">🎭 时代:</span>
+                        <span class="value">${historicalInfo.time_period}</span>
+                    </div>
+                </div>
+                
+                <div class="historical-description">
+                    <h4>📜 历史背景</h4>
+                    <p>${historicalInfo.description}</p>
+                </div>
+            </div>
+            
+            <!-- AI生成的历史场景 -->
+            ${sceneData && sceneData.success ? `
+                <div class="generated-scene-card">
+                    <div class="scene-header">
+                        <h3>🎨 AI重现历史场景</h3>
+                        <div class="generation-info">
+                            <span class="model-badge">${sceneData.generation_model}</span>
+                            ${sceneData.demo_mode ? '<span class="demo-badge">演示模式</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    ${sceneData.images && sceneData.images.length > 0 ? `
+                        <div class="scene-image-container">
+                            <img src="${sceneData.images[0]}" 
+                                 alt="Historical scene of ${historicalInfo.political_entity}" 
+                                 class="historical-scene-image"
+                                 onclick="openHistoricalImageModal('${sceneData.images[0]}', '${historicalInfo.political_entity}', ${historicalInfo.query_year})">
+                            <div class="image-watermark">🔒 SynthID Protected</div>
+                            <div class="image-overlay">
+                                <span class="zoom-hint">🔍 点击查看大图</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="scene-description">
+                        <h4>📝 AI场景解析</h4>
+                        <div class="description-text">${sceneData.scene_description}</div>
+                    </div>
+                    
+                    <div class="generation-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">⚡ 生成耗时:</span>
+                            <span class="stat-value">${sceneData.generation_time.toFixed(2)}秒</span>
+                        </div>
+                        ${sceneData.image_count ? `
+                            <div class="stat-item">
+                                <span class="stat-label">🖼️ 图片数量:</span>
+                                <span class="stat-value">${sceneData.image_count}张</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            ` : `
+                <div class="scene-error-card">
+                    <h3>❌ 场景生成失败</h3>
+                    <p>${sceneData ? sceneData.error : '未知错误'}</p>
+                    <button onclick="retryHistoricalExploration()" class="retry-btn">
+                        🔄 重新生成
+                    </button>
+                </div>
+            `}
+            
+            <!-- AI历史锐评 -->
+            ${data.ai_review ? `
+                <div class="historical-review-card">
+                    <div class="review-header">
+                        <h3>🤖 AI历史文化锐评</h3>
+                        <span class="ai-badge">Powered by Langchain</span>
+                    </div>
+                    <div class="review-content">
+                        <h4 class="review-title">${data.ai_review.title || '历史文化分析'}</h4>
+                        <div class="review-text">${data.ai_review.review || ''}</div>
+                        
+                        ${data.ai_review.highlights && data.ai_review.highlights.length > 0 ? `
+                            <div class="review-highlights">
+                                <h5>✨ 文化亮点</h5>
+                                <div class="highlights-list">
+                                    ${data.ai_review.highlights.map(highlight => 
+                                        `<span class="highlight-tag">${highlight}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="review-footer">
+                            ${data.ai_review.tips ? `
+                                <div class="review-tips">
+                                    <span class="tips-label">💡 历史小贴士:</span>
+                                    <span class="tips-content">${data.ai_review.tips}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${data.ai_review.rating_reason ? `
+                                <div class="review-rating">
+                                    <span class="rating-label">🎯 推荐理由:</span>
+                                    <span class="rating-content">${data.ai_review.rating_reason}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${data.ai_review.mood ? `
+                                <div class="review-mood">
+                                    <span class="mood-label">🎭 适合心情:</span>
+                                    <span class="mood-content">${data.ai_review.mood}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <!-- 操作按钮 -->
+            <div class="historical-actions">
+                <button class="action-btn primary" onclick="exploreAnotherPeriod()">
+                    ⏰ 探索其他时期
+                </button>
+                <button class="action-btn secondary" onclick="shareHistoricalScene()">
+                    📤 分享发现
+                </button>
+                <button class="action-btn" onclick="returnToRegularMode()">
+                    🌍 返回常规模式
+                </button>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = sceneHtml;
+    
+    // 滚动到结果
+    setTimeout(() => {
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+    
+    logger.success('🎨 历史场景展示完成');
+}
+
+/**
+ * 自定义年份输入处理
+ */
+function handleCustomYearInput() {
+    const customYearInput = document.getElementById('customYearInput');
+    const selectedYearSpan = document.getElementById('selectedYear');
+    const timeTravelBtn = document.getElementById('timeTravelBtn');
+    
+    if (customYearInput) {
+        customYearInput.addEventListener('input', function() {
+            const year = parseInt(this.value);
+            
+            if (!isNaN(year) && year >= -3000 && year <= 2024) {
+                selectedHistoricalYear = year;
+                
+                if (year < 0) {
+                    selectedYearSpan.textContent = `公元前${Math.abs(year)}年`;
+                } else {
+                    selectedYearSpan.textContent = `公元${year}年`;
+                }
+                
+                timeTravelBtn.disabled = false;
+                logger.info(`📅 自定义历史年份: ${selectedHistoricalYear}`);
+            } else {
+                selectedHistoricalYear = null;
+                selectedYearSpan.textContent = '无效年份';
+                timeTravelBtn.disabled = true;
+            }
+        });
+    }
+}
+
+/**
+ * 重试历史探索
+ */
+async function retryHistoricalExploration() {
+    logger.info('🔄 重试历史探索...');
+    await startHistoricalExploration();
+}
+
+/**
+ * 探索其他时期
+ */
+function exploreAnotherPeriod() {
+    // 清理当前结果
+    clearHistoricalResults();
+    
+    // 重置年份选择
+    document.getElementById('historicalPeriod').value = '';
+    document.getElementById('selectedYear').textContent = '未选择';
+    document.getElementById('timeTravelBtn').disabled = true;
+    selectedHistoricalYear = null;
+    
+    logger.info('🔄 准备探索其他历史时期');
+    showSuccess('📅 请选择新的历史时期继续探索');
+}
+
+/**
+ * 分享历史场景
+ */
+function shareHistoricalScene() {
+    if (!currentHistoricalInfo || !historicalSceneData) {
+        showError('没有可分享的历史场景');
+        return;
+    }
+    
+    const shareText = `🏛️ 发现了${currentHistoricalInfo.query_year}年的${currentHistoricalInfo.political_entity}！
+    
+📍 位置: ${currentHistoricalInfo.coordinates.lat.toFixed(4)}, ${currentHistoricalInfo.coordinates.lng.toFixed(4)}
+🎭 时代: ${currentHistoricalInfo.time_period}
+👑 统治者: ${currentHistoricalInfo.ruler_or_power}
+
+通过OrientDiscover的时光机功能，我穿越到了${currentHistoricalInfo.query_year}年，体验了真实的历史场景！
+
+#OrientDiscover #时空探索 #历史可视化`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `时空探索发现：${currentHistoricalInfo.political_entity}`,
+            text: shareText,
+            url: window.location.href
+        }).then(() => {
+            logger.info('📤 历史场景已分享');
+        }).catch((error) => {
+            logger.warning(`分享失败: ${error.message}`);
+            copyToClipboard(shareText);
+        });
+    } else {
+        copyToClipboard(shareText);
+    }
+}
+
+/**
+ * 返回常规模式
+ */
+function returnToRegularMode() {
+    // 关闭历史模式
+    if (isHistoricalMode) {
+        toggleHistoricalMode();
+    }
+    
+    // 清理历史结果
+    clearHistoricalResults();
+    
+    logger.info('🌍 已返回常规探索模式');
+}
+
+/**
+ * 清理历史结果显示
+ */
+function clearHistoricalResults() {
+    const container = document.getElementById('placesContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    currentHistoricalInfo = null;
+    historicalSceneData = null;
+}
+
+/**
+ * 打开历史图片模态框
+ */
+function openHistoricalImageModal(imageUrl, entityName, year) {
+    // 创建图片查看模态框
+    const modalHtml = `
+        <div class="historical-image-modal" id="historicalImageModal" onclick="closeHistoricalImageModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>🏛️ ${entityName} - ${year}年</h3>
+                    <button class="close-btn" onclick="closeHistoricalImageModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <img src="${imageUrl}" alt="Historical scene" class="modal-image">
+                    <div class="image-caption">
+                        <p>🎨 由Nano Banana AI生成的历史场景</p>
+                        <p>🔒 包含SynthID水印保护</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    logger.info(`🖼️ 打开历史图片查看: ${entityName}`);
+}
+
+/**
+ * 关闭历史图片模态框
+ */
+function closeHistoricalImageModal() {
+    const modal = document.getElementById('historicalImageModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+/**
+ * 复制到剪贴板
+ */
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showSuccess('📤 内容已复制到剪贴板');
+        logger.info('📤 历史场景信息已复制');
+    }).catch((error) => {
+        logger.warning(`复制失败: ${error.message}`);
+    });
+}
+
+/**
+ * 获取历史边界精度文本
+ */
+function getHistoricalPrecisionText(precision) {
+    switch(precision) {
+        case 1: return '大致边界 (历史记录模糊)';
+        case 2: return '中等精度 (有一定史料支撑)';
+        case 3: return '高精度 (国际法或条约确定)';
+        default: return `未知精度 (${precision})`;
+    }
+}
+
+// 页面加载完成后初始化历史模式
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化自定义年份输入处理
+    setTimeout(() => {
+        handleCustomYearInput();
+    }, 100);
+});
+
+// 全局暴露历史模式功能
+window.toggleHistoricalMode = toggleHistoricalMode;
+window.updateHistoricalYear = updateHistoricalYear;
+window.startHistoricalExploration = startHistoricalExploration;
+window.retryHistoricalExploration = retryHistoricalExploration;
+window.exploreAnotherPeriod = exploreAnotherPeriod;
+window.shareHistoricalScene = shareHistoricalScene;
+window.returnToRegularMode = returnToRegularMode;
+window.openHistoricalImageModal = openHistoricalImageModal;
+window.closeHistoricalImageModal = closeHistoricalImageModal;
