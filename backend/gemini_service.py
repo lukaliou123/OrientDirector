@@ -9,6 +9,9 @@ from typing import Optional, Tuple
 import tempfile
 from fastapi import UploadFile
 import json
+import time
+import asyncio
+from google.api_core import exceptions as google_exceptions
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -24,6 +27,11 @@ class GeminiImageService:
         # 使用支持图片生成的模型 (Nano Banana)
         self.model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
         self.output_dir = "backend/generated_images"
+        
+        # 重试配置
+        self.max_retries = 3
+        self.retry_delay = 2  # 秒
+        self.backoff_factor = 2  # 指数退避因子
         
         # 确保输出目录存在
         os.makedirs(self.output_dir, exist_ok=True)
@@ -162,6 +170,88 @@ class GeminiImageService:
         
         return prompt
     
+    def _preprocess_image(self, image: Image.Image, max_size: int = 1024) -> Image.Image:
+        """
+        预处理图片，确保符合API要求
+        
+        Args:
+            image: PIL图片对象
+            max_size: 最大尺寸（像素）
+            
+        Returns:
+            处理后的图片
+        """
+        # 转换为RGB格式
+        if image.mode not in ('RGB', 'RGBA'):
+            image = image.convert('RGB')
+        
+        # 调整图片大小
+        width, height = image.size
+        if max(width, height) > max_size:
+            if width > height:
+                new_width = max_size
+                new_height = int(height * max_size / width)
+            else:
+                new_height = max_size
+                new_width = int(width * max_size / height)
+            
+            image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            logger.info(f"📏 图片已调整大小: {width}x{height} -> {new_width}x{new_height}")
+        
+        return image
+    
+    async def _call_gemini_with_retry(self, contents, attempt=1):
+        """
+        带重试机制的Gemini API调用
+        
+        Args:
+            contents: 要发送给API的内容
+            attempt: 当前尝试次数
+            
+        Returns:
+            API响应
+        """
+        try:
+            logger.info(f"🚀 第{attempt}次尝试调用Gemini API...")
+            response = self.model.generate_content(contents)
+            logger.info(f"✅ Gemini API调用成功 (第{attempt}次尝试)")
+            return response
+            
+        except google_exceptions.InternalServerError as e:
+            logger.error(f"❌ Gemini API内部服务器错误 (第{attempt}次尝试): {e}")
+            if attempt < self.max_retries:
+                delay = self.retry_delay * (self.backoff_factor ** (attempt - 1))
+                logger.info(f"⏳ 等待{delay}秒后重试...")
+                await asyncio.sleep(delay)
+                return await self._call_gemini_with_retry(contents, attempt + 1)
+            else:
+                raise e
+                
+        except google_exceptions.ResourceExhausted as e:
+            logger.error(f"❌ Gemini API配额耗尽 (第{attempt}次尝试): {e}")
+            if attempt < self.max_retries:
+                delay = self.retry_delay * (self.backoff_factor ** (attempt - 1)) * 2  # 配额问题等待更久
+                logger.info(f"⏳ 配额耗尽，等待{delay}秒后重试...")
+                await asyncio.sleep(delay)
+                return await self._call_gemini_with_retry(contents, attempt + 1)
+            else:
+                raise e
+                
+        except google_exceptions.InvalidArgument as e:
+            logger.error(f"❌ Gemini API参数错误 (第{attempt}次尝试): {e}")
+            # 参数错误不需要重试
+            raise e
+            
+        except Exception as e:
+            logger.error(f"❌ Gemini API未知错误 (第{attempt}次尝试): {type(e).__name__}: {e}")
+            if attempt < self.max_retries:
+                delay = self.retry_delay * (self.backoff_factor ** (attempt - 1))
+                logger.info(f"⏳ 等待{delay}秒后重试...")
+                await asyncio.sleep(delay)
+                return await self._call_gemini_with_retry(contents, attempt + 1)
+            else:
+                raise e
+    
     async def generate_attraction_photo(
         self, 
         user_photo: UploadFile,
@@ -200,9 +290,8 @@ class GeminiImageService:
             image_data = await user_photo.read()
             user_image = Image.open(BytesIO(image_data))
             
-            # 将图片转换为RGB格式（如果需要）
-            if user_image.mode not in ('RGB', 'RGBA'):
-                user_image = user_image.convert('RGB')
+            # 预处理用户图片
+            user_image = self._preprocess_image(user_image)
             
             # 处理范例风格图片（如果有）
             style_image = None
@@ -210,16 +299,15 @@ class GeminiImageService:
                 style_data = await style_photo.read()
                 style_image = Image.open(BytesIO(style_data))
                 
-                # 将范例图片转换为RGB格式（如果需要）
-                if style_image.mode not in ('RGB', 'RGBA'):
-                    style_image = style_image.convert('RGB')
+                # 预处理范例图片
+                style_image = self._preprocess_image(style_image)
                 
                 logger.info(f"📎 已加载范例风格图片: {style_photo.filename}")
             
             # 生成基础提示词
             if style_image:
                 # 如果有范例风格图片，使用风格迁移提示词
-                base_prompt = f"请创建一张合成图片：以第一张图片中的人物为主体，保留他的面部特征和头像，但将他的服装（包括衣服和裤子）替换成第二张图片中指定人物的服装风格。背景设置为{attraction_name}。要求：1）保持第一张图片人物的面部不变；2）只保留一个人（第一张图片的主人）；3）服装风格完全参考第二张图片；4）场景要像真实的旅游照片；5）自然光照和真实阴影效果。"
+                base_prompt = f"请创建一张合成图片：以第一张图片中的人物为主体，保留他的面部特征和头像，但将他的服装（包括衣服和裤子）替换成第二张图片中指定人物的服装风格。背景设置为{attraction_name}。"
                 logger.info(f"🎨 使用风格迁移提示词作为基础")
             else:
                 base_prompt = self.generate_attraction_prompt(
@@ -253,9 +341,8 @@ class GeminiImageService:
                 logger.info(f"🚀 开始调用Gemini API生成图片...")
                 logger.info(f"📝 输入内容: 提示词 + 用户图片")
             
-            # 生成图像
-            response = self.model.generate_content(contents)
-            logger.info(f"✅ Gemini API调用完成")
+            # 生成图像 - 使用重试机制
+            response = await self._call_gemini_with_retry(contents)
             
             # 处理响应
             response_dict = response.to_dict()
@@ -297,12 +384,62 @@ class GeminiImageService:
                         }
             
             logger.warning("⚠️ API响应中未找到图片数据")
+            
+            # 提取AI的文本响应，提供给用户参考
+            ai_response = ""
             if "candidates" in response_dict:
                 logger.info(f"📊 候选响应数量: {len(response_dict['candidates'])}")
                 if len(response_dict["candidates"]) > 0:
                     candidate = response_dict["candidates"][0]
                     logger.info(f"🔍 候选响应内容: {candidate}")
-            return False, "生成失败：API未返回图片数据", None
+                    
+                    # 提取AI的文本回复
+                    if "content" in candidate and "parts" in candidate["content"]:
+                        for part in candidate["content"]["parts"]:
+                            if "text" in part:
+                                ai_response = part["text"]
+                                break
+            
+            # 构建详细的错误信息
+            error_details = {
+                "type": "ai_feedback",
+                "message": "AI无法生成图片，返回了文本说明",
+                "ai_response": ai_response,
+                "suggestion": "请尝试修改提示词，使用更简单明确的描述，或者更换参考图片",
+                "prompt_used": prompt
+            }
+            
+            return False, "生成失败：AI返回了文本说明而非图片", error_details
+            
+        except google_exceptions.InternalServerError as e:
+            error_msg = "Gemini服务暂时不可用，请稍后重试"
+            logger.error(f"🔥 Gemini内部服务器错误: {e}")
+            return False, error_msg, {
+                "type": "service_unavailable",
+                "message": "AI图像生成服务暂时不可用",
+                "suggestion": "请稍等几分钟后重试，或者尝试使用不同的图片",
+                "error_code": "GEMINI_500"
+            }
+            
+        except google_exceptions.ResourceExhausted as e:
+            error_msg = "API使用配额已耗尽，请稍后重试"
+            logger.error(f"🔥 Gemini配额耗尽: {e}")
+            return False, error_msg, {
+                "type": "quota_exceeded",
+                "message": "今日AI图像生成次数已达上限",
+                "suggestion": "请明天再试，或者联系管理员增加配额",
+                "error_code": "GEMINI_QUOTA"
+            }
+            
+        except google_exceptions.InvalidArgument as e:
+            error_msg = "图片内容不符合要求，请更换图片"
+            logger.error(f"🔥 Gemini参数错误: {e}")
+            return False, error_msg, {
+                "type": "invalid_content",
+                "message": "上传的图片可能包含不适当的内容",
+                "suggestion": "请确保图片清晰、内容健康，并重新上传",
+                "error_code": "GEMINI_INVALID"
+            }
             
         except Exception as e:
             error_msg = f"生成景点合影时出错: {str(e)}"
@@ -310,7 +447,29 @@ class GeminiImageService:
             logger.error(f"🔥 详细错误信息: {type(e).__name__}: {e}")
             import traceback
             logger.error(f"📍 错误堆栈: {traceback.format_exc()}")
-            return False, error_msg, None
+            
+            # 根据错误类型提供更友好的错误信息
+            if "500" in str(e) or "Internal" in str(e):
+                return False, "AI服务暂时不可用，请稍后重试", {
+                    "type": "service_error",
+                    "message": "图像生成服务遇到临时问题",
+                    "suggestion": "请稍等几分钟后重试",
+                    "error_code": "SERVICE_ERROR"
+                }
+            elif "timeout" in str(e).lower():
+                return False, "请求超时，请重试", {
+                    "type": "timeout",
+                    "message": "图像生成请求超时",
+                    "suggestion": "请检查网络连接并重试",
+                    "error_code": "TIMEOUT"
+                }
+            else:
+                return False, error_msg, {
+                    "type": "unknown_error",
+                    "message": "发生未知错误",
+                    "suggestion": "请重试或联系技术支持",
+                    "error_code": "UNKNOWN"
+                }
     
     def get_generated_images(self, limit: int = 10) -> list:
         """
@@ -349,6 +508,55 @@ class GeminiImageService:
         except Exception as e:
             logger.error(f"获取生成的图片列表时出错: {str(e)}")
             return []
+    
+    async def health_check(self) -> dict:
+        """
+        检查Gemini服务健康状态
+        
+        Returns:
+            服务状态信息
+        """
+        try:
+            # 创建一个简单的测试图片
+            test_image = Image.new('RGB', (100, 100), color='blue')
+            
+            # 尝试调用API进行简单的图片描述
+            simple_prompt = "请简单描述这张图片的颜色。"
+            contents = [simple_prompt, test_image]
+            
+            response = await self._call_gemini_with_retry(contents)
+            
+            return {
+                "status": "healthy",
+                "message": "Gemini服务运行正常",
+                "api_accessible": True,
+                "model": "gemini-2.5-flash-image-preview",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except google_exceptions.ResourceExhausted:
+            return {
+                "status": "quota_exceeded",
+                "message": "API配额已耗尽",
+                "api_accessible": False,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except google_exceptions.InternalServerError:
+            return {
+                "status": "service_unavailable",
+                "message": "Gemini服务暂时不可用",
+                "api_accessible": False,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"服务检查失败: {str(e)}",
+                "api_accessible": False,
+                "timestamp": datetime.now().isoformat()
+            }
 
 # 创建全局服务实例
 gemini_service = GeminiImageService()

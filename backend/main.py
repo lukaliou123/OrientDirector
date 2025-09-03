@@ -1123,6 +1123,27 @@ async def health_check():
         "version": "1.0.0"
     }
 
+@app.get("/api/gemini-health")
+async def gemini_health_check():
+    """Gemini服务健康检查端点"""
+    try:
+        health_status = await gemini_service.health_check()
+        return {
+            "success": True,
+            "data": health_status
+        }
+    except Exception as e:
+        logger.error(f"Gemini健康检查失败: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "data": {
+                "status": "error",
+                "message": "健康检查失败",
+                "api_accessible": False
+            }
+        }
+
 @app.post("/api/generate-attraction-photo")
 async def generate_attraction_photo(
     user_photo: UploadFile = File(...),
@@ -1204,7 +1225,15 @@ async def generate_attraction_photo(
                 }
             }
         else:
-            raise HTTPException(status_code=500, detail=message)
+            # 如果result包含错误详情，返回详细信息而不是抛出异常
+            if result and isinstance(result, dict) and result.get("type") == "ai_feedback":
+                return {
+                    "success": False,
+                    "message": message,
+                    "error_details": result
+                }
+            else:
+                raise HTTPException(status_code=500, detail=message)
             
     except HTTPException:
         raise
