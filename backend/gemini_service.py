@@ -5,13 +5,14 @@ from PIL import Image
 from io import BytesIO
 from datetime import datetime
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 import tempfile
 from fastapi import UploadFile
 import json
 import time
 import asyncio
 from google.api_core import exceptions as google_exceptions
+from prompt_generator import doro_prompt_generator
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -508,6 +509,146 @@ class GeminiImageService:
         except Exception as e:
             logger.error(f"获取生成的图片列表时出错: {str(e)}")
             return []
+    
+    async def generate_doro_selfie_with_attraction(
+        self,
+        user_photo: UploadFile,
+        doro_photo: UploadFile,
+        style_photo: Optional[UploadFile],
+        attraction_info: Dict
+    ) -> Tuple[bool, str, Optional[Dict]]:
+        """
+        生成包含景点背景的Doro合影
+        
+        Args:
+            user_photo: 用户照片
+            doro_photo: Doro形象
+            style_photo: 服装参考（可选）
+            attraction_info: 景点信息（名称、位置、类型等）
+            
+        Returns:
+            (成功标志, 消息, 结果数据)
+        """
+        try:
+            logger.info(f"开始生成Doro合影: 景点={attraction_info.get('name', 'Unknown')}")
+            
+            # 读取用户照片
+            user_image = Image.open(user_photo.file)
+            if user_image.mode != 'RGB':
+                user_image = user_image.convert('RGB')
+            
+            # 读取Doro图片
+            doro_image = Image.open(doro_photo.file)
+            if doro_image.mode != 'RGB':
+                doro_image = doro_image.convert('RGB')
+            
+            # 读取服装风格图片（如果提供）
+            style_image = None
+            if style_photo:
+                style_image = Image.open(style_photo.file)
+                if style_image.mode != 'RGB':
+                    style_image = style_image.convert('RGB')
+            
+            # 生成智能提示词
+            main_prompt = doro_prompt_generator.generate_attraction_doro_prompt(
+                attraction_name=attraction_info.get("name"),
+                attraction_type=attraction_info.get("category"),
+                location=attraction_info.get("location", attraction_info.get("city", attraction_info.get("country"))),
+                with_style=style_photo is not None,
+                doro_style=attraction_info.get("doro_style", "default"),
+                user_description=attraction_info.get("user_description")
+            )
+            
+            # 如果有服装风格，添加风格迁移提示
+            if style_photo:
+                style_prompt = doro_prompt_generator.generate_style_transfer_prompt()
+                main_prompt = f"{main_prompt}. {style_prompt}"
+            
+            # 增强提示词（根据额外参数）
+            main_prompt = doro_prompt_generator.enhance_prompt_with_details(
+                main_prompt,
+                time_of_day=attraction_info.get("time_of_day"),
+                weather=attraction_info.get("weather"),
+                season=attraction_info.get("season"),
+                mood=attraction_info.get("mood")
+            )
+            
+            # 构建内容列表
+            contents = [main_prompt]
+            
+            # 添加图片
+            contents.append(user_image)
+            contents.append(doro_image)
+            if style_image:
+                contents.append(style_image)
+            
+            # 添加负面提示词
+            negative_prompt = doro_prompt_generator.get_negative_prompt()
+            contents.append(f"Avoid: {negative_prompt}")
+            
+            logger.info(f"使用提示词: {main_prompt[:200]}...")
+            
+            # 调用Gemini API生成图片
+            response = await self._call_gemini_with_retry(contents)
+            
+            # 提取生成的图片
+            generated_image = None
+            for part in response.parts:
+                if hasattr(part, 'inline_data') and part.inline_data.mime_type.startswith('image/'):
+                    image_data = part.inline_data.data
+                    generated_image = Image.open(BytesIO(base64.b64decode(image_data)))
+                    break
+            
+            if not generated_image:
+                # 如果响应中没有图片，尝试从文本中提取
+                response_text = response.text
+                if 'data:image' in response_text:
+                    # 提取base64图片数据
+                    start = response_text.find('data:image')
+                    end = response_text.find('"', start)
+                    if start != -1 and end != -1:
+                        image_data_url = response_text[start:end]
+                        # 解析data URL
+                        header, data = image_data_url.split(',', 1)
+                        generated_image = Image.open(BytesIO(base64.b64decode(data)))
+            
+            if generated_image:
+                # 保存生成的图片
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"doro_selfie_{attraction_info.get('name', 'unknown').replace(' ', '_')}_{timestamp}.png"
+                filepath = os.path.join(self.output_dir, filename)
+                
+                generated_image.save(filepath, 'PNG')
+                logger.info(f"Doro合影已保存: {filename}")
+                
+                # 转换为base64
+                buffered = BytesIO()
+                generated_image.save(buffered, format="PNG")
+                img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                
+                return True, "Doro合影生成成功！", {
+                    "image_url": f"data:image/png;base64,{img_base64}",
+                    "filename": filename,
+                    "filepath": filepath,
+                    "prompt_used": main_prompt,
+                    "attraction_name": attraction_info.get("name"),
+                    "timestamp": timestamp
+                }
+            else:
+                logger.warning("Gemini响应中没有找到生成的图片")
+                return False, "生成失败：响应中没有图片", None
+                
+        except google_exceptions.ResourceExhausted:
+            logger.error("Gemini API配额已耗尽")
+            return False, "API配额已耗尽，请稍后再试", None
+            
+        except google_exceptions.InvalidArgument as e:
+            logger.error(f"Gemini API参数错误: {str(e)}")
+            return False, f"参数错误: {str(e)}", None
+            
+        except Exception as e:
+            logger.error(f"生成Doro合影时出错: {str(e)}")
+            return False, f"生成失败: {str(e)}", None
     
     async def health_check(self) -> dict:
         """

@@ -2920,3 +2920,591 @@ body {
         width: 200px;
     }
 }
+
+/* ==================== Doro合影样式 ==================== */
+
+/* Doro按钮样式 */
+.doro-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.doro-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+/* Doro模态框 */
+.doro-selfie-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+    max-width: 900px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.doro-modal-content {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.doro-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.doro-close-btn:hover {
+    background: #f44336;
+    color: white;
+    transform: rotate(90deg);
+}
+
+/* Doro头部 */
+.doro-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.doro-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.doro-subtitle {
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* Doro主体 */
+.doro-body {
+    padding: 30px;
+    overflow-y: auto;
+    max-height: calc(90vh - 150px);
+}
+
+.doro-info {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.doro-info h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.doro-info p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 步骤指示器 */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    position: relative;
+    padding: 0 50px;
+}
+
+.step-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #999;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+}
+
+.step-item.active .step-number {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.step-item.completed .step-number {
+    background: #4caf50;
+    color: white;
+}
+
+.step-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.step-item.active .step-label {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.step-line {
+    position: absolute;
+    top: 20px;
+    left: calc(50% + 20px);
+    right: calc(-50% + 20px);
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 1;
+}
+
+.step-item:last-child .step-line {
+    display: none;
+}
+
+/* 上传步骤 */
+.upload-step {
+    animation: fadeIn 0.3s ease;
+}
+
+.upload-step h4 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Doro选择器 */
+.doro-selector-container {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.doro-selector-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.doro-tab {
+    flex: 1;
+    padding: 12px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+    color: #666;
+}
+
+.doro-tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: #667eea;
+}
+
+.doro-tab:hover:not(.active) {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.doro-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.doro-item {
+    background: white;
+    border: 3px solid transparent;
+    border-radius: 15px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.doro-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.doro-item.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    transform: scale(1.05);
+}
+
+.doro-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.doro-name {
+    font-size: 12px;
+    color: #333;
+    font-weight: 500;
+}
+
+.doro-upload-custom {
+    margin-top: 20px;
+}
+
+.no-doros {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-style: italic;
+}
+
+/* 预览区域 */
+.doro-preview-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.preview-item {
+    text-align: center;
+}
+
+.preview-item label {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+}
+
+/* Doro选项 */
+.doro-options {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.option-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.option-group label {
+    min-width: 100px;
+    color: #666;
+    font-weight: 500;
+}
+
+.option-group select,
+.option-group input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.option-group select:focus,
+.option-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Doro操作按钮 */
+.doro-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.doro-back-btn,
+.doro-next-btn,
+.doro-generate-btn,
+.doro-cancel-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.doro-back-btn {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.doro-back-btn:hover {
+    background: #e0e0e0;
+}
+
+.doro-next-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.doro-next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.doro-generate-btn {
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    padding: 14px 32px;
+    font-size: 16px;
+}
+
+.doro-generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.doro-generate-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.doro-cancel-btn {
+    background: #f44336;
+    color: white;
+}
+
+.doro-cancel-btn:hover {
+    background: #da190b;
+}
+
+.skip-btn {
+    display: block;
+    margin: 15px auto 0;
+    padding: 10px 20px;
+    background: transparent;
+    border: 2px solid #999;
+    border-radius: 20px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.skip-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Doro加载状态 */
+.doro-loading {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.doro-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 30px;
+}
+
+/* Doro结果展示 */
+.doro-result {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Doro错误提示 */
+.doro-error {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.doro-error .error-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.doro-error h4 {
+    color: #f44336;
+    margin-bottom: 15px;
+}
+
+.doro-error p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+/* Doro遮罩层 */
+.doro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .doro-selfie-modal {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .doro-header {
+        padding: 20px;
+    }
+    
+    .doro-header h3 {
+        font-size: 24px;
+    }
+    
+    .doro-body {
+        padding: 20px;
+    }
+    
+    .step-indicator {
+        padding: 0 20px;
+    }
+    
+    .step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .step-label {
+        font-size: 12px;
+    }
+    
+    .doro-selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
+    }
+    
+    .doro-item img {
+        height: 80px;
+    }
+    
+    .preview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .option-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .option-group label {
+        margin-bottom: 5px;
+    }
+    
+    .doro-actions {
+        flex-wrap: wrap;
+    }
+    
+    .doro-back-btn,
+    .doro-next-btn,
+    .doro-generate-btn,
+    .doro-cancel-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* 动画 */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

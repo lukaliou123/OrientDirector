@@ -14,8 +14,9 @@ from dotenv import load_dotenv
 from real_data_service import real_data_service
 from local_attractions_db import local_attractions_db
 from gemini_service import gemini_service
+from doro_service import doro_service
 from fastapi import File, UploadFile, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 import tempfile
 import shutil
 
@@ -1261,6 +1262,261 @@ async def get_generated_images(limit: int = 10):
     except Exception as e:
         logger.error(f"获取生成的图片列表时出错: {e}")
         raise HTTPException(status_code=500, detail=f"获取图片列表失败: {str(e)}")
+
+# ================== Doro合影相关端点 ==================
+
+@app.get("/api/doro/list")
+async def get_doro_list():
+    """
+    获取所有Doro形象列表
+    
+    Returns:
+        包含预设和自定义Doro的列表
+    """
+    try:
+        doro_list = doro_service.get_all_doros()
+        return {
+            "success": True,
+            "data": doro_list
+        }
+    except Exception as e:
+        logger.error(f"获取Doro列表失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取Doro列表失败: {str(e)}")
+
+@app.get("/api/doro/random")
+async def get_random_doro():
+    """
+    获取随机Doro形象
+    
+    Returns:
+        随机选择的Doro信息
+    """
+    try:
+        random_doro = doro_service.get_random_doro()
+        if not random_doro:
+            raise HTTPException(status_code=404, detail="没有可用的Doro形象")
+        
+        return {
+            "success": True,
+            "data": random_doro
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取随机Doro失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取随机Doro失败: {str(e)}")
+
+@app.post("/api/doro/upload")
+async def upload_custom_doro(
+    file: UploadFile = File(...),
+    name: Optional[str] = Form(None),
+    description: Optional[str] = Form(None)
+):
+    """
+    上传自定义Doro形象
+    
+    Args:
+        file: 图片文件
+        name: 自定义名称
+        description: 自定义描述
+        
+    Returns:
+        保存的Doro信息
+    """
+    try:
+        doro_info = await doro_service.save_custom_doro(file, name, description)
+        return {
+            "success": True,
+            "data": doro_info
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"上传自定义Doro失败: {e}")
+        raise HTTPException(status_code=500, detail=f"上传失败: {str(e)}")
+
+@app.get("/api/doro/image/{doro_id}")
+async def get_doro_image(doro_id: str):
+    """
+    获取Doro图片文件
+    
+    Args:
+        doro_id: Doro的ID
+        
+    Returns:
+        图片文件
+    """
+    try:
+        image_path = doro_service.get_doro_by_id(doro_id)
+        if not image_path:
+            raise HTTPException(status_code=404, detail="Doro图片不存在")
+        
+        return FileResponse(
+            path=str(image_path),
+            media_type="image/png"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取Doro图片失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取图片失败: {str(e)}")
+
+@app.get("/api/doro/thumbnail/{doro_id}")
+async def get_doro_thumbnail(doro_id: str):
+    """
+    获取Doro缩略图
+    
+    Args:
+        doro_id: Doro的ID
+        
+    Returns:
+        缩略图文件
+    """
+    try:
+        # 暂时返回原图，后续可以实现真正的缩略图生成
+        image_path = doro_service.get_doro_by_id(doro_id)
+        if not image_path:
+            raise HTTPException(status_code=404, detail="Doro图片不存在")
+        
+        return FileResponse(
+            path=str(image_path),
+            media_type="image/png"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取Doro缩略图失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取缩略图失败: {str(e)}")
+
+@app.post("/api/doro/generate")
+async def generate_doro_selfie(
+    user_photo: UploadFile = File(...),
+    doro_image: Optional[UploadFile] = File(None),
+    doro_id: Optional[str] = Form(None),
+    style_photo: Optional[UploadFile] = File(None),
+    attraction_name: str = Form(...),
+    attraction_type: Optional[str] = Form(None),
+    location: Optional[str] = Form(None),
+    doro_style: Optional[str] = Form("default"),
+    user_description: Optional[str] = Form(None),
+    time_of_day: Optional[str] = Form(None),
+    weather: Optional[str] = Form(None),
+    season: Optional[str] = Form(None),
+    mood: Optional[str] = Form(None)
+):
+    """
+    生成Doro合影
+    
+    Args:
+        user_photo: 用户照片
+        doro_image: Doro图片文件（与doro_id二选一）
+        doro_id: Doro ID（与doro_image二选一）
+        style_photo: 服装风格参考（可选）
+        attraction_name: 景点名称
+        attraction_type: 景点类型
+        location: 地理位置
+        doro_style: Doro风格
+        user_description: 用户额外描述
+        time_of_day: 时间段
+        weather: 天气
+        season: 季节
+        mood: 情绪氛围
+        
+    Returns:
+        生成的合影信息
+    """
+    try:
+        # 获取Doro图片
+        if doro_image:
+            # 使用上传的Doro图片
+            doro_photo = doro_image
+        elif doro_id:
+            # 使用预设或已保存的Doro
+            doro_path = doro_service.get_doro_by_id(doro_id)
+            if not doro_path:
+                raise HTTPException(status_code=404, detail="指定的Doro不存在")
+            
+            # 创建临时文件对象
+            with open(doro_path, 'rb') as f:
+                doro_content = f.read()
+            
+            # 创建UploadFile对象
+            import io
+            doro_file = io.BytesIO(doro_content)
+            doro_photo = UploadFile(
+                filename=doro_path.name,
+                file=doro_file
+            )
+        else:
+            raise HTTPException(status_code=400, detail="必须提供Doro图片或Doro ID")
+        
+        # 准备景点信息
+        attraction_info = {
+            "name": attraction_name,
+            "category": attraction_type,
+            "location": location,
+            "doro_style": doro_style,
+            "user_description": user_description,
+            "time_of_day": time_of_day,
+            "weather": weather,
+            "season": season,
+            "mood": mood
+        }
+        
+        # 调用Gemini服务生成合影
+        success, message, result = await gemini_service.generate_doro_selfie_with_attraction(
+            user_photo=user_photo,
+            doro_photo=doro_photo,
+            style_photo=style_photo,
+            attraction_info=attraction_info
+        )
+        
+        if success:
+            return {
+                "success": True,
+                "message": message,
+                "data": result
+            }
+        else:
+            raise HTTPException(status_code=500, detail=message)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"生成Doro合影失败: {e}")
+        raise HTTPException(status_code=500, detail=f"生成失败: {str(e)}")
+
+@app.delete("/api/doro/{doro_id}")
+async def delete_custom_doro(doro_id: str):
+    """
+    删除自定义Doro
+    
+    Args:
+        doro_id: 要删除的Doro ID
+        
+    Returns:
+        删除结果
+    """
+    try:
+        if not doro_id.startswith("custom_"):
+            raise HTTPException(status_code=400, detail="只能删除自定义Doro")
+        
+        success = doro_service.delete_custom_doro(doro_id)
+        if success:
+            return {
+                "success": True,
+                "message": "Doro删除成功"
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Doro不存在")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"删除Doro失败: {e}")
+        raise HTTPException(status_code=500, detail=f"删除失败: {str(e)}")
+
+# ================== 原有的下载端点 ==================
 
 @app.get("/api/download-image/{filename}")
 async def download_generated_image(filename: str):

@@ -1,0 +1,52 @@
+{
+  "doro1": {
+    "name": "经典Doro",
+    "description": "经典可爱的Doro形象",
+    "style": "cute",
+    "tags": [
+      "经典",
+      "可爱",
+      "友好"
+    ]
+  },
+  "doro2": {
+    "name": "冒险Doro",
+    "description": "勇敢的冒险家Doro",
+    "style": "adventurous",
+    "tags": [
+      "冒险",
+      "勇敢",
+      "探索"
+    ]
+  },
+  "doro3": {
+    "name": "优雅Doro",
+    "description": "优雅知性的Doro",
+    "style": "elegant",
+    "tags": [
+      "优雅",
+      "知性",
+      "文艺"
+    ]
+  },
+  "doro4": {
+    "name": "运动Doro",
+    "description": "活力四射的运动Doro",
+    "style": "sporty",
+    "tags": [
+      "运动",
+      "活力",
+      "健康"
+    ]
+  },
+  "doro5": {
+    "name": "科技Doro",
+    "description": "未来感十足的科技Doro",
+    "style": "tech",
+    "tags": [
+      "科技",
+      "未来",
+      "智能"
+    ]
+  }
+}

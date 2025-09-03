@@ -299,6 +299,201 @@
         
         <!-- 合影生成遮罩层 -->
         <div class="selfie-overlay" id="selfieOverlay" style="display: none;"></div>
+        
+        <!-- Doro合影生成模态框 -->
+        <div class="doro-selfie-modal" id="doroSelfieModal" style="display: none;">
+            <div class="doro-modal-content">
+                <button class="doro-close-btn" onclick="closeDoroModal()" title="关闭">
+                    ✕
+                </button>
+                <div class="doro-header">
+                    <h3>🤝 Doro与我合影</h3>
+                    <p class="doro-subtitle">创建您与虚拟伙伴Doro的精彩合影</p>
+                </div>
+                
+                <div class="doro-body">
+                    <div class="doro-info">
+                        <h4 id="doroAttractionName">景点名称</h4>
+                        <p id="doroAttractionLocation">位置信息</p>
+                    </div>
+                    
+                    <!-- 步骤指示器 -->
+                    <div class="step-indicator">
+                        <div class="step-item active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">您的照片</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">选择Doro</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">服装风格</div>
+                        </div>
+                    </div>
+                    
+                    <div class="doro-upload-section" id="doroUploadSection">
+                        <!-- 步骤1: 用户照片 -->
+                        <div class="upload-step step-1 active" data-step="1">
+                            <h4>📷 步骤1: 上传您的照片</h4>
+                            <div class="upload-area" id="userPhotoArea" onclick="document.getElementById('doroUserPhotoInput').click()">
+                                <input type="file" id="doroUserPhotoInput" accept="image/*" style="display: none;" onchange="handleDoroUserPhoto(event)">
+                                <div class="upload-placeholder" id="userPhotoPlaceholder">
+                                    <div class="upload-icon">📷</div>
+                                    <p>点击上传您的照片</p>
+                                    <p class="upload-hint">支持 JPG、PNG、WEBP 格式</p>
+                                </div>
+                                <img id="userPhotoPreview" class="upload-preview" style="display: none;" alt="您的照片">
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤2: Doro选择 -->
+                        <div class="upload-step step-2" data-step="2" style="display: none;">
+                            <h4>🎭 步骤2: 选择Doro形象</h4>
+                            <div class="doro-selector-container">
+                                <div class="doro-selector-tabs">
+                                    <button class="doro-tab active" onclick="switchDoroTab('preset')">预设Doro</button>
+                                    <button class="doro-tab" onclick="switchDoroTab('custom')">自定义Doro</button>
+                                </div>
+                                <div class="doro-selector-grid" id="doroSelectorGrid">
+                                    <!-- 动态加载Doro列表 -->
+                                </div>
+                                <div class="doro-upload-custom" id="doroUploadCustom" style="display: none;">
+                                    <div class="upload-area" onclick="document.getElementById('doroCustomInput').click()">
+                                        <input type="file" id="doroCustomInput" accept="image/*" style="display: none;" onchange="handleCustomDoro(event)">
+                                        <div class="upload-placeholder">
+                                            <div class="upload-icon">➕</div>
+                                            <p>上传自定义Doro形象</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤3: 服装风格（可选） -->
+                        <div class="upload-step step-3" data-step="3" style="display: none;">
+                            <h4>👔 步骤3: 服装风格（可选）</h4>
+                            <div class="upload-area" id="stylePhotoArea" onclick="document.getElementById('doroStyleInput').click()">
+                                <input type="file" id="doroStyleInput" accept="image/*" style="display: none;" onchange="handleDoroStylePhoto(event)">
+                                <div class="upload-placeholder" id="stylePlaceholder">
+                                    <div class="upload-icon">👔</div>
+                                    <p>点击上传服装风格参考</p>
+                                    <p class="upload-hint">可选：用于统一服装风格</p>
+                                </div>
+                                <img id="doroStylePreview" class="upload-preview" style="display: none;" alt="风格参考">
+                            </div>
+                            <button class="skip-btn" onclick="skipStyleStep()">跳过此步骤 →</button>
+                        </div>
+                        
+                        <!-- 图片预览区 -->
+                        <div class="doro-preview-section" id="doroPreviewSection" style="display: none;">
+                            <h4>📸 预览</h4>
+                            <div class="preview-grid">
+                                <div class="preview-item">
+                                    <label>您的照片</label>
+                                    <img id="previewUserPhoto" alt="用户照片">
+                                </div>
+                                <div class="preview-item">
+                                    <label>Doro形象</label>
+                                    <img id="previewDoroImage" alt="Doro形象">
+                                </div>
+                                <div class="preview-item" id="previewStyleItem" style="display: none;">
+                                    <label>服装风格</label>
+                                    <img id="previewStyleImage" alt="服装风格">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 额外选项 -->
+                        <div class="doro-options" id="doroOptions" style="display: none;">
+                            <div class="option-group">
+                                <label>时间设置：</label>
+                                <select id="doroTimeOfDay">
+                                    <option value="">自动</option>
+                                    <option value="morning">清晨</option>
+                                    <option value="afternoon">下午</option>
+                                    <option value="sunset">黄昏</option>
+                                    <option value="night">夜晚</option>
+                                </select>
+                            </div>
+                            <div class="option-group">
+                                <label>情绪氛围：</label>
+                                <select id="doroMood">
+                                    <option value="">默认</option>
+                                    <option value="joyful">欢乐</option>
+                                    <option value="peaceful">宁静</option>
+                                    <option value="adventurous">冒险</option>
+                                    <option value="romantic">浪漫</option>
+                                </select>
+                            </div>
+                            <div class="option-group">
+                                <label>额外描述：</label>
+                                <input type="text" id="doroDescription" placeholder="可选：添加特殊要求">
+                            </div>
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="doro-actions">
+                            <button class="doro-back-btn" id="doroBackBtn" onclick="previousDoroStep()" style="display: none;">
+                                ← 上一步
+                            </button>
+                            <button class="doro-next-btn" id="doroNextBtn" onclick="nextDoroStep()">
+                                下一步 →
+                            </button>
+                            <button class="doro-generate-btn" id="doroGenerateBtn" onclick="generateDoroSelfie()" style="display: none;" disabled>
+                                ✨ 生成Doro合影
+                            </button>
+                            <button class="doro-cancel-btn" onclick="closeDoroModal()">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 加载状态 -->
+                    <div class="doro-loading" id="doroLoading" style="display: none;">
+                        <div class="loading-content">
+                            <div class="doro-spinner"></div>
+                            <h4 class="loading-title">正在生成Doro合影...</h4>
+                            <p class="loading-hint">AI正在将您、Doro和景点完美融合 🎨</p>
+                            <p class="loading-hint">预计需要 15-30 秒 ⏰</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 结果展示 -->
+                    <div class="doro-result" id="doroResult" style="display: none;">
+                        <div class="generated-image-container">
+                            <img id="generatedDoroSelfie" class="generated-selfie" alt="Doro合影" onclick="showImageModal(this.src)">
+                            <div class="image-hint">点击图片查看大图</div>
+                        </div>
+                        <div class="result-actions">
+                            <button class="download-btn" onclick="downloadDoroSelfie()">
+                                💾 下载合影
+                            </button>
+                            <button class="regenerate-btn" onclick="regenerateDoroSelfie()">
+                                🔄 重新生成
+                            </button>
+                            <button class="share-btn" onclick="shareDoroSelfie()">
+                                📤 分享合影
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 错误提示 -->
+                    <div class="doro-error" id="doroError" style="display: none;">
+                        <div class="error-icon">❌</div>
+                        <h4>生成失败</h4>
+                        <p id="doroErrorMessage">生成Doro合影时出现错误</p>
+                        <button class="retry-btn" onclick="resetDoroGenerator()">重新开始</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Doro合影遮罩层 -->
+        <div class="doro-overlay" id="doroOverlay" style="display: none;"></div>
     </div>
 
     <!-- Google Maps JavaScript API 配置 -->
