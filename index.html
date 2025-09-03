@@ -204,9 +204,11 @@
         <!-- 景点合影生成模态框 -->
         <div class="selfie-modal" id="selfieModal" style="display: none;">
             <div class="selfie-modal-content">
+                <button class="selfie-close-btn" onclick="closeSelfieModal()" title="关闭">
+                    ✕
+                </button>
                 <div class="selfie-header">
                     <h3>📸 生成景点合影</h3>
-                    <button class="close-selfie-btn" onclick="closeSelfieModal()">✕</button>
                 </div>
                 
                 <div class="selfie-body">
@@ -246,7 +248,7 @@
                         
                         <div class="prompt-section">
                             <label for="customPrompt">自定义提示词（可选）：</label>
-                            <textarea id="customPrompt" rows="3" placeholder="留空将使用默认提示词。如果上传了范例风格图片，将自动使用风格模仿提示词..."></textarea>
+                            <textarea id="customPrompt" rows="3" placeholder="输入额外要求，将追加到基础提示词后面。例如：按第二个橙色高子男生，换他的衣服和裤子服装，头像更换成当前主人的头像，只保留一个人"></textarea>
                         </div>
                         
                         <div class="selfie-actions">
@@ -254,28 +256,33 @@
                                 ✨ 生成合影
                             </button>
                             <button class="cancel-btn" onclick="closeSelfieModal()">
-                                取消
+                                ❌ 取消
                             </button>
                         </div>
                     </div>
                     
                     <div class="selfie-loading" id="selfieLoading" style="display: none;">
-                        <div class="selfie-spinner"></div>
-                        <p>正在生成您的景点合影...</p>
-                        <p class="loading-hint">这可能需要 10-30 秒，请耐心等待</p>
+                        <div class="loading-content">
+                            <div class="selfie-spinner"></div>
+                            <h4 class="loading-title">正在生成您的景点合影...</h4>
+                            <p class="loading-hint">这可能需要 10-30 秒，请耐心等待 ⏰</p>
+                        </div>
                     </div>
                     
                     <div class="selfie-result" id="selfieResult" style="display: none;">
-                        <img id="generatedSelfie" class="generated-selfie" alt="生成的合影">
+                        <div class="generated-image-container">
+                            <img id="generatedSelfie" class="generated-selfie" alt="生成的合影" onclick="showImageModal(this.src)">
+                            <div class="image-hint">点击图片查看大图</div>
+                        </div>
                         <div class="result-actions">
                             <button class="download-btn" onclick="downloadSelfie()">
                                 💾 下载合影
                             </button>
-                            <button class="regenerate-btn" onclick="resetSelfieGenerator()">
-                                🔄 重新生成
+                            <button class="regenerate-btn" onclick="regenerateWithCurrentStyle()">
+                                🔄 当前风格重新生成
                             </button>
                             <button class="share-btn" onclick="shareSelfie()">
-                                📤 分享
+                                📤 分享合影
                             </button>
                         </div>
                     </div>

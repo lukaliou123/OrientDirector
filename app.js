@@ -276,10 +276,12 @@ function initializeCompass() {
         
         // 测试是否能获取方向
         setTimeout(() => {
-            if (currentHeading === 0) {
+            if (currentHeading === null || currentHeading === undefined) {
                 logger.warning('未检测到方向数据，可能需要移动设备或检查权限');
                 // 提供手动输入方向的选项
                 enableManualHeadingInput();
+            } else if (currentHeading === 0) {
+                logger.info('✅ 检测到正北方向 (0°)，可以直接开始搜索');
             }
         }, 1000);  // 缩短到1秒
     } else {
@@ -544,7 +546,7 @@ async function startExploration() {
         return;
     }
     
-    if (currentHeading === null || currentHeading === undefined || currentHeading === 0) {
+    if (currentHeading === null || currentHeading === undefined) {
         const errorMsg = '未检测到方向信息，请移动设备或手动输入方向';
         logger.error(errorMsg);
         showError(errorMsg);
@@ -3877,7 +3879,7 @@ function handleStylePhotoSelect(file) {
             // 更新提示词占位符
             const customPrompt = document.getElementById('customPrompt');
             if (customPrompt && !customPrompt.value.trim()) {
-                customPrompt.placeholder = '已上传范例风格图片，将自动使用"place the outfit in image 2 on the woman in image 1"风格模仿提示词...';
+                customPrompt.placeholder = '已上传范例风格图片，输入额外要求将追加到风格迁移提示词后面。例如：按第二个橙色高子男生，换他的衣服和裤子服装，头像更换成当前主人的头像，只保留一个人';
             }
         }
     };
@@ -3978,7 +3980,8 @@ function showGeneratedPhoto(data) {
     const selfieResult = document.getElementById('selfieResult');
     const generatedSelfie = document.getElementById('generatedSelfie');
     
-    if (selfieUploadSection) selfieUploadSection.style.display = 'none';
+    // 保持上传区域可见，只隐藏加载状态
+    // if (selfieUploadSection) selfieUploadSection.style.display = 'none';  // 注释掉，保持上传区域可见
     if (selfieLoading) selfieLoading.style.display = 'none';
     
     // 显示结果
@@ -3996,6 +3999,13 @@ function showGeneratedPhoto(data) {
             filename: data.filename,
             attraction: data.attraction
         });
+    }
+    
+    // 更新生成按钮文字，提示可以重新生成
+    const generateBtn = document.getElementById('attractionGenerateBtn') || document.getElementById('generateBtn');
+    if (generateBtn) {
+        generateBtn.innerHTML = '✨ 重新生成合影';
+        generateBtn.disabled = false;
     }
 }
 
@@ -4074,7 +4084,7 @@ function resetSelfieGenerator() {
     const customPrompt = document.getElementById('customPrompt');
     if (customPrompt) {
         customPrompt.value = '';
-        customPrompt.placeholder = '留空将使用默认提示词。如果上传了范例风格图片，将自动使用风格模仿提示词...';
+        customPrompt.placeholder = '输入额外要求，将追加到基础提示词后面。例如：按第二个橙色高子男生，换他的衣服和裤子服装，头像更换成当前主人的头像，只保留一个人';
     }
     
     // 隐藏结果和错误
@@ -4105,6 +4115,27 @@ function closeSelfieModal() {
     
     // 重置状态
     resetSelfieGenerator();
+}
+
+// 当前风格重新生成（保留已上传的图片）
+function regenerateWithCurrentStyle() {
+    // 检查是否有必要的文件
+    if (!window.selectedPhotoFile) {
+        logger.error('❌ 没有用户照片，无法重新生成');
+        alert('请先上传用户照片');
+        return;
+    }
+    
+    // 隐藏当前结果，准备重新生成
+    const selfieResult = document.getElementById('selfieResult');
+    if (selfieResult) {
+        selfieResult.style.display = 'none';
+    }
+    
+    logger.info('🔄 使用当前风格重新生成合影');
+    
+    // 调用生成函数
+    generateSelfie();
 }
 
 // 合影生成函数
@@ -4143,6 +4174,7 @@ window.generateSelfie = generateSelfie;
 window.handlePhotoUpload = handlePhotoUpload;
 window.handleStylePhotoUpload = handleStylePhotoUpload;
 window.resetSelfieGenerator = resetSelfieGenerator;
+window.regenerateWithCurrentStyle = regenerateWithCurrentStyle;
 window.closeSelfieModal = closeSelfieModal;
 window.downloadSelfie = downloadSelfie;
 window.shareSelfie = shareSelfie;

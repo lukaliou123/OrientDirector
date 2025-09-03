@@ -216,15 +216,13 @@ class GeminiImageService:
                 
                 logger.info(f"📎 已加载范例风格图片: {style_photo.filename}")
             
-            # 生成提示词
-            if custom_prompt:
-                prompt = custom_prompt
-            elif style_image:
+            # 生成基础提示词
+            if style_image:
                 # 如果有范例风格图片，使用风格迁移提示词
-                prompt = f"Create a beautiful composite image: Take the person from the first image and dress them in the outfit style from the second image, placing them at {attraction_name}. The person should be wearing similar clothing as shown in image 2, with natural lighting and realistic shadows. Make the scene look like a genuine tourist photo at {attraction_name}."
-                logger.info(f"🎨 使用风格迁移提示词: {prompt}")
+                base_prompt = f"请创建一张合成图片：以第一张图片中的人物为主体，保留他的面部特征和头像，但将他的服装（包括衣服和裤子）替换成第二张图片中指定人物的服装风格。背景设置为{attraction_name}。要求：1）保持第一张图片人物的面部不变；2）只保留一个人（第一张图片的主人）；3）服装风格完全参考第二张图片；4）场景要像真实的旅游照片；5）自然光照和真实阴影效果。"
+                logger.info(f"🎨 使用风格迁移提示词作为基础")
             else:
-                prompt = self.generate_attraction_prompt(
+                base_prompt = self.generate_attraction_prompt(
                     attraction_name=attraction_name,
                     location=location,
                     category=category,
@@ -234,6 +232,13 @@ class GeminiImageService:
                     latitude=latitude,
                     longitude=longitude
                 )
+            
+            # 如果有自定义提示词，追加到基础提示词后面
+            if custom_prompt and custom_prompt.strip():
+                prompt = f"{base_prompt} 额外要求：{custom_prompt.strip()}"
+                logger.info(f"📝 追加自定义提示词: {custom_prompt.strip()}")
+            else:
+                prompt = base_prompt
             
             logger.info(f"生成景点合影 - 景点: {attraction_name}, 提示词: {prompt}")
             
