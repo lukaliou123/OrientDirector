@@ -216,19 +216,37 @@
                     </div>
                     
                     <div class="selfie-upload-section" id="selfieUploadSection">
-                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('selfiePhotoInput').click()">
-                            <input type="file" id="selfiePhotoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
-                            <div class="upload-placeholder" id="uploadPlaceholder">
-                                <div class="upload-icon">📷</div>
-                                <p>点击上传您的照片</p>
-                                <p class="upload-hint">支持 JPG、PNG 格式</p>
+                        <div class="upload-section">
+                            <div class="upload-group">
+                                <h4>📷 您的照片</h4>
+                                <div class="upload-area" id="uploadArea" onclick="document.getElementById('selfiePhotoInput').click()">
+                                    <input type="file" id="selfiePhotoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                                    <div class="upload-placeholder" id="uploadPlaceholder">
+                                        <div class="upload-icon">📷</div>
+                                        <p>点击上传您的照片</p>
+                                        <p class="upload-hint">支持 JPG、PNG 格式</p>
+                                    </div>
+                                    <img id="uploadPreview" class="upload-preview" style="display: none;" alt="预览图">
+                                </div>
                             </div>
-                            <img id="uploadPreview" class="upload-preview" style="display: none;" alt="预览图">
+                            
+                            <div class="upload-group">
+                                <h4>🎨 范例风格图片（可选）</h4>
+                                <div class="upload-area" id="styleUploadArea" onclick="document.getElementById('stylePhotoInput').click()">
+                                    <input type="file" id="stylePhotoInput" accept="image/*" style="display: none;" onchange="handleStylePhotoUpload(event)">
+                                    <div class="upload-placeholder" id="stylePlaceholder">
+                                        <div class="upload-icon">🎨</div>
+                                        <p>点击上传范例风格图片</p>
+                                        <p class="upload-hint">用于模仿服装或风格</p>
+                                    </div>
+                                    <img id="stylePreview" class="upload-preview" style="display: none;" alt="风格预览图">
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="prompt-section">
                             <label for="customPrompt">自定义提示词（可选）：</label>
-                            <textarea id="customPrompt" rows="3" placeholder="留空将使用默认提示词，例如：让我穿着当地传统服装..."></textarea>
+                            <textarea id="customPrompt" rows="3" placeholder="留空将使用默认提示词。如果上传了范例风格图片，将自动使用风格模仿提示词..."></textarea>
                         </div>
                         
                         <div class="selfie-actions">
@@ -293,7 +311,7 @@
                 const response = await fetch('http://localhost:8000/api/config/maps');
                 if (response.ok) {
                     const config = await response.json();
-                    window.appConfig.googleMapsApiKey = config.apiKey;
+                    window.appConfig.googleMapsApiKey = config.google_maps_api_key;
                     console.log('✅ 从后端获取到API配置');
                 }
             } catch (error) {

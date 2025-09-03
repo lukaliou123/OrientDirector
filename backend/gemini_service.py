@@ -21,7 +21,7 @@ class GeminiImageService:
     """Google Gemini 图片生成服务"""
     
     def __init__(self):
-        # 使用支持图片生成的模型
+        # 使用支持图片生成的模型 (Nano Banana)
         self.model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
         self.output_dir = "backend/generated_images"
         
@@ -166,6 +166,7 @@ class GeminiImageService:
         self, 
         user_photo: UploadFile,
         attraction_name: str,
+        style_photo: Optional[UploadFile] = None,
         location: Optional[str] = None,
         category: Optional[str] = None,
         description: Optional[str] = None,
@@ -181,6 +182,7 @@ class GeminiImageService:
         Args:
             user_photo: 用户上传的照片
             attraction_name: 景点名称
+            style_photo: 范例风格图片（可选）
             location: 景点位置
             category: 景点类别
             description: 景点描述
@@ -202,9 +204,25 @@ class GeminiImageService:
             if user_image.mode not in ('RGB', 'RGBA'):
                 user_image = user_image.convert('RGB')
             
+            # 处理范例风格图片（如果有）
+            style_image = None
+            if style_photo:
+                style_data = await style_photo.read()
+                style_image = Image.open(BytesIO(style_data))
+                
+                # 将范例图片转换为RGB格式（如果需要）
+                if style_image.mode not in ('RGB', 'RGBA'):
+                    style_image = style_image.convert('RGB')
+                
+                logger.info(f"📎 已加载范例风格图片: {style_photo.filename}")
+            
             # 生成提示词
             if custom_prompt:
                 prompt = custom_prompt
+            elif style_image:
+                # 如果有范例风格图片，使用风格迁移提示词
+                prompt = f"Create a beautiful composite image: Take the person from the first image and dress them in the outfit style from the second image, placing them at {attraction_name}. The person should be wearing similar clothing as shown in image 2, with natural lighting and realistic shadows. Make the scene look like a genuine tourist photo at {attraction_name}."
+                logger.info(f"🎨 使用风格迁移提示词: {prompt}")
             else:
                 prompt = self.generate_attraction_prompt(
                     attraction_name=attraction_name,
@@ -220,9 +238,19 @@ class GeminiImageService:
             logger.info(f"生成景点合影 - 景点: {attraction_name}, 提示词: {prompt}")
             
             # 调用 Gemini API 生成图片
-            contents = [prompt, user_image]
-            logger.info(f"🚀 开始调用Gemini API生成图片...")
+            if style_image:
+                # 如果有范例风格图片，按照指定顺序传递图片
+                contents = [prompt, user_image, style_image]
+                logger.info(f"🚀 开始调用Gemini API生成图片（包含范例风格图片）...")
+                logger.info(f"📝 输入内容: 提示词 + 用户图片 + 风格图片")
+            else:
+                contents = [prompt, user_image]
+                logger.info(f"🚀 开始调用Gemini API生成图片...")
+                logger.info(f"📝 输入内容: 提示词 + 用户图片")
+            
+            # 生成图像
             response = self.model.generate_content(contents)
+            logger.info(f"✅ Gemini API调用完成")
             
             # 处理响应
             response_dict = response.to_dict()

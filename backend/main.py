@@ -866,10 +866,41 @@ async def geocode_location(request: GeocodeRequest):
         
         load_dotenv()
         
-        # 首先尝试高德地图API
+        # 首先检查本地快速匹配
+        fallback_locations = {
+            "北京": {"lat": 39.9042, "lng": 116.4074, "address": "北京市"},
+            "上海": {"lat": 31.2304, "lng": 121.4737, "address": "上海市"},
+            "广州": {"lat": 23.1291, "lng": 113.2644, "address": "广州市"},
+            "深圳": {"lat": 22.5431, "lng": 114.0579, "address": "深圳市"},
+            "天安门": {"lat": 39.9042, "lng": 116.4074, "address": "北京市东城区天安门"},
+            "故宫": {"lat": 39.9163, "lng": 116.3972, "address": "北京市东城区故宫"},
+        }
+        
+        # 快速匹配常用地点
+        for city, info in fallback_locations.items():
+            if city in request.query:
+                result = {
+                    "formatted_address": info["address"],
+                    "geometry": {
+                        "location": {"lat": info["lat"], "lng": info["lng"]},
+                        "location_type": "APPROXIMATE"
+                    },
+                    "place_id": f"fallback_{city}",
+                    "address_components": [],
+                    "types": ["locality", "political"]
+                }
+                logger.info(f"使用本地快速匹配: {info['address']}")
+                return GeocodeResponse(
+                    success=True,
+                    data=result,
+                    message=f"快速匹配找到位置: {info['address']}"
+                )
+        
+        # 然后尝试高德地图API
         amap_key = os.getenv("AMAP_API_KEY")
         if amap_key:
             try:
+                logger.info(f"调用高德地图API查询: {request.query}")
                 url = "https://restapi.amap.com/v3/geocode/geo"
                 params = {
                     'key': amap_key,
@@ -877,9 +908,10 @@ async def geocode_location(request: GeocodeRequest):
                     'output': 'json'
                 }
                 
-                response = requests.get(url, params=params, timeout=5)
+                response = requests.get(url, params=params, timeout=3)  # 减少超时时间
                 if response.status_code == 200:
                     data = response.json()
+                    logger.info(f"高德地图API响应: {data}")
                     if data.get('status') == '1' and data.get('geocodes'):
                         geocode = data['geocodes'][0]
                         location = geocode['location'].split(',')
@@ -919,11 +951,16 @@ async def geocode_location(request: GeocodeRequest):
                             "types": ["geocode"]
                         }
                         
+                        logger.info(f"高德地图成功找到位置: {result['formatted_address']}")
                         return GeocodeResponse(
                             success=True,
                             data=result,
                             message=f"高德地图找到位置: {result['formatted_address']}"
                         )
+                    else:
+                        logger.warning(f"高德地图API返回错误: {data.get('info', 'Unknown error')}")
+                else:
+                    logger.warning(f"高德地图API请求失败: HTTP {response.status_code}")
             except Exception as e:
                 logger.warning(f"高德地图地理编码失败: {e}")
         
@@ -944,33 +981,7 @@ async def geocode_location(request: GeocodeRequest):
             except Exception as e:
                 logger.warning(f"Google Maps地理编码失败: {e}")
         
-        # 本地备用数据
-        fallback_locations = {
-            "北京": {"lat": 39.9042, "lng": 116.4074, "address": "北京市"},
-            "上海": {"lat": 31.2304, "lng": 121.4737, "address": "上海市"},
-            "广州": {"lat": 23.1291, "lng": 113.2644, "address": "广州市"},
-            "深圳": {"lat": 22.5431, "lng": 114.0579, "address": "深圳市"},
-            "天安门": {"lat": 39.9042, "lng": 116.4074, "address": "北京市东城区天安门"},
-            "故宫": {"lat": 39.9163, "lng": 116.3972, "address": "北京市东城区故宫"},
-        }
-        
-        for city, info in fallback_locations.items():
-            if city in request.query:
-                result = {
-                    "formatted_address": info["address"],
-                    "geometry": {
-                        "location": {"lat": info["lat"], "lng": info["lng"]},
-                        "location_type": "APPROXIMATE"
-                    },
-                    "place_id": f"fallback_{city}",
-                    "address_components": [],
-                    "types": ["locality", "political"]
-                }
-                return GeocodeResponse(
-                    success=True,
-                    data=result,
-                    message=f"使用本地数据找到位置: {info['address']}"
-                )
+        # 如果前面的快速匹配和高德地图都失败了，返回错误
         
         return GeocodeResponse(
             success=False,
@@ -1116,6 +1127,7 @@ async def health_check():
 async def generate_attraction_photo(
     user_photo: UploadFile = File(...),
     attraction_name: str = Form(...),
+    style_photo: Optional[UploadFile] = File(None),
     location: Optional[str] = Form(None),
     category: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
@@ -1131,6 +1143,7 @@ async def generate_attraction_photo(
     Args:
         user_photo: 用户上传的照片
         attraction_name: 景点名称
+        style_photo: 范例照片（可选）- 用于风格迁移
         location: 景点位置（可选）
         category: 景点类别（可选）
         description: 景点描述（可选）
@@ -1168,6 +1181,7 @@ async def generate_attraction_photo(
         success, message, result = await gemini_service.generate_attraction_photo(
             user_photo=user_photo,
             attraction_name=attraction_name,
+            style_photo=style_photo,
             location=location,
             category=category,
             description=description,
