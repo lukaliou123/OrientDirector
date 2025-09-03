@@ -21,22 +21,39 @@ class GeminiImageService:
     """Google Gemini 图片生成服务"""
     
     def __init__(self):
+        # 使用支持图片生成的模型
         self.model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
         self.output_dir = "backend/generated_images"
         
         # 确保输出目录存在
         os.makedirs(self.output_dir, exist_ok=True)
         
-    def generate_attraction_prompt(self, attraction_name: str, location: str = None) -> str:
+    def generate_attraction_prompt(
+        self, 
+        attraction_name: str, 
+        location: str = None,
+        category: str = None,
+        description: str = None,
+        opening_hours: str = None,
+        ticket_price: str = None,
+        latitude: float = None,
+        longitude: float = None
+    ) -> str:
         """
-        根据景点名称生成合影提示词
+        根据景点完整信息生成智能合影提示词
         
         Args:
             attraction_name: 景点名称
             location: 景点位置（城市或国家）
+            category: 景点类别
+            description: 景点描述
+            opening_hours: 开放时间
+            ticket_price: 门票价格
+            latitude: 纬度
+            longitude: 经度
             
         Returns:
-            生成的提示词
+            生成的智能提示词
         """
         # 景点特定的提示词模板
         attraction_prompts = {
@@ -72,15 +89,90 @@ class GeminiImageService:
             if key in attraction_name:
                 return prompt
         
-        # 如果没有找到特定景点，生成通用提示词
-        location_str = f"在{location}" if location else ""
-        return f"让图中的人站在{attraction_name}{location_str}前面拍照留念，背景是该景点的标志性建筑或景观，穿着适合旅游的休闲装，自然地微笑，天气晴朗。保持人脸的原貌和特征不变，只改变服装和背景。"
+        # 使用智能提示词生成
+        return self._generate_intelligent_prompt(
+            attraction_name, location, category, description, 
+            opening_hours, ticket_price, latitude, longitude
+        )
+    
+    def _generate_intelligent_prompt(
+        self, 
+        name: str, 
+        location: str = None, 
+        category: str = None, 
+        description: str = None,
+        opening_hours: str = None,
+        ticket_price: str = None,
+        latitude: float = None,
+        longitude: float = None
+    ) -> str:
+        """
+        生成智能提示词
+        """
+        # 基础提示词模板
+        prompt = f"请将图中的人物与{name}进行完美合影合成。"
+        
+        # 根据景点类别添加特定描述
+        if category:
+            category_prompts = {
+                '寺庙': '背景是庄严神圣的寺庙建筑，金碧辉煌的佛殿和古典的中式建筑风格',
+                '博物馆': '背景是现代化的博物馆建筑，展现文化艺术的氛围',
+                '公园': '背景是美丽的自然公园景观，绿树成荫，花草繁茂',
+                '古迹': '背景是历史悠久的古代建筑遗迹，展现深厚的历史文化底蕴',
+                '山峰': '背景是雄伟壮观的山峰景色，云雾缭绕，气势磅礴',
+                '海滩': '背景是碧海蓝天的海滩风光，白沙细软，海浪轻拍',
+                '城市地标': '背景是标志性的城市建筑，现代化的都市风光',
+                '自然景观': '背景是壮美的自然风光，山川河流，景色宜人',
+                '文化景点': '背景是具有文化特色的建筑和环境，体现当地文化特色',
+                '购物': '背景是繁华的商业街区或购物中心',
+                '娱乐': '背景是充满活力的娱乐场所'
+            }
+            
+            for key, desc in category_prompts.items():
+                if key in category:
+                    prompt += f"{desc}，"
+                    break
+        
+        # 根据描述添加具体细节
+        if description:
+            keywords = {
+                '古老': '古朴典雅的建筑风格',
+                '现代': '现代化的建筑设计',
+                '宏伟': '气势恢宏的建筑规模',
+                '精美': '精美细致的装饰细节',
+                '壮观': '令人震撼的壮观景象',
+                '美丽': '风景如画的美丽环境',
+                '历史': '深厚的历史文化氛围',
+                '神圣': '庄严神圣的宗教氛围',
+                '自然': '原生态的自然环境',
+                '繁华': '繁华热闹的都市景象'
+            }
+            
+            for keyword, enhancement in keywords.items():
+                if keyword in description:
+                    prompt += f"{enhancement}，"
+                    break
+        
+        # 添加位置信息
+        if location:
+            prompt += f"位于{location}，"
+        
+        # 添加通用的合影要求 - 使用更明确的图片编辑指令
+        prompt += "将图中的人物背景替换为该景点，人物穿着适合旅游的休闲装，自然地微笑，天气晴朗。保持人脸的原貌和特征不变，只改变服装和背景。原图中只有人物需要保留，其他背景物品都不要保留。整体画面和谐自然，具有真实的旅游合影效果。"
+        
+        return prompt
     
     async def generate_attraction_photo(
         self, 
         user_photo: UploadFile,
         attraction_name: str,
         location: Optional[str] = None,
+        category: Optional[str] = None,
+        description: Optional[str] = None,
+        opening_hours: Optional[str] = None,
+        ticket_price: Optional[str] = None,
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
         custom_prompt: Optional[str] = None
     ) -> Tuple[bool, str, Optional[str]]:
         """
@@ -90,6 +182,12 @@ class GeminiImageService:
             user_photo: 用户上传的照片
             attraction_name: 景点名称
             location: 景点位置
+            category: 景点类别
+            description: 景点描述
+            opening_hours: 开放时间
+            ticket_price: 门票价格
+            latitude: 纬度
+            longitude: 经度
             custom_prompt: 自定义提示词（可选）
             
         Returns:
@@ -108,16 +206,27 @@ class GeminiImageService:
             if custom_prompt:
                 prompt = custom_prompt
             else:
-                prompt = self.generate_attraction_prompt(attraction_name, location)
+                prompt = self.generate_attraction_prompt(
+                    attraction_name=attraction_name,
+                    location=location,
+                    category=category,
+                    description=description,
+                    opening_hours=opening_hours,
+                    ticket_price=ticket_price,
+                    latitude=latitude,
+                    longitude=longitude
+                )
             
             logger.info(f"生成景点合影 - 景点: {attraction_name}, 提示词: {prompt}")
             
             # 调用 Gemini API 生成图片
             contents = [prompt, user_image]
+            logger.info(f"🚀 开始调用Gemini API生成图片...")
             response = self.model.generate_content(contents)
             
             # 处理响应
             response_dict = response.to_dict()
+            logger.info(f"📋 Gemini API响应结构: {list(response_dict.keys())}")
             
             if "candidates" in response_dict and len(response_dict["candidates"]) > 0:
                 parts = response_dict["candidates"][0]["content"]["parts"]
@@ -148,16 +257,26 @@ class GeminiImageService:
                         return True, "景点合影生成成功", {
                             "filepath": filepath,
                             "filename": filename,
+                            "image_url": f"data:image/png;base64,{img_base64}",
                             "base64": f"data:image/png;base64,{img_base64}",
                             "attraction": attraction_name,
                             "prompt": prompt
                         }
             
+            logger.warning("⚠️ API响应中未找到图片数据")
+            if "candidates" in response_dict:
+                logger.info(f"📊 候选响应数量: {len(response_dict['candidates'])}")
+                if len(response_dict["candidates"]) > 0:
+                    candidate = response_dict["candidates"][0]
+                    logger.info(f"🔍 候选响应内容: {candidate}")
             return False, "生成失败：API未返回图片数据", None
             
         except Exception as e:
             error_msg = f"生成景点合影时出错: {str(e)}"
             logger.error(error_msg)
+            logger.error(f"🔥 详细错误信息: {type(e).__name__}: {e}")
+            import traceback
+            logger.error(f"📍 错误堆栈: {traceback.format_exc()}")
             return False, error_msg, None
     
     def get_generated_images(self, limit: int = 10) -> list:

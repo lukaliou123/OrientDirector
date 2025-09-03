@@ -3131,11 +3131,19 @@ async function executeRoaming(locationData, placeDetails) {
     logger.info(`🚀 执行漫游到: ${locationData.formatted_address}`);
     
     // 更新当前位置
-    window.currentPosition = {
+    currentPosition = {
         latitude: location.lat,
         longitude: location.lng,
-        accuracy: 10 // 高精度
+        accuracy: 10, // 高精度
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+        timestamp: Date.now()
     };
+    
+    // 同时更新window对象以确保兼容性
+    window.currentPosition = currentPosition;
     
     // 更新UI显示
     updateLocationDisplay(locationData, placeDetails);
@@ -3567,9 +3575,91 @@ function closeImageModal() {
     }
 }
 
+// 智能提示词生成函数
+function generateIntelligentPrompt(place) {
+    const name = place.name || '景点';
+    const category = place.category || '';
+    const description = place.description || '';
+    const location = place.city || place.country || '';
+    
+    // 基础提示词模板
+    let prompt = `请将图中的人物与${name}进行完美合影合成。`;
+    
+    // 根据景点类别添加特定描述
+    if (category) {
+        const categoryPrompts = {
+            '寺庙': '背景是庄严神圣的寺庙建筑，金碧辉煌的佛殿和古典的中式建筑风格',
+            '博物馆': '背景是现代化的博物馆建筑，展现文化艺术的氛围',
+            '公园': '背景是美丽的自然公园景观，绿树成荫，花草繁茂',
+            '古迹': '背景是历史悠久的古代建筑遗迹，展现深厚的历史文化底蕴',
+            '山峰': '背景是雄伟壮观的山峰景色，云雾缭绕，气势磅礴',
+            '海滩': '背景是碧海蓝天的海滩风光，白沙细软，海浪轻拍',
+            '城市地标': '背景是标志性的城市建筑，现代化的都市风光',
+            '自然景观': '背景是壮美的自然风光，山川河流，景色宜人',
+            '文化景点': '背景是具有文化特色的建筑和环境，体现当地文化特色',
+            '购物': '背景是繁华的商业街区或购物中心',
+            '娱乐': '背景是充满活力的娱乐场所'
+        };
+        
+        for (const [key, desc] of Object.entries(categoryPrompts)) {
+            if (category.includes(key)) {
+                prompt += `${desc}，`;
+                break;
+            }
+        }
+    }
+    
+    // 根据描述添加具体细节
+    if (description) {
+        const keywords = {
+            '古老': '古朴典雅的建筑风格',
+            '现代': '现代化的建筑设计',
+            '宏伟': '气势恢宏的建筑规模',
+            '精美': '精美细致的装饰细节',
+            '壮观': '令人震撼的壮观景象',
+            '美丽': '风景如画的美丽环境',
+            '历史': '深厚的历史文化氛围',
+            '神圣': '庄严神圣的宗教氛围',
+            '自然': '原生态的自然环境',
+            '繁华': '繁华热闹的都市景象'
+        };
+        
+        for (const [keyword, enhancement] of Object.entries(keywords)) {
+            if (description.includes(keyword)) {
+                prompt += `${enhancement}，`;
+                break;
+            }
+        }
+    }
+    
+    // 添加位置信息
+    if (location) {
+        prompt += `位于${location}，`;
+    }
+    
+    // 添加通用的合影要求
+    prompt += '人物穿着适合旅游的休闲装，自然地微笑，天气晴朗。保持人脸的原貌和特征不变，只改变服装和背景。整体画面和谐自然，具有真实的旅游合影效果。';
+    
+    return prompt;
+}
+
 // 景点合影生成功能
 function openSelfieGenerator(placeIndex, attractionName, location) {
-    logger.info(`打开合影生成器 - 景点: ${attractionName}, 位置: ${location || '未知'}`);
+    // 从全局场景数据中获取完整的景点信息
+    const place = sceneManagement.allScenes[placeIndex];
+    if (!place) {
+        logger.error(`❌ 找不到索引为 ${placeIndex} 的景点信息`);
+        alert('景点信息获取失败，请重试');
+        return;
+    }
+    
+    const finalAttractionName = place.name || attractionName;
+    const finalLocation = place.city || place.country || location || '';
+    
+    logger.info(`打开合影生成器 - 景点: ${finalAttractionName}, 位置: ${finalLocation}`);
+    
+    // 生成基于景点详细信息的智能提示词
+    const intelligentPrompt = generateIntelligentPrompt(place);
     
     // 创建照片上传模态框
     const modal = document.createElement('div');
@@ -3577,11 +3667,20 @@ function openSelfieGenerator(placeIndex, attractionName, location) {
     modal.innerHTML = `
         <div class="photo-upload-content">
             <div class="photo-upload-header">
-                <h3>📸 生成${attractionName}合影照片</h3>
+                <h3>📸 生成${finalAttractionName}合影照片</h3>
                 <button class="close-btn" onclick="closeSelfieGenerator()">&times;</button>
             </div>
             
             <div class="photo-upload-body">
+                <div class="place-info-summary">
+                    <div class="place-info-card">
+                        <h4>📍 ${finalAttractionName}</h4>
+                        ${place.category ? `<p class="info-category">🏷️ ${place.category}</p>` : ''}
+                        ${finalLocation ? `<p class="info-location">🌍 ${finalLocation}</p>` : ''}
+                        ${place.description ? `<p class="info-description">${place.description.substring(0, 100)}${place.description.length > 100 ? '...' : ''}</p>` : ''}
+                    </div>
+                </div>
+                
                 <div class="upload-section">
                     <div class="upload-area" id="uploadArea" style="cursor: pointer;" onclick="triggerFileUpload('photoInput')">
                         <div class="upload-placeholder" style="pointer-events: none;">
@@ -3599,8 +3698,9 @@ function openSelfieGenerator(placeIndex, attractionName, location) {
                 </div>
                 
                 <div class="prompt-section">
-                    <label for="customPrompt">自定义提示词（可选）：</label>
-                    <textarea id="customPrompt" placeholder="留空将使用默认的${attractionName}合影提示词..." rows="3"></textarea>
+                    <label for="customPrompt">AI生成提示词（可编辑）：</label>
+                    <textarea id="customPrompt" rows="4">${intelligentPrompt}</textarea>
+                    <p class="prompt-hint">💡 提示词已根据景点信息智能生成，您可以根据需要进行修改</p>
                 </div>
                 
                 <div class="generate-section">
@@ -3628,6 +3728,9 @@ function openSelfieGenerator(placeIndex, attractionName, location) {
     `;
     
     document.body.appendChild(modal);
+    
+    // 存储当前景点信息供后续使用
+    window.currentAttractionInfo = place;
     
     // 显示模态框
     setTimeout(() => {
@@ -3841,6 +3944,14 @@ window.generateAttractionPhoto = async function(attractionName, location, placeI
         return;
     }
     
+    // 获取完整的景点信息
+    const place = window.currentAttractionInfo || sceneManagement.allScenes[placeIndex];
+    if (!place) {
+        alert('景点信息获取失败，请重试');
+        logger.error('❌ 无法获取景点信息');
+        return;
+    }
+    
     const generateBtn = document.getElementById('attractionGenerateBtn');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const customPrompt = document.getElementById('customPrompt');
@@ -3853,18 +3964,22 @@ window.generateAttractionPhoto = async function(attractionName, location, placeI
         generateBtn.disabled = true;
         loadingIndicator.style.display = 'block';
         
-        logger.info(`开始生成${attractionName}合影照片...`);
+        logger.info(`开始生成${place.name}合影照片...`);
         
-        // 创建FormData
+        // 创建包含完整景点信息的FormData
         const formData = new FormData();
         formData.append('user_photo', window.selectedPhotoFile);
-        formData.append('attraction_name', attractionName);
-        if (location) {
-            formData.append('location', location);
-        }
-        if (customPromptValue) {
-            formData.append('custom_prompt', customPromptValue);
-        }
+        formData.append('attraction_name', place.name);
+        
+        // 传递完整的景点信息
+        if (place.city) formData.append('location', place.city);
+        if (place.category) formData.append('category', place.category);
+        if (place.description) formData.append('description', place.description);
+        if (place.opening_hours) formData.append('opening_hours', place.opening_hours);
+        if (place.ticket_price) formData.append('ticket_price', place.ticket_price);
+        if (place.latitude) formData.append('latitude', place.latitude.toString());
+        if (place.longitude) formData.append('longitude', place.longitude.toString());
+        if (customPromptValue) formData.append('custom_prompt', customPromptValue);
         
         // 调用后端API
         const response = await fetch('http://localhost:8000/api/generate-attraction-photo', {
