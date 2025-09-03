@@ -1825,6 +1825,77 @@ body {
     }
 }
 
+/* 上传预览样式 */
+.upload-preview {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upload-area {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    background-color: #f8f9fa;
+    border-color: #667eea;
+}
+
+.upload-placeholder {
+    pointer-events: none;
+}
+
+/* 生成按钮样式优化 */
+.generate-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.generate-btn:disabled {
+    background: #cccccc !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.generate-btn:not(:disabled) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.generate-btn-enabled {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    filter: none !important;
+    position: relative !important;
+    z-index: 10002 !important; /* 确保按钮在最上层 */
+}
+
 /* 移动端视频和图片模态框优化 */
 @media (max-width: 768px) {
     .video-modal-content {
@@ -1867,11 +1938,13 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    pointer-events: none; /* 防止覆盖内容 */
 }
 
 .photo-upload-modal.show {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto; /* 显示时启用鼠标事件 */
 }
 
 .photo-upload-content {
@@ -1884,6 +1957,9 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     transform: scale(0.9);
     transition: transform 0.3s ease;
+    position: relative;
+    z-index: 10001;
+    pointer-events: auto !important; /* 确保内容始终可以接收鼠标事件 */
 }
 
 .photo-upload-modal.show .photo-upload-content {

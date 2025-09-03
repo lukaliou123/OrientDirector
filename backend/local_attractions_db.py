@@ -20,7 +20,7 @@ class LocalAttractionsDB:
                 "ticket_price": "成人票：60元",
                 "booking_method": "官方网站实名预约",
                 "image": "https://via.placeholder.com/800x400/FF6B6B/FFFFFF?text=故宫博物院",
-                "video": null,
+                "video": None,
                 "country": "中国",
                 "city": "北京市东城区",
                 "address": "北京市东城区景山前街4号"
@@ -35,7 +35,7 @@ class LocalAttractionsDB:
                 "ticket_price": "免费",
                 "booking_method": "无需预约",
                 "image": "https://via.placeholder.com/800x400/4ECDC4/FFFFFF?text=天安门广场",
-                "video": null,
+                "video": None,
                 "country": "中国",
                 "city": "北京市东城区",
                 "address": "北京市东城区东长安街"

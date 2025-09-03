@@ -9,6 +9,7 @@ import os
 import asyncio
 import logging
 import requests
+import time
 from dotenv import load_dotenv
 from real_data_service import real_data_service
 from local_attractions_db import local_attractions_db
@@ -72,9 +73,25 @@ class ExploreResponse(BaseModel):
     total_distance: float
     calculation_time: float
 
+# 旅程相关数据模型
+class StartJourneyRequest(BaseModel):
+    start_lat: float
+    start_lng: float
+    start_name: str
+    journey_title: str
+
+class JourneyResponse(BaseModel):
+    success: bool
+    message: str
+    journey_id: Optional[str] = None
+
 # 全局变量
 geod = Geodesic.WGS84
 places_data = {}
+
+# 旅程管理全局变量
+active_journeys = {}  # 存储活跃的旅程
+journey_counter = 0   # 旅程ID计数器
 
 def load_places_data():
     """加载地点数据"""
@@ -1029,6 +1046,62 @@ async def get_maps_config():
         "default_location": {"lat": 39.9042, "lng": 116.4074},
         "default_zoom": 10
     }
+
+# 旅程管理辅助函数
+def generate_journey_id():
+    """生成唯一的旅程ID"""
+    global journey_counter
+    journey_counter += 1
+    return f"journey_{journey_counter}_{int(time.time())}"
+
+def create_journey(start_lat: float, start_lng: float, start_name: str, title: str):
+    """创建新旅程"""
+    journey_id = generate_journey_id()
+    journey_data = {
+        "id": journey_id,
+        "title": title,
+        "start_time": time.time(),
+        "start_location": {
+            "lat": start_lat,
+            "lng": start_lng,
+            "name": start_name
+        },
+        "visited_scenes": [],
+        "status": "active"
+    }
+    active_journeys[journey_id] = journey_data
+    return journey_id
+
+@app.post("/api/journey/start", response_model=JourneyResponse)
+async def start_journey(request: StartJourneyRequest):
+    """开始新旅程"""
+    try:
+        # 验证输入参数
+        if not (-90 <= request.start_lat <= 90):
+            raise HTTPException(status_code=400, detail="纬度必须在-90到90之间")
+        if not (-180 <= request.start_lng <= 180):
+            raise HTTPException(status_code=400, detail="经度必须在-180到180之间")
+        
+        # 创建新旅程
+        journey_id = create_journey(
+            request.start_lat,
+            request.start_lng,
+            request.start_name,
+            request.journey_title
+        )
+        
+        logger.info(f"创建新旅程: {journey_id}, 标题: {request.journey_title}")
+        logger.info(f"起始位置: {request.start_name} ({request.start_lat:.4f}, {request.start_lng:.4f})")
+        
+        return JourneyResponse(
+            success=True,
+            message=f"旅程 '{request.journey_title}' 已开始",
+            journey_id=journey_id
+        )
+        
+    except Exception as e:
+        logger.error(f"创建旅程失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"创建旅程失败: {str(e)}")
 
 @app.get("/api/health")
 async def health_check():

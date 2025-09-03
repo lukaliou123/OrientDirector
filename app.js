@@ -714,10 +714,10 @@ function createPlaceCard(place, index) {
         </div>
         ` : ''}
         <div class="place-media">
-            <img src="${place.image || 'https://via.placeholder.com/400x200?text=暂无图片'}" 
+            <img src="${place.image || generatePlaceholderImage(place.name || '暂无图片')}" 
                  alt="${place.name}" 
                  class="place-image"
-                 onerror="this.src='https://via.placeholder.com/400x200?text=暂无图片'"
+                 onerror="handleImageError(this, '${place.name || '暂无图片'}')"
                  onclick="showImageModal('${place.image}', '${place.name}')">
             ${place.video ? `
                 <div class="video-overlay" onclick="playVideo('${place.video}', '${place.name}')">
@@ -2225,12 +2225,12 @@ function showManualLocationInput() {
             <h3 style="color: #667eea; margin-bottom: 15px; text-align: center;">📍 手动输入位置</h3>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">纬度 (Latitude):</label>
-                <input type="number" id="manualLat" placeholder="例如: 40.0888" step="0.000001" 
+                <input type="number" id="manualLat" value="40.0888" placeholder="例如: 40.0888" step="0.000001" 
                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 16px;">
             </div>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">经度 (Longitude):</label>
-                <input type="number" id="manualLng" placeholder="例如: 116.3964" step="0.000001" 
+                <input type="number" id="manualLng" value="116.3964" placeholder="例如: 116.3964" step="0.000001" 
                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 16px;">
             </div>
             <div style="margin-bottom: 20px; padding: 10px; background: #f7fafc; border-radius: 8px; font-size: 14px; color: #4a5568;">
@@ -2316,7 +2316,10 @@ async function setManualLocation() {
     logger.success('✅ 手动位置设置完成，探索功能已启用');
     
     // 关闭输入界面
-    document.querySelector('.manual-location-input').remove();
+    const inputModal = document.querySelector('.manual-location-input');
+    if (inputModal) {
+        inputModal.remove();
+    }
 }
 
 // 异步更新位置显示
@@ -3369,9 +3372,171 @@ function getEmbedUrl(videoUrl) {
     return videoUrl; // 如果已经是嵌入格式，直接返回
 }
 
+// 处理图片加载错误
+function handleImageError(imgElement, placeName) {
+    if (imgElement && !imgElement.src.startsWith('data:')) {
+        imgElement.src = generatePlaceholderImage(placeName);
+        logger.warning(`图片加载失败，使用占位图片: ${placeName}`);
+    }
+}
+
+// 全局函数：触发文件上传（用于内联onclick）
+window.triggerFileUpload = function(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.click();
+        logger.info(`触发文件上传: ${inputId}`);
+    } else {
+        logger.error(`找不到文件输入元素: ${inputId}`);
+    }
+}
+
+// 强制启用生成按钮
+function forceEnableGenerateButton() {
+    const generateBtn = document.getElementById('attractionGenerateBtn');
+    logger.info(`🔍 查找生成按钮: ${generateBtn ? '找到' : '未找到'}`);
+    
+    if (generateBtn) {
+        // 记录按钮当前状态
+        logger.info(`📊 按钮当前状态: disabled=${generateBtn.disabled}, onclick="${generateBtn.onclick}", className="${generateBtn.className}"`);
+        
+        // 强制移除所有禁用属性和样式
+        generateBtn.disabled = false;
+        generateBtn.removeAttribute('disabled');
+        generateBtn.style.opacity = '1';
+        generateBtn.style.cursor = 'pointer';
+        generateBtn.style.backgroundColor = '#667eea';
+        generateBtn.style.color = 'white';
+        generateBtn.style.pointerEvents = 'auto';
+        generateBtn.style.userSelect = 'auto';
+        generateBtn.style.filter = 'none';
+        
+        // 移除所有可能的禁用类
+        generateBtn.classList.remove('disabled');
+        generateBtn.classList.remove('btn-disabled');
+        generateBtn.classList.remove('generate-btn-disabled');
+        
+        // 添加启用类
+        generateBtn.classList.add('generate-btn-enabled');
+        
+        // 检查文件是否已选择
+        if (window.selectedPhotoFile) {
+            logger.info(`✅ 已选择文件: ${window.selectedPhotoFile.name}`);
+        } else {
+            logger.warning('⚠️ 未选择文件，但仍然启用按钮');
+        }
+        
+        // 验证启用结果
+        setTimeout(() => {
+            const stillDisabled = generateBtn.disabled;
+            const computedStyle = window.getComputedStyle(generateBtn);
+            logger.info(`✅ 启用验证: disabled=${stillDisabled}, cursor=${computedStyle.cursor}, pointer-events=${computedStyle.pointerEvents}`);
+            
+            if (stillDisabled || computedStyle.pointerEvents === 'none' || computedStyle.cursor === 'not-allowed') {
+                logger.error('❌ 按钮仍然无法点击，尝试强制修复');
+                generateBtn.style.cssText = 'cursor: pointer !important; pointer-events: auto !important; opacity: 1 !important; background-color: #667eea !important; color: white !important;';
+            }
+        }, 10);
+        
+        logger.success('🎯 强制启用生成按钮完成');
+        return true;
+    } else {
+        logger.error('❌ 找不到生成按钮，尝试延迟启用');
+        setTimeout(forceEnableGenerateButton, 100);
+        return false;
+    }
+}
+
+// 全局函数：手动启用生成按钮（调试用）
+window.enableGenerateButton = function() {
+    return forceEnableGenerateButton();
+}
+
+// 全局函数：调试按钮状态
+window.debugGenerateButton = function() {
+    const generateBtn = document.getElementById('attractionGenerateBtn');
+    if (generateBtn) {
+        console.log('=== 生成按钮调试信息 ===');
+        console.log('按钮元素:', generateBtn);
+        console.log('disabled属性:', generateBtn.disabled);
+        console.log('onclick属性:', generateBtn.getAttribute('onclick'));
+        console.log('onclick函数:', generateBtn.onclick);
+        console.log('style.cursor:', generateBtn.style.cursor);
+        console.log('style.pointerEvents:', generateBtn.style.pointerEvents);
+        console.log('className:', generateBtn.className);
+        console.log('计算样式:', window.getComputedStyle(generateBtn));
+        console.log('父元素:', generateBtn.parentElement);
+        console.log('selectedPhotoFile:', window.selectedPhotoFile);
+        
+        // 检查是否有覆盖元素
+        const rect = generateBtn.getBoundingClientRect();
+        const centerX = rect.left + rect.width/2;
+        const centerY = rect.top + rect.height/2;
+        const elementAtPoint = document.elementFromPoint(centerX, centerY);
+        console.log('按钮位置:', `(${centerX}, ${centerY})`);
+        console.log('按钮位置的元素:', elementAtPoint);
+        console.log('是否被覆盖:', elementAtPoint !== generateBtn);
+        
+        // 获取所有在该点的元素
+        const elementsAtPoint = document.elementsFromPoint(centerX, centerY);
+        console.log('该位置的所有元素:', elementsAtPoint);
+        
+        return generateBtn;
+    } else {
+        console.error('找不到生成按钮');
+        return null;
+    }
+}
+
+// 生成本地占位图片
+function generatePlaceholderImage(text, width = 400, height = 200, bgColor = '#6C5CE7', textColor = '#FFFFFF') {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    
+    // 绘制背景
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
+    
+    // 绘制文字
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 24px Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // 处理长文本换行
+    const maxWidth = width - 40;
+    const lines = [];
+    const words = text.split('');
+    let currentLine = '';
+    
+    for (let i = 0; i < words.length; i++) {
+        const testLine = currentLine + words[i];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && currentLine !== '') {
+            lines.push(currentLine);
+            currentLine = words[i];
+        } else {
+            currentLine = testLine;
+        }
+    }
+    lines.push(currentLine);
+    
+    // 绘制多行文字
+    const lineHeight = 30;
+    const startY = height / 2 - (lines.length - 1) * lineHeight / 2;
+    
+    lines.forEach((line, index) => {
+        ctx.fillText(line, width / 2, startY + index * lineHeight);
+    });
+    
+    return canvas.toDataURL('image/png');
+}
+
 // 图片模态框功能
 function showImageModal(imageUrl, placeName) {
-    if (!imageUrl || imageUrl.includes('placeholder')) return;
+    if (!imageUrl || imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')) return;
     
     const modal = document.createElement('div');
     modal.className = 'image-modal';
@@ -3418,8 +3583,8 @@ function openSelfieGenerator(placeIndex, attractionName, location) {
             
             <div class="photo-upload-body">
                 <div class="upload-section">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-placeholder">
+                    <div class="upload-area" id="uploadArea" style="cursor: pointer;" onclick="triggerFileUpload('photoInput')">
+                        <div class="upload-placeholder" style="pointer-events: none;">
                             <div class="upload-icon">📷</div>
                             <p>点击或拖拽上传您的照片</p>
                             <p class="upload-hint">支持 JPG, PNG 格式，建议人脸清晰的照片</p>
@@ -3439,7 +3604,7 @@ function openSelfieGenerator(placeIndex, attractionName, location) {
                 </div>
                 
                 <div class="generate-section">
-                    <button class="generate-btn" id="generateBtn" onclick="generateAttractionPhoto('${attractionName}', '${location || ''}', ${placeIndex})" disabled>
+                    <button class="generate-btn" id="attractionGenerateBtn" disabled>
                         🎨 生成合影照片
                     </button>
                     <div class="loading-indicator" id="loadingIndicator" style="display: none;">
@@ -3464,13 +3629,41 @@ function openSelfieGenerator(placeIndex, attractionName, location) {
     
     document.body.appendChild(modal);
     
-    // 设置上传区域事件
-    setupPhotoUpload();
-    
     // 显示模态框
     setTimeout(() => {
         modal.classList.add('show');
-    }, 10);
+        // 延迟设置上传区域事件，确保DOM完全渲染
+        setupPhotoUpload();
+        
+        // 设置生成按钮的点击事件
+        const generateBtn = document.getElementById('attractionGenerateBtn');
+        if (generateBtn) {
+            // 清除任何现有的事件处理器
+            generateBtn.onclick = null;
+            generateBtn.removeAttribute('onclick');
+            
+            // 设置新的点击事件
+            generateBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                logger.info('🔘 生成按钮被点击');
+                logger.info(`📍 调用参数: attractionName=${attractionName}, location=${location || ''}, placeIndex=${placeIndex}`);
+                
+                // 直接调用全局函数
+                if (window.generateAttractionPhoto) {
+                    window.generateAttractionPhoto(attractionName, location || '', placeIndex);
+                } else {
+                    logger.error('❌ generateAttractionPhoto 函数未找到');
+                }
+            };
+            
+            // 确保按钮样式正确
+            generateBtn.style.cursor = 'pointer';
+            logger.info(`✅ 生成按钮 onclick 事件已设置: ${attractionName}`);
+        } else {
+            logger.error('❌ 无法设置生成按钮事件：找不到按钮元素');
+        }
+    }, 50);
 }
 
 function closeSelfieGenerator() {
@@ -3488,12 +3681,21 @@ function setupPhotoUpload() {
     const photoInput = document.getElementById('photoInput');
     const photoPreview = document.getElementById('photoPreview');
     const previewImage = document.getElementById('previewImage');
-    const generateBtn = document.getElementById('generateBtn');
+    const generateBtn = document.getElementById('attractionGenerateBtn');
     
-    // 点击上传区域触发文件选择
-    uploadArea.addEventListener('click', () => {
-        photoInput.click();
-    });
+    logger.info('📋 setupPhotoUpload 被调用');
+    
+    // 检查元素是否存在
+    if (!uploadArea || !photoInput) {
+        logger.error('上传元素未找到');
+        return;
+    }
+    
+    // 移除旧的事件监听器（如果存在）
+    const newUploadArea = uploadArea.cloneNode(true);
+    uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+    
+    // 不需要额外添加点击事件，因为HTML中已经有onclick属性
     
     // 拖拽上传
     uploadArea.addEventListener('dragover', (e) => {
@@ -3517,14 +3719,39 @@ function setupPhotoUpload() {
     });
     
     // 文件选择
-    photoInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handlePhotoSelect(e.target.files[0]);
-        }
-    });
+    // 文件选择事件（使用onchange替代addEventListener避免重复绑定）
+    const newPhotoInput = document.getElementById('photoInput');
+    if (newPhotoInput) {
+        newPhotoInput.onchange = function(e) {
+            if (this.files && this.files.length > 0) {
+                logger.info('📁 文件输入change事件触发');
+                handlePhotoSelect(this.files[0]);
+            }
+        };
+    }
 }
 
-function handlePhotoSelect(file) {
+// 防止重复处理
+let isProcessingPhoto = false;
+
+// 全局函数：处理照片选择
+window.handlePhotoSelect = function(file) {
+    logger.info(`📸 handlePhotoSelect 被调用, file: ${file ? file.name : 'null'}`);
+    
+    // 防止重复处理
+    if (isProcessingPhoto) {
+        logger.warning('⚠️ 正在处理照片，忽略重复调用');
+        return;
+    }
+    
+    // 检查文件是否存在
+    if (!file) {
+        logger.warning('没有选择文件');
+        return;
+    }
+    
+    isProcessingPhoto = true;
+    
     // 验证文件类型
     if (!file.type.startsWith('image/')) {
         alert('请选择有效的图片文件');
@@ -3534,21 +3761,39 @@ function handlePhotoSelect(file) {
     // 验证文件大小（限制为10MB）
     if (file.size > 10 * 1024 * 1024) {
         alert('图片文件过大，请选择小于10MB的图片');
+        isProcessingPhoto = false;
         return;
     }
+    
+    logger.info(`📂 文件验证通过: ${file.name}, 大小: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
     
     // 读取并预览图片
     const reader = new FileReader();
     reader.onload = (e) => {
-        const previewImage = document.getElementById('previewImage');
+        // 尝试获取不同的预览元素（兼容新旧版本）
+        const previewImage = document.getElementById('previewImage') || document.getElementById('uploadPreview');
         const uploadArea = document.getElementById('uploadArea');
         const photoPreview = document.getElementById('photoPreview');
-        const generateBtn = document.getElementById('generateBtn');
+        const generateBtn = document.getElementById('attractionGenerateBtn');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
         
-        previewImage.src = e.target.result;
-        uploadArea.style.display = 'none';
-        photoPreview.style.display = 'block';
-        generateBtn.disabled = false;
+        if (previewImage) {
+            previewImage.src = e.target.result;
+            previewImage.style.display = 'block';
+        }
+        
+        // 隐藏上传占位符，显示预览
+        if (uploadPlaceholder) {
+            uploadPlaceholder.style.display = 'none';
+        }
+        
+        if (photoPreview) {
+            uploadArea.style.display = 'none';
+            photoPreview.style.display = 'block';
+        }
+        
+        // 启用生成按钮
+        forceEnableGenerateButton();
         
         // 存储文件以供后续使用
         window.selectedPhotoFile = file;
@@ -3557,12 +3802,17 @@ function handlePhotoSelect(file) {
     };
     
     reader.readAsDataURL(file);
+    
+    // 处理完成后重置标志
+    setTimeout(() => {
+        isProcessingPhoto = false;
+    }, 100);
 }
 
 function changePhoto() {
     const uploadArea = document.getElementById('uploadArea');
     const photoPreview = document.getElementById('photoPreview');
-    const generateBtn = document.getElementById('generateBtn');
+    const generateBtn = document.getElementById('attractionGenerateBtn');
     const photoInput = document.getElementById('photoInput');
     
     uploadArea.style.display = 'block';
@@ -3572,15 +3822,31 @@ function changePhoto() {
     window.selectedPhotoFile = null;
 }
 
-async function generateAttractionPhoto(attractionName, location, placeIndex) {
+// 处理HTML中的照片上传（兼容旧版本）
+function handlePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        handlePhotoSelect(file);
+    }
+}
+
+// 全局函数：生成景点合影照片
+window.generateAttractionPhoto = async function(attractionName, location, placeIndex) {
+    logger.info(`🎨 generateAttractionPhoto 被调用: ${attractionName}, ${location}, ${placeIndex}`);
+    logger.info(`📷 selectedPhotoFile: ${window.selectedPhotoFile ? window.selectedPhotoFile.name : 'null'}`);
+    
     if (!window.selectedPhotoFile) {
         alert('请先选择照片');
+        logger.error('❌ 没有选择照片文件');
         return;
     }
     
-    const generateBtn = document.getElementById('generateBtn');
+    const generateBtn = document.getElementById('attractionGenerateBtn');
     const loadingIndicator = document.getElementById('loadingIndicator');
-    const customPrompt = document.getElementById('customPrompt').value.trim();
+    const customPrompt = document.getElementById('customPrompt');
+    const customPromptValue = customPrompt ? customPrompt.value.trim() : '';
+    
+    logger.info(`🔧 元素状态: generateBtn=${generateBtn ? '存在' : '不存在'}, loadingIndicator=${loadingIndicator ? '存在' : '不存在'}`);
     
     try {
         // 显示加载状态
@@ -3596,12 +3862,12 @@ async function generateAttractionPhoto(attractionName, location, placeIndex) {
         if (location) {
             formData.append('location', location);
         }
-        if (customPrompt) {
-            formData.append('custom_prompt', customPrompt);
+        if (customPromptValue) {
+            formData.append('custom_prompt', customPromptValue);
         }
         
         // 调用后端API
-        const response = await fetch('/api/generate-attraction-photo', {
+        const response = await fetch('http://localhost:8000/api/generate-attraction-photo', {
             method: 'POST',
             body: formData
         });
@@ -3615,6 +3881,7 @@ async function generateAttractionPhoto(attractionName, location, placeIndex) {
         
         if (result.success) {
             // 显示生成结果
+            logger.info('📊 后端返回数据:', result.data);
             showGeneratedPhoto(result.data);
             logger.success(`✅ ${attractionName}合影照片生成成功！`);
         } else {
@@ -3635,15 +3902,23 @@ function showGeneratedPhoto(data) {
     const resultSection = document.getElementById('resultSection');
     const resultImage = document.getElementById('resultImage');
     
-    // 显示生成的图片
-    resultImage.src = data.base64;
-    resultSection.style.display = 'block';
-    
-    // 存储结果数据以供下载使用
-    window.generatedPhotoData = data;
-    
-    // 滚动到结果区域
-    resultSection.scrollIntoView({ behavior: 'smooth' });
+    // 显示生成的图片 - 支持多种数据格式
+    const imageUrl = data.image_url || data.base64;
+    if (imageUrl) {
+        resultImage.src = imageUrl;
+        resultSection.style.display = 'block';
+        
+        // 存储结果数据以供下载使用
+        window.generatedPhotoData = data;
+        
+        // 滚动到结果区域
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+        
+        logger.success('🖼️ 图片显示成功');
+    } else {
+        logger.error('❌ 图片数据格式错误:', data);
+        alert('图片显示失败：数据格式错误');
+    }
 }
 
 function downloadGeneratedPhoto() {
@@ -3653,10 +3928,16 @@ function downloadGeneratedPhoto() {
     }
     
     const data = window.generatedPhotoData;
+    const imageUrl = data.image_url || data.base64;
+    
+    if (!imageUrl) {
+        alert('图片数据不可用');
+        return;
+    }
     
     // 创建下载链接
     const link = document.createElement('a');
-    link.href = data.base64;
+    link.href = imageUrl;
     link.download = data.filename || `${data.attraction}_合影_${new Date().getTime()}.png`;
     
     // 触发下载
