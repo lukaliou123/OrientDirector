@@ -179,6 +179,38 @@ class GeminiImageService:
         
         return prompt
     
+    def _validate_image(self, image: Image.Image) -> bool:
+        """
+        验证图片是否符合要求
+        
+        Args:
+            image: PIL图片对象
+            
+        Returns:
+            是否通过验证
+        """
+        try:
+            # 检查图片尺寸
+            width, height = image.size
+            if width < 50 or height < 50:
+                logger.error(f"图片尺寸过小: {width}x{height}")
+                return False
+            
+            if width > 4096 or height > 4096:
+                logger.error(f"图片尺寸过大: {width}x{height}")
+                return False
+            
+            # 检查图片模式
+            if image.mode not in ['RGB', 'RGBA']:
+                logger.warning(f"图片模式不是RGB/RGBA: {image.mode}，尝试转换")
+                image = image.convert('RGB')
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"图片验证失败: {e}")
+            return False
+    
     def _preprocess_image(self, image: Image.Image, max_size: int = 1024) -> Image.Image:
         """
         预处理图片，确保符合API要求
@@ -227,13 +259,23 @@ class GeminiImageService:
             return response
             
         except google_exceptions.InternalServerError as e:
-            logger.error(f"❌ Gemini API内部服务器错误 (第{attempt}次尝试): {e}")
+            error_msg = str(e)
+            logger.error(f"❌ Gemini API内部服务器错误 (第{attempt}次尝试): {error_msg}")
+            
+            # 检查是否是内容安全问题
+            if "safety" in error_msg.lower() or "policy" in error_msg.lower():
+                logger.error("🚫 内容可能违反了Gemini的安全政策")
+                raise Exception("图片内容可能包含不适当的内容，请尝试其他图片")
+            
             if attempt < self.max_retries:
                 delay = self.retry_delay * (self.backoff_factor ** (attempt - 1))
                 logger.info(f"⏳ 等待{delay}秒后重试...")
                 await asyncio.sleep(delay)
                 return await self._call_gemini_with_retry(contents, attempt + 1)
             else:
+                # 在最后一次失败时，提供更友好的错误信息
+                if "500 Internal error encountered" in error_msg:
+                    raise Exception("Gemini服务暂时不可用，请稍后重试。这通常是临时性问题。")
                 raise e
                 
         except google_exceptions.ResourceExhausted as e:
@@ -260,13 +302,29 @@ class GeminiImageService:
                 logger.error("❌ Gemini API在当前地理位置不可用")
                 raise ValueError("Gemini API在当前地理位置不可用，请使用VPN或联系管理员")
             
+            # 检查是否是内容安全问题
+            if "SAFETY" in error_message or "BLOCKED" in error_message or "safety" in error_message.lower():
+                logger.error("🚫 内容被安全过滤器拦截")
+                raise Exception("图片内容可能不符合安全要求，请尝试其他图片")
+            
+            # 检查是否是图片格式问题
+            if "image" in error_message.lower() and ("format" in error_message.lower() or "invalid" in error_message.lower()):
+                logger.error("🖼️ 图片格式问题")
+                raise Exception("图片格式不支持，请使用JPG、PNG或WEBP格式")
+            
             if attempt < self.max_retries:
                 delay = self.retry_delay * (self.backoff_factor ** (attempt - 1))
                 logger.info(f"⏳ 等待{delay}秒后重试...")
                 await asyncio.sleep(delay)
                 return await self._call_gemini_with_retry(contents, attempt + 1)
             else:
-                raise e
+                # 提供更友好的最终错误信息
+                if "500" in error_message:
+                    raise Exception("AI服务暂时不可用，请稍后重试")
+                elif "timeout" in error_message.lower():
+                    raise Exception("请求超时，请检查网络连接后重试")
+                else:
+                    raise Exception(f"生成失败，请稍后重试")
     
     async def generate_attraction_photo(
         self, 
@@ -579,6 +637,10 @@ class GeminiImageService:
                 if user_image.mode != 'RGB':
                     user_image = user_image.convert('RGB')
                 logger.info(f"✅ 用户照片加载成功: {user_image.size}, 模式: {user_image.mode}")
+                
+                # 验证用户照片
+                if not self._validate_image(user_image):
+                    return False, "用户照片不符合要求，请使用清晰的JPG或PNG格式图片", None
             except Exception as e:
                 logger.error(f"❌ 用户照片加载失败: {e}")
                 return False, f"用户照片加载失败: {str(e)}", None
@@ -586,9 +648,9 @@ class GeminiImageService:
             # 读取Doro图片
             try:
                 doro_photo.file.seek(0)  # 确保文件指针在开始位置
-                doro_image = Image.open(doro_photo.file)
-                if doro_image.mode != 'RGB':
-                    doro_image = doro_image.convert('RGB')
+            doro_image = Image.open(doro_photo.file)
+            if doro_image.mode != 'RGB':
+                doro_image = doro_image.convert('RGB')
                 logger.info(f"✅ Doro图片加载成功: {doro_image.size}, 模式: {doro_image.mode}")
             except Exception as e:
                 logger.error(f"❌ Doro图片加载失败: {e}")
@@ -599,9 +661,9 @@ class GeminiImageService:
             if style_photo:
                 try:
                     style_photo.file.seek(0)  # 确保文件指针在开始位置
-                    style_image = Image.open(style_photo.file)
-                    if style_image.mode != 'RGB':
-                        style_image = style_image.convert('RGB')
+                style_image = Image.open(style_photo.file)
+                if style_image.mode != 'RGB':
+                    style_image = style_image.convert('RGB')
                     logger.info(f"✅ 风格图片加载成功: {style_image.size}, 模式: {style_image.mode}")
                 except Exception as e:
                     logger.warning(f"⚠️ 风格图片加载失败，将跳过: {e}")
@@ -658,7 +720,7 @@ class GeminiImageService:
                     # 检查是否有mime_type且是图片
                     if hasattr(part.inline_data, 'mime_type') and part.inline_data.mime_type and part.inline_data.mime_type.startswith('image/'):
                         try:
-                            image_data = part.inline_data.data
+                    image_data = part.inline_data.data
                             
                             # 检查数据类型并相应处理
                             if isinstance(image_data, str):
@@ -708,7 +770,7 @@ class GeminiImageService:
                                         image_buffer.seek(0)
                                         generated_image = Image.open(image_buffer)
                                         logger.info(f"✅ 使用to_dict()成功提取图片: {generated_image.size}")
-                                        break
+                    break
                                     except Exception as e:
                                         logger.error(f"❌ to_dict()方法提取失败: {e}")
                                         continue
@@ -720,13 +782,13 @@ class GeminiImageService:
                 try:
                     response_text = response.text if hasattr(response, 'text') else None
                     if response_text and 'data:image' in response_text:
-                        # 提取base64图片数据
-                        start = response_text.find('data:image')
-                        end = response_text.find('"', start)
-                        if start != -1 and end != -1:
-                            image_data_url = response_text[start:end]
-                            # 解析data URL
-                            header, data = image_data_url.split(',', 1)
+                    # 提取base64图片数据
+                    start = response_text.find('data:image')
+                    end = response_text.find('"', start)
+                    if start != -1 and end != -1:
+                        image_data_url = response_text[start:end]
+                        # 解析data URL
+                        header, data = image_data_url.split(',', 1)
                             # 创建BytesIO对象并重置指针
                             image_buffer = BytesIO(base64.b64decode(data))
                             image_buffer.seek(0)  # 重置指针到开始位置
@@ -743,14 +805,14 @@ class GeminiImageService:
                 filepath = os.path.join(self.output_dir, filename)
                 
                 try:
-                    generated_image.save(filepath, 'PNG')
-                    logger.info(f"Doro合影已保存: {filename}")
-                    
+                generated_image.save(filepath, 'PNG')
+                logger.info(f"Doro合影已保存: {filename}")
+                
                     # 转换为base64 - 修复BytesIO指针问题
-                    buffered = BytesIO()
-                    generated_image.save(buffered, format="PNG")
+                buffered = BytesIO()
+                generated_image.save(buffered, format="PNG")
                     buffered.seek(0)  # 重置指针到开始位置
-                    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                img_base64 = base64.b64encode(buffered.getvalue()).decode()
                     buffered.close()  # 关闭BytesIO对象
                 except Exception as save_error:
                     logger.error(f"保存图片时出错: {save_error}")
