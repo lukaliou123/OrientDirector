@@ -58,14 +58,23 @@ pkill -f "python.*start_backend.py" || true
 # 等待端口释放
 sleep 3
 
-# 创建带时间戳的日志文件名
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKEND_LOG="logs/backend_${TIMESTAMP}.log"
-FRONTEND_LOG="logs/frontend_${TIMESTAMP}.log"
+# 使用通用日志文件名
+BACKEND_LOG="logs/backend.log"
+FRONTEND_LOG="logs/frontend.log"
 
-# 创建符号链接指向最新日志
-ln -sf "${BACKEND_LOG}" logs/backend.log
-ln -sf "${FRONTEND_LOG}" logs/frontend.log
+# 清空现有日志文件并添加启动时间戳
+CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+echo "========================================" > "${BACKEND_LOG}"
+echo "OrientDirector 后端服务启动" >> "${BACKEND_LOG}"
+echo "启动时间: ${CURRENT_TIME}" >> "${BACKEND_LOG}"
+echo "========================================" >> "${BACKEND_LOG}"
+echo "" >> "${BACKEND_LOG}"
+
+echo "========================================" > "${FRONTEND_LOG}"
+echo "OrientDirector 前端服务启动" >> "${FRONTEND_LOG}"
+echo "启动时间: ${CURRENT_TIME}" >> "${FRONTEND_LOG}"
+echo "========================================" >> "${FRONTEND_LOG}"
+echo "" >> "${FRONTEND_LOG}"
 
 echo "📝 日志文件: ${BACKEND_LOG}, ${FRONTEND_LOG}"
 
@@ -73,7 +82,7 @@ echo "📝 日志文件: ${BACKEND_LOG}, ${FRONTEND_LOG}"
 echo "🔧 启动后端服务 (端口 8001)..."
 cd backend
 # 确保在conda环境中启动
-nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate orient && python -m uvicorn main:app --host 0.0.0.0 --port 8001" >> "../${BACKEND_LOG}" 2>&1 &
+nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate orient && python -m uvicorn main:app --host 0.0.0.0 --port 8001" >> "../logs/backend.log" 2>&1 &
 BACKEND_PID=$!
 echo $BACKEND_PID > ../logs/backend.pid
 echo "后端服务PID: $BACKEND_PID"
@@ -85,7 +94,7 @@ sleep 5
 # 启动前端服务（后台运行）
 echo "🌐 启动前端服务 (端口 3001)..."
 # 确保在conda环境中启动
-nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate orient && python start_frontend.py" >> "${FRONTEND_LOG}" 2>&1 &
+nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate orient && python start_frontend.py" >> "logs/frontend.log" 2>&1 &
 FRONTEND_PID=$!
 echo $FRONTEND_PID > logs/frontend.pid
 echo "前端服务PID: $FRONTEND_PID"
