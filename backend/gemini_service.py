@@ -729,7 +729,7 @@ class GeminiImageService:
                     # 检查是否有mime_type且是图片
                     if hasattr(part.inline_data, 'mime_type') and part.inline_data.mime_type and part.inline_data.mime_type.startswith('image/'):
                         try:
-                    image_data = part.inline_data.data
+                            image_data = part.inline_data.data
                             
                             # 检查数据类型并相应处理
                             if isinstance(image_data, str):
