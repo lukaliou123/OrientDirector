@@ -779,7 +779,7 @@ class GeminiImageService:
                                         image_buffer.seek(0)
                                         generated_image = Image.open(image_buffer)
                                         logger.info(f"✅ 使用to_dict()成功提取图片: {generated_image.size}")
-                    break
+                                        break
                                     except Exception as e:
                                         logger.error(f"❌ to_dict()方法提取失败: {e}")
                                         continue
