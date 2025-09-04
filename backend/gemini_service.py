@@ -877,57 +877,87 @@ class GeminiImageService:
         try:
             logger.info(f"开始生成Doro合影视频: 景点={attraction_info.get('name', 'Unknown')}")
             
-            # 第一步：生成静态合影图片
-            logger.info("🎨 第一步：生成静态合影图片...")
-            success, message, image_result = await self.generate_doro_selfie_with_attraction(
+            # 使用新的google.genai客户端
+            client = genai_client.Client()
+            
+            # 第一步：使用Imagen 3生成静态合影图片
+            logger.info("🎨 第一步：使用Imagen 3生成静态合影图片...")
+            
+            # 生成图片提示词
+            image_prompt = self._generate_image_prompt_for_video(
                 user_photo=user_photo,
                 doro_photo=doro_photo,
-                style_photo=style_photo,
-                attraction_info=attraction_info
+                attraction_info=attraction_info,
+                style_photo=style_photo
             )
+            logger.info(f"📝 图片提示词: {image_prompt[:200]}...")
             
-            if not success:
-                return False, f"静态图片生成失败: {message}", None
-            
-            # 从base64数据创建PIL图片对象
-            image_base64 = image_result['image_url'].split(',')[1]  # 移除data:image/png;base64,前缀
-            image_data = base64.b64decode(image_base64)
-            static_image = Image.open(BytesIO(image_data))
-            
-            logger.info(f"✅ 静态图片生成成功: {static_image.size}")
+            try:
+                # 使用Imagen 3生成图片
+                imagen_response = client.models.generate_images(
+                    model="imagen-3.0-generate-002",
+                    prompt=image_prompt,
+                )
+                
+                if not imagen_response.generated_images:
+                    return False, "Imagen未能生成图片", None
+                    
+                # 获取生成的图片
+                generated_image = imagen_response.generated_images[0].image
+                logger.info(f"✅ 静态图片生成成功")
+                
+            except Exception as e:
+                logger.error(f"❌ Imagen生成失败: {e}")
+                # 如果Imagen失败，尝试使用原有方法作为后备
+                logger.info("📸 尝试使用备用方法生成图片...")
+                success, message, image_result = await self.generate_doro_selfie_with_attraction(
+                    user_photo=user_photo,
+                    doro_photo=doro_photo,
+                    style_photo=style_photo,
+                    attraction_info=attraction_info
+                )
+                
+                if not success:
+                    return False, f"图片生成失败: {message}", None
+                
+                # 从base64数据创建图片对象
+                image_base64 = image_result['image_url'].split(',')[1]
+                image_data = base64.b64decode(image_base64)
+                static_image = Image.open(BytesIO(image_data))
+                
+                # 将PIL图片转换为API格式
+                buffered = BytesIO()
+                static_image.save(buffered, format="PNG")
+                buffered.seek(0)
+                image_bytes = buffered.getvalue()
+                buffered.close()
+                
+                # 创建一个模拟的图片对象
+                class ImageWrapper:
+                    def __init__(self, data):
+                        self.data = data
+                        
+                generated_image = ImageWrapper(image_bytes)
             
             # 第二步：使用Veo 3生成视频
             logger.info("🎬 第二步：使用Veo 3生成动态视频...")
             
-            # 创建Gemini客户端
-            client = genai_client.Client()
-            
             # 生成视频提示词
-            video_prompt = self._generate_video_prompt(attraction_info, static_image.size)
+            video_prompt = self._generate_video_prompt(attraction_info, (1024, 1024))
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
-            # 将PIL图片转换为Veo 3 API要求的格式
-            buffered = BytesIO()
-            static_image.save(buffered, format="PNG")
-            buffered.seek(0)
-            image_bytes = buffered.getvalue()
-            image_base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
-            buffered.close()
-            
-            # 构建符合Veo 3 API要求的图片数据结构
-            # API需要一个包含bytesBase64Encoded和mimeType的字典
-            image_dict = {
-                "bytesBase64Encoded": image_base64_encoded,
-                "mimeType": "image/png"
-            }
-            
-            # 调用Veo 3生成视频
-            # 直接传递字典格式的image参数
+            # 调用Veo 3生成视频，使用Imagen生成的图片
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image_dict,
+                image=generated_image,  # 直接使用Imagen生成的图片对象
             )
+            
+            logger.info(f"🎬 视频生成作业已启动: {operation.name}")
+            
+            # 使用 GenerateVideosOperation 来跟踪操作
+            from google.genai import types
+            video_operation = types.GenerateVideosOperation(name=operation.name)
             
             logger.info("🕐 等待视频生成完成...")
             
@@ -936,18 +966,33 @@ class GeminiImageService:
             check_interval = 10  # 每10秒检查一次
             waited_time = 0
             
-            while not operation.done and waited_time < max_wait_time:
+            while not video_operation.done and waited_time < max_wait_time:
                 logger.info(f"⏳ 视频生成中... 已等待 {waited_time}秒")
                 await asyncio.sleep(check_interval)
-                operation = client.operations.get(operation)
+                # 刷新操作对象以获取最新状态
+                video_operation = client.operations.get(video_operation)
                 waited_time += check_interval
+                
+                # 检查是否有错误
+                if hasattr(video_operation, 'error') and video_operation.error:
+                    logger.error(f"❌ 视频生成失败: {video_operation.error}")
+                    return False, f"视频生成失败: {video_operation.error}", None
             
-            if not operation.done:
+            if not video_operation.done:
                 logger.error("❌ 视频生成超时")
                 return False, "视频生成超时，请稍后重试", None
             
-            # 下载生成的视频
-            generated_video = operation.response.generated_videos[0]
+            # 确保响应存在
+            if not hasattr(video_operation, 'response') or not video_operation.response:
+                logger.error("❌ 视频生成完成但没有响应")
+                return False, "视频生成失败：没有生成结果", None
+            
+            # 获取生成的视频
+            if not video_operation.response.generated_videos:
+                logger.error("❌ 没有生成视频")
+                return False, "视频生成失败：没有视频输出", None
+                
+            generated_video = video_operation.response.generated_videos[0]
             
             # 保存视频文件
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -956,8 +1001,17 @@ class GeminiImageService:
             video_filepath = os.path.join(self.output_dir, video_filename)
             
             # 下载并保存视频
-            client.files.download(file=generated_video.video)
-            generated_video.video.save(video_filepath)
+            try:
+                client.files.download(file=generated_video.video)
+                generated_video.video.save(video_filepath)
+            except Exception as e:
+                logger.error(f"❌ 视频下载失败: {e}")
+                # 尝试直接保存视频数据
+                if hasattr(generated_video, 'video_data'):
+                    with open(video_filepath, 'wb') as f:
+                        f.write(generated_video.video_data)
+                else:
+                    return False, f"视频下载失败: {e}", None
             
             logger.info(f"✅ Doro合影视频生成成功: {video_filename}")
             
@@ -980,6 +1034,66 @@ class GeminiImageService:
         except Exception as e:
             logger.error(f"生成Doro合影视频时出错: {str(e)}")
             return False, f"视频生成失败: {str(e)}", None
+    
+    async def _generate_image_prompt_for_video(
+        self, 
+        user_photo: UploadFile,
+        doro_photo: UploadFile,
+        attraction_info: Dict,
+        style_photo: Optional[UploadFile] = None
+    ) -> str:
+        """
+        为视频生成创建图片提示词
+        
+        Args:
+            user_photo: 用户照片
+            doro_photo: Doro形象
+            attraction_info: 景点信息
+            style_photo: 风格参考（可选）
+            
+        Returns:
+            图片生成提示词
+        """
+        # 基础提示词
+        prompt = f"Create a high-quality travel photo showing a real person and their charming animated character companion Doro at the famous {attraction_info.get('name', 'landmark')} in {attraction_info.get('address', 'location')}"
+        
+        # 添加景点描述
+        if attraction_info.get('description'):
+            prompt += f", {attraction_info['description']}"
+        
+        # 添加姿势和互动
+        poses = [
+            "taking a selfie together",
+            "posing happily",
+            "giving thumbs up",
+            "making peace signs",
+            "smiling at the camera"
+        ]
+        import random
+        pose = random.choice(poses)
+        prompt += f". They are {pose}"
+        
+        # 添加服装描述
+        if style_photo:
+            prompt += ", wearing stylish travel outfits"
+        else:
+            prompt += ", wearing casual travel attire"
+        
+        # 添加环境和光线描述
+        time_descriptions = {
+            "morning": "with soft morning light",
+            "afternoon": "under bright afternoon sun",
+            "evening": "during golden hour with warm sunset light",
+            "night": "with beautiful night lights"
+        }
+        
+        time_of_day = attraction_info.get('time_of_day', 'afternoon')
+        prompt += f", {time_descriptions.get(time_of_day, 'with natural lighting')}"
+        
+        # 添加质量要求
+        prompt += ". Professional photography, high resolution, vibrant colors, perfect composition, travel photography style"
+        
+        return prompt
     
     def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple) -> str:
         """
