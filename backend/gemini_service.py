@@ -648,10 +648,14 @@ class GeminiImageService:
             # 读取Doro图片
             try:
                 doro_photo.file.seek(0)  # 确保文件指针在开始位置
-            doro_image = Image.open(doro_photo.file)
-            if doro_image.mode != 'RGB':
-                doro_image = doro_image.convert('RGB')
+                doro_image = Image.open(doro_photo.file)
+                if doro_image.mode != 'RGB':
+                    doro_image = doro_image.convert('RGB')
                 logger.info(f"✅ Doro图片加载成功: {doro_image.size}, 模式: {doro_image.mode}")
+                
+                # 验证Doro图片
+                if not self._validate_image(doro_image):
+                    return False, "Doro图片不符合要求，请联系管理员", None
             except Exception as e:
                 logger.error(f"❌ Doro图片加载失败: {e}")
                 return False, f"Doro图片加载失败: {str(e)}", None
