@@ -12,3 +12,9 @@ googlemaps>=4.10.0
 langchain>=0.1.0
 langchain-openai>=0.1.0
 langchain-core>=0.1.0
+# Google Generative AI
+google-generativeai>=0.3.0
+
+# 其他可能需要的依赖
+pillow>=9.0.0
+numpy>=1.21.0

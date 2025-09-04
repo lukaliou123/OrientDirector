@@ -94,6 +94,10 @@ places_data = {}
 active_journeys = {}  # 存储活跃的旅程
 journey_counter = 0   # 旅程ID计数器
 
+# 地理编码缓存
+geocode_cache = {}  # 缓存地理编码结果
+cache_max_size = 1000  # 最大缓存条目数
+
 def load_places_data():
     """加载地点数据"""
     global places_data
@@ -860,6 +864,16 @@ class PlaceDetailsRequest(BaseModel):
 async def geocode_location(request: GeocodeRequest):
     """地理编码服务 - 优先使用高德地图，备用Google Maps"""
     try:
+        # 检查缓存
+        cache_key = request.query.lower().strip()
+        if cache_key in geocode_cache:
+            logger.info(f"从缓存返回地理编码结果: {cache_key}")
+            return GeocodeResponse(
+                success=True,
+                data=geocode_cache[cache_key],
+                message=f"缓存命中: {cache_key}"
+            )
+        
         # 导入必要的库
         import googlemaps
         import requests
@@ -891,6 +905,14 @@ async def geocode_location(request: GeocodeRequest):
                     "types": ["locality", "political"]
                 }
                 logger.info(f"使用本地快速匹配: {info['address']}")
+                
+                # 添加到缓存
+                geocode_cache[cache_key] = result
+                if len(geocode_cache) > cache_max_size:
+                    # 删除最旧的缓存条目
+                    oldest_key = next(iter(geocode_cache))
+                    del geocode_cache[oldest_key]
+                
                 return GeocodeResponse(
                     success=True,
                     data=result,
@@ -909,7 +931,7 @@ async def geocode_location(request: GeocodeRequest):
                     'output': 'json'
                 }
                 
-                response = requests.get(url, params=params, timeout=3)  # 减少超时时间
+                response = requests.get(url, params=params, timeout=10)  # 增加超时时间到10秒
                 if response.status_code == 200:
                     data = response.json()
                     logger.info(f"高德地图API响应: {data}")
@@ -953,6 +975,14 @@ async def geocode_location(request: GeocodeRequest):
                         }
                         
                         logger.info(f"高德地图成功找到位置: {result['formatted_address']}")
+                        
+                        # 添加到缓存
+                        geocode_cache[cache_key] = result
+                        if len(geocode_cache) > cache_max_size:
+                            # 删除最旧的缓存条目
+                            oldest_key = next(iter(geocode_cache))
+                            del geocode_cache[oldest_key]
+                        
                         return GeocodeResponse(
                             success=True,
                             data=result,
@@ -1553,4 +1583,4 @@ async def download_generated_image(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

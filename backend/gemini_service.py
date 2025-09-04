@@ -18,7 +18,9 @@ from prompt_generator import doro_prompt_generator
 logger = logging.getLogger(__name__)
 
 # 配置 Google Gemini API
-GEMINI_API_KEY = "AIzaSyC3fc8-5r4SWOISs0IIduiE4TOvE8-aFC0"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable is required")
 genai.configure(api_key=GEMINI_API_KEY)
 
 class GeminiImageService:
@@ -244,7 +246,14 @@ class GeminiImageService:
             raise e
             
         except Exception as e:
+            error_message = str(e)
             logger.error(f"❌ Gemini API未知错误 (第{attempt}次尝试): {type(e).__name__}: {e}")
+            
+            # 检查是否是地理位置限制错误
+            if "User location is not supported" in error_message or "not supported for the API use" in error_message:
+                logger.error("❌ Gemini API在当前地理位置不可用")
+                raise ValueError("Gemini API在当前地理位置不可用，请使用VPN或联系管理员")
+            
             if attempt < self.max_retries:
                 delay = self.retry_delay * (self.backoff_factor ** (attempt - 1))
                 logger.info(f"⏳ 等待{delay}秒后重试...")

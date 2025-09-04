@@ -28,15 +28,15 @@ def install_dependencies():
 def start_server():
     """启动服务器"""
     print("正在启动后端服务...")
-    print("服务地址: http://localhost:8000")
-    print("API文档: http://localhost:8000/docs")
+    print("服务地址: http://localhost:8001")
+    print("API文档: http://localhost:8001/docs")
     print("按 Ctrl+C 停止服务")
     print("-" * 50)
     
     try:
         # 切换到backend目录
         os.chdir("backend")
-        subprocess.run([sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"])
+        subprocess.run([sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"])
     except KeyboardInterrupt:
         print("\n服务已停止")
     except Exception as e:

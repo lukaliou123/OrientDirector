@@ -111,8 +111,8 @@ class DoroService:
                     "tags": metadata.get("tags", []),
                     "type": "preset",
                     "filename": image_path.name,
-                    "url": f"/api/doro/image/{doro_id}",
-                    "thumbnail": f"/api/doro/thumbnail/{doro_id}"
+                    "url": f"http://localhost:8000/api/doro/image/{doro_id}",
+                    "thumbnail": f"http://localhost:8000/api/doro/thumbnail/{doro_id}"
                 })
         
         # 获取自定义Doro
@@ -129,8 +129,8 @@ class DoroService:
                     "upload_time": metadata.get("upload_time", ""),
                     "type": "custom",
                     "filename": image_path.name,
-                    "url": f"/api/doro/image/custom_{doro_id}",
-                    "thumbnail": f"/api/doro/thumbnail/custom_{doro_id}"
+                    "url": f"http://localhost:8000/api/doro/image/custom_{doro_id}",
+                    "thumbnail": f"http://localhost:8000/api/doro/thumbnail/custom_{doro_id}"
                 })
         
         logger.info(f"获取Doro列表: 预设={len(result['preset'])}个, 自定义={len(result['custom'])}个")
@@ -221,8 +221,8 @@ class DoroService:
                 "description": metadata["description"],
                 "type": "custom",
                 "filename": filename,
-                "url": f"/api/doro/image/custom_{doro_id}",
-                "thumbnail": f"/api/doro/thumbnail/custom_{doro_id}",
+                "url": f"http://localhost:8000/api/doro/image/custom_{doro_id}",
+                "thumbnail": f"http://localhost:8000/api/doro/thumbnail/custom_{doro_id}",
                 "upload_time": metadata["upload_time"]
             }
             

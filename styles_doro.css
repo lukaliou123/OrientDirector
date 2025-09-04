@@ -28,25 +28,22 @@
 .doro-selfie-modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
     overflow-y: auto;
-    animation: fadeIn 0.3s ease;
+    animation: modalSlideIn 0.3s ease-out;
 }
 
 .doro-modal-content {
-    background: white;
-    border-radius: 20px;
-    max-width: 900px;
-    margin: 50px auto;
     padding: 0;
-    position: relative;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.4s ease;
 }
 
 @keyframes slideUp {
@@ -87,11 +84,11 @@
 
 /* Doro头部 */
 .doro-header {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 25px 30px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 30px;
     border-radius: 20px 20px 0 0;
-    text-align: center;
+    position: relative;
 }
 
 .doro-header h3 {
@@ -226,12 +223,17 @@
 .doro-upload-area {
     border: 2px dashed #667eea;
     border-radius: 12px;
-    padding: 40px;
+    padding: 60px 40px;
     text-align: center;
     background: #f8f9fa;
     cursor: pointer;
     transition: all 0.3s;
     position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .doro-upload-area:hover {
@@ -272,6 +274,16 @@
     margin-top: 20px;
 }
 
+.doro-selector-container {
+    margin-top: 15px;
+}
+
+.doro-selector-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
 .doro-tabs {
     display: flex;
     gap: 10px;
@@ -302,10 +314,11 @@
     gap: 15px;
     max-height: 300px;
     overflow-y: auto;
-    padding: 10px;
+    padding: 15px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     background: #fafafa;
+    min-height: 120px;
 }
 
 .doro-item {
@@ -346,16 +359,19 @@
 
 .doro-item img {
     width: 100%;
-    height: 100px;
-    object-fit: cover;
+    height: 80px;
+    object-fit: contain;
     border-radius: 6px;
+    background: white;
+    padding: 4px;
 }
 
 .doro-item-name {
     text-align: center;
     font-size: 12px;
-    color: #666;
-    margin-top: 5px;
+    color: #333;
+    margin-top: 4px;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -458,9 +474,10 @@
 .doro-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 30px;
-    padding-top: 20px;
+    margin-top: 40px;
+    padding: 30px 0;
     border-top: 1px solid #e0e0e0;
+    gap: 15px;
 }
 
 .doro-nav-buttons {
@@ -469,15 +486,16 @@
 }
 
 .doro-btn-secondary {
-    padding: 12px 24px;
+    padding: 16px 32px;
     border: 2px solid #667eea;
     background: white;
     color: #667eea;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 500;
     transition: all 0.3s;
+    min-width: 120px;
 }
 
 .doro-btn-secondary:hover {
@@ -486,15 +504,16 @@
 }
 
 .doro-btn-primary {
-    padding: 12px 32px;
+    padding: 16px 40px;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 500;
     transition: all 0.3s;
+    min-width: 150px;
 }
 
 .doro-btn-primary:hover {
@@ -506,6 +525,108 @@
     background: #ccc;
     cursor: not-allowed;
     transform: none;
+}
+
+.doro-cancel-btn {
+    padding: 16px 32px;
+    border: 2px solid #dc3545;
+    background: white;
+    color: #dc3545;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.doro-cancel-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.doro-back-btn {
+    padding: 16px 32px;
+    border: 2px solid #6c757d;
+    background: white;
+    color: #6c757d;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.doro-back-btn:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.doro-next-btn {
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.doro-next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.doro-generate-btn {
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s;
+    min-width: 150px;
+}
+
+.doro-generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.doro-generate-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 自定义提示词输入框 */
+#doroCustomPrompt {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.3s;
+}
+
+#doroCustomPrompt:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#doroCustomPrompt::placeholder {
+    color: #999;
+    font-style: italic;
 }
 
 /* 加载状态 */

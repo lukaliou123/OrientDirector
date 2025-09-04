@@ -18,35 +18,5 @@
       "勇敢",
       "探索"
     ]
-  },
-  "doro3": {
-    "name": "优雅Doro",
-    "description": "优雅知性的Doro",
-    "style": "elegant",
-    "tags": [
-      "优雅",
-      "知性",
-      "文艺"
-    ]
-  },
-  "doro4": {
-    "name": "运动Doro",
-    "description": "活力四射的运动Doro",
-    "style": "sporty",
-    "tags": [
-      "运动",
-      "活力",
-      "健康"
-    ]
-  },
-  "doro5": {
-    "name": "科技Doro",
-    "description": "未来感十足的科技Doro",
-    "style": "tech",
-    "tags": [
-      "科技",
-      "未来",
-      "智能"
-    ]
   }
 }

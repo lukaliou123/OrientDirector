@@ -2,6 +2,9 @@
 let currentPosition = null;
 let currentHeading = 0;
 
+// API配置
+const API_BASE_URL = 'http://localhost:8001';
+
 // Google街景相关变量
 let streetViewPanorama = null;
 let streetViewService = null;
@@ -578,7 +581,7 @@ async function startExploration() {
         const startTime = Date.now();
         
                 // 使用真实数据API端点
-        const apiEndpoint = 'http://localhost:8000/api/explore-real';
+        const apiEndpoint = 'http://localhost:8001/api/explore-real';
         logger.info('使用真实数据源');
         
         // 调用后端API计算路径
@@ -1496,7 +1499,7 @@ async function startJourney(lat, lng, locationName, journeyTitle = null) {
     try {
         logger.info('🎒 开始创建新旅程...');
         
-        const response = await fetch('http://localhost:8000/api/journey/start', {
+        const response = await fetch('http://localhost:8001/api/journey/start', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1552,7 +1555,7 @@ async function recordSceneVisit(journeyId, scene, rating = null, notes = null) {
     try {
         logger.info(`📍 记录场景访问: ${scene.name}`);
         
-        const response = await fetch('http://localhost:8000/api/journey/visit', {
+        const response = await fetch('http://localhost:8001/api/journey/visit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1605,7 +1608,7 @@ async function endCurrentJourney(journeyId) {
     try {
         logger.info('🏠 结束当前旅程...');
         
-        const response = await fetch(`http://localhost:8000/api/journey/${journeyId}/end`, {
+        const response = await fetch(`http://localhost:8001/api/journey/${journeyId}/end`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1645,7 +1648,7 @@ async function endCurrentJourney(journeyId) {
  */
 async function getCurrentJourneyInfo(journeyId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/journey/${journeyId}`);
+        const response = await fetch(`http://localhost:8001/api/journey/${journeyId}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2357,7 +2360,7 @@ async function generateAndShowSceneReview(scene) {
         };
         
         // 调用后端API生成锐评
-        const response = await fetch('http://localhost:8000/api/scene-review', {
+        const response = await fetch('http://localhost:8001/api/scene-review', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2493,7 +2496,7 @@ function displaySceneReview(reviewData, scene) {
 // 生成AI旅程总结
 async function generateAIJourneySummary(stats) {
     try {
-        const response = await fetch('http://localhost:8000/api/journey-summary', {
+        const response = await fetch('http://localhost:8001/api/journey-summary', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3073,7 +3076,7 @@ async function confirmRoaming() {
 // 地理编码API调用
 async function geocodeLocation(query) {
     try {
-        const response = await fetch('http://localhost:8000/api/geocode', {
+        const response = await fetch('http://localhost:8001/api/geocode', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -3103,7 +3106,7 @@ async function geocodeLocation(query) {
 // 获取地点详细信息
 async function getPlaceDetails(locationData) {
     try {
-        const response = await fetch('http://localhost:8000/api/place-details', {
+        const response = await fetch('http://localhost:8001/api/place-details', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -3944,7 +3947,7 @@ window.generateAttractionPhoto = async function(attractionName, location, placeI
         if (customPromptValue) formData.append('custom_prompt', customPromptValue);
         
         // 调用后端API
-        const response = await fetch('http://localhost:8000/api/generate-attraction-photo', {
+        const response = await fetch('http://localhost:8001/api/generate-attraction-photo', {
             method: 'POST',
             body: formData
         });
@@ -4242,25 +4245,30 @@ function resetDoroGenerator() {
         generatedImage: null
     };
     
-    // 重置步骤
-    updateDoroStep(1);
-    
     // 清空预览
-    document.getElementById('userPhotoPreview').style.display = 'none';
-    document.getElementById('userPhotoPlaceholder').style.display = 'block';
-    document.getElementById('doroStylePreview').style.display = 'none';
-    document.getElementById('doroPreviewSection').style.display = 'none';
+    const userPhotoPreview = document.getElementById('userPhotoPreview');
+    const userPhotoPlaceholder = document.getElementById('userPhotoPlaceholder');
+    const doroStylePreview = document.getElementById('doroStylePreview');
+    
+    if (userPhotoPreview) userPhotoPreview.style.display = 'none';
+    if (userPhotoPlaceholder) userPhotoPlaceholder.style.display = 'block';
+    if (doroStylePreview) doroStylePreview.style.display = 'none';
     
     // 重置选项
-    document.getElementById('doroTimeOfDay').value = '';
-    document.getElementById('doroMood').value = '';
-    document.getElementById('doroDescription').value = '';
+    const customPrompt = document.getElementById('doroCustomPrompt');
+    if (customPrompt) customPrompt.value = '';
     
     // 隐藏结果和错误
-    document.getElementById('doroResult').style.display = 'none';
-    document.getElementById('doroError').style.display = 'none';
-    document.getElementById('doroLoading').style.display = 'none';
-    document.getElementById('doroUploadSection').style.display = 'block';
+    const doroResult = document.getElementById('doroResult');
+    const doroError = document.getElementById('doroError');
+    const doroLoading = document.getElementById('doroLoading');
+    
+    if (doroResult) doroResult.style.display = 'none';
+    if (doroError) doroError.style.display = 'none';
+    if (doroLoading) doroLoading.style.display = 'none';
+    
+    // 更新生成按钮状态
+    updateGenerateButton();
 }
 
 // 加载Doro列表
@@ -4306,7 +4314,7 @@ function renderDoroSelector(tab) {
         doroItem.dataset.doroId = doro.id;
         doroItem.innerHTML = `
             <img src="${doro.url || doro.thumbnail}" alt="${doro.name}">
-            <div class="doro-name">${doro.name}</div>
+            <div class="doro-item-name">${doro.name}</div>
         `;
         doroItem.onclick = () => selectDoro(doro);
         
@@ -4321,11 +4329,11 @@ function renderDoroSelector(tab) {
 // 渲染默认Doro（当API不可用时）
 function renderDefaultDoros() {
     const defaultDoros = [
-        { id: 'doro1', name: '经典Doro', url: '/api/doro/image/doro1' },
-        { id: 'doro2', name: '冒险Doro', url: '/api/doro/image/doro2' },
-        { id: 'doro3', name: '优雅Doro', url: '/api/doro/image/doro3' },
-        { id: 'doro4', name: '运动Doro', url: '/api/doro/image/doro4' },
-        { id: 'doro5', name: '科技Doro', url: '/api/doro/image/doro5' }
+        { id: 'doro1', name: '经典Doro', url: `${API_BASE_URL}/api/doro/image/doro1` },
+        { id: 'doro2', name: '冒险Doro', url: `${API_BASE_URL}/api/doro/image/doro2` },
+        { id: 'doro3', name: '优雅Doro', url: `${API_BASE_URL}/api/doro/image/doro3` },
+        { id: 'doro4', name: '运动Doro', url: `${API_BASE_URL}/api/doro/image/doro4` },
+        { id: 'doro5', name: '科技Doro', url: `${API_BASE_URL}/api/doro/image/doro5` }
     ];
     
     doroSelfieData.doroList.preset = defaultDoros;
@@ -4342,8 +4350,8 @@ function selectDoro(doro) {
     });
     document.querySelector(`.doro-item[data-doro-id="${doro.id}"]`)?.classList.add('selected');
     
-    // 更新预览
-    updateDoroPreview();
+    // 更新生成按钮状态
+    updateGenerateButton();
     
     logger.info(`✅ 选择Doro: ${doro.name}`);
 }
@@ -4391,7 +4399,7 @@ function handleDoroUserPhoto(event) {
         document.getElementById('userPhotoPreview').src = e.target.result;
         document.getElementById('userPhotoPreview').style.display = 'block';
         document.getElementById('userPhotoPlaceholder').style.display = 'none';
-        updateDoroPreview();
+        updateGenerateButton();
     };
     reader.readAsDataURL(file);
     
@@ -4475,143 +4483,61 @@ function handleDoroStylePhoto(event) {
     logger.info(`✅ 上传服装风格参考: ${file.name}`);
 }
 
-// 跳过服装风格步骤
+// 跳过服装风格步骤（新布局中不需要）
 function skipStyleStep() {
     doroSelfieData.stylePhoto = null;
-    document.getElementById('doroStylePreview').style.display = 'none';
-    document.getElementById('stylePlaceholder').style.display = 'block';
+    const doroStylePreview = document.getElementById('doroStylePreview');
+    const stylePlaceholder = document.getElementById('stylePlaceholder');
     
-    // 显示预览和选项
-    updateDoroPreview();
-    showDoroOptions();
-    updateDoroStep(4); // 跳到完成步骤
-}
-
-// 更新Doro预览
-function updateDoroPreview() {
-    const hasUser = doroSelfieData.userPhoto !== null;
-    const hasDoro = doroSelfieData.selectedDoro !== null;
-    const hasStyle = doroSelfieData.stylePhoto !== null;
+    if (doroStylePreview) doroStylePreview.style.display = 'none';
+    if (stylePlaceholder) stylePlaceholder.style.display = 'block';
     
-    if (hasUser || hasDoro) {
-        document.getElementById('doroPreviewSection').style.display = 'block';
-        
-        // 更新用户照片预览
-        if (hasUser) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('previewUserPhoto').src = e.target.result;
-            };
-            reader.readAsDataURL(doroSelfieData.userPhoto);
-        }
-        
-        // 更新Doro预览
-        if (hasDoro) {
-            document.getElementById('previewDoroImage').src = doroSelfieData.selectedDoro.url;
-        }
-        
-        // 更新服装风格预览
-        if (hasStyle) {
-            document.getElementById('previewStyleItem').style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('previewStyleImage').src = e.target.result;
-            };
-            reader.readAsDataURL(doroSelfieData.stylePhoto);
-        } else {
-            document.getElementById('previewStyleItem').style.display = 'none';
-        }
-    } else {
-        document.getElementById('doroPreviewSection').style.display = 'none';
-    }
-    
-    // 更新生成按钮状态
     updateGenerateButton();
 }
 
-// 显示Doro选项
-function showDoroOptions() {
-    if (doroSelfieData.currentStep >= 3) {
-        document.getElementById('doroOptions').style.display = 'block';
-    }
+// 更新Doro预览（简化版本，因为新布局不需要预览区域）
+function updateDoroPreview() {
+    // 新布局中不需要预览区域，直接更新生成按钮状态
+    updateGenerateButton();
 }
 
-// 更新步骤
+// 显示Doro选项（新布局中不需要此功能）
+function showDoroOptions() {
+    // 新布局中所有选项都在界面上可见，不需要动态显示
+}
+
+// 更新步骤（新布局中不需要步骤管理）
 function updateDoroStep(step) {
     doroSelfieData.currentStep = step;
-    
-    // 更新步骤指示器
-    document.querySelectorAll('.step-item').forEach(item => {
-        const itemStep = parseInt(item.dataset.step);
-        if (itemStep < step) {
-            item.classList.add('completed');
-            item.classList.remove('active');
-        } else if (itemStep === step) {
-            item.classList.add('active');
-            item.classList.remove('completed');
-        } else {
-            item.classList.remove('active', 'completed');
-        }
-    });
-    
-    // 显示/隐藏步骤内容
-    document.querySelectorAll('.upload-step').forEach(stepDiv => {
-        const divStep = parseInt(stepDiv.dataset.step);
-        stepDiv.style.display = divStep === step ? 'block' : 'none';
-    });
-    
-    // 更新按钮状态
-    const backBtn = document.getElementById('doroBackBtn');
-    const nextBtn = document.getElementById('doroNextBtn');
-    const generateBtn = document.getElementById('doroGenerateBtn');
-    
-    if (step === 1) {
-        backBtn.style.display = 'none';
-        nextBtn.style.display = 'inline-block';
-        generateBtn.style.display = 'none';
-    } else if (step === 2) {
-        backBtn.style.display = 'inline-block';
-        nextBtn.style.display = 'inline-block';
-        generateBtn.style.display = 'none';
-    } else if (step === 3) {
-        backBtn.style.display = 'inline-block';
-        nextBtn.style.display = 'none';
-        generateBtn.style.display = 'inline-block';
-        showDoroOptions();
-    }
-    
+    // 新布局中所有功能都在一个界面中，不需要步骤管理
     updateGenerateButton();
 }
 
-// 下一步
+// 下一步（新布局中不需要）
 function nextDoroStep() {
-    if (doroSelfieData.currentStep === 1) {
-        if (!doroSelfieData.userPhoto) {
-            alert('请先上传您的照片');
-            return;
-        }
-        updateDoroStep(2);
-    } else if (doroSelfieData.currentStep === 2) {
-        if (!doroSelfieData.selectedDoro) {
-            alert('请选择一个Doro形象');
-            return;
-        }
-        updateDoroStep(3);
-    }
+    // 新布局中不需要步骤导航
 }
 
-// 上一步
+// 上一步（新布局中不需要）
 function previousDoroStep() {
-    if (doroSelfieData.currentStep > 1) {
-        updateDoroStep(doroSelfieData.currentStep - 1);
-    }
+    // 新布局中不需要步骤导航
 }
 
 // 更新生成按钮状态
 function updateGenerateButton() {
     const generateBtn = document.getElementById('doroGenerateBtn');
-    const canGenerate = doroSelfieData.userPhoto && doroSelfieData.selectedDoro;
-    generateBtn.disabled = !canGenerate;
+    if (generateBtn) {
+        const canGenerate = doroSelfieData.userPhoto && doroSelfieData.selectedDoro;
+        generateBtn.disabled = !canGenerate;
+        
+        if (canGenerate) {
+            generateBtn.style.opacity = '1';
+            generateBtn.style.cursor = 'pointer';
+        } else {
+            generateBtn.style.opacity = '0.6';
+            generateBtn.style.cursor = 'not-allowed';
+        }
+    }
 }
 
 // 生成Doro合影
@@ -4628,7 +4554,6 @@ async function generateDoroSelfie() {
     }
     
     // 显示加载状态
-    document.getElementById('doroUploadSection').style.display = 'none';
     document.getElementById('doroLoading').style.display = 'block';
     
     try {
@@ -4654,14 +4579,11 @@ async function generateDoroSelfie() {
         formData.append('attraction_type', place.category || '');
         formData.append('location', place.city || place.country || '');
         
-        // 添加额外选项
-        const timeOfDay = document.getElementById('doroTimeOfDay').value;
-        const mood = document.getElementById('doroMood').value;
-        const description = document.getElementById('doroDescription').value;
-        
-        if (timeOfDay) formData.append('time_of_day', timeOfDay);
-        if (mood) formData.append('mood', mood);
-        if (description) formData.append('user_description', description);
+        // 添加自定义提示词
+        const customPrompt = document.getElementById('doroCustomPrompt').value;
+        if (customPrompt) {
+            formData.append('user_description', customPrompt);
+        }
         
         logger.info(`🎨 开始生成Doro合影: ${place.name}`);
         
@@ -4717,8 +4639,7 @@ function downloadDoroSelfie() {
 function regenerateDoroSelfie() {
     // 返回到上传界面但保留已选择的内容
     document.getElementById('doroResult').style.display = 'none';
-    document.getElementById('doroUploadSection').style.display = 'block';
-    updateDoroStep(3); // 回到最后一步
+    // 新布局中不需要显示/隐藏上传区域
 }
 
 // 分享Doro合影
@@ -4773,3 +4694,5 @@ window.regenerateDoroSelfie = regenerateDoroSelfie;
 window.shareDoroSelfie = shareDoroSelfie;
 window.downloadSelfie = downloadSelfie;
 window.shareSelfie = shareSelfie;
+
+// 版本标识 - 强制浏览器重新加载 - 2025-09-04 01:30 - Doro模态框JavaScript修复版本

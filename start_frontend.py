@@ -11,7 +11,7 @@ import time
 import sys
 from pathlib import Path
 
-PORT = 3000
+PORT = 3001
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     """自定义HTTP请求处理器，添加CORS支持"""
@@ -69,7 +69,7 @@ def start_server():
             else:
                 # 最后一次尝试失败
                 if e.errno == 48 or e.errno == 98:
-                    print(f"❌ 错误: 所有端口都被占用 (尝试了端口 {3000} 到 {PORT})")
+                    print(f"❌ 错误: 所有端口都被占用 (尝试了端口 {3001} 到 {PORT})")
                     print("请手动释放端口或重启系统后重试")
                 else:
                     print(f"❌ 错误: {e}")
