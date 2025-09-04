@@ -4024,6 +4024,143 @@ function backToSelfieQuestion() {
     logger.info('🔙 返回自拍询问对话框');
 }
 
+// ========================================
+// 头像上传功能
+// ========================================
+
+/**
+ * 触发头像文件选择
+ */
+function triggerAvatarUpload() {
+    const fileInput = document.getElementById('avatarUpload');
+    if (fileInput) {
+        fileInput.click();
+    }
+}
+
+/**
+ * 处理头像文件上传
+ * @param {Event} event - 文件选择事件
+ */
+async function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 文件大小检查 (最大5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('文件大小不能超过5MB，请选择较小的图片！');
+        return;
+    }
+
+    // 文件类型检查
+    if (!file.type.startsWith('image/')) {
+        alert('请选择有效的图片文件！');
+        return;
+    }
+
+    try {
+        console.log('📸 开始上传头像...', file.name);
+
+        // 创建FormData
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        // 显示上传中的状态
+        const avatarImage = document.getElementById('avatarImage');
+        const originalSrc = avatarImage.src;
+        avatarImage.style.opacity = '0.5';
+        
+        // 上传到后端
+        const response = await fetch('/api/upload-avatar', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`上传失败: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ 头像上传成功:', result);
+
+        // 更新头像显示
+        if (result.avatar_url) {
+            avatarImage.src = result.avatar_url;
+            avatarImage.style.opacity = '1';
+            
+            // 添加时间戳防止缓存
+            const timestamp = new Date().getTime();
+            avatarImage.src = `${result.avatar_url}?t=${timestamp}`;
+            
+            console.log('🖼️ 头像已更新:', avatarImage.src);
+        }
+        
+        // 成功提示
+        showNotification('头像上传成功！✨', 'success');
+
+    } catch (error) {
+        console.error('❌ 头像上传失败:', error);
+        
+        // 恢复原始状态
+        const avatarImage = document.getElementById('avatarImage');
+        avatarImage.style.opacity = '1';
+        
+        // 错误提示
+        showNotification('头像上传失败，请重试！😢', 'error');
+    }
+
+    // 清空input值，允许重复选择同一文件
+    event.target.value = '';
+}
+
+/**
+ * 显示通知消息
+ * @param {string} message - 消息内容
+ * @param {string} type - 消息类型 ('success', 'error', 'info')
+ */
+function showNotification(message, type = 'info') {
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // 添加样式
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        opacity: 0;
+        transition: all 0.3s ease;
+        ${type === 'success' ? 'background: linear-gradient(45deg, #4CAF50, #45a049);' : ''}
+        ${type === 'error' ? 'background: linear-gradient(45deg, #f44336, #da190b);' : ''}
+        ${type === 'info' ? 'background: linear-gradient(45deg, #2196F3, #0b7dda);' : ''}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // 显示动画
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // 3秒后自动消失
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
 // 全局暴露时光自拍功能
 window.endHistoricalJourney = endHistoricalJourney;
 window.startHistoricalSelfie = startHistoricalSelfie;
@@ -4035,3 +4172,5 @@ window.shareSelfie = shareSelfie;
 window.startNewJourney = startNewJourney;
 window.shareJourney = shareJourney;
 window.backToSelfieQuestion = backToSelfieQuestion;
+window.triggerAvatarUpload = triggerAvatarUpload;
+window.handleAvatarUpload = handleAvatarUpload;

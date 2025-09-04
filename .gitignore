@@ -234,3 +234,7 @@ dmypy.json
 .benchmarks/
 
 .env
+
+static
+
+.promptx

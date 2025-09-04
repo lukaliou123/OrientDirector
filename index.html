@@ -133,14 +133,25 @@
                     <div class="question-content">
                         <!-- 用户头像预览 -->
                         <div class="user-avatar-preview">
-                            <img src="http://localhost:8000/static/profile_photo/profile.jpg" 
-                                 alt="您的头像" 
-                                 class="avatar-image" 
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="avatar-placeholder" style="display: none;">
-                                👤
+                            <div class="avatar-container" onclick="triggerAvatarUpload()" title="点击上传头像">
+                                <img src="http://localhost:8000/static/profile_photo/profile.jpg" 
+                                     alt="您的头像" 
+                                     class="avatar-image" 
+                                     id="avatarImage"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="avatar-placeholder" style="display: none;">
+                                    👤
+                                </div>
+                                <div class="avatar-upload-overlay">
+                                    📷
+                                </div>
                             </div>
-                            <p class="avatar-label">您的角色</p>
+                            <input type="file" 
+                                   id="avatarUpload" 
+                                   accept="image/*" 
+                                   style="display: none;" 
+                                   onchange="handleAvatarUpload(event)">
+                            <p class="avatar-label">您的角色 <span class="upload-hint">(点击上传)</span></p>
                         </div>
                         
                         <div class="selfie-question-text">

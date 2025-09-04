@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -9,6 +9,10 @@ import json
 import os
 import asyncio
 import time
+import shutil
+from datetime import datetime
+from pathlib import Path
+from PIL import Image
 from dotenv import load_dotenv
 from real_data_service import real_data_service
 from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
@@ -130,6 +134,13 @@ class HistoricalSelfieResponse(BaseModel):
     scene_info: Optional[Dict] = None  # 场景信息
     generation_time: float
     demo_mode: bool = True
+    error: Optional[str] = None
+
+class AvatarUploadResponse(BaseModel):
+    success: bool
+    avatar_url: Optional[str] = None  # 上传后的头像URL
+    file_size: Optional[int] = None  # 文件大小（字节）
+    upload_time: float  # 上传处理时间
     error: Optional[str] = None
 
 # 全局变量
@@ -882,6 +893,88 @@ async def health_check():
         "service": "方向探索派对API",
         "version": "1.0.0"
     }
+
+@app.post("/api/upload-avatar", response_model=AvatarUploadResponse)
+async def upload_avatar(avatar: UploadFile = File(...)):
+    """
+    用户头像上传API
+    
+    允许用户上传头像图片，自动进行压缩和格式转换
+    支持的格式：jpg, jpeg, png, gif, webp
+    最大文件大小：5MB
+    """
+    start_time = time.time()
+    
+    try:
+        # 验证文件类型
+        if not avatar.content_type.startswith('image/'):
+            return AvatarUploadResponse(
+                success=False,
+                upload_time=time.time() - start_time,
+                error=f"不支持的文件类型: {avatar.content_type}"
+            )
+        
+        # 检查文件大小 (5MB限制)
+        file_size = 0
+        content = await avatar.read()
+        file_size = len(content)
+        
+        if file_size > 5 * 1024 * 1024:  # 5MB
+            return AvatarUploadResponse(
+                success=False,
+                upload_time=time.time() - start_time,
+                error=f"文件过大: {file_size / 1024 / 1024:.1f}MB，最大允许5MB"
+            )
+        
+        # 创建profile_photo目录
+        profile_dir = Path("../static/profile_photo")
+        profile_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 使用PIL处理图片
+        from io import BytesIO
+        image = Image.open(BytesIO(content))
+        
+        # 转换为RGB模式（去除透明通道）
+        if image.mode in ('RGBA', 'LA', 'P'):
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            if image.mode == 'P':
+                image = image.convert('RGBA')
+            background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+            image = background
+        
+        # 调整图片大小（最大400x400，保持比例）
+        image.thumbnail((400, 400), Image.Resampling.LANCZOS)
+        
+        # 保存为profile.jpg
+        output_path = profile_dir / "profile.jpg"
+        image.save(output_path, "JPEG", quality=85, optimize=True)
+        
+        # 计算处理后的文件大小
+        final_size = output_path.stat().st_size
+        
+        # 生成访问URL
+        avatar_url = "http://localhost:8000/static/profile_photo/profile.jpg"
+        
+        print(f"✅ 头像上传成功:")
+        print(f"   原始大小: {file_size / 1024:.1f}KB")
+        print(f"   压缩后: {final_size / 1024:.1f}KB")
+        print(f"   图片尺寸: {image.size}")
+        print(f"   访问URL: {avatar_url}")
+        
+        return AvatarUploadResponse(
+            success=True,
+            avatar_url=avatar_url,
+            file_size=final_size,
+            upload_time=time.time() - start_time
+        )
+        
+    except Exception as e:
+        print(f"❌ 头像上传失败: {str(e)}")
+        return AvatarUploadResponse(
+            success=False,
+            upload_time=time.time() - start_time,
+            error=f"处理失败: {str(e)}"
+        )
 
 # ========== 历史模式API端点 ==========
 
