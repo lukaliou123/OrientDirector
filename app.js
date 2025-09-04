@@ -4673,6 +4673,14 @@ async function generateDoroSelfie() {
     // 显示加载状态
     document.getElementById('doroLoading').style.display = 'block';
     
+    // 滚动到加载区域
+    setTimeout(() => {
+        const loadingElement = document.getElementById('doroLoading');
+        if (loadingElement) {
+            loadingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
+    
     try {
         // 准备表单数据
         const formData = new FormData();
@@ -4811,6 +4819,14 @@ async function generateDoroVideo() {
     
     // 显示加载状态
     document.getElementById('doroLoading').style.display = 'block';
+    
+    // 滚动到加载区域
+    setTimeout(() => {
+        const loadingElement = document.getElementById('doroLoading');
+        if (loadingElement) {
+            loadingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
     
     try {
         // 准备表单数据

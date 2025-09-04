@@ -915,26 +915,23 @@ class GeminiImageService:
             static_image.save(buffered, format="PNG")
             buffered.seek(0)
             image_bytes = buffered.getvalue()
-            image_base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
             buffered.close()
             
-            # 构建符合Veo 3 API要求的图片数据结构
-            image_dict = {
-                "bytesBase64Encoded": image_base64_encoded,
-                "mimeType": "image/png"
-            }
+            # 使用google.genai的Blob格式
+            from google.genai import types
+            image_blob = types.Blob(
+                mime_type="image/png",
+                data=image_bytes
+            )
             
             # 调用Veo 3生成视频
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image_dict,
+                image=image_blob,
             )
             
             logger.info(f"🎬 视频生成作业已启动: {operation.name}")
-            
-            # 使用 GenerateVideosOperation 来跟踪操作
-            from google.genai import types
             video_operation = types.GenerateVideosOperation(name=operation.name)
             
             logger.info("🕐 等待视频生成完成...")
