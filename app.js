@@ -3149,6 +3149,7 @@ function toggleHistoricalMode() {
         selectedHistoricalYear = null;
         currentHistoricalInfo = null;
         historicalSceneData = null;
+        visitedHistoricalScenes = [];  // 🚀 清空本轮旅程的场景记录
         clearHistoricalResults();
     }
 }
@@ -3259,6 +3260,55 @@ async function startHistoricalExploration() {
         showError(`时空探索失败: ${error.message}`);
     } finally {
         showLoading(false);
+    }
+}
+
+/**
+ * 添加场景到已访问历史场景记录
+ * @param {Object} historicalInfo - 历史信息
+ * @param {Object} sceneData - 场景数据  
+ */
+function addToVisitedScenes(historicalInfo, sceneData) {
+    // 只在历史模式活跃时收集场景
+    if (!isHistoricalMode || !historicalInfo || !sceneData) {
+        return;
+    }
+    
+    // 生成场景唯一标识
+    const sceneId = `${historicalInfo.political_entity}_${historicalInfo.query_year}`;
+    
+    // 检查是否已存在相同场景（避免重复添加）
+    const existingIndex = visitedHistoricalScenes.findIndex(scene => 
+        scene.political_entity === historicalInfo.political_entity && 
+        scene.year === historicalInfo.query_year
+    );
+    
+    if (existingIndex === -1) {
+        // 添加新场景到访问记录
+        const sceneRecord = {
+            id: sceneId,
+            political_entity: historicalInfo.political_entity,
+            year: historicalInfo.query_year,
+            coordinates: historicalInfo.coordinates,
+            description: historicalInfo.description,
+            cultural_region: historicalInfo.cultural_region,
+            time_period: historicalInfo.time_period,
+            scene_data: sceneData,
+            visit_time: new Date().toISOString(),
+            visit_order: visitedHistoricalScenes.length + 1
+        };
+        
+        visitedHistoricalScenes.push(sceneRecord);
+        
+        logger.success(`✅ 场景已收集: ${historicalInfo.political_entity} (${historicalInfo.query_year}年)`);
+        logger.info(`🗂️ 当前旅程已访问 ${visitedHistoricalScenes.length} 个历史场景`);
+        
+        // 在开发者控制台显示详细信息
+        console.log('📊 已访问场景列表:', visitedHistoricalScenes.map(s => 
+            `${s.political_entity}(${s.year}年)`).join(', ')
+        );
+    } else {
+        logger.info(`🔄 场景已存在: ${historicalInfo.political_entity} (${historicalInfo.query_year}年)`);
     }
 }
 
@@ -3434,6 +3484,9 @@ function displayHistoricalScene(data) {
     `;
     
     container.innerHTML = sceneHtml;
+    
+    // 🚀 新增：自动收集当前历史场景到旅程记录
+    addToVisitedScenes(historicalInfo, sceneData);
     
     // 滚动到结果
     setTimeout(() => {
@@ -3708,15 +3761,15 @@ function populateVisitedScenes() {
         return;
     }
     
-    // 如果没有访问过场景，显示当前场景
-    if (visitedHistoricalScenes.length === 0 && currentHistoricalInfo) {
-        visitedHistoricalScenes.push({
-            political_entity: currentHistoricalInfo.political_entity,
-            year: currentHistoricalInfo.query_year,
-            coordinates: currentHistoricalInfo.coordinates,
-            description: currentHistoricalInfo.description,
-            scene_data: historicalSceneData
-        });
+    // 场景已通过 addToVisitedScenes() 自动收集，无需手动添加
+    if (visitedHistoricalScenes.length === 0) {
+        container.innerHTML = `
+            <div class="no-scenes-message">
+                <h4>🏃‍♂️ 开始您的历史之旅</h4>
+                <p>访问历史场景后，这里将显示您的旅程记录</p>
+            </div>
+        `;
+        return;
     }
     
     const scenesHtml = visitedHistoricalScenes.map((scene, index) => `
