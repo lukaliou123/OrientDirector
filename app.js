@@ -2,8 +2,7 @@
 let currentPosition = null;
 let currentHeading = 0;
 
-// API配置
-const API_BASE_URL = 'http://localhost:8001';
+// API配置 - 由index.html中的getAPIBaseURL()函数动态设置
 
 // Google街景相关变量
 let streetViewPanorama = null;
@@ -581,7 +580,7 @@ async function startExploration() {
         const startTime = Date.now();
         
                 // 使用真实数据API端点
-        const apiEndpoint = 'http://localhost:8001/api/explore-real';
+        const apiEndpoint = `${API_BASE_URL}/api/explore-real`;
         logger.info('使用真实数据源');
         
         // 调用后端API计算路径
@@ -1499,7 +1498,7 @@ async function startJourney(lat, lng, locationName, journeyTitle = null) {
     try {
         logger.info('🎒 开始创建新旅程...');
         
-        const response = await fetch('http://localhost:8001/api/journey/start', {
+        const response = await fetch(`${API_BASE_URL}/api/journey/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1555,7 +1554,7 @@ async function recordSceneVisit(journeyId, scene, rating = null, notes = null) {
     try {
         logger.info(`📍 记录场景访问: ${scene.name}`);
         
-        const response = await fetch('http://localhost:8001/api/journey/visit', {
+        const response = await fetch(`${API_BASE_URL}/api/journey/visit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1608,7 +1607,7 @@ async function endCurrentJourney(journeyId) {
     try {
         logger.info('🏠 结束当前旅程...');
         
-        const response = await fetch(`http://localhost:8001/api/journey/${journeyId}/end`, {
+        const response = await fetch(`${API_BASE_URL}/api/journey/${journeyId}/end`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1648,7 +1647,7 @@ async function endCurrentJourney(journeyId) {
  */
 async function getCurrentJourneyInfo(journeyId) {
     try {
-        const response = await fetch(`http://localhost:8001/api/journey/${journeyId}`);
+        const response = await fetch(`${API_BASE_URL}/api/journey/${journeyId}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2360,7 +2359,7 @@ async function generateAndShowSceneReview(scene) {
         };
         
         // 调用后端API生成锐评
-        const response = await fetch('http://localhost:8001/api/scene-review', {
+        const response = await fetch(`${API_BASE_URL}/api/scene-review`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2496,7 +2495,7 @@ function displaySceneReview(reviewData, scene) {
 // 生成AI旅程总结
 async function generateAIJourneySummary(stats) {
     try {
-        const response = await fetch('http://localhost:8001/api/journey-summary', {
+        const response = await fetch(`${API_BASE_URL}/api/journey-summary`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2972,7 +2971,29 @@ window.addEventListener('load', function() {
     }
 });
 
+// 打开街景视图的入口函数
+function openStreetView(latitude, longitude, placeName) {
+    if (!latitude || !longitude) {
+        logger.error('❌ 街景打开失败：缺少有效的坐标信息');
+        showError('无法打开街景：坐标信息无效');
+        return;
+    }
+    
+    logger.info(`🏙️ 打开街景: ${placeName} (${latitude}, ${longitude})`);
+    
+    // 创建场景对象
+    const scene = {
+        name: placeName || '未知地点',
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude)
+    };
+    
+    // 调用现有的街景显示函数
+    showStreetViewForLocation(scene);
+}
+
 // 全局暴露街景函数
+window.openStreetView = openStreetView;
 window.closeStreetView = closeStreetView;
 window.resetStreetViewHeading = resetStreetViewHeading;
 window.toggleStreetViewFullscreen = toggleStreetViewFullscreen;
@@ -3076,7 +3097,7 @@ async function confirmRoaming() {
 // 地理编码API调用
 async function geocodeLocation(query) {
     try {
-        const response = await fetch('http://localhost:8001/api/geocode', {
+        const response = await fetch(`${API_BASE_URL}/api/geocode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -3106,7 +3127,7 @@ async function geocodeLocation(query) {
 // 获取地点详细信息
 async function getPlaceDetails(locationData) {
     try {
-        const response = await fetch('http://localhost:8001/api/place-details', {
+        const response = await fetch(`${API_BASE_URL}/api/place-details`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -3947,7 +3968,7 @@ window.generateAttractionPhoto = async function(attractionName, location, placeI
         if (customPromptValue) formData.append('custom_prompt', customPromptValue);
         
         // 调用后端API
-        const response = await fetch('http://localhost:8001/api/generate-attraction-photo', {
+        const response = await fetch(`${API_BASE_URL}/api/generate-attraction-photo`, {
             method: 'POST',
             body: formData
         });
@@ -4169,6 +4190,61 @@ function generateSelfie() {
     window.generateAttractionPhoto(name, location, index);
 }
 
+// ==================== 环境配置管理 ====================
+
+// 环境配置管理
+window.EnvironmentConfig = {
+    // 设置是否使用域名地址
+    setUseDomainName: function(useDomain) {
+        localStorage.setItem('isUsedomainnameaddress', useDomain.toString());
+        logger.info(`🔧 环境配置已更新: 使用域名地址 = ${useDomain}`);
+        logger.info('🔄 请刷新页面以应用新配置');
+        return useDomain;
+    },
+    
+    // 获取当前配置
+    getUseDomainName: function() {
+        return localStorage.getItem('isUsedomainnameaddress') === 'true';
+    },
+    
+    // 获取当前API基础URL
+    getCurrentAPIBaseURL: function() {
+        return API_BASE_URL;
+    },
+    
+    // 切换环境配置
+    toggleEnvironment: function() {
+        const current = this.getUseDomainName();
+        const newValue = !current;
+        this.setUseDomainName(newValue);
+        
+        if (newValue) {
+            logger.success('✅ 已切换到生产环境 (https://doro.gitagent.io)');
+        } else {
+            logger.success('✅ 已切换到本地环境 (http://localhost:8001)');
+        }
+        
+        return newValue;
+    },
+    
+    // 显示当前环境状态
+    showStatus: function() {
+        const useDomain = this.getUseDomainName();
+        const apiUrl = this.getCurrentAPIBaseURL();
+        
+        logger.info('🔧 当前环境配置:');
+        logger.info(`   使用域名地址: ${useDomain}`);
+        logger.info(`   API基础URL: ${apiUrl}`);
+        logger.info(`   环境类型: ${useDomain ? '生产环境' : '本地环境'}`);
+        
+        return {
+            useDomainName: useDomain,
+            apiBaseURL: apiUrl,
+            environment: useDomain ? 'production' : 'local'
+        };
+    }
+};
+
 // 暴露新的全局函数
 window.playVideo = playVideo;
 window.closeVideoModal = closeVideoModal;
@@ -4331,9 +4407,18 @@ function renderDefaultDoros() {
     const defaultDoros = [
         { id: 'doro1', name: '经典Doro', url: `${API_BASE_URL}/api/doro/image/doro1` },
         { id: 'doro2', name: '冒险Doro', url: `${API_BASE_URL}/api/doro/image/doro2` },
-        { id: 'doro3', name: '优雅Doro', url: `${API_BASE_URL}/api/doro/image/doro3` },
-        { id: 'doro4', name: '运动Doro', url: `${API_BASE_URL}/api/doro/image/doro4` },
-        { id: 'doro5', name: '科技Doro', url: `${API_BASE_URL}/api/doro/image/doro5` }
+        { id: 'doro3', name: '时尚Doro', url: `${API_BASE_URL}/api/doro/image/doro3` },
+        { id: 'doro4', name: '学者Doro', url: `${API_BASE_URL}/api/doro/image/doro4` },
+        { id: 'doro5', name: '运动Doro', url: `${API_BASE_URL}/api/doro/image/doro5` },
+        { id: 'doro6', name: '艺术Doro', url: `${API_BASE_URL}/api/doro/image/doro6` },
+        { id: 'doro7', name: '商务Doro', url: `${API_BASE_URL}/api/doro/image/doro7` },
+        { id: 'doro8', name: '休闲Doro', url: `${API_BASE_URL}/api/doro/image/doro8` },
+        { id: 'doro9', name: '节日Doro', url: `${API_BASE_URL}/api/doro/image/doro9` },
+        { id: 'doro10', name: '神秘Doro', url: `${API_BASE_URL}/api/doro/image/doro10` },
+        { id: 'doro11', name: '温暖Doro', url: `${API_BASE_URL}/api/doro/image/doro11` },
+        { id: 'doro12', name: '科技Doro', url: `${API_BASE_URL}/api/doro/image/doro12` },
+        { id: 'doro13', name: '自然Doro', url: `${API_BASE_URL}/api/doro/image/doro13` },
+        { id: 'doro14', name: '梦幻Doro', url: `${API_BASE_URL}/api/doro/image/doro14` }
     ];
     
     doroSelfieData.doroList.preset = defaultDoros;
@@ -4526,6 +4611,8 @@ function previousDoroStep() {
 // 更新生成按钮状态
 function updateGenerateButton() {
     const generateBtn = document.getElementById('doroGenerateBtn');
+    const videoBtn = document.getElementById('doroVideoBtn');
+    
     if (generateBtn) {
         const canGenerate = doroSelfieData.userPhoto && doroSelfieData.selectedDoro;
         generateBtn.disabled = !canGenerate;
@@ -4536,6 +4623,20 @@ function updateGenerateButton() {
         } else {
             generateBtn.style.opacity = '0.6';
             generateBtn.style.cursor = 'not-allowed';
+        }
+    }
+    
+    // 同步更新视频生成按钮状态
+    if (videoBtn) {
+        const canGenerate = doroSelfieData.userPhoto && doroSelfieData.selectedDoro;
+        videoBtn.disabled = !canGenerate;
+        
+        if (canGenerate) {
+            videoBtn.style.opacity = '1';
+            videoBtn.style.cursor = 'pointer';
+        } else {
+            videoBtn.style.opacity = '0.6';
+            videoBtn.style.cursor = 'not-allowed';
         }
     }
 }
@@ -4677,6 +4778,145 @@ async function shareDoroSelfie() {
     }
 }
 
+// ==================== Doro视频生成功能 ====================
+
+// 生成Doro合影视频
+async function generateDoroVideo() {
+    if (!doroSelfieData.userPhoto || !doroSelfieData.selectedDoro) {
+        alert('请完成所有必要步骤');
+        return;
+    }
+    
+    const place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
+    if (!place) {
+        alert('景点信息丢失，请重新开始');
+        return;
+    }
+    
+    // 显示加载状态
+    document.getElementById('doroLoading').style.display = 'block';
+    
+    try {
+        // 准备表单数据
+        const formData = new FormData();
+        formData.append('user_photo', doroSelfieData.userPhoto);
+        
+        // 添加Doro（ID或文件）
+        if (doroSelfieData.selectedDoro.type === 'preset') {
+            formData.append('doro_id', doroSelfieData.selectedDoro.id);
+        } else {
+            // 自定义Doro，使用ID
+            formData.append('doro_id', `custom_${doroSelfieData.selectedDoro.id}`);
+        }
+        
+        // 添加服装风格（如果有）
+        if (doroSelfieData.stylePhoto) {
+            formData.append('style_photo', doroSelfieData.stylePhoto);
+        }
+        
+        // 添加景点信息
+        formData.append('attraction_name', place.name);
+        formData.append('attraction_type', place.category || '');
+        formData.append('location', place.city || place.country || '');
+        
+        // 添加自定义提示词
+        const customPrompt = document.getElementById('doroCustomPrompt').value;
+        if (customPrompt) {
+            formData.append('user_description', customPrompt);
+        }
+        
+        logger.info(`🎬 开始生成Doro合影视频: ${place.name}`);
+        
+        // 调用API
+        const response = await fetch(`${API_BASE_URL}/api/doro/generate-video`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || '视频生成失败');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // 显示结果
+            doroSelfieData.generatedVideo = data.data;
+            document.getElementById('generatedDoroVideo').src = data.data.video_url;
+            
+            document.getElementById('doroLoading').style.display = 'none';
+            document.getElementById('doroVideoResult').style.display = 'block';
+            
+            logger.info(`✅ Doro合影视频生成成功: ${data.data.filename}`);
+        } else {
+            throw new Error(data.message || '视频生成失败');
+        }
+        
+    } catch (error) {
+        logger.error('❌ 生成Doro合影视频失败:', error);
+        
+        document.getElementById('doroLoading').style.display = 'none';
+        document.getElementById('doroError').style.display = 'block';
+        document.getElementById('doroErrorMessage').textContent = 
+            error.message || '视频生成失败，请重试';
+    }
+}
+
+// 下载Doro合影视频
+function downloadDoroVideo() {
+    if (!doroSelfieData.generatedVideo) return;
+    
+    const link = document.createElement('a');
+    link.href = doroSelfieData.generatedVideo.video_url;
+    link.download = doroSelfieData.generatedVideo.filename || `doro_video_${Date.now()}.mp4`;
+    link.click();
+    
+    logger.info(`💾 下载Doro合影视频: ${link.download}`);
+}
+
+// 重新生成Doro合影视频
+function regenerateDoroVideo() {
+    // 返回到上传界面但保留已选择的内容
+    document.getElementById('doroVideoResult').style.display = 'none';
+    // 可以再次点击生成视频按钮
+}
+
+// 分享Doro合影视频
+async function shareDoroVideo() {
+    if (!doroSelfieData.generatedVideo) return;
+    
+    try {
+        if (navigator.share) {
+            // 先将视频转换为blob
+            const response = await fetch(doroSelfieData.generatedVideo.video_url);
+            const blob = await response.blob();
+            const file = new File([blob], 'doro_video.mp4', { type: 'video/mp4' });
+            
+            await navigator.share({
+                title: 'Doro与我的合影视频',
+                text: `在${doroSelfieData.generatedVideo.attraction_name}的精彩合影视频！`,
+                files: [file]
+            });
+            
+            logger.info('✅ 分享Doro合影视频成功');
+        } else {
+            // 复制视频链接
+            const tempInput = document.createElement('input');
+            tempInput.value = window.location.href;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            alert('链接已复制到剪贴板');
+        }
+    } catch (error) {
+        logger.error('❌ 视频分享失败:', error);
+        alert('分享失败，请重试');
+    }
+}
+
 // 导出Doro函数到全局
 window.openDoroSelfie = openDoroSelfie;
 window.closeDoroModal = closeDoroModal;
@@ -4689,9 +4929,13 @@ window.skipStyleStep = skipStyleStep;
 window.nextDoroStep = nextDoroStep;
 window.previousDoroStep = previousDoroStep;
 window.generateDoroSelfie = generateDoroSelfie;
+window.generateDoroVideo = generateDoroVideo;
 window.downloadDoroSelfie = downloadDoroSelfie;
+window.downloadDoroVideo = downloadDoroVideo;
 window.regenerateDoroSelfie = regenerateDoroSelfie;
+window.regenerateDoroVideo = regenerateDoroVideo;
 window.shareDoroSelfie = shareDoroSelfie;
+window.shareDoroVideo = shareDoroVideo;
 window.downloadSelfie = downloadSelfie;
 window.shareSelfie = shareSelfie;
 
