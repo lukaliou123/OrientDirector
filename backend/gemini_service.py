@@ -968,8 +968,12 @@ class GeminiImageService:
             # 第二步：使用Veo 3生成视频
             logger.info("🎬 第二步：使用Veo 3生成动态视频...")
             
-            # 生成视频提示词
-            video_prompt = self._generate_video_prompt(attraction_info, (1024, 1024))
+            # 生成视频提示词（传递图片提示词以保持一致性）
+            video_prompt = self._generate_video_prompt(
+                attraction_info, 
+                (1024, 1024),
+                image_prompt=image_prompt  # 传递图片提示词
+            )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
             # 调用Veo 3生成视频，使用Imagen生成的图片
@@ -1121,41 +1125,95 @@ class GeminiImageService:
         
         return prompt
     
-    def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple) -> str:
+    def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple, image_prompt: str = None) -> str:
         """
-        生成视频提示词
+        生成视频提示词（基于图片提示词）
         
         Args:
             attraction_info: 景点信息
             image_size: 图片尺寸
+            image_prompt: 原始图片提示词（可选）
             
         Returns:
             视频生成提示词
         """
         attraction_name = attraction_info.get('name', '景点')
-        location = attraction_info.get('location', '')
+        location = attraction_info.get('address', attraction_info.get('location', ''))
+        description = attraction_info.get('description', '')
         
-        # 基础视频提示词
-        base_prompt = f"""Create a cinematic travel video showing a person and their animated companion Doro at {attraction_name}"""
+        # 基础视频提示词 - 与图片提示词保持一致的风格
+        base_prompt = f"Create a cinematic travel video showing a real person and their charming animated character companion Doro at the famous {attraction_name}"
         
         if location:
             base_prompt += f" in {location}"
         
-        # 添加视频效果描述
-        video_effects = [
-            "The camera slowly pans around them as they pose together",
-            "Gentle breeze moves their hair and clothes naturally",
-            "The landmark background is clearly visible and majestic",
-            "Warm, golden hour lighting creates a beautiful atmosphere",
-            "The person and Doro are smiling and enjoying the moment",
-            "Subtle camera movement adds cinematic quality",
-            "The scene feels authentic and joyful"
+        # 如果有景点描述，添加简短版本
+        if description:
+            # 限制描述长度，避免提示词过长
+            short_desc = description[:100] if len(description) > 100 else description
+            base_prompt += f", {short_desc}"
+        
+        # 添加动态动作描述（视频特有）
+        video_actions = [
+            "The person and Doro wave at the camera with friendly smiles",
+            "They turn to look at the landmark, then back at camera",
+            "Doro playfully jumps with excitement next to the person",
+            "They give thumbs up together in a synchronized motion",
+            "The person points at the landmark while Doro nods happily"
         ]
         
-        base_prompt += ". " + ". ".join(video_effects)
+        import random
+        selected_action = random.choice(video_actions)
+        base_prompt += f". {selected_action}"
         
-        # 添加技术要求
-        base_prompt += ". High-quality 8-second video with realistic motion and natural lighting."
+        # 添加相机运动（视频特有）
+        camera_movements = [
+            "Camera slowly zooms in on their happy faces",
+            "Camera gently pans from left to right across the scene",
+            "Camera pulls back to reveal the full landmark",
+            "Smooth tracking shot follows their movement",
+            "Subtle handheld camera movement for authentic feel"
+        ]
+        
+        selected_camera = random.choice(camera_movements)
+        base_prompt += f". {selected_camera}"
+        
+        # 添加环境动态效果
+        environmental_effects = [
+            "Gentle breeze moves their hair and clothes naturally",
+            "Sunlight creates beautiful lens flares",
+            "Birds fly across the background sky",
+            "Clouds drift slowly in the background",
+            "Natural ambient movement in the scene"
+        ]
+        
+        selected_effect = random.choice(environmental_effects[:2])  # 选择1-2个效果
+        base_prompt += f". {selected_effect}"
+        
+        # 根据时间设置光线（与图片提示词保持一致）
+        time_of_day = attraction_info.get('time_of_day', 'afternoon')
+        lighting_descriptions = {
+            "morning": "Soft morning light with long shadows",
+            "afternoon": "Bright, clear afternoon sunlight",
+            "evening": "Golden hour with warm, cinematic lighting",
+            "night": "Beautiful night scene with city lights"
+        }
+        
+        base_prompt += f". {lighting_descriptions.get(time_of_day, 'Natural, beautiful lighting')}"
+        
+        # 添加技术要求和限制
+        technical_requirements = [
+            "High-quality 8-second video",
+            "Smooth, professional camera work",
+            "Natural, realistic motion",
+            "Clear focus on both subjects",
+            "No text overlays or titles",  # 重要：避免生成文字
+            "No written signs or text in scene",  # 避免场景中的文字
+            "Photorealistic style",
+            "Travel vlog aesthetic"
+        ]
+        
+        base_prompt += ". " + ". ".join(technical_requirements)
         
         return base_prompt
     
