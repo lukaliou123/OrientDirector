@@ -884,7 +884,7 @@ class GeminiImageService:
             logger.info("🎨 第一步：使用Imagen 3生成静态合影图片...")
             
             # 生成图片提示词
-            image_prompt = self._generate_image_prompt_for_video(
+            image_prompt = await self._generate_image_prompt_for_video(
                 user_photo=user_photo,
                 doro_photo=doro_photo,
                 attraction_info=attraction_info,
