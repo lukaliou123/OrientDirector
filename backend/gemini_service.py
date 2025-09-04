@@ -880,99 +880,33 @@ class GeminiImageService:
             # 使用新的google.genai客户端
             client = genai_client.Client()
             
-            # 第一步：使用Imagen 3生成静态合影图片
-            logger.info("🎨 第一步：使用Imagen 3生成静态合影图片...")
+            # 第一步：使用与Doro合影完全相同的逻辑生成静态合影图片
+            logger.info("🎨 第一步：使用Doro合影逻辑生成静态合影图片...")
             
-            # 生成图片提示词
-            image_prompt = await self._generate_image_prompt_for_video(
+            # 直接使用现有的Doro合影生成方法，确保完全一致的效果
+            success, message, image_result = await self.generate_doro_selfie_with_attraction(
                 user_photo=user_photo,
                 doro_photo=doro_photo,
                 attraction_info=attraction_info,
                 style_photo=style_photo
             )
-            logger.info(f"📝 图片提示词: {image_prompt[:200]}...")
             
-            try:
-                # 使用Imagen 3生成图片
-                imagen_response = client.models.generate_images(
-                    model="imagen-3.0-generate-002",
-                    prompt=image_prompt,
-                )
+            if not success:
+                return False, f"静态图片生成失败: {message}", None
                 
-                if not imagen_response.generated_images:
-                    return False, "Imagen未能生成图片", None
-                    
-                # 获取生成的图片
-                generated_image = imagen_response.generated_images[0].image
-                logger.info(f"✅ 静态图片生成成功")
-                
-                # 保存Imagen生成的图片
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
-                imagen_filename = f"imagen_{safe_name}_{timestamp}.png"
-                imagen_filepath = os.path.join(self.output_dir, imagen_filename)
-                
-                # 如果generated_image有save方法，直接保存
-                if hasattr(generated_image, 'save'):
-                    generated_image.save(imagen_filepath)
-                elif hasattr(generated_image, 'data'):
-                    # 如果是字节数据
-                    with open(imagen_filepath, 'wb') as f:
-                        f.write(generated_image.data)
-                
-                # 读取保存的图片转为base64
-                with open(imagen_filepath, 'rb') as f:
-                    img_data = f.read()
-                img_base64 = base64.b64encode(img_data).decode()
-                
-                # 初始化image_result用于返回
-                image_result = {
-                    'image_url': f"data:image/png;base64,{img_base64}",
-                    'filename': imagen_filename,
-                    'filepath': imagen_filepath
-                }
-                
-            except Exception as e:
-                logger.error(f"❌ Imagen生成失败: {e}")
-                # 如果Imagen失败，尝试使用原有方法作为后备
-                logger.info("📸 尝试使用备用方法生成图片...")
-                success, message, image_result = await self.generate_doro_selfie_with_attraction(
-                    user_photo=user_photo,
-                    doro_photo=doro_photo,
-                    style_photo=style_photo,
-                    attraction_info=attraction_info
-                )
-                
-                if not success:
-                    return False, f"图片生成失败: {message}", None
-                
-                # 从base64数据创建图片对象
-                image_base64 = image_result['image_url'].split(',')[1]
-                image_data = base64.b64decode(image_base64)
-                static_image = Image.open(BytesIO(image_data))
-                
-                # 将PIL图片转换为API格式
-                buffered = BytesIO()
-                static_image.save(buffered, format="PNG")
-                buffered.seek(0)
-                image_bytes = buffered.getvalue()
-                buffered.close()
-                
-                # 创建一个模拟的图片对象
-                class ImageWrapper:
-                    def __init__(self, data):
-                        self.data = data
-                        
-                generated_image = ImageWrapper(image_bytes)
+            # 从base64数据创建图片对象
+            image_base64 = image_result['image_url'].split(',')[1]
+            image_data = base64.b64decode(image_base64)
+            static_image = Image.open(BytesIO(image_data))
             
             # 第二步：使用Veo 3生成视频
             logger.info("🎬 第二步：使用Veo 3生成动态视频...")
             
-            # 生成视频提示词（传递图片提示词以保持一致性）
+            # 生成视频提示词（基于实际生成的图片信息）
             video_prompt = self._generate_video_prompt(
                 attraction_info, 
                 (1024, 1024),
-                image_prompt=image_prompt  # 传递图片提示词
+                image_prompt=image_result.get('prompt_used', '')  # 传递实际使用的图片提示词
             )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             

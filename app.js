@@ -737,7 +737,7 @@ function createPlaceCard(place, index) {
         <div class="place-content">
             <div class="place-header">
                 <h3 class="place-name">${place.name}</h3>
-                <span class="place-distance">${place.distance}km</span>
+                <span class="place-distance">${formatDistance(place.distance)}</span>
             </div>
             
             ${place.category ? `<div class="place-category">🏷️ ${place.category}</div>` : ''}
@@ -1948,6 +1948,22 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     const distance = R * c;
     return distance;
+}
+
+// 格式化距离显示
+function formatDistance(distanceKm) {
+    if (typeof distanceKm !== 'number') {
+        return '0m';
+    }
+    
+    if (distanceKm < 1) {
+        // 小于1公里，显示米
+        const meters = Math.round(distanceKm * 1000);
+        return `${meters}m`;
+    } else {
+        // 大于等于1公里，显示公里，保留2位小数
+        return `${distanceKm.toFixed(2)}km`;
+    }
 }
 
 // 计算旅程统计数据
