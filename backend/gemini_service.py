@@ -915,22 +915,18 @@ class GeminiImageService:
             buffered.close()
             
             # 构建符合Veo 3 API要求的图片数据结构
-            # API需要一个包含bytesBase64Encoded和mimeType的结构
-            from google.genai.types import Part
-            
-            # 创建符合API要求的图片Part
-            image_part = Part.from_dict({
-                "inline_data": {
-                    "data": image_base64_encoded,
-                    "mime_type": "image/png"
-                }
-            })
+            # API需要一个包含bytesBase64Encoded和mimeType的字典
+            image_dict = {
+                "bytesBase64Encoded": image_base64_encoded,
+                "mimeType": "image/png"
+            }
             
             # 调用Veo 3生成视频
+            # 直接传递字典格式的image参数
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image_part,
+                image=image_dict,
             )
             
             logger.info("🕐 等待视频生成完成...")
