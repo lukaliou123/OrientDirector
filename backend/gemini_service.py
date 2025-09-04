@@ -791,13 +791,13 @@ class GeminiImageService:
                 try:
                     response_text = response.text if hasattr(response, 'text') else None
                     if response_text and 'data:image' in response_text:
-                    # 提取base64图片数据
-                    start = response_text.find('data:image')
-                    end = response_text.find('"', start)
-                    if start != -1 and end != -1:
-                        image_data_url = response_text[start:end]
-                        # 解析data URL
-                        header, data = image_data_url.split(',', 1)
+                        # 提取base64图片数据
+                        start = response_text.find('data:image')
+                        end = response_text.find('"', start)
+                        if start != -1 and end != -1:
+                            image_data_url = response_text[start:end]
+                            # 解析data URL
+                            header, data = image_data_url.split(',', 1)
                             # 创建BytesIO对象并重置指针
                             image_buffer = BytesIO(base64.b64decode(data))
                             image_buffer.seek(0)  # 重置指针到开始位置
@@ -814,14 +814,14 @@ class GeminiImageService:
                 filepath = os.path.join(self.output_dir, filename)
                 
                 try:
-                generated_image.save(filepath, 'PNG')
-                logger.info(f"Doro合影已保存: {filename}")
-                
+                    generated_image.save(filepath, 'PNG')
+                    logger.info(f"Doro合影已保存: {filename}")
+                    
                     # 转换为base64 - 修复BytesIO指针问题
-                buffered = BytesIO()
-                generated_image.save(buffered, format="PNG")
+                    buffered = BytesIO()
+                    generated_image.save(buffered, format="PNG")
                     buffered.seek(0)  # 重置指针到开始位置
-                img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                    img_base64 = base64.b64encode(buffered.getvalue()).decode()
                     buffered.close()  # 关闭BytesIO对象
                 except Exception as save_error:
                     logger.error(f"保存图片时出错: {save_error}")
