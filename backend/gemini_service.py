@@ -633,9 +633,9 @@ class GeminiImageService:
             # 读取用户照片
             try:
                 user_photo.file.seek(0)  # 确保文件指针在开始位置
-                user_image = Image.open(user_photo.file)
-                if user_image.mode != 'RGB':
-                    user_image = user_image.convert('RGB')
+            user_image = Image.open(user_photo.file)
+            if user_image.mode != 'RGB':
+                user_image = user_image.convert('RGB')
                 logger.info(f"✅ 用户照片加载成功: {user_image.size}, 模式: {user_image.mode}")
                 
                 # 验证用户照片
@@ -648,9 +648,9 @@ class GeminiImageService:
             # 读取Doro图片
             try:
                 doro_photo.file.seek(0)  # 确保文件指针在开始位置
-                doro_image = Image.open(doro_photo.file)
-                if doro_image.mode != 'RGB':
-                    doro_image = doro_image.convert('RGB')
+            doro_image = Image.open(doro_photo.file)
+            if doro_image.mode != 'RGB':
+                doro_image = doro_image.convert('RGB')
                 logger.info(f"✅ Doro图片加载成功: {doro_image.size}, 模式: {doro_image.mode}")
                 
                 # 验证Doro图片
@@ -665,9 +665,9 @@ class GeminiImageService:
             if style_photo:
                 try:
                     style_photo.file.seek(0)  # 确保文件指针在开始位置
-                    style_image = Image.open(style_photo.file)
-                    if style_image.mode != 'RGB':
-                        style_image = style_image.convert('RGB')
+                style_image = Image.open(style_photo.file)
+                if style_image.mode != 'RGB':
+                    style_image = style_image.convert('RGB')
                     logger.info(f"✅ 风格图片加载成功: {style_image.size}, 模式: {style_image.mode}")
                     
                     # 验证风格图片
@@ -729,7 +729,7 @@ class GeminiImageService:
                     # 检查是否有mime_type且是图片
                     if hasattr(part.inline_data, 'mime_type') and part.inline_data.mime_type and part.inline_data.mime_type.startswith('image/'):
                         try:
-                            image_data = part.inline_data.data
+                    image_data = part.inline_data.data
                             
                             # 检查数据类型并相应处理
                             if isinstance(image_data, str):
@@ -779,7 +779,7 @@ class GeminiImageService:
                                         image_buffer.seek(0)
                                         generated_image = Image.open(image_buffer)
                                         logger.info(f"✅ 使用to_dict()成功提取图片: {generated_image.size}")
-                                        break
+                    break
                                     except Exception as e:
                                         logger.error(f"❌ to_dict()方法提取失败: {e}")
                                         continue
@@ -791,13 +791,13 @@ class GeminiImageService:
                 try:
                     response_text = response.text if hasattr(response, 'text') else None
                     if response_text and 'data:image' in response_text:
-                        # 提取base64图片数据
-                        start = response_text.find('data:image')
-                        end = response_text.find('"', start)
-                        if start != -1 and end != -1:
-                            image_data_url = response_text[start:end]
-                            # 解析data URL
-                            header, data = image_data_url.split(',', 1)
+                    # 提取base64图片数据
+                    start = response_text.find('data:image')
+                    end = response_text.find('"', start)
+                    if start != -1 and end != -1:
+                        image_data_url = response_text[start:end]
+                        # 解析data URL
+                        header, data = image_data_url.split(',', 1)
                             # 创建BytesIO对象并重置指针
                             image_buffer = BytesIO(base64.b64decode(data))
                             image_buffer.seek(0)  # 重置指针到开始位置
@@ -814,14 +814,14 @@ class GeminiImageService:
                 filepath = os.path.join(self.output_dir, filename)
                 
                 try:
-                    generated_image.save(filepath, 'PNG')
-                    logger.info(f"Doro合影已保存: {filename}")
-                    
+                generated_image.save(filepath, 'PNG')
+                logger.info(f"Doro合影已保存: {filename}")
+                
                     # 转换为base64 - 修复BytesIO指针问题
-                    buffered = BytesIO()
-                    generated_image.save(buffered, format="PNG")
+                buffered = BytesIO()
+                generated_image.save(buffered, format="PNG")
                     buffered.seek(0)  # 重置指针到开始位置
-                    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                img_base64 = base64.b64encode(buffered.getvalue()).decode()
                     buffered.close()  # 关闭BytesIO对象
                 except Exception as save_error:
                     logger.error(f"保存图片时出错: {save_error}")
@@ -905,6 +905,32 @@ class GeminiImageService:
                 # 获取生成的图片
                 generated_image = imagen_response.generated_images[0].image
                 logger.info(f"✅ 静态图片生成成功")
+                
+                # 保存Imagen生成的图片
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
+                imagen_filename = f"imagen_{safe_name}_{timestamp}.png"
+                imagen_filepath = os.path.join(self.output_dir, imagen_filename)
+                
+                # 如果generated_image有save方法，直接保存
+                if hasattr(generated_image, 'save'):
+                    generated_image.save(imagen_filepath)
+                elif hasattr(generated_image, 'data'):
+                    # 如果是字节数据
+                    with open(imagen_filepath, 'wb') as f:
+                        f.write(generated_image.data)
+                
+                # 读取保存的图片转为base64
+                with open(imagen_filepath, 'rb') as f:
+                    img_data = f.read()
+                img_base64 = base64.b64encode(img_data).decode()
+                
+                # 初始化image_result用于返回
+                image_result = {
+                    'image_url': f"data:image/png;base64,{img_base64}",
+                    'filename': imagen_filename,
+                    'filepath': imagen_filepath
+                }
                 
             except Exception as e:
                 logger.error(f"❌ Imagen生成失败: {e}")
