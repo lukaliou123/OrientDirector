@@ -58,10 +58,22 @@ pkill -f "python.*start_backend.py" || true
 # 等待端口释放
 sleep 3
 
+# 创建带时间戳的日志文件名
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKEND_LOG="logs/backend_${TIMESTAMP}.log"
+FRONTEND_LOG="logs/frontend_${TIMESTAMP}.log"
+
+# 创建符号链接指向最新日志
+ln -sf "${BACKEND_LOG}" logs/backend.log
+ln -sf "${FRONTEND_LOG}" logs/frontend.log
+
+echo "📝 日志文件: ${BACKEND_LOG}, ${FRONTEND_LOG}"
+
 # 启动后端服务（后台运行）
 echo "🔧 启动后端服务 (端口 8001)..."
 cd backend
-nohup python -m uvicorn main:app --host 0.0.0.0 --port 8001 >> ../logs/backend.log 2>&1 &
+# 确保在conda环境中启动
+nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate orient && python -m uvicorn main:app --host 0.0.0.0 --port 8001" >> "../${BACKEND_LOG}" 2>&1 &
 BACKEND_PID=$!
 echo $BACKEND_PID > ../logs/backend.pid
 echo "后端服务PID: $BACKEND_PID"
@@ -72,7 +84,8 @@ sleep 5
 
 # 启动前端服务（后台运行）
 echo "🌐 启动前端服务 (端口 3001)..."
-nohup python start_frontend.py >> logs/frontend.log 2>&1 &
+# 确保在conda环境中启动
+nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate orient && python start_frontend.py" >> "${FRONTEND_LOG}" 2>&1 &
 FRONTEND_PID=$!
 echo $FRONTEND_PID > logs/frontend.pid
 echo "前端服务PID: $FRONTEND_PID"
