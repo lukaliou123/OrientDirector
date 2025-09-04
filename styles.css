@@ -3335,12 +3335,22 @@ body {
 }
 
 .doro-cancel-btn {
-    background: #f44336;
+    background: linear-gradient(135deg, #f44336, #da190b);
     color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
 }
 
 .doro-cancel-btn:hover {
-    background: #da190b;
+    background: linear-gradient(135deg, #da190b, #f44336);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 
 .skip-btn {
@@ -3386,21 +3396,39 @@ body {
 .doro-error {
     text-align: center;
     padding: 40px 20px;
+    background: linear-gradient(135deg, #fff8e1, #fff3c4);
+    border-radius: 15px;
+    margin: 20px;
+    border: 2px solid #ffcc02;
 }
 
 .doro-error .error-icon {
-    font-size: 48px;
+    font-size: 64px;
     margin-bottom: 20px;
+    animation: wobble 2s infinite;
+}
+
+@keyframes wobble {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(-5deg); }
+    30% { transform: rotate(5deg); }
+    45% { transform: rotate(-3deg); }
+    60% { transform: rotate(3deg); }
+    75% { transform: rotate(-1deg); }
 }
 
 .doro-error h4 {
-    color: #f44336;
+    color: #ff9800;
     margin-bottom: 15px;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .doro-error p {
     color: #666;
     margin-bottom: 25px;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 /* Doro遮罩层 */
