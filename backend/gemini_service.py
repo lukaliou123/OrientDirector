@@ -665,10 +665,15 @@ class GeminiImageService:
             if style_photo:
                 try:
                     style_photo.file.seek(0)  # 确保文件指针在开始位置
-                style_image = Image.open(style_photo.file)
-                if style_image.mode != 'RGB':
-                    style_image = style_image.convert('RGB')
+                    style_image = Image.open(style_photo.file)
+                    if style_image.mode != 'RGB':
+                        style_image = style_image.convert('RGB')
                     logger.info(f"✅ 风格图片加载成功: {style_image.size}, 模式: {style_image.mode}")
+                    
+                    # 验证风格图片
+                    if not self._validate_image(style_image):
+                        logger.warning("⚠️ 风格图片不符合要求，将跳过")
+                        style_image = None
                 except Exception as e:
                     logger.warning(f"⚠️ 风格图片加载失败，将跳过: {e}")
                     style_image = None
