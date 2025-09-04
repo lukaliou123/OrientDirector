@@ -1,3 +1,7 @@
+# 首先加载环境变量
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,7 +14,6 @@ import asyncio
 import logging
 import requests
 import time
-from dotenv import load_dotenv
 from real_data_service import real_data_service
 from local_attractions_db import local_attractions_db
 from gemini_service import gemini_service
@@ -19,9 +22,6 @@ from fastapi import File, UploadFile, Form
 from fastapi.responses import FileResponse, Response
 import tempfile
 import shutil
-
-# 加载环境变量
-load_dotenv()
 
 # 配置日志
 logging.basicConfig(
@@ -1089,6 +1089,56 @@ async def get_maps_config():
         "default_zoom": 10
     }
 
+@app.get("/api/config/environment")
+async def get_environment_config():
+    """
+    获取环境配置
+    
+    Returns:
+        环境配置信息，包括API基础URL等
+    """
+    try:
+        # 检查环境变量 isUsedomainnameaddress
+        use_domain_name = os.getenv("isUsedomainnameaddress", "false").lower() == "true"
+        
+        # 根据环境变量决定API基础URL
+        if use_domain_name:
+            api_base_url = "https://doro.gitagent.io"
+            environment = "production"
+        else:
+            api_base_url = "http://localhost:8001"
+            environment = "local"
+        
+        # 获取服务器信息
+        import socket
+        hostname = socket.gethostname()
+        
+        config = {
+            "success": True,
+            "environment": environment,
+            "api_base_url": api_base_url,
+            "use_domain_name": use_domain_name,
+            "server_info": {
+                "hostname": hostname,
+                "backend_port": 8001,
+                "frontend_port": 3001
+            },
+            "timestamp": time.time()
+        }
+        
+        logger.info(f"环境配置请求: {environment} - {api_base_url}")
+        return config
+        
+    except Exception as e:
+        logger.error(f"获取环境配置失败: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "environment": "local",
+            "api_base_url": "http://localhost:8001",
+            "use_domain_name": False
+        }
+
 # 旅程管理辅助函数
 def generate_journey_id():
     """生成唯一的旅程ID"""
@@ -1470,9 +1520,10 @@ async def generate_doro_selfie(
             with open(doro_path, 'rb') as f:
                 doro_content = f.read()
             
-            # 创建UploadFile对象
+            # 创建UploadFile对象 - 修复BytesIO指针问题
             import io
             doro_file = io.BytesIO(doro_content)
+            doro_file.seek(0)  # 确保指针在开始位置
             doro_photo = UploadFile(
                 filename=doro_path.name,
                 file=doro_file
@@ -1515,6 +1566,86 @@ async def generate_doro_selfie(
     except Exception as e:
         logger.error(f"生成Doro合影失败: {e}")
         raise HTTPException(status_code=500, detail=f"生成失败: {str(e)}")
+
+@app.post("/api/doro/generate-video")
+async def generate_doro_video(
+    user_photo: UploadFile = File(...),
+    doro_image: Optional[UploadFile] = File(None),
+    doro_id: Optional[str] = Form(None),
+    style_photo: Optional[UploadFile] = File(None),
+    attraction_name: str = Form(...),
+    attraction_type: Optional[str] = Form(None),
+    location: Optional[str] = Form(None),
+    doro_style: Optional[str] = Form("default"),
+    user_description: Optional[str] = Form(None),
+    time_of_day: Optional[str] = Form(None),
+    weather: Optional[str] = Form(None),
+    season: Optional[str] = Form(None),
+    mood: Optional[str] = Form(None)
+):
+    """
+    生成Doro合影视频
+    
+    使用Imagen生成静态合影图片，然后用Veo 3生成动态视频
+    """
+    try:
+        # 获取Doro图片
+        if doro_image:
+            doro_photo = doro_image
+        elif doro_id:
+            doro_path = doro_service.get_doro_by_id(doro_id)
+            if not doro_path:
+                raise HTTPException(status_code=404, detail="指定的Doro不存在")
+            
+            # 创建UploadFile对象
+            with open(doro_path, 'rb') as f:
+                doro_content = f.read()
+            
+            import io
+            doro_file = io.BytesIO(doro_content)
+            doro_file.seek(0)
+            doro_photo = UploadFile(
+                filename=doro_path.name,
+                file=doro_file
+            )
+        else:
+            raise HTTPException(status_code=400, detail="必须提供Doro图片或Doro ID")
+        
+        # 准备景点信息
+        attraction_info = {
+            "name": attraction_name,
+            "category": attraction_type,
+            "location": location,
+            "doro_style": doro_style,
+            "user_description": user_description,
+            "time_of_day": time_of_day,
+            "weather": weather,
+            "season": season,
+            "mood": mood
+        }
+        
+        # 调用Gemini服务生成视频
+        success, message, result = await gemini_service.generate_doro_video_with_attraction(
+            user_photo=user_photo,
+            doro_photo=doro_photo,
+            style_photo=style_photo,
+            attraction_info=attraction_info
+        )
+        
+        if success:
+            return {
+                "success": True,
+                "message": message,
+                "data": result
+            }
+        else:
+            raise HTTPException(status_code=500, detail=message)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"生成Doro合影视频失败: {e}")
+        raise HTTPException(status_code=500, detail=f"生成Doro合影视频失败: {str(e)}")
 
 @app.delete("/api/doro/{doro_id}")
 async def delete_custom_doro(doro_id: str):

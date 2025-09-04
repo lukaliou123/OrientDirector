@@ -13,6 +13,11 @@ import time
 import asyncio
 from google.api_core import exceptions as google_exceptions
 from prompt_generator import doro_prompt_generator
+from google import genai as genai_client
+
+# 加载环境变量
+from dotenv import load_dotenv
+load_dotenv()
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -20,6 +25,7 @@ logger = logging.getLogger(__name__)
 # 配置 Google Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
+    logger.error("GEMINI_API_KEY environment variable is not set")
     raise ValueError("GEMINI_API_KEY environment variable is required")
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -363,11 +369,34 @@ class GeminiImageService:
                 
                 for part in parts:
                     if "inline_data" in part:
-                        # 解码base64图像数据
-                        image_data = base64.b64decode(part["inline_data"]["data"])
-                        
-                        # 使用PIL保存图像
-                        generated_image = Image.open(BytesIO(image_data))
+                        try:
+                            # 获取图像数据
+                            raw_data = part["inline_data"]["data"]
+                            
+                            # 检查数据类型并相应处理
+                            if isinstance(raw_data, str):
+                                # 如果是字符串，进行base64解码
+                                logger.info("📦 景点图片数据是base64字符串，进行解码...")
+                                image_data = base64.b64decode(raw_data)
+                            elif isinstance(raw_data, bytes):
+                                # 如果已经是字节数据，直接使用
+                                logger.info("📦 景点图片数据已经是字节格式，直接使用...")
+                                image_data = raw_data
+                            else:
+                                logger.error(f"❌ 未知的景点图片数据类型: {type(raw_data)}")
+                                continue
+                            
+                            # 创建BytesIO对象并重置指针
+                            image_buffer = BytesIO(image_data)
+                            image_buffer.seek(0)  # 重置指针到开始位置
+                            
+                            # 使用PIL打开图像
+                            generated_image = Image.open(image_buffer)
+                            logger.info(f"✅ 成功从响应中提取景点合影图片: {generated_image.size}")
+                        except Exception as e:
+                            logger.error(f"❌ 提取景点合影图片失败: {e}")
+                            logger.error(f"   数据类型: {type(raw_data) if 'raw_data' in locals() else 'unknown'}")
+                            continue
                         
                         # 生成带时间戳的文件名
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -382,7 +411,9 @@ class GeminiImageService:
                         # 同时返回base64编码的图片数据，方便前端直接显示
                         buffered = BytesIO()
                         generated_image.save(buffered, format="PNG")
+                        buffered.seek(0)  # 重置指针到开始位置
                         img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+                        buffered.close()  # 关闭BytesIO对象
                         
                         return True, "景点合影生成成功", {
                             "filepath": filepath,
@@ -542,21 +573,39 @@ class GeminiImageService:
             logger.info(f"开始生成Doro合影: 景点={attraction_info.get('name', 'Unknown')}")
             
             # 读取用户照片
-            user_image = Image.open(user_photo.file)
-            if user_image.mode != 'RGB':
-                user_image = user_image.convert('RGB')
+            try:
+                user_photo.file.seek(0)  # 确保文件指针在开始位置
+                user_image = Image.open(user_photo.file)
+                if user_image.mode != 'RGB':
+                    user_image = user_image.convert('RGB')
+                logger.info(f"✅ 用户照片加载成功: {user_image.size}, 模式: {user_image.mode}")
+            except Exception as e:
+                logger.error(f"❌ 用户照片加载失败: {e}")
+                return False, f"用户照片加载失败: {str(e)}", None
             
             # 读取Doro图片
-            doro_image = Image.open(doro_photo.file)
-            if doro_image.mode != 'RGB':
-                doro_image = doro_image.convert('RGB')
+            try:
+                doro_photo.file.seek(0)  # 确保文件指针在开始位置
+                doro_image = Image.open(doro_photo.file)
+                if doro_image.mode != 'RGB':
+                    doro_image = doro_image.convert('RGB')
+                logger.info(f"✅ Doro图片加载成功: {doro_image.size}, 模式: {doro_image.mode}")
+            except Exception as e:
+                logger.error(f"❌ Doro图片加载失败: {e}")
+                return False, f"Doro图片加载失败: {str(e)}", None
             
             # 读取服装风格图片（如果提供）
             style_image = None
             if style_photo:
-                style_image = Image.open(style_photo.file)
-                if style_image.mode != 'RGB':
-                    style_image = style_image.convert('RGB')
+                try:
+                    style_photo.file.seek(0)  # 确保文件指针在开始位置
+                    style_image = Image.open(style_photo.file)
+                    if style_image.mode != 'RGB':
+                        style_image = style_image.convert('RGB')
+                    logger.info(f"✅ 风格图片加载成功: {style_image.size}, 模式: {style_image.mode}")
+                except Exception as e:
+                    logger.warning(f"⚠️ 风格图片加载失败，将跳过: {e}")
+                    style_image = None
             
             # 生成智能提示词
             main_prompt = doro_prompt_generator.generate_attraction_doro_prompt(
@@ -602,38 +651,110 @@ class GeminiImageService:
             
             # 提取生成的图片
             generated_image = None
+            
+            # 方法1: 直接从response.parts提取
             for part in response.parts:
-                if hasattr(part, 'inline_data') and part.inline_data.mime_type.startswith('image/'):
-                    image_data = part.inline_data.data
-                    generated_image = Image.open(BytesIO(base64.b64decode(image_data)))
-                    break
+                if hasattr(part, 'inline_data') and part.inline_data:
+                    # 检查是否有mime_type且是图片
+                    if hasattr(part.inline_data, 'mime_type') and part.inline_data.mime_type and part.inline_data.mime_type.startswith('image/'):
+                        try:
+                            image_data = part.inline_data.data
+                            
+                            # 检查数据类型并相应处理
+                            if isinstance(image_data, str):
+                                # 如果是字符串，假设是base64编码
+                                logger.info("📦 图片数据是base64字符串，进行解码...")
+                                decoded_data = base64.b64decode(image_data)
+                            elif isinstance(image_data, bytes):
+                                # 如果已经是字节数据，直接使用
+                                logger.info("📦 图片数据已经是字节格式，直接使用...")
+                                decoded_data = image_data
+                            else:
+                                logger.error(f"❌ 未知的图片数据类型: {type(image_data)}")
+                                continue
+                            
+                            # 创建BytesIO对象并重置指针
+                            image_buffer = BytesIO(decoded_data)
+                            image_buffer.seek(0)  # 重置指针到开始位置
+                            generated_image = Image.open(image_buffer)
+                            logger.info(f"✅ 成功从Gemini响应中提取图片: {generated_image.size}")
+                            break  # 找到图片就退出循环
+                        except Exception as e:
+                            logger.error(f"❌ 从响应中提取图片失败: {e}")
+                            logger.error(f"   数据类型: {type(image_data) if 'image_data' in locals() else 'unknown'}")
+                            continue
             
             if not generated_image:
-                # 如果响应中没有图片，尝试从文本中提取
-                response_text = response.text
-                if 'data:image' in response_text:
-                    # 提取base64图片数据
-                    start = response_text.find('data:image')
-                    end = response_text.find('"', start)
-                    if start != -1 and end != -1:
-                        image_data_url = response_text[start:end]
-                        # 解析data URL
-                        header, data = image_data_url.split(',', 1)
-                        generated_image = Image.open(BytesIO(base64.b64decode(data)))
+                # 方法2: 使用to_dict()方法提取
+                try:
+                    logger.info("📦 尝试使用to_dict()方法提取图片...")
+                    response_dict = response.to_dict()
+                    if 'candidates' in response_dict and response_dict['candidates']:
+                        parts = response_dict['candidates'][0].get('content', {}).get('parts', [])
+                        for part in parts:
+                            if 'inline_data' in part:
+                                inline_data = part['inline_data']
+                                if 'data' in inline_data and inline_data.get('mime_type', '').startswith('image/'):
+                                    try:
+                                        # to_dict()返回的data通常是base64字符串
+                                        image_data = inline_data['data']
+                                        if isinstance(image_data, str):
+                                            logger.info("📦 to_dict()返回base64字符串，进行解码...")
+                                            decoded_data = base64.b64decode(image_data)
+                                        else:
+                                            decoded_data = image_data
+                                        
+                                        image_buffer = BytesIO(decoded_data)
+                                        image_buffer.seek(0)
+                                        generated_image = Image.open(image_buffer)
+                                        logger.info(f"✅ 使用to_dict()成功提取图片: {generated_image.size}")
+                                        break
+                                    except Exception as e:
+                                        logger.error(f"❌ to_dict()方法提取失败: {e}")
+                                        continue
+                except Exception as e:
+                    logger.error(f"❌ to_dict()方法失败: {e}")
+            
+            if not generated_image:
+                # 方法3: 尝试从文本中提取data URL
+                try:
+                    response_text = response.text if hasattr(response, 'text') else None
+                    if response_text and 'data:image' in response_text:
+                        # 提取base64图片数据
+                        start = response_text.find('data:image')
+                        end = response_text.find('"', start)
+                        if start != -1 and end != -1:
+                            image_data_url = response_text[start:end]
+                            # 解析data URL
+                            header, data = image_data_url.split(',', 1)
+                            # 创建BytesIO对象并重置指针
+                            image_buffer = BytesIO(base64.b64decode(data))
+                            image_buffer.seek(0)  # 重置指针到开始位置
+                            generated_image = Image.open(image_buffer)
+                            logger.info(f"✅ 从文本响应中成功提取图片")
+                except Exception as e:
+                    logger.error(f"❌ 从文本响应中提取图片失败: {e}")
             
             if generated_image:
                 # 保存生成的图片
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"doro_selfie_{attraction_info.get('name', 'unknown').replace(' ', '_')}_{timestamp}.png"
+                safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
+                filename = f"doro_selfie_{safe_name}_{timestamp}.png"
                 filepath = os.path.join(self.output_dir, filename)
                 
-                generated_image.save(filepath, 'PNG')
-                logger.info(f"Doro合影已保存: {filename}")
-                
-                # 转换为base64
-                buffered = BytesIO()
-                generated_image.save(buffered, format="PNG")
-                img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                try:
+                    generated_image.save(filepath, 'PNG')
+                    logger.info(f"Doro合影已保存: {filename}")
+                    
+                    # 转换为base64 - 修复BytesIO指针问题
+                    buffered = BytesIO()
+                    generated_image.save(buffered, format="PNG")
+                    buffered.seek(0)  # 重置指针到开始位置
+                    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                    buffered.close()  # 关闭BytesIO对象
+                except Exception as save_error:
+                    logger.error(f"保存图片时出错: {save_error}")
+                    return False, f"保存图片失败: {str(save_error)}", None
                 
                 return True, "Doro合影生成成功！", {
                     "image_url": f"data:image/png;base64,{img_base64}",
@@ -658,6 +779,158 @@ class GeminiImageService:
         except Exception as e:
             logger.error(f"生成Doro合影时出错: {str(e)}")
             return False, f"生成失败: {str(e)}", None
+    
+    async def generate_doro_video_with_attraction(
+        self,
+        user_photo: UploadFile,
+        doro_photo: UploadFile,
+        style_photo: Optional[UploadFile],
+        attraction_info: Dict
+    ) -> Tuple[bool, str, Optional[Dict]]:
+        """
+        生成包含景点背景的Doro合影视频
+        
+        使用两步法：
+        1. 先用当前的图片生成功能创建静态合影
+        2. 再用Veo 3将静态图片转换为动态视频
+        
+        Args:
+            user_photo: 用户照片
+            doro_photo: Doro形象
+            style_photo: 服装参考（可选）
+            attraction_info: 景点信息
+            
+        Returns:
+            (成功标志, 消息, 结果数据)
+        """
+        try:
+            logger.info(f"开始生成Doro合影视频: 景点={attraction_info.get('name', 'Unknown')}")
+            
+            # 第一步：生成静态合影图片
+            logger.info("🎨 第一步：生成静态合影图片...")
+            success, message, image_result = await self.generate_doro_selfie_with_attraction(
+                user_photo=user_photo,
+                doro_photo=doro_photo,
+                style_photo=style_photo,
+                attraction_info=attraction_info
+            )
+            
+            if not success:
+                return False, f"静态图片生成失败: {message}", None
+            
+            # 从base64数据创建PIL图片对象
+            image_base64 = image_result['image_url'].split(',')[1]  # 移除data:image/png;base64,前缀
+            image_data = base64.b64decode(image_base64)
+            static_image = Image.open(BytesIO(image_data))
+            
+            logger.info(f"✅ 静态图片生成成功: {static_image.size}")
+            
+            # 第二步：使用Veo 3生成视频
+            logger.info("🎬 第二步：使用Veo 3生成动态视频...")
+            
+            # 创建Gemini客户端
+            client = genai_client.Client()
+            
+            # 生成视频提示词
+            video_prompt = self._generate_video_prompt(attraction_info, static_image.size)
+            logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
+            
+            # 调用Veo 3生成视频
+            operation = client.models.generate_videos(
+                model="veo-3.0-generate-preview",
+                prompt=video_prompt,
+                image=static_image,
+            )
+            
+            logger.info("🕐 等待视频生成完成...")
+            
+            # 轮询操作状态
+            max_wait_time = 600  # 最多等待10分钟
+            check_interval = 10  # 每10秒检查一次
+            waited_time = 0
+            
+            while not operation.done and waited_time < max_wait_time:
+                logger.info(f"⏳ 视频生成中... 已等待 {waited_time}秒")
+                await asyncio.sleep(check_interval)
+                operation = client.operations.get(operation)
+                waited_time += check_interval
+            
+            if not operation.done:
+                logger.error("❌ 视频生成超时")
+                return False, "视频生成超时，请稍后重试", None
+            
+            # 下载生成的视频
+            generated_video = operation.response.generated_videos[0]
+            
+            # 保存视频文件
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
+            video_filename = f"doro_video_{safe_name}_{timestamp}.mp4"
+            video_filepath = os.path.join(self.output_dir, video_filename)
+            
+            # 下载并保存视频
+            client.files.download(file=generated_video.video)
+            generated_video.video.save(video_filepath)
+            
+            logger.info(f"✅ Doro合影视频生成成功: {video_filename}")
+            
+            # 读取视频文件并转换为base64（用于前端显示）
+            with open(video_filepath, 'rb') as f:
+                video_data = f.read()
+            video_base64 = base64.b64encode(video_data).decode()
+            
+            return True, "Doro合影视频生成成功！", {
+                "video_url": f"data:video/mp4;base64,{video_base64}",
+                "filename": video_filename,
+                "filepath": video_filepath,
+                "static_image_url": image_result['image_url'],  # 也返回静态图片
+                "prompt_used": video_prompt,
+                "attraction_name": attraction_info.get("name"),
+                "timestamp": timestamp,
+                "generation_time": waited_time
+            }
+            
+        except Exception as e:
+            logger.error(f"生成Doro合影视频时出错: {str(e)}")
+            return False, f"视频生成失败: {str(e)}", None
+    
+    def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple) -> str:
+        """
+        生成视频提示词
+        
+        Args:
+            attraction_info: 景点信息
+            image_size: 图片尺寸
+            
+        Returns:
+            视频生成提示词
+        """
+        attraction_name = attraction_info.get('name', '景点')
+        location = attraction_info.get('location', '')
+        
+        # 基础视频提示词
+        base_prompt = f"""Create a cinematic travel video showing a person and their animated companion Doro at {attraction_name}"""
+        
+        if location:
+            base_prompt += f" in {location}"
+        
+        # 添加视频效果描述
+        video_effects = [
+            "The camera slowly pans around them as they pose together",
+            "Gentle breeze moves their hair and clothes naturally",
+            "The landmark background is clearly visible and majestic",
+            "Warm, golden hour lighting creates a beautiful atmosphere",
+            "The person and Doro are smiling and enjoying the moment",
+            "Subtle camera movement adds cinematic quality",
+            "The scene feels authentic and joyful"
+        ]
+        
+        base_prompt += ". " + ". ".join(video_effects)
+        
+        # 添加技术要求
+        base_prompt += ". High-quality 8-second video with realistic motion and natural lighting."
+        
+        return base_prompt
     
     async def health_check(self) -> dict:
         """

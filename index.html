@@ -382,6 +382,9 @@
                         <button class="doro-generate-btn" id="doroGenerateBtn" onclick="generateDoroSelfie()" disabled>
                             ✨ 生成Doro合影
                         </button>
+                        <button class="doro-video-btn" id="doroVideoBtn" onclick="generateDoroVideo()" disabled>
+                            🎬 生成Doro合影视频
+                        </button>
                         <button class="doro-cancel-btn" onclick="closeDoroModal()">
                             取消
                         </button>
@@ -417,6 +420,27 @@
                         </div>
                     </div>
                     
+                    <!-- 视频结果展示 -->
+                    <div class="doro-video-result" id="doroVideoResult" style="display: none;">
+                        <div class="generated-video-container">
+                            <video id="generatedDoroVideo" class="generated-video" controls>
+                                您的浏览器不支持视频播放
+                            </video>
+                            <div class="video-hint">Doro合影视频已生成</div>
+                        </div>
+                        <div class="video-result-actions">
+                            <button class="download-btn" onclick="downloadDoroVideo()">
+                                💾 下载视频
+                            </button>
+                            <button class="regenerate-btn" onclick="regenerateDoroVideo()">
+                                🔄 重新生成视频
+                            </button>
+                            <button class="share-btn" onclick="shareDoroVideo()">
+                                📤 分享视频
+                            </button>
+                        </div>
+                    </div>
+                    
                     <!-- 错误提示 -->
                     <div class="doro-error" id="doroError" style="display: none;">
                         <div class="error-icon">❌</div>
@@ -434,6 +458,23 @@
 
     <!-- Google Maps JavaScript API 配置 -->
     <script>
+        // API基础URL配置 - 支持环境变量控制
+        function getAPIBaseURL() {
+            // 检查环境变量 isUsedomainnameaddress
+            const usedomainname = localStorage.getItem('isUsedomainnameaddress') === 'true' || 
+                                 window.location.search.includes('usedomainname=true') ||
+                                 (typeof process !== 'undefined' && process.env && process.env.isUsedomainnameaddress === 'true');
+            
+            if (usedomainname) {
+                return 'https://doro.gitagent.io';
+            } else {
+                return 'http://localhost:8001';
+            }
+        }
+        
+        const API_BASE_URL = getAPIBaseURL();
+        console.log('🔧 API_BASE_URL配置:', API_BASE_URL);
+        
         // 应用配置 - API Key配置在环境变量中
         window.appConfig = {
             // 注意：实际部署时应从后端或环境变量获取此值
@@ -446,7 +487,7 @@
         // 尝试从后端获取API配置（生产环境推荐）
         async function loadAppConfig() {
             try {
-                const response = await fetch('http://localhost:8001/api/config/maps');
+                const response = await fetch(`${API_BASE_URL}/api/config/maps`);
                 if (response.ok) {
                     const config = await response.json();
                     window.appConfig.googleMapsApiKey = config.google_maps_api_key;

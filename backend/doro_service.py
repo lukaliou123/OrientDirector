@@ -45,44 +45,26 @@ class DoroService:
     
     def _init_preset_metadata(self):
         """初始化预设Doro的元数据"""
-        preset_metadata = {
-            "doro1": {
-                "name": "经典Doro",
-                "description": "经典可爱的Doro形象",
-                "style": "cute",
-                "tags": ["经典", "可爱", "友好"]
-            },
-            "doro2": {
-                "name": "冒险Doro",
-                "description": "勇敢的冒险家Doro",
-                "style": "adventurous",
-                "tags": ["冒险", "勇敢", "探索"]
-            },
-            "doro3": {
-                "name": "优雅Doro",
-                "description": "优雅知性的Doro",
-                "style": "elegant",
-                "tags": ["优雅", "知性", "文艺"]
-            },
-            "doro4": {
-                "name": "运动Doro",
-                "description": "活力四射的运动Doro",
-                "style": "sporty",
-                "tags": ["运动", "活力", "健康"]
-            },
-            "doro5": {
-                "name": "科技Doro",
-                "description": "未来感十足的科技Doro",
-                "style": "tech",
-                "tags": ["科技", "未来", "智能"]
-            }
-        }
-        
-        # 保存元数据到文件
+        # 不再硬编码，而是从文件加载或创建默认的
         metadata_file = self.preset_dir / "metadata.json"
         if not metadata_file.exists():
+            # 只有在文件不存在时才创建默认的前两个
+            default_metadata = {
+                "doro1": {
+                    "name": "经典Doro",
+                    "description": "经典可爱的Doro形象",
+                    "style": "cute",
+                    "tags": ["经典", "可爱", "友好"]
+                },
+                "doro2": {
+                    "name": "冒险Doro",
+                    "description": "勇敢的冒险家Doro",
+                    "style": "adventurous",
+                    "tags": ["冒险", "勇敢", "探索"]
+                }
+            }
             with open(metadata_file, 'w', encoding='utf-8') as f:
-                json.dump(preset_metadata, f, ensure_ascii=False, indent=2)
+                json.dump(default_metadata, f, ensure_ascii=False, indent=2)
     
     def get_all_doros(self) -> Dict[str, List[Dict]]:
         """
@@ -96,24 +78,31 @@ class DoroService:
             "custom": []
         }
         
-        # 获取预设Doro
+        # 获取预设Doro - 按数字顺序排序
         preset_metadata = self._load_preset_metadata()
+        preset_files = []
         for image_path in self.preset_dir.glob("*"):
             if image_path.suffix.lower() in self.supported_formats:
-                doro_id = image_path.stem
-                metadata = preset_metadata.get(doro_id, {})
-                
-                result["preset"].append({
-                    "id": doro_id,
-                    "name": metadata.get("name", f"Doro {doro_id}"),
-                    "description": metadata.get("description", ""),
-                    "style": metadata.get("style", "default"),
-                    "tags": metadata.get("tags", []),
-                    "type": "preset",
-                    "filename": image_path.name,
-                    "url": f"http://localhost:8000/api/doro/image/{doro_id}",
-                    "thumbnail": f"http://localhost:8000/api/doro/thumbnail/{doro_id}"
-                })
+                preset_files.append(image_path)
+        
+        # 按文件名中的数字排序（doro1, doro2, ..., doro14）
+        preset_files.sort(key=lambda x: int(''.join(filter(str.isdigit, x.stem))) if any(c.isdigit() for c in x.stem) else 999)
+        
+        for image_path in preset_files:
+            doro_id = image_path.stem
+            metadata = preset_metadata.get(doro_id, {})
+            
+            result["preset"].append({
+                "id": doro_id,
+                "name": metadata.get("name", f"Doro {doro_id}"),
+                "description": metadata.get("description", ""),
+                "style": metadata.get("style", "default"),
+                "tags": metadata.get("tags", []),
+                "type": "preset",
+                "filename": image_path.name,
+                "url": f"https://doro.gitagent.io/api/doro/image/{doro_id}",
+                "thumbnail": f"https://doro.gitagent.io/api/doro/thumbnail/{doro_id}"
+            })
         
         # 获取自定义Doro
         custom_metadata = self._load_custom_metadata()
@@ -129,8 +118,8 @@ class DoroService:
                     "upload_time": metadata.get("upload_time", ""),
                     "type": "custom",
                     "filename": image_path.name,
-                    "url": f"http://localhost:8000/api/doro/image/custom_{doro_id}",
-                    "thumbnail": f"http://localhost:8000/api/doro/thumbnail/custom_{doro_id}"
+                    "url": f"https://doro.gitagent.io/api/doro/image/custom_{doro_id}",
+                    "thumbnail": f"https://doro.gitagent.io/api/doro/thumbnail/custom_{doro_id}"
                 })
         
         logger.info(f"获取Doro列表: 预设={len(result['preset'])}个, 自定义={len(result['custom'])}个")
@@ -221,8 +210,8 @@ class DoroService:
                 "description": metadata["description"],
                 "type": "custom",
                 "filename": filename,
-                "url": f"http://localhost:8000/api/doro/image/custom_{doro_id}",
-                "thumbnail": f"http://localhost:8000/api/doro/thumbnail/custom_{doro_id}",
+                "url": f"https://doro.gitagent.io/api/doro/image/custom_{doro_id}",
+                "thumbnail": f"https://doro.gitagent.io/api/doro/thumbnail/custom_{doro_id}",
                 "upload_time": metadata["upload_time"]
             }
             

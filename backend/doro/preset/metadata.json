@@ -3,20 +3,84 @@
     "name": "经典Doro",
     "description": "经典可爱的Doro形象",
     "style": "cute",
-    "tags": [
-      "经典",
-      "可爱",
-      "友好"
-    ]
+    "tags": ["经典", "可爱", "友好"]
   },
   "doro2": {
-    "name": "冒险Doro",
+    "name": "冒险Doro", 
     "description": "勇敢的冒险家Doro",
     "style": "adventurous",
-    "tags": [
-      "冒险",
-      "勇敢",
-      "探索"
-    ]
+    "tags": ["冒险", "勇敢", "探索"]
+  },
+  "doro3": {
+    "name": "时尚Doro",
+    "description": "时尚潮流的Doro形象",
+    "style": "fashionable",
+    "tags": ["时尚", "潮流", "个性"]
+  },
+  "doro4": {
+    "name": "学者Doro",
+    "description": "博学智慧的Doro学者",
+    "style": "scholarly",
+    "tags": ["智慧", "学者", "博学"]
+  },
+  "doro5": {
+    "name": "运动Doro",
+    "description": "活力满满的运动Doro",
+    "style": "sporty",
+    "tags": ["运动", "活力", "健康"]
+  },
+  "doro6": {
+    "name": "艺术Doro",
+    "description": "充满艺术气息的Doro",
+    "style": "artistic",
+    "tags": ["艺术", "创意", "灵感"]
+  },
+  "doro7": {
+    "name": "商务Doro",
+    "description": "专业的商务Doro形象",
+    "style": "business",
+    "tags": ["专业", "商务", "正式"]
+  },
+  "doro8": {
+    "name": "休闲Doro",
+    "description": "轻松休闲的Doro形象",
+    "style": "casual",
+    "tags": ["休闲", "轻松", "舒适"]
+  },
+  "doro9": {
+    "name": "节日Doro",
+    "description": "欢庆节日的Doro形象",
+    "style": "festive",
+    "tags": ["节日", "欢庆", "喜悦"]
+  },
+  "doro10": {
+    "name": "神秘Doro",
+    "description": "神秘魅力的Doro形象",
+    "style": "mysterious",
+    "tags": ["神秘", "魅力", "独特"]
+  },
+  "doro11": {
+    "name": "温暖Doro",
+    "description": "温暖治愈的Doro形象",
+    "style": "warm",
+    "tags": ["温暖", "治愈", "温柔"]
+  },
+  "doro12": {
+    "name": "科技Doro",
+    "description": "未来科技感的Doro形象",
+    "style": "tech",
+    "tags": ["科技", "未来", "创新"]
+  },
+  "doro13": {
+    "name": "自然Doro",
+    "description": "亲近自然的Doro形象",
+    "style": "nature",
+    "tags": ["自然", "环保", "清新"]
+  },
+  "doro14": {
+    "name": "梦幻Doro",
+    "description": "梦幻童话的Doro形象",
+    "style": "dreamy",
+    "tags": ["梦幻", "童话", "浪漫"]
   }
 }
