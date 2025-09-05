@@ -919,7 +919,7 @@ class GeminiImageService:
             
             # 使用新的转换方法，将现有合成图片转换为PIL Image对象
             generated_image = self._convert_existing_to_imagen_format(image_result)
-            logger.info("✅ 现有合成图片已转换为PIL Image格式")
+            logger.info("✅ 现有合成图片已转换为 types.Part 对象格式")
             
             # 第三步：使用Veo 3生成视频
             logger.info("🎬 第三步：使用Veo 3生成动态视频...")
@@ -1128,42 +1128,63 @@ class GeminiImageService:
     def _convert_existing_to_imagen_format(self, image_result: Dict):
         """
         将现有合成图片转换为Veo 3 API兼容的格式
-        使用types.Part.from_dict()方法包装
+        使用 types.Part.from_dict() 正确包装图片数据
         
         Args:
             image_result: generate_doro_selfie_with_attraction返回的结果
             
         Returns:
-            types.Part对象，符合Veo 3 API要求
+            types.Part对象，可直接传递给generate_videos
         """
         try:
-            # 优先从文件路径加载（最可靠）
+            from io import BytesIO
+            from PIL import Image
+            import base64
+            from google.genai import types
+            
+            # 1) 加载图像为PIL对象
             if 'filepath' in image_result and os.path.exists(image_result['filepath']):
                 logger.info(f"📁 从文件加载现有合成图片: {image_result['filepath']}")
-                with open(image_result['filepath'], 'rb') as f:
-                    image_bytes = f.read()
-                image_base64 = base64.b64encode(image_bytes).decode('utf-8')
-            
-            # 备选：从base64数据加载
-            elif 'image_url' in image_result:
+                pil_image = Image.open(image_result['filepath'])
+            elif 'image_url' in image_result and isinstance(image_result['image_url'], str):
                 logger.info("📦 从base64数据加载现有合成图片")
-                image_base64 = image_result['image_url'].split(',')[1]
-            
+                data_url = image_result['image_url']
+                # 去掉 data:image/...;base64, 前缀
+                base64_part = data_url.split(',', 1)[1] if ',' in data_url else data_url
+                image_bytes_temp = base64.b64decode(base64_part)
+                pil_image = Image.open(BytesIO(image_bytes_temp))
             else:
                 raise ValueError("无法找到有效的图片数据")
-            
-            # 🔑 关键：使用types.Part.from_dict()包装，而不是直接字典
-            from google.genai import types
+
+            # 2) 规范化模式：如果有Alpha则转为RGB
+            if pil_image.mode == 'RGBA':
+                logger.info("🔄 将RGBA图片转换为RGB格式")
+                pil_image = pil_image.convert('RGB')
+            elif pil_image.mode not in ('RGB', 'RGBA'):
+                logger.info(f"🔄 将{pil_image.mode}格式转换为RGB")
+                pil_image = pil_image.convert('RGB')
+
+            # 3) 保存为PNG字节（保持高质量）
+            buffer = BytesIO()
+            pil_image.save(buffer, format='PNG')
+            buffer.seek(0)
+            png_bytes = buffer.getvalue()
+            buffer.close()
+
+            # 4) 编码为base64字符串
+            base64_encoded = base64.b64encode(png_bytes).decode('utf-8')
+
+            # 5) 使用 types.Part.from_dict() 正确包装
             generated_image = types.Part.from_dict({
                 "inline_data": {
-                    "mime_type": "image/png",
-                    "data": image_base64
+                    "mime_type": "image/png",  # 注意：使用下划线格式
+                    "data": base64_encoded
                 }
             })
-            
-            logger.info("✅ 成功转换现有图片为types.Part格式")
+
+            logger.info("✅ 现有合成图片已转换为 types.Part 对象格式")
             return generated_image
-                
+
         except Exception as e:
             logger.error(f"❌ 转换现有图片格式失败: {e}")
             raise Exception(f"图片格式转换失败: {e}")
