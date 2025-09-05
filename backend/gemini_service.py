@@ -932,12 +932,12 @@ class GeminiImageService:
             )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
-            # 使用PIL Image对象直接传递给Veo 3（与Imagen 3格式兼容）
+            # 使用正确的bytesBase64Encoded+mimeType格式传递给Veo 3
             from google.genai import types
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=generated_image,  # 直接使用PIL Image对象
+                image=generated_image,  # 包含bytesBase64Encoded和mimeType的字典
                 config=types.GenerateVideosConfig(
                     aspect_ratio="16:9",
                 ),
@@ -1127,29 +1127,35 @@ class GeminiImageService:
     
     def _convert_existing_to_imagen_format(self, image_result: Dict):
         """
-        将现有合成图片转换为与Imagen 3兼容的格式
+        将现有合成图片转换为Veo 3 API要求的格式
         
         Args:
             image_result: generate_doro_selfie_with_attraction返回的结果
             
         Returns:
-            PIL Image对象，可直接传递给Veo 3
+            包含bytesBase64Encoded和mimeType的字典，符合Veo 3 API要求
         """
         try:
             # 优先从文件路径加载（最可靠）
             if 'filepath' in image_result and os.path.exists(image_result['filepath']):
                 logger.info(f"📁 从文件加载现有合成图片: {image_result['filepath']}")
-                return Image.open(image_result['filepath'])
+                with open(image_result['filepath'], 'rb') as f:
+                    image_bytes = f.read()
+                image_base64 = base64.b64encode(image_bytes).decode('utf-8')
             
             # 备选：从base64数据加载
             elif 'image_url' in image_result:
                 logger.info("📦 从base64数据加载现有合成图片")
-                base64_data = image_result['image_url'].split(',')[1]
-                image_data = base64.b64decode(base64_data)
-                return Image.open(BytesIO(image_data))
+                image_base64 = image_result['image_url'].split(',')[1]
             
             else:
                 raise ValueError("无法找到有效的图片数据")
+            
+            # 返回Veo 3 API要求的格式
+            return {
+                "bytesBase64Encoded": image_base64,
+                "mimeType": "image/png"
+            }
                 
         except Exception as e:
             logger.error(f"❌ 转换现有图片格式失败: {e}")
