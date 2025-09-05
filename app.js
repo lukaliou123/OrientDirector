@@ -4627,7 +4627,6 @@ function previousDoroStep() {
 // 更新生成按钮状态
 function updateGenerateButton() {
     const generateBtn = document.getElementById('doroGenerateBtn');
-    const videoBtn = document.getElementById('doroVideoBtn');
     
     if (generateBtn) {
         const canGenerate = doroSelfieData.userPhoto && doroSelfieData.selectedDoro;
@@ -4639,20 +4638,6 @@ function updateGenerateButton() {
         } else {
             generateBtn.style.opacity = '0.6';
             generateBtn.style.cursor = 'not-allowed';
-        }
-    }
-    
-    // 同步更新视频生成按钮状态
-    if (videoBtn) {
-        const canGenerate = doroSelfieData.userPhoto && doroSelfieData.selectedDoro;
-        videoBtn.disabled = !canGenerate;
-        
-        if (canGenerate) {
-            videoBtn.style.opacity = '1';
-            videoBtn.style.cursor = 'pointer';
-        } else {
-            videoBtn.style.opacity = '0.6';
-            videoBtn.style.cursor = 'not-allowed';
         }
     }
 }
@@ -4802,152 +4787,6 @@ async function shareDoroSelfie() {
     }
 }
 
-// ==================== Doro视频生成功能 ====================
-
-// 生成Doro合影视频
-async function generateDoroVideo() {
-    if (!doroSelfieData.userPhoto || !doroSelfieData.selectedDoro) {
-        alert('请完成所有必要步骤');
-        return;
-    }
-    
-    const place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
-    if (!place) {
-        alert('景点信息丢失，请重新开始');
-        return;
-    }
-    
-    // 显示加载状态
-    document.getElementById('doroLoading').style.display = 'block';
-    
-    // 滚动到加载区域
-    setTimeout(() => {
-        const loadingElement = document.getElementById('doroLoading');
-        if (loadingElement) {
-            loadingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }, 100);
-    
-    try {
-        // 准备表单数据
-        const formData = new FormData();
-        formData.append('user_photo', doroSelfieData.userPhoto);
-        
-        // 添加Doro（ID或文件）
-        if (doroSelfieData.selectedDoro.type === 'preset') {
-            formData.append('doro_id', doroSelfieData.selectedDoro.id);
-        } else {
-            // 自定义Doro，使用ID
-            formData.append('doro_id', `custom_${doroSelfieData.selectedDoro.id}`);
-        }
-        
-        // 添加服装风格（如果有）
-        if (doroSelfieData.stylePhoto) {
-            formData.append('style_photo', doroSelfieData.stylePhoto);
-        }
-        
-        // 添加景点信息
-        formData.append('attraction_name', place.name);
-        formData.append('attraction_type', place.category || '');
-        formData.append('location', place.city || place.country || '');
-        
-        // 添加自定义提示词
-        const customPrompt = document.getElementById('doroCustomPrompt').value;
-        if (customPrompt) {
-            formData.append('user_description', customPrompt);
-        }
-        
-        logger.info(`🎬 开始生成Doro合影视频: ${place.name}`);
-        
-        // 调用API
-        const response = await fetch(`${API_BASE_URL}/api/doro/generate-video`, {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || '视频生成失败');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // 显示结果
-            doroSelfieData.generatedVideo = data.data;
-            document.getElementById('generatedDoroVideo').src = data.data.video_url;
-            
-            document.getElementById('doroLoading').style.display = 'none';
-            document.getElementById('doroVideoResult').style.display = 'block';
-            
-            logger.info(`✅ Doro合影视频生成成功: ${data.data.filename}`);
-        } else {
-            throw new Error(data.message || '视频生成失败');
-        }
-        
-    } catch (error) {
-        logger.error('❌ 生成Doro合影视频失败:', error);
-        
-        document.getElementById('doroLoading').style.display = 'none';
-        document.getElementById('doroError').style.display = 'block';
-        document.getElementById('doroErrorMessage').textContent = 
-            error.message || '视频生成失败，请重试';
-    }
-}
-
-// 下载Doro合影视频
-function downloadDoroVideo() {
-    if (!doroSelfieData.generatedVideo) return;
-    
-    const link = document.createElement('a');
-    link.href = doroSelfieData.generatedVideo.video_url;
-    link.download = doroSelfieData.generatedVideo.filename || `doro_video_${Date.now()}.mp4`;
-    link.click();
-    
-    logger.info(`💾 下载Doro合影视频: ${link.download}`);
-}
-
-// 重新生成Doro合影视频
-function regenerateDoroVideo() {
-    // 返回到上传界面但保留已选择的内容
-    document.getElementById('doroVideoResult').style.display = 'none';
-    // 可以再次点击生成视频按钮
-}
-
-// 分享Doro合影视频
-async function shareDoroVideo() {
-    if (!doroSelfieData.generatedVideo) return;
-    
-    try {
-        if (navigator.share) {
-            // 先将视频转换为blob
-            const response = await fetch(doroSelfieData.generatedVideo.video_url);
-            const blob = await response.blob();
-            const file = new File([blob], 'doro_video.mp4', { type: 'video/mp4' });
-            
-            await navigator.share({
-                title: 'Doro与我的合影视频',
-                text: `在${doroSelfieData.generatedVideo.attraction_name}的精彩合影视频！`,
-                files: [file]
-            });
-            
-            logger.info('✅ 分享Doro合影视频成功');
-        } else {
-            // 复制视频链接
-            const tempInput = document.createElement('input');
-            tempInput.value = window.location.href;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            
-            alert('链接已复制到剪贴板');
-        }
-    } catch (error) {
-        logger.error('❌ 视频分享失败:', error);
-        alert('分享失败，请重试');
-    }
-}
 
 // 导出Doro函数到全局
 window.openDoroSelfie = openDoroSelfie;
@@ -4961,13 +4800,9 @@ window.skipStyleStep = skipStyleStep;
 window.nextDoroStep = nextDoroStep;
 window.previousDoroStep = previousDoroStep;
 window.generateDoroSelfie = generateDoroSelfie;
-window.generateDoroVideo = generateDoroVideo;
 window.downloadDoroSelfie = downloadDoroSelfie;
-window.downloadDoroVideo = downloadDoroVideo;
 window.regenerateDoroSelfie = regenerateDoroSelfie;
-window.regenerateDoroVideo = regenerateDoroVideo;
 window.shareDoroSelfie = shareDoroSelfie;
-window.shareDoroVideo = shareDoroVideo;
 window.downloadSelfie = downloadSelfie;
 window.shareSelfie = shareSelfie;
 

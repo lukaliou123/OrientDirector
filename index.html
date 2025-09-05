@@ -382,9 +382,6 @@
                         <button class="doro-generate-btn" id="doroGenerateBtn" onclick="generateDoroSelfie()" disabled>
                             ✨ 生成Doro合影
                         </button>
-                        <button class="doro-video-btn" id="doroVideoBtn" onclick="generateDoroVideo()" disabled>
-                            🎬 生成Doro合影视频
-                        </button>
                         <button class="doro-cancel-btn" onclick="closeDoroModal()">
                             ❌ 取消
                         </button>
@@ -420,26 +417,6 @@
                         </div>
                     </div>
                     
-                    <!-- 视频结果展示 -->
-                    <div class="doro-video-result" id="doroVideoResult" style="display: none;">
-                        <div class="generated-video-container">
-                            <video id="generatedDoroVideo" class="generated-video" controls>
-                                您的浏览器不支持视频播放
-                            </video>
-                            <div class="video-hint">Doro合影视频已生成</div>
-                        </div>
-                        <div class="video-result-actions">
-                            <button class="download-btn" onclick="downloadDoroVideo()">
-                                💾 下载视频
-                            </button>
-                            <button class="regenerate-btn" onclick="regenerateDoroVideo()">
-                                🔄 重新生成视频
-                            </button>
-                            <button class="share-btn" onclick="shareDoroVideo()">
-                                📤 分享视频
-                            </button>
-                        </div>
-                    </div>
                     
                     <!-- 错误提示 -->
                     <div class="doro-error" id="doroError" style="display: none;">
