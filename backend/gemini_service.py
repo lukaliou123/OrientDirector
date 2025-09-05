@@ -914,23 +914,12 @@ class GeminiImageService:
             if not success:
                 return False, f"静态图片生成失败: {message}", None
             
-            # 第二步：直接使用已生成的PNG图片文件
-            logger.info("📁 使用已生成的PNG图片文件...")
+            # 第二步：将现有合成图片转换为Imagen兼容格式
+            logger.info("🔄 转换现有合成图片为Imagen兼容格式...")
             
-            # 获取已保存的PNG文件路径
-            existing_png_filepath = image_result['filepath']
-            logger.info(f"📍 PNG文件路径: {existing_png_filepath}")
-            
-            # 验证文件是否存在
-            if not os.path.exists(existing_png_filepath):
-                logger.error(f"❌ PNG文件不存在: {existing_png_filepath}")
-                return False, "PNG文件不存在，无法生成视频", None
-            
-            # 读取PNG文件并转换为API要求的base64结构
-            with open(existing_png_filepath, 'rb') as f:
-                image_bytes = f.read()
-            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
-            logger.info("✅ 已读取PNG文件并完成base64编码")
+            # 使用新的转换方法，将现有合成图片转换为PIL Image对象
+            generated_image = self._convert_existing_to_imagen_format(image_result)
+            logger.info("✅ 现有合成图片已转换为PIL Image格式")
             
             # 第三步：使用Veo 3生成视频
             logger.info("🎬 第三步：使用Veo 3生成动态视频...")
@@ -943,15 +932,12 @@ class GeminiImageService:
             )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
-            # 按照API要求，使用bytesBase64Encoded + mimeType结构传递图片
+            # 使用PIL Image对象直接传递给Veo 3（与Imagen 3格式兼容）
             from google.genai import types
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image={
-                    "bytesBase64Encoded": image_base64,
-                    "mimeType": "image/png",
-                },
+                image=generated_image,  # 直接使用PIL Image对象
                 config=types.GenerateVideosConfig(
                     aspect_ratio="16:9",
                 ),
@@ -1016,8 +1002,8 @@ class GeminiImageService:
             
             logger.info(f"✅ Doro合影视频生成成功: {video_filename}")
             
-            # 注意：不清理PNG图片文件，因为它是正式生成的合影图片，用户可能需要
-            logger.info(f"📷 保留原始PNG图片: {existing_png_filepath}")
+            # 注意：保留原始合成图片文件，因为它是正式生成的合影图片，用户可能需要
+            logger.info(f"📷 保留原始合成图片: {image_result.get('filepath', 'N/A')}")
             
             # 读取视频文件并转换为base64（用于前端显示）
             with open(video_filepath, 'rb') as f:
@@ -1029,7 +1015,7 @@ class GeminiImageService:
                 "filename": video_filename,
                 "filepath": video_filepath,
                 "static_image_url": image_result['image_url'],  # 也返回静态图片
-                "static_image_filepath": existing_png_filepath,  # 返回PNG文件路径
+                "static_image_filepath": image_result.get('filepath'),  # 返回原始合成图片路径
                 "prompt_used": video_prompt,
                 "attraction_name": attraction_info.get("name"),
                 "timestamp": video_timestamp,
@@ -1138,6 +1124,36 @@ class GeminiImageService:
             video_prompt += ". Natural lighting and vibrant colors. No text or written content"
         
         return video_prompt
+    
+    def _convert_existing_to_imagen_format(self, image_result: Dict):
+        """
+        将现有合成图片转换为与Imagen 3兼容的格式
+        
+        Args:
+            image_result: generate_doro_selfie_with_attraction返回的结果
+            
+        Returns:
+            PIL Image对象，可直接传递给Veo 3
+        """
+        try:
+            # 优先从文件路径加载（最可靠）
+            if 'filepath' in image_result and os.path.exists(image_result['filepath']):
+                logger.info(f"📁 从文件加载现有合成图片: {image_result['filepath']}")
+                return Image.open(image_result['filepath'])
+            
+            # 备选：从base64数据加载
+            elif 'image_url' in image_result:
+                logger.info("📦 从base64数据加载现有合成图片")
+                base64_data = image_result['image_url'].split(',')[1]
+                image_data = base64.b64decode(base64_data)
+                return Image.open(BytesIO(image_data))
+            
+            else:
+                raise ValueError("无法找到有效的图片数据")
+                
+        except Exception as e:
+            logger.error(f"❌ 转换现有图片格式失败: {e}")
+            raise Exception(f"图片格式转换失败: {e}")
     
     def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple, image_prompt: str = None) -> str:
         """
