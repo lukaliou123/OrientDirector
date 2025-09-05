@@ -910,26 +910,14 @@ class GeminiImageService:
             )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
-            # 将PIL图片转换为Veo 3 API要求的格式
-            buffered = BytesIO()
-            static_image.save(buffered, format="PNG")
-            buffered.seek(0)
-            image_bytes = buffered.getvalue()
-            buffered.close()
-            
-            # 构建符合Veo 3 API要求的图片数据结构
-            # API需要一个包含bytesBase64Encoded和mimeType的字典
-            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
-            image_dict = {
-                "bytesBase64Encoded": image_base64,
-                "mimeType": "image/png"
-            }
+            # 直接使用PIL图片对象
+            # 根据工作版本，Veo 3 API可以直接接受PIL Image对象
             
             # 调用Veo 3生成视频
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image_dict,
+                image=static_image,  # 直接传递PIL Image对象
             )
             
             logger.info(f"🎬 视频生成作业已启动: {operation.name}")
