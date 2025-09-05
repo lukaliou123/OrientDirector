@@ -39,27 +39,51 @@
                 <input type="number" id="speed" value="120" min="1" max="1000" onchange="updateSettings()">
             </div>
 
-            <!-- 漫游功能 -->
+            <!-- 城市漫游功能 -->
             <div class="setting-group roaming-section">
-                <label class="roaming-title">🌍 漫游到:</label>
-                <div class="roaming-inputs">
+                <label class="roaming-title">🌍 城市漫游:</label>
+                
+                <!-- 城市选择器 -->
+                <div class="city-selector">
                     <div class="input-row">
-                        <label>国家:</label>
-                        <input type="text" id="roamingCountry" placeholder="如：中国" class="roaming-input">
+                        <label>选择城市:</label>
+                        <select id="citySelector" class="city-select" onchange="onCitySelected()">
+                            <option value="">-- 请选择城市 --</option>
+                            <optgroup label="🌍 全球知名城市">
+                                <!-- 全球城市选项将通过JavaScript动态加载 -->
+                            </optgroup>
+                            <optgroup label="🇨🇳 中国知名城市">
+                                <!-- 中国城市选项将通过JavaScript动态加载 -->
+                            </optgroup>
+                        </select>
                     </div>
+                    
+                    <!-- 城市搜索 -->
                     <div class="input-row">
-                        <label>城市:</label>
-                        <input type="text" id="roamingCity" placeholder="如：北京" class="roaming-input">
+                        <label>搜索城市:</label>
+                        <input type="text" id="citySearch" placeholder="输入城市名称搜索..." class="roaming-input" 
+                               oninput="searchCities()" onkeypress="handleSearchEnter(event)">
                     </div>
-                    <div class="input-row">
-                        <label>景点:</label>
-                        <input type="text" id="roamingPlace" placeholder="如：天安门广场" class="roaming-input">
+                    
+                    <!-- 搜索结果 -->
+                    <div class="search-results" id="searchResults" style="display: none;"></div>
+                    
+                    <!-- 选中的城市信息 -->
+                    <div class="selected-city-info" id="selectedCityInfo" style="display: none;">
+                        <div class="city-info-card">
+                            <h4 id="selectedCityName"></h4>
+                            <p id="selectedCityDetails"></p>
+                            <div class="city-actions">
+                                <button class="action-btn" onclick="showCityAttractions()">🏛️ 查看景点</button>
+                                <button class="action-btn primary" onclick="roamToRandomAttraction()">🎲 随机漫游</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button class="roaming-btn" onclick="confirmRoaming()">🚀 确认漫游到</button>
+                
                 <div class="roaming-status" id="roamingStatus" style="display: none;">
                     <div class="loading-spinner"></div>
-                    <span>正在搜索目标位置...</span>
+                    <span id="roamingStatusText">正在加载城市信息...</span>
                 </div>
             </div>
         </div>

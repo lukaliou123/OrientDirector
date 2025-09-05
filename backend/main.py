@@ -16,6 +16,7 @@ import requests
 import time
 from real_data_service import real_data_service
 from local_attractions_db import local_attractions_db
+from global_cities_db import GlobalCitiesDB
 from gemini_service import gemini_service
 from doro_service import doro_service
 from fastapi import File, UploadFile, Form
@@ -89,6 +90,9 @@ class JourneyResponse(BaseModel):
 # 全局变量
 geod = Geodesic.WGS84
 places_data = {}
+
+# 数据库实例
+global_cities_db = GlobalCitiesDB()
 
 # 旅程管理全局变量
 active_journeys = {}  # 存储活跃的旅程
@@ -1194,6 +1198,172 @@ async def start_journey(request: StartJourneyRequest):
     except Exception as e:
         logger.error(f"创建旅程失败: {str(e)}")
         raise HTTPException(status_code=500, detail=f"创建旅程失败: {str(e)}")
+
+# 城市相关数据模型
+class CityInfo(BaseModel):
+    key: str
+    name: str
+    country: str
+    coordinates: List[float]
+    type: str
+    attraction_count: int
+
+class AttractionInfo(BaseModel):
+    name: str
+    latitude: float
+    longitude: float
+    category: str
+    description: str
+    opening_hours: str
+    ticket_price: str
+    booking_method: str
+    image: Optional[str] = None
+    video: Optional[str] = None
+    country: str
+    city: str
+    address: str
+
+class CityRoamingRequest(BaseModel):
+    city_key: str
+
+class CityRoamingResponse(BaseModel):
+    success: bool
+    message: str
+    city_info: Optional[dict] = None
+    attraction: Optional[AttractionInfo] = None
+
+# 城市相关API端点
+@app.get("/api/cities", response_model=List[CityInfo])
+async def get_all_cities():
+    """获取所有可用城市列表"""
+    try:
+        cities = global_cities_db.get_all_cities()
+        return cities
+    except Exception as e:
+        logger.error(f"获取城市列表失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"获取城市列表失败: {str(e)}")
+
+@app.get("/api/cities/search")
+async def search_cities(query: str):
+    """搜索城市"""
+    try:
+        cities = global_cities_db.search_cities(query)
+        return {"cities": cities}
+    except Exception as e:
+        logger.error(f"搜索城市失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"搜索城市失败: {str(e)}")
+
+@app.get("/api/cities/{city_key}/attractions", response_model=List[AttractionInfo])
+async def get_city_attractions(city_key: str):
+    """获取指定城市的所有景点"""
+    try:
+        # 特殊处理北京，从现有数据库获取
+        if city_key == "beijing":
+            attractions = local_attractions_db.attractions
+            return [
+                AttractionInfo(
+                    name=attr["name"],
+                    latitude=attr["latitude"],
+                    longitude=attr["longitude"],
+                    category=attr["category"],
+                    description=attr["description"],
+                    opening_hours=attr["opening_hours"],
+                    ticket_price=attr["ticket_price"],
+                    booking_method=attr["booking_method"],
+                    image=attr.get("image"),
+                    video=attr.get("video"),
+                    country=attr["country"],
+                    city=attr["city"],
+                    address=attr["address"]
+                ) for attr in attractions
+            ]
+        
+        attractions = global_cities_db.get_city_attractions(city_key)
+        if not attractions:
+            raise HTTPException(status_code=404, detail=f"未找到城市 {city_key} 的景点信息")
+        
+        return [
+            AttractionInfo(
+                name=attr["name"],
+                latitude=attr["latitude"],
+                longitude=attr["longitude"],
+                category=attr["category"],
+                description=attr["description"],
+                opening_hours=attr["opening_hours"],
+                ticket_price=attr["ticket_price"],
+                booking_method=attr["booking_method"],
+                image=attr.get("image"),
+                video=attr.get("video"),
+                country=attr["country"],
+                city=attr["city"],
+                address=attr["address"]
+            ) for attr in attractions
+        ]
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取城市景点失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"获取城市景点失败: {str(e)}")
+
+@app.post("/api/cities/roam", response_model=CityRoamingResponse)
+async def roam_to_city(request: CityRoamingRequest):
+    """漫游到指定城市，随机选择一个景点"""
+    try:
+        city_info = global_cities_db.get_city_by_key(request.city_key)
+        if not city_info:
+            return CityRoamingResponse(
+                success=False,
+                message=f"未找到城市 {request.city_key}",
+                city_info=None,
+                attraction=None
+            )
+        
+        # 特殊处理北京
+        if request.city_key == "beijing":
+            import random
+            attraction_data = random.choice(local_attractions_db.attractions)
+        else:
+            attraction_data = global_cities_db.get_random_attraction(request.city_key)
+        
+        if not attraction_data:
+            return CityRoamingResponse(
+                success=False,
+                message=f"城市 {city_info['name']} 暂无景点信息",
+                city_info=city_info,
+                attraction=None
+            )
+        
+        attraction = AttractionInfo(
+            name=attraction_data["name"],
+            latitude=attraction_data["latitude"],
+            longitude=attraction_data["longitude"],
+            category=attraction_data["category"],
+            description=attraction_data["description"],
+            opening_hours=attraction_data["opening_hours"],
+            ticket_price=attraction_data["ticket_price"],
+            booking_method=attraction_data["booking_method"],
+            image=attraction_data.get("image"),
+            video=attraction_data.get("video"),
+            country=attraction_data["country"],
+            city=attraction_data["city"],
+            address=attraction_data["address"]
+        )
+        
+        return CityRoamingResponse(
+            success=True,
+            message=f"成功漫游到 {city_info['name']} - {attraction.name}",
+            city_info=city_info,
+            attraction=attraction
+        )
+        
+    except Exception as e:
+        logger.error(f"城市漫游失败: {str(e)}")
+        return CityRoamingResponse(
+            success=False,
+            message=f"城市漫游失败: {str(e)}",
+            city_info=None,
+            attraction=None
+        )
 
 @app.get("/api/health")
 async def health_check():

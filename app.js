@@ -126,6 +126,9 @@ async function initializeApp() {
     // 初始化点击指南针功能
     initializeCompassClick();
     
+    // 初始化城市数据库
+    await initializeCityDatabase();
+    
     // 获取初始位置
     refreshLocation();
     
@@ -3038,7 +3041,27 @@ function clearResults() {
     logger.info('🧹 已清理探索结果显示');
 }
 
-// 漫游功能实现
+// 全球城市数据库相关变量
+let allCities = [];
+let selectedCity = null;
+
+// 初始化城市数据库
+async function initializeCityDatabase() {
+    try {
+        const response = await fetch(`${getAPIBaseURL()}/api/cities`);
+        if (response.ok) {
+            allCities = await response.json();
+            populateCitySelector();
+            logger.info(`✅ 成功加载 ${allCities.length} 个城市信息`);
+        } else {
+            throw new Error('加载城市数据失败');
+        }
+    } catch (error) {
+        logger.error(`❌ 初始化城市数据库失败: ${error.message}`);
+    }
+}
+
+// 城市漫游功能实现
 async function confirmRoaming() {
     const countryInput = document.getElementById('roamingCountry');
     const cityInput = document.getElementById('roamingCity');
@@ -3108,6 +3131,487 @@ async function confirmRoaming() {
             statusDiv.style.display = 'none';
         }, 3000);
     }
+}
+
+// 填充城市选择器
+function populateCitySelector() {
+    const selector = document.getElementById('citySelector');
+    if (!selector) return;
+    
+    // 清空现有选项（保留默认选项和optgroup标签）
+    const globalGroup = selector.querySelector('optgroup[label="🌍 全球知名城市"]');
+    const chinaGroup = selector.querySelector('optgroup[label="🇨🇳 中国知名城市"]');
+    
+    if (globalGroup) globalGroup.innerHTML = '';
+    if (chinaGroup) chinaGroup.innerHTML = '';
+    
+    // 分类添加城市选项
+    allCities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.key;
+        option.textContent = `${city.name} (${city.attraction_count}个景点)`;
+        
+        if (city.type === 'global' && globalGroup) {
+            globalGroup.appendChild(option);
+        } else if (city.type === 'china' && chinaGroup) {
+            chinaGroup.appendChild(option);
+        }
+    });
+}
+
+// 城市选择事件处理
+function onCitySelected() {
+    const selector = document.getElementById('citySelector');
+    const cityKey = selector.value;
+    
+    if (!cityKey) {
+        hideSelectedCityInfo();
+        return;
+    }
+    
+    const city = allCities.find(c => c.key === cityKey);
+    if (city) {
+        selectedCity = city;
+        showSelectedCityInfo(city);
+        logger.info(`🏙️ 选择城市: ${city.name}`);
+    }
+}
+
+// 显示选中城市信息
+function showSelectedCityInfo(city) {
+    const infoDiv = document.getElementById('selectedCityInfo');
+    const nameEl = document.getElementById('selectedCityName');
+    const detailsEl = document.getElementById('selectedCityDetails');
+    
+    if (infoDiv && nameEl && detailsEl) {
+        const countryFlag = city.country === '中国' ? '🇨🇳' : 
+                          city.country === '法国' ? '🇫🇷' :
+                          city.country === '英国' ? '🇬🇧' :
+                          city.country === '意大利' ? '🇮🇹' :
+                          city.country === '美国' ? '🇺🇸' :
+                          city.country === '日本' ? '🇯🇵' :
+                          city.country === '西班牙' ? '🇪🇸' :
+                          city.country === '泰国' ? '🇹🇭' :
+                          city.country === '土耳其' ? '🇹🇷' : '🌍';
+        
+        nameEl.textContent = `${countryFlag} ${city.name}`;
+        detailsEl.textContent = `${city.country} | ${city.attraction_count} 个知名景点`;
+        infoDiv.style.display = 'block';
+    }
+}
+
+// 隐藏选中城市信息
+function hideSelectedCityInfo() {
+    const infoDiv = document.getElementById('selectedCityInfo');
+    if (infoDiv) {
+        infoDiv.style.display = 'none';
+    }
+    selectedCity = null;
+}
+
+// 城市搜索功能
+async function searchCities() {
+    const searchInput = document.getElementById('citySearch');
+    const resultsDiv = document.getElementById('searchResults');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        resultsDiv.style.display = 'none';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${getAPIBaseURL()}/api/cities/search?query=${encodeURIComponent(query)}`);
+        if (response.ok) {
+            const data = await response.json();
+            displaySearchResults(data.cities);
+        }
+    } catch (error) {
+        logger.error(`搜索城市失败: ${error.message}`);
+    }
+}
+
+// 显示搜索结果
+function displaySearchResults(cities) {
+    const resultsDiv = document.getElementById('searchResults');
+    
+    if (!cities || cities.length === 0) {
+        resultsDiv.style.display = 'none';
+        return;
+    }
+    
+    resultsDiv.innerHTML = '';
+    cities.forEach(city => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.onclick = () => selectSearchResult(city);
+        
+        const countryFlag = city.country === '中国' ? '🇨🇳' : 
+                          city.country === '法国' ? '🇫🇷' :
+                          city.country === '英国' ? '🇬🇧' :
+                          city.country === '意大利' ? '🇮🇹' :
+                          city.country === '美国' ? '🇺🇸' :
+                          city.country === '日本' ? '🇯🇵' :
+                          city.country === '西班牙' ? '🇪🇸' :
+                          city.country === '泰国' ? '🇹🇭' :
+                          city.country === '土耳其' ? '🇹🇷' : '🌍';
+        
+        item.innerHTML = `
+            <div class="search-result-city">${countryFlag} ${city.name}</div>
+            <div class="search-result-country">${city.country}</div>
+            <div class="search-result-attractions">${city.attraction_count} 个景点</div>
+        `;
+        
+        resultsDiv.appendChild(item);
+    });
+    
+    resultsDiv.style.display = 'block';
+}
+
+// 选择搜索结果
+function selectSearchResult(city) {
+    const selector = document.getElementById('citySelector');
+    const searchInput = document.getElementById('citySearch');
+    const resultsDiv = document.getElementById('searchResults');
+    
+    // 更新选择器
+    selector.value = city.key;
+    searchInput.value = '';
+    resultsDiv.style.display = 'none';
+    
+    // 显示城市信息
+    selectedCity = city;
+    showSelectedCityInfo(city);
+}
+
+// 搜索输入回车处理
+function handleSearchEnter(event) {
+    if (event.key === 'Enter') {
+        const resultsDiv = document.getElementById('searchResults');
+        const firstResult = resultsDiv.querySelector('.search-result-item');
+        if (firstResult) {
+            firstResult.click();
+        }
+    }
+}
+
+// 查看城市景点
+async function showCityAttractions() {
+    if (!selectedCity) return;
+    
+    const statusDiv = document.getElementById('roamingStatus');
+    const statusText = document.getElementById('roamingStatusText');
+    
+    statusDiv.style.display = 'flex';
+    statusText.textContent = `正在加载 ${selectedCity.name} 的景点信息...`;
+    
+    try {
+        const response = await fetch(`${getAPIBaseURL()}/api/cities/${selectedCity.key}/attractions`);
+        if (response.ok) {
+            const attractions = await response.json();
+            displayCityAttractions(selectedCity, attractions);
+            
+            // 关闭设置面板
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsPanel) {
+                settingsPanel.classList.remove('show');
+            }
+        } else {
+            throw new Error('获取景点信息失败');
+        }
+    } catch (error) {
+        logger.error(`获取景点信息失败: ${error.message}`);
+        statusText.textContent = `❌ ${error.message}`;
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+        return;
+    }
+    
+    statusDiv.style.display = 'none';
+}
+
+// 随机漫游到景点
+async function roamToRandomAttraction() {
+    if (!selectedCity) return;
+    
+    const statusDiv = document.getElementById('roamingStatus');
+    const statusText = document.getElementById('roamingStatusText');
+    
+    statusDiv.style.display = 'flex';
+    statusText.textContent = `正在随机选择 ${selectedCity.name} 的景点...`;
+    
+    try {
+        const response = await fetch(`${getAPIBaseURL()}/api/cities/roam`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                city_key: selectedCity.key
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                await executeAttractionRoaming(result.attraction);
+                
+                // 关闭设置面板
+                const settingsPanel = document.getElementById('settingsPanel');
+                if (settingsPanel) {
+                    settingsPanel.classList.remove('show');
+                }
+            } else {
+                throw new Error(result.message);
+            }
+        } else {
+            throw new Error('随机漫游请求失败');
+        }
+    } catch (error) {
+        logger.error(`随机漫游失败: ${error.message}`);
+        statusText.textContent = `❌ ${error.message}`;
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+        return;
+    }
+    
+    statusDiv.style.display = 'none';
+}
+
+// 漫游到指定景点
+async function roamToAttraction(cityKey, attractionIndex) {
+    try {
+        const response = await fetch(`${getAPIBaseURL()}/api/cities/${cityKey}/attractions`);
+        if (response.ok) {
+            const attractions = await response.json();
+            const attraction = attractions[attractionIndex];
+            if (attraction) {
+                await executeAttractionRoaming(attraction);
+            }
+        }
+    } catch (error) {
+        logger.error(`漫游到景点失败: ${error.message}`);
+    }
+}
+
+// 执行景点漫游
+async function executeAttractionRoaming(attraction) {
+    logger.info(`🚀 执行漫游到: ${attraction.name}`);
+    
+    // 更新当前位置
+    currentPosition = {
+        latitude: attraction.latitude,
+        longitude: attraction.longitude,
+        accuracy: 10,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+        timestamp: Date.now()
+    };
+    
+    // 更新位置显示
+    updateLocationDisplayForAttraction(attraction);
+    
+    // 显示漫游成功信息
+    showAttractionRoamingSuccess(attraction);
+    
+    // 重置探索状态
+    resetExplorationState();
+    
+    logger.success(`✅ 漫游成功! 当前位置: ${attraction.name}`);
+}
+
+// 更新景点位置显示
+function updateLocationDisplayForAttraction(attraction) {
+    // 更新坐标显示
+    const coordinatesEl = document.getElementById('coordinates');
+    if (coordinatesEl) {
+        coordinatesEl.textContent = `${attraction.latitude.toFixed(6)}, ${attraction.longitude.toFixed(6)}`;
+    }
+    
+    // 更新位置名称
+    const currentLocationEl = document.getElementById('currentLocation');
+    if (currentLocationEl) {
+        currentLocationEl.textContent = `${attraction.name} - ${attraction.city}`;
+    }
+    
+    // 更新精度显示
+    const accuracyEl = document.getElementById('accuracy');
+    if (accuracyEl) {
+        accuracyEl.textContent = '±10m (漫游)';
+    }
+    
+    // 更新位置状态
+    const locationStatusEl = document.getElementById('locationStatus');
+    if (locationStatusEl) {
+        locationStatusEl.textContent = '✅ 漫游定位';
+        locationStatusEl.className = 'status-success';
+    }
+}
+
+// 显示景点漫游成功信息
+function showAttractionRoamingSuccess(attraction) {
+    const container = document.getElementById('placesContainer');
+    if (!container) return;
+    
+    // 清空现有内容
+    container.innerHTML = '';
+    
+    // 创建漫游成功卡片
+    const successCard = document.createElement('div');
+    successCard.className = 'roaming-success-card';
+    
+    successCard.innerHTML = `
+        <div class="roaming-header">
+            <h3>🎉 漫游成功!</h3>
+            <div class="location-info">
+                <h4>📍 ${attraction.name}</h4>
+                <p class="coordinates">坐标: ${attraction.latitude.toFixed(6)}, ${attraction.longitude.toFixed(6)}</p>
+                <p class="location-details">${attraction.city} | ${attraction.category}</p>
+            </div>
+        </div>
+        
+        <div class="place-details">
+            ${attraction.image ? `
+                <img src="${attraction.image}" alt="${attraction.name}" class="place-photo" 
+                     onerror="this.src='https://via.placeholder.com/400x200/667eea/ffffff?text=${encodeURIComponent(attraction.name)}'">
+            ` : ''}
+            
+            <p class="place-description">${attraction.description}</p>
+            
+            <div class="attraction-details">
+                <div class="detail-item">
+                    <strong>⏰ 开放时间:</strong> ${attraction.opening_hours}
+                </div>
+                <div class="detail-item">
+                    <strong>💰 门票价格:</strong> ${attraction.ticket_price}
+                </div>
+                <div class="detail-item">
+                    <strong>📝 预约方式:</strong> ${attraction.booking_method}
+                </div>
+            </div>
+        </div>
+        
+        <div class="roaming-actions">
+            <button class="explore-btn" onclick="startExplorationFromHere()">🧭 从这里开始探索</button>
+            ${attraction.video ? `
+                <button class="action-btn" onclick="playVideo('${attraction.video}', '${attraction.name}')">
+                    🎥 观看视频
+                </button>
+            ` : ''}
+        </div>
+    `;
+    
+    container.appendChild(successCard);
+}
+
+// 显示城市景点列表
+function displayCityAttractions(city, attractions) {
+    const container = document.getElementById('placesContainer');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="city-attractions-header" style="
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        ">
+            <h2 style="color: #4a5568; margin-bottom: 10px;">🏛️ ${city.name} 知名景点</h2>
+            <p style="color: #718096; font-size: 1.1em;">${city.country} | 共 ${attractions.length} 个景点</p>
+        </div>
+    `;
+    
+    attractions.forEach((attraction, index) => {
+        const attractionCard = createAttractionCard(attraction, index);
+        container.appendChild(attractionCard);
+    });
+    
+    logger.info(`✅ 显示 ${city.name} 的 ${attractions.length} 个景点`);
+}
+
+// 创建景点卡片
+function createAttractionCard(attraction, index) {
+    const card = document.createElement('div');
+    card.className = 'place-card attraction-card';
+    
+    card.innerHTML = `
+        <div class="place-media">
+            ${attraction.image ? `
+                <img src="${attraction.image}" alt="${attraction.name}" class="place-image" 
+                     onerror="this.src='https://via.placeholder.com/400x200/667eea/ffffff?text=${encodeURIComponent(attraction.name)}'">
+            ` : `
+                <div class="place-image-placeholder" style="
+                    width: 100%;
+                    height: 200px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: white;
+                ">
+                    <span style="font-size: 3rem; margin-bottom: 10px;">📸</span>
+                    <p>暂无图片</p>
+                </div>
+            `}
+            ${attraction.video ? `
+                <div class="video-overlay" onclick="playVideo('${attraction.video}', '${attraction.name}')">
+                    <div class="play-button">▶️</div>
+                </div>
+            ` : ''}
+        </div>
+        
+        <div class="place-content">
+            <h3 class="place-name">${attraction.name}</h3>
+            
+            <div class="place-location-info">
+                📍 ${attraction.latitude.toFixed(4)}°, ${attraction.longitude.toFixed(4)}°
+                | ${attraction.country} - ${attraction.city}
+            </div>
+            
+            <p class="place-description">${attraction.description}</p>
+            
+            <div class="attraction-details" style="
+                background: rgba(102, 126, 234, 0.1);
+                border-radius: 8px;
+                padding: 15px;
+                margin: 15px 0;
+                font-size: 0.9em;
+            ">
+                <div class="detail-item" style="margin-bottom: 8px;">
+                    <strong>🏷️ 类别:</strong> ${attraction.category}
+                </div>
+                <div class="detail-item" style="margin-bottom: 8px;">
+                    <strong>⏰ 开放时间:</strong> ${attraction.opening_hours}
+                </div>
+                <div class="detail-item" style="margin-bottom: 8px;">
+                    <strong>💰 门票价格:</strong> ${attraction.ticket_price}
+                </div>
+                <div class="detail-item">
+                    <strong>📝 预约方式:</strong> ${attraction.booking_method}
+                </div>
+            </div>
+            
+            <div class="place-actions">
+                <button class="action-btn primary" onclick="roamToAttraction('${selectedCity.key}', ${index})">
+                    🧭 漫游到这里
+                </button>
+                ${attraction.video ? `
+                    <button class="action-btn" onclick="playVideo('${attraction.video}', '${attraction.name}')">
+                        🎥 观看视频
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    return card;
 }
 
 // 地理编码API调用
@@ -3369,6 +3873,13 @@ window.journeyManagement = journeyManagement;
 window.setManualLocation = setManualLocation;
 window.generateAndShowSceneReview = generateAndShowSceneReview;
 window.clearResults = clearResults;
+// 城市选择相关函数
+window.onCitySelected = onCitySelected;
+window.searchCities = searchCities;
+window.handleSearchEnter = handleSearchEnter;
+window.showCityAttractions = showCityAttractions;
+window.roamToRandomAttraction = roamToRandomAttraction;
+window.roamToAttraction = roamToAttraction;
 window.confirmRoaming = confirmRoaming;
 window.startExplorationFromHere = startExplorationFromHere;
 window.showPhotoModal = showPhotoModal;
