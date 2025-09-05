@@ -918,23 +918,22 @@ class GeminiImageService:
             image_base64 = base64.b64encode(image_bytes).decode('utf-8')
             buffered.close()
             
-            # 使用Part.from_dict创建正确的图片参数格式
-            from google.genai import types
-            image_part = types.Part.from_dict({
-                "inline_data": {
-                    "mime_type": "image/png",
-                    "data": image_base64
-                }
-            })
+            # 根据GitHub历史版本，直接使用字典格式而不是Part.from_dict
+            # Veo 3 API接受直接的字典格式
+            image_data = {
+                "bytesBase64Encoded": image_base64,
+                "mimeType": "image/png"
+            }
             
             # 调用Veo 3生成视频
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image_part,  # 使用Part对象
+                image=image_data,  # 使用字典格式
             )
             
             logger.info(f"🎬 视频生成作业已启动: {operation.name}")
+            from google.genai import types
             video_operation = types.GenerateVideosOperation(name=operation.name)
             
             logger.info("🕐 等待视频生成完成...")
