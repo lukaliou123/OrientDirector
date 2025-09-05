@@ -919,20 +919,25 @@ class GeminiImageService:
             image_base64 = base64.b64encode(image_bytes).decode('utf-8')
             buffered.close()
 
-            # 使用Google GenAI SDK的Blob对象创建图片参数
-            from google.genai import types
+            # 根据API错误信息，必须使用嵌套的字典结构
+            # API明确要求包含bytesBase64Encoded和mimeType字段
             
-            # 创建Blob对象，这是Google GenAI SDK的正确方式
-            image_blob = types.Blob(
-                mime_type="image/png",
-                data=image_bytes  # 直接使用字节数据，不是base64
-            )
+            # 重新编码为base64（API要求）
+            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
             
-            # 调用Veo 3生成视频
+            # 使用API要求的嵌套结构
+            image_param = {
+                "image": {
+                    "bytesBase64Encoded": image_base64,
+                    "mimeType": "image/png"
+                }
+            }
+            
+            # 调用Veo 3生成视频 - 直接传递嵌套结构
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image_blob,  # 使用Blob对象
+                **image_param  # 解包参数
             )
             
             logger.info(f"🎬 视频生成作业已启动: {operation.name}")
