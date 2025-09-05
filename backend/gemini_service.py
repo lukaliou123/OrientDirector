@@ -880,99 +880,67 @@ class GeminiImageService:
             # 使用新的google.genai客户端
             client = genai_client.Client()
             
-            # 第一步：使用Imagen 3生成静态合影图片
-            logger.info("🎨 第一步：使用Imagen 3生成静态合影图片...")
+            # 第一步：使用与Doro合影完全相同的逻辑生成静态合影图片
+            logger.info("🎨 第一步：使用Doro合影逻辑生成静态合影图片...")
             
-            # 生成图片提示词
-            image_prompt = await self._generate_image_prompt_for_video(
+            # 直接使用现有的Doro合影生成方法，确保完全一致的效果
+            success, message, image_result = await self.generate_doro_selfie_with_attraction(
                 user_photo=user_photo,
                 doro_photo=doro_photo,
                 attraction_info=attraction_info,
                 style_photo=style_photo
             )
-            logger.info(f"📝 图片提示词: {image_prompt[:200]}...")
             
-            try:
-                # 主路径：使用 Imagen 3 生成静态图片，并直接传原始 image 对象
-                logger.info("🎨 使用 Imagen 3 生成静态图片（主路径）...")
-                imagen_response = client.models.generate_images(
-                    model="imagen-3.0-generate-002",
-                    prompt=image_prompt,
-                )
-                if not imagen_response.generated_images:
-                    raise Exception("Imagen未生成图片")
-
-                # 直接使用 Imagen 返回的原始图片对象
-                generated_image = imagen_response.generated_images[0].image
-                logger.info("✅ Imagen 3 静态图片生成成功")
-
-                # 保存一份到磁盘，便于前端展示与排查
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
-                imagen_filename = f"imagen_{safe_name}_{timestamp}.png"
-                imagen_filepath = os.path.join(self.output_dir, imagen_filename)
-
-                if hasattr(generated_image, 'save'):
-                    generated_image.save(imagen_filepath)
-                elif hasattr(generated_image, 'data'):
-                    with open(imagen_filepath, 'wb') as f:
-                        f.write(generated_image.data)
-
-                with open(imagen_filepath, 'rb') as f:
-                    img_data = f.read()
-                img_base64 = base64.b64encode(img_data).decode()
-
-                image_result = {
-                    'image_url': f"data:image/png;base64,{img_base64}",
-                    'filename': imagen_filename,
-                    'filepath': imagen_filepath
-                }
-                
-            except Exception as e:
-                logger.error(f"❌ Imagen生成失败，走降级路径: {e}")
-                # 降级路径：使用现有合影生成（含用户与Doro参照图），并以 SDK Part inline_data 结构传入视频接口
-                logger.info("📸 使用合影生成（含参照图片）作为降级路径...")
-                success, message, image_result = await self.generate_doro_selfie_with_attraction(
-                    user_photo=user_photo,
-                    doro_photo=doro_photo,
-                    style_photo=style_photo,
-                    attraction_info=attraction_info
-                )
-                if not success:
-                    return False, f"图片生成失败: {message}", None
-
-                # 将合影的 base64 包装为 Part inline_data（注意下划线命名）
-                from google.genai import types
-                image_base64 = image_result['image_url'].split(',')[1]
-                generated_image = types.Part.from_dict({
-                    "inline_data": {
-                        "mime_type": "image/png",
-                        "data": image_base64
-                    }
-                })
+            if not success:
+                return False, f"静态图片生成失败: {message}", None
             
-            # 第二步：使用Veo 3生成视频
-            logger.info("🎬 第二步：使用Veo 3生成动态视频...")
+            # 第二步：保存静态图片到本地文件，然后重新加载
+            logger.info("💾 保存静态图片到本地文件...")
             
-            # 生成视频提示词（传递图片提示词以保持一致性）
-            video_prompt = self._generate_video_prompt(
-                attraction_info, 
-                (1024, 1024),
-                image_prompt=image_prompt  # 传递图片提示词
+            # 生成临时图片文件名
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
+            temp_image_filename = f"temp_video_source_{safe_name}_{timestamp}.jpg"
+            temp_image_filepath = os.path.join(self.output_dir, temp_image_filename)
+            
+            # 从base64数据创建图片对象并保存到本地
+            image_base64 = image_result['image_url'].split(',')[1]
+            image_data = base64.b64decode(image_base64)
+            static_image = Image.open(BytesIO(image_data))
+            
+            # 保存为JPG格式（Veo 3推荐格式）
+            if static_image.mode != 'RGB':
+                static_image = static_image.convert('RGB')
+            static_image.save(temp_image_filepath, 'JPEG', quality=95)
+            logger.info(f"✅ 静态图片已保存: {temp_image_filepath}")
+            
+            # 重新从文件加载图片（按照范例方法）
+            image = Image.open(temp_image_filepath)
+            logger.info(f"📁 从文件重新加载图片: {image.size}, 模式: {image.mode}")
+            
+            # 第三步：使用Veo 3生成视频
+            logger.info("🎬 第三步：使用Veo 3生成动态视频...")
+            
+            # 使用生成图片时的提示词作为视频提示词的基础
+            image_prompt_used = image_result.get('prompt_used', '')
+            video_prompt = self._generate_video_prompt_from_image_prompt(
+                image_prompt_used,
+                attraction_info
             )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
-            # 调用Veo 3生成视频，使用Imagen生成的图片
+            # 按照范例方法调用Veo 3生成视频
+            from google.genai import types
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=generated_image,  # 直接使用Imagen生成的图片对象
+                image=image,  # 直接使用从文件加载的图片对象
+                config=types.GenerateVideosConfig(
+                    aspect_ratio="16:9",
+                ),
             )
             
             logger.info(f"🎬 视频生成作业已启动: {operation.name}")
-            
-            # 使用 GenerateVideosOperation 来跟踪操作
-            from google.genai import types
             video_operation = types.GenerateVideosOperation(name=operation.name)
             
             logger.info("🕐 等待视频生成完成...")
@@ -1011,8 +979,6 @@ class GeminiImageService:
             generated_video = video_operation.response.generated_videos[0]
             
             # 保存视频文件
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
             video_filename = f"doro_video_{safe_name}_{timestamp}.mp4"
             video_filepath = os.path.join(self.output_dir, video_filename)
             
@@ -1030,6 +996,14 @@ class GeminiImageService:
                     return False, f"视频下载失败: {e}", None
             
             logger.info(f"✅ Doro合影视频生成成功: {video_filename}")
+            
+            # 清理临时图片文件
+            try:
+                if os.path.exists(temp_image_filepath):
+                    os.remove(temp_image_filepath)
+                    logger.info(f"🗑️ 已清理临时图片文件: {temp_image_filename}")
+            except Exception as e:
+                logger.warning(f"⚠️ 清理临时文件失败: {e}")
             
             # 读取视频文件并转换为base64（用于前端显示）
             with open(video_filepath, 'rb') as f:
@@ -1059,7 +1033,7 @@ class GeminiImageService:
         style_photo: Optional[UploadFile] = None
     ) -> str:
         """
-        为视频生成创建图片提示词（使用完整的Doro合影逻辑）
+        为视频生成创建图片提示词
         
         Args:
             user_photo: 用户照片
@@ -1070,45 +1044,85 @@ class GeminiImageService:
         Returns:
             图片生成提示词
         """
-        # 导入提示词生成器
-        from prompt_generator import doro_prompt_generator
+        # 基础提示词
+        prompt = f"Create a high-quality travel photo showing a real person and their charming animated character companion Doro at the famous {attraction_info.get('name', 'landmark')} in {attraction_info.get('address', 'location')}"
         
-        # 使用与Doro合影相同的提示词生成逻辑
-        main_prompt = doro_prompt_generator.generate_attraction_doro_prompt(
-            attraction_name=attraction_info.get("name"),
-            attraction_type=attraction_info.get("category", "城市地标"),  # 默认类型
-            location=attraction_info.get("address", attraction_info.get("location")),
-            with_style=style_photo is not None,
-            doro_style=attraction_info.get("doro_style", "default"),
-            user_description=attraction_info.get("user_description")
-        )
+        # 添加景点描述
+        if attraction_info.get('description'):
+            prompt += f", {attraction_info['description']}"
         
-        # 如果有服装风格，添加风格迁移提示
+        # 添加姿势和互动
+        poses = [
+            "taking a selfie together",
+            "posing happily",
+            "giving thumbs up",
+            "making peace signs",
+            "smiling at the camera"
+        ]
+        import random
+        pose = random.choice(poses)
+        prompt += f". They are {pose}"
+        
+        # 添加服装描述
         if style_photo:
-            style_prompt = doro_prompt_generator.generate_style_transfer_prompt()
-            main_prompt = f"{main_prompt}. {style_prompt}"
+            prompt += ", wearing stylish travel outfits"
+        else:
+            prompt += ", wearing casual travel attire"
         
-        # 增强提示词（根据额外参数）
-        main_prompt = doro_prompt_generator.enhance_prompt_with_details(
-            main_prompt,
-            time_of_day=attraction_info.get("time_of_day"),
-            weather=attraction_info.get("weather"),
-            season=attraction_info.get("season"),
-            mood=attraction_info.get("mood")
-        )
+        # 添加环境和光线描述
+        time_descriptions = {
+            "morning": "with soft morning light",
+            "afternoon": "under bright afternoon sun",
+            "evening": "during golden hour with warm sunset light",
+            "night": "with beautiful night lights"
+        }
         
-        # 添加视频生成特定的要求
-        video_specific_prompt = (
-            ". This image will be used as the base for video generation, "
-            "so ensure clear, stable composition with both subjects clearly visible. "
-            "Avoid complex backgrounds that might interfere with video motion. "
-            "Focus on natural, authentic expressions and poses suitable for animation"
-        )
+        time_of_day = attraction_info.get('time_of_day', 'afternoon')
+        prompt += f", {time_descriptions.get(time_of_day, 'with natural lighting')}"
         
-        main_prompt += video_specific_prompt
+        # 添加质量要求
+        prompt += ". Professional photography, high resolution, vibrant colors, perfect composition, travel photography style"
         
-        logger.info(f"视频图片提示词: {main_prompt[:200]}...")
-        return main_prompt
+        return prompt
+    
+    def _generate_video_prompt_from_image_prompt(self, image_prompt: str, attraction_info: Dict) -> str:
+        """
+        基于图片生成提示词创建视频提示词
+        
+        Args:
+            image_prompt: 原始图片生成提示词
+            attraction_info: 景点信息
+            
+        Returns:
+            视频生成提示词
+        """
+        # 从图片提示词中提取关键信息
+        base_description = image_prompt
+        
+        # 如果图片提示词包含中文，转换为英文视频提示词
+        if any('\u4e00' <= char <= '\u9fff' for char in image_prompt):
+            # 中文提示词转换为英文视频描述
+            attraction_name = attraction_info.get('name', '景点')
+            location = attraction_info.get('location', attraction_info.get('address', ''))
+            
+            video_prompt = f"Create a cinematic 8-second video based on this scene: A real person and their charming animated character companion Doro at {attraction_name}"
+            
+            if location:
+                video_prompt += f" in {location}"
+            
+            # 添加动态元素
+            video_prompt += ". The person and Doro are happily posing together, both smiling and waving at the camera"
+            video_prompt += ". Gentle camera movement with natural lighting"
+            video_prompt += ". High-quality travel video style with smooth motion and vibrant colors"
+            video_prompt += ". No text overlays or written content in the scene"
+        else:
+            # 英文提示词，直接基于原提示词创建视频版本
+            video_prompt = f"Create a cinematic 8-second video of this scene: {base_description}"
+            video_prompt += ". Add gentle movement: the subjects wave and smile naturally at the camera"
+            video_prompt += ". Smooth camera work with professional travel video aesthetics"
+            video_prompt += ". Natural lighting and vibrant colors. No text or written content"
+        
+        return video_prompt
     
     def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple, image_prompt: str = None) -> str:
         """
