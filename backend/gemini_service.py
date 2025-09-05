@@ -630,6 +630,19 @@ class GeminiImageService:
         try:
             logger.info(f"开始生成Doro合影: 景点={attraction_info.get('name', 'Unknown')}")
             
+            # 辅助函数：将PIL Image转换为base64编码的字典
+            def pil_to_base64_dict(image: Image.Image, mime_type: str = "image/jpeg") -> Dict:
+                buffered = BytesIO()
+                image.save(buffered, format="JPEG" if mime_type == "image/jpeg" else "PNG")
+                buffered.seek(0)
+                img_bytes = buffered.getvalue()
+                return {
+                    "inline_data": {
+                        "mime_type": mime_type,
+                        "data": base64.b64encode(img_bytes).decode('utf-8')
+                    }
+                }
+            
             # 读取用户照片
             try:
                 user_photo.file.seek(0)  # 确保文件指针在开始位置
@@ -641,6 +654,9 @@ class GeminiImageService:
                 # 验证用户照片
                 if not self._validate_image(user_image):
                     return False, "用户照片不符合要求，请使用清晰的JPG或PNG格式图片", None
+                    
+                # 转换为API需要的格式
+                user_image_data = pil_to_base64_dict(user_image)
             except Exception as e:
                 logger.error(f"❌ 用户照片加载失败: {e}")
                 return False, f"用户照片加载失败: {str(e)}", None
@@ -656,12 +672,15 @@ class GeminiImageService:
                 # 验证Doro图片
                 if not self._validate_image(doro_image):
                     return False, "Doro图片不符合要求，请联系管理员", None
+                    
+                # 转换为API需要的格式
+                doro_image_data = pil_to_base64_dict(doro_image)
             except Exception as e:
                 logger.error(f"❌ Doro图片加载失败: {e}")
                 return False, f"Doro图片加载失败: {str(e)}", None
             
             # 读取服装风格图片（如果提供）
-            style_image = None
+            style_image_data = None
             if style_photo:
                 try:
                     style_photo.file.seek(0)  # 确保文件指针在开始位置
@@ -673,10 +692,11 @@ class GeminiImageService:
                     # 验证风格图片
                     if not self._validate_image(style_image):
                         logger.warning("⚠️ 风格图片不符合要求，将跳过")
-                        style_image = None
+                    else:
+                        # 转换为API需要的格式
+                        style_image_data = pil_to_base64_dict(style_image)
                 except Exception as e:
                     logger.warning(f"⚠️ 风格图片加载失败，将跳过: {e}")
-                    style_image = None
             
             # 生成智能提示词
             main_prompt = doro_prompt_generator.generate_attraction_doro_prompt(
@@ -689,7 +709,7 @@ class GeminiImageService:
             )
             
             # 如果有服装风格，添加风格迁移提示
-            if style_photo:
+            if style_photo and style_image_data:
                 style_prompt = doro_prompt_generator.generate_style_transfer_prompt()
                 main_prompt = f"{main_prompt}. {style_prompt}"
             
@@ -702,14 +722,14 @@ class GeminiImageService:
                 mood=attraction_info.get("mood")
             )
             
-            # 构建内容列表
+            # 构建内容列表 - 使用正确的格式
             contents = [main_prompt]
             
-            # 添加图片
-            contents.append(user_image)
-            contents.append(doro_image)
-            if style_image:
-                contents.append(style_image)
+            # 添加图片数据（已转换为正确格式）
+            contents.append(user_image_data)
+            contents.append(doro_image_data)
+            if style_image_data:
+                contents.append(style_image_data)
             
             # 添加负面提示词
             negative_prompt = doro_prompt_generator.get_negative_prompt()
