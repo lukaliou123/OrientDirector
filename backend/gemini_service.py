@@ -893,37 +893,118 @@ class GeminiImageService:
             logger.info(f"📝 图片提示词: {image_prompt[:200]}...")
             
             try:
-                # 使用Imagen 3生成图片
-                imagen_response = client.models.generate_images(
-                    model="imagen-3.0-generate-002",
-                    prompt=image_prompt,
-                )
+                # 使用完整的Doro合影逻辑生成图片（与现有功能相同）
+                logger.info("🎨 使用完整的Doro合影逻辑生成图片...")
                 
-                if not imagen_response.generated_images:
-                    return False, "Imagen未能生成图片", None
-                    
-                # 获取生成的图片
-                generated_image = imagen_response.generated_images[0].image
-                logger.info(f"✅ 静态图片生成成功")
+                # 读取并处理用户照片
+                user_photo.file.seek(0)
+                user_image = Image.open(user_photo.file)
+                if user_image.mode != 'RGB':
+                    user_image = user_image.convert('RGB')
+                logger.info(f"✅ 用户照片加载成功: {user_image.size}, 模式: {user_image.mode}")
                 
-                # 保存Imagen生成的图片
+                # 读取并处理Doro照片
+                doro_photo.file.seek(0)
+                doro_image = Image.open(doro_photo.file)
+                if doro_image.mode != 'RGB':
+                    doro_image = doro_image.convert('RGB')
+                logger.info(f"✅ Doro图片加载成功: {doro_image.size}, 模式: {doro_image.mode}")
+                
+                # 读取风格照片（如果有）
+                style_image = None
+                if style_photo:
+                    try:
+                        style_photo.file.seek(0)
+                        style_image = Image.open(style_photo.file)
+                        if style_image.mode != 'RGB':
+                            style_image = style_image.convert('RGB')
+                        logger.info(f"✅ 风格图片加载成功: {style_image.size}, 模式: {style_image.mode}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ 风格图片加载失败，将跳过: {e}")
+                        style_image = None
+                
+                # 构建内容列表（与Doro合影相同）
+                contents = [image_prompt]
+                contents.append(user_image)
+                contents.append(doro_image)
+                if style_image:
+                    contents.append(style_image)
+                
+                # 添加负面提示词
+                from .prompt_generator import doro_prompt_generator
+                negative_prompt = doro_prompt_generator.get_negative_prompt()
+                contents.append(f"Avoid: {negative_prompt}")
+                
+                logger.info(f"使用提示词: {image_prompt[:200]}...")
+                
+                # 调用Gemini API生成图片
+                response = await self._call_gemini_with_retry(contents)
+                
+                # 提取生成的图片（使用现有的提取逻辑）
+                generated_image_pil = None
+                
+                # 方法1: 直接从response.parts提取
+                for part in response.parts:
+                    if hasattr(part, 'inline_data') and part.inline_data:
+                        # 检查是否有mime_type且是图片
+                        if hasattr(part.inline_data, 'mime_type') and part.inline_data.mime_type and part.inline_data.mime_type.startswith('image/'):
+                            try:
+                                image_data = part.inline_data.data
+                                
+                                # 检查数据类型并相应处理
+                                if isinstance(image_data, str):
+                                    # 如果是base64字符串，先解码
+                                    try:
+                                        image_bytes = base64.b64decode(image_data)
+                                    except Exception:
+                                        # 如果不是base64，可能是直接的字符串数据
+                                        image_bytes = image_data.encode() if isinstance(image_data, str) else image_data
+                                else:
+                                    # 如果已经是字节数据
+                                    image_bytes = image_data
+                                
+                                # 创建BytesIO对象并重置指针
+                                image_buffer = BytesIO(image_bytes)
+                                image_buffer.seek(0)
+                                generated_image_pil = Image.open(image_buffer)
+                                logger.info(f"✅ 成功从inline_data提取图片: {generated_image_pil.size}")
+                                break
+                            except Exception as e:
+                                logger.error(f"❌ 从inline_data提取图片失败: {e}")
+                                continue
+                
+                if not generated_image_pil:
+                    return False, "无法从Gemini响应中提取图片", None
+                
+                # 保存生成的图片
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
-                imagen_filename = f"imagen_{safe_name}_{timestamp}.png"
+                imagen_filename = f"doro_video_image_{safe_name}_{timestamp}.png"
                 imagen_filepath = os.path.join(self.output_dir, imagen_filename)
                 
-                # 如果generated_image有save方法，直接保存
-                if hasattr(generated_image, 'save'):
-                    generated_image.save(imagen_filepath)
-                elif hasattr(generated_image, 'data'):
-                    # 如果是字节数据
-                    with open(imagen_filepath, 'wb') as f:
-                        f.write(generated_image.data)
+                generated_image_pil.save(imagen_filepath, 'PNG')
+                logger.info(f"Doro视频图片已保存: {imagen_filename}")
                 
-                # 读取保存的图片转为base64
-                with open(imagen_filepath, 'rb') as f:
-                    img_data = f.read()
-                img_base64 = base64.b64encode(img_data).decode()
+                # 转换为base64
+                buffered = BytesIO()
+                generated_image_pil.save(buffered, format="PNG")
+                buffered.seek(0)
+                img_base64 = base64.b64encode(buffered.getvalue()).decode()
+                buffered.close()
+                
+                # 创建图片对象用于视频生成
+                class ImageWrapper:
+                    def __init__(self, data):
+                        self.data = data
+                        
+                # 将PIL图片转换为字节数据
+                img_buffer = BytesIO()
+                generated_image_pil.save(img_buffer, format="PNG")
+                img_buffer.seek(0)
+                image_bytes = img_buffer.getvalue()
+                img_buffer.close()
+                
+                generated_image = ImageWrapper(image_bytes)
                 
                 # 初始化image_result用于返回
                 image_result = {
@@ -1073,7 +1154,7 @@ class GeminiImageService:
         style_photo: Optional[UploadFile] = None
     ) -> str:
         """
-        为视频生成创建图片提示词
+        为视频生成创建图片提示词（使用完整的Doro合影逻辑）
         
         Args:
             user_photo: 用户照片
@@ -1084,46 +1165,45 @@ class GeminiImageService:
         Returns:
             图片生成提示词
         """
-        # 基础提示词
-        prompt = f"Create a high-quality travel photo showing a real person and their charming animated character companion Doro at the famous {attraction_info.get('name', 'landmark')} in {attraction_info.get('address', 'location')}"
+        # 导入提示词生成器
+        from .prompt_generator import doro_prompt_generator
         
-        # 添加景点描述
-        if attraction_info.get('description'):
-            prompt += f", {attraction_info['description']}"
+        # 使用与Doro合影相同的提示词生成逻辑
+        main_prompt = doro_prompt_generator.generate_attraction_doro_prompt(
+            attraction_name=attraction_info.get("name"),
+            attraction_type=attraction_info.get("category", "城市地标"),  # 默认类型
+            location=attraction_info.get("address", attraction_info.get("location")),
+            with_style=style_photo is not None,
+            doro_style=attraction_info.get("doro_style", "default"),
+            user_description=attraction_info.get("user_description")
+        )
         
-        # 添加姿势和互动
-        poses = [
-            "taking a selfie together",
-            "posing happily",
-            "giving thumbs up",
-            "making peace signs",
-            "smiling at the camera"
-        ]
-        import random
-        pose = random.choice(poses)
-        prompt += f". They are {pose}"
-        
-        # 添加服装描述
+        # 如果有服装风格，添加风格迁移提示
         if style_photo:
-            prompt += ", wearing stylish travel outfits"
-        else:
-            prompt += ", wearing casual travel attire"
+            style_prompt = doro_prompt_generator.generate_style_transfer_prompt()
+            main_prompt = f"{main_prompt}. {style_prompt}"
         
-        # 添加环境和光线描述
-        time_descriptions = {
-            "morning": "with soft morning light",
-            "afternoon": "under bright afternoon sun",
-            "evening": "during golden hour with warm sunset light",
-            "night": "with beautiful night lights"
-        }
+        # 增强提示词（根据额外参数）
+        main_prompt = doro_prompt_generator.enhance_prompt_with_details(
+            main_prompt,
+            time_of_day=attraction_info.get("time_of_day"),
+            weather=attraction_info.get("weather"),
+            season=attraction_info.get("season"),
+            mood=attraction_info.get("mood")
+        )
         
-        time_of_day = attraction_info.get('time_of_day', 'afternoon')
-        prompt += f", {time_descriptions.get(time_of_day, 'with natural lighting')}"
+        # 添加视频生成特定的要求
+        video_specific_prompt = (
+            ". This image will be used as the base for video generation, "
+            "so ensure clear, stable composition with both subjects clearly visible. "
+            "Avoid complex backgrounds that might interfere with video motion. "
+            "Focus on natural, authentic expressions and poses suitable for animation"
+        )
         
-        # 添加质量要求
-        prompt += ". Professional photography, high resolution, vibrant colors, perfect composition, travel photography style"
+        main_prompt += video_specific_prompt
         
-        return prompt
+        logger.info(f"视频图片提示词: {main_prompt[:200]}...")
+        return main_prompt
     
     def _generate_video_prompt(self, attraction_info: Dict, image_size: tuple, image_prompt: str = None) -> str:
         """
