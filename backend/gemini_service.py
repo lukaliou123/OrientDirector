@@ -937,7 +937,7 @@ class GeminiImageService:
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=generated_image,  # 包含bytesBase64Encoded和mimeType的字典
+                image=generated_image,  # types.Part对象，使用types.Part.from_dict()包装
                 config=types.GenerateVideosConfig(
                     aspect_ratio="16:9",
                 ),
@@ -1127,13 +1127,14 @@ class GeminiImageService:
     
     def _convert_existing_to_imagen_format(self, image_result: Dict):
         """
-        将现有合成图片转换为Veo 3 API要求的格式
+        将现有合成图片转换为Veo 3 API兼容的格式
+        使用types.Part.from_dict()方法包装
         
         Args:
             image_result: generate_doro_selfie_with_attraction返回的结果
             
         Returns:
-            包含bytesBase64Encoded和mimeType的字典，符合Veo 3 API要求
+            types.Part对象，符合Veo 3 API要求
         """
         try:
             # 优先从文件路径加载（最可靠）
@@ -1151,11 +1152,17 @@ class GeminiImageService:
             else:
                 raise ValueError("无法找到有效的图片数据")
             
-            # 返回Veo 3 API要求的格式
-            return {
-                "bytesBase64Encoded": image_base64,
-                "mimeType": "image/png"
-            }
+            # 🔑 关键：使用types.Part.from_dict()包装，而不是直接字典
+            from google.genai import types
+            generated_image = types.Part.from_dict({
+                "inline_data": {
+                    "mime_type": "image/png",
+                    "data": image_base64
+                }
+            })
+            
+            logger.info("✅ 成功转换现有图片为types.Part格式")
+            return generated_image
                 
         except Exception as e:
             logger.error(f"❌ 转换现有图片格式失败: {e}")
