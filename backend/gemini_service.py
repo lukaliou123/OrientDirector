@@ -894,29 +894,22 @@ class GeminiImageService:
             if not success:
                 return False, f"静态图片生成失败: {message}", None
             
-            # 第二步：保存静态图片到本地文件，然后重新加载
-            logger.info("💾 保存静态图片到本地文件...")
+            # 第二步：直接使用已生成的PNG图片文件
+            logger.info("📁 使用已生成的PNG图片文件...")
             
-            # 生成临时图片文件名
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
-            temp_image_filename = f"temp_video_source_{safe_name}_{timestamp}.jpg"
-            temp_image_filepath = os.path.join(self.output_dir, temp_image_filename)
+            # 获取已保存的PNG文件路径
+            existing_png_filepath = image_result['filepath']
+            logger.info(f"📍 PNG文件路径: {existing_png_filepath}")
             
-            # 从base64数据创建图片对象并保存到本地
-            image_base64 = image_result['image_url'].split(',')[1]
-            image_data = base64.b64decode(image_base64)
-            static_image = Image.open(BytesIO(image_data))
+            # 验证文件是否存在
+            if not os.path.exists(existing_png_filepath):
+                logger.error(f"❌ PNG文件不存在: {existing_png_filepath}")
+                return False, "PNG文件不存在，无法生成视频", None
             
-            # 保存为JPG格式（Veo 3推荐格式）
-            if static_image.mode != 'RGB':
-                static_image = static_image.convert('RGB')
-            static_image.save(temp_image_filepath, 'JPEG', quality=95)
-            logger.info(f"✅ 静态图片已保存: {temp_image_filepath}")
-            
-            # 重新从文件加载图片（按照范例方法）
-            image = Image.open(temp_image_filepath)
-            logger.info(f"📁 从文件重新加载图片: {image.size}, 模式: {image.mode}")
+            # 使用PIL Image.open()加载PNG图片（按照范例方法）
+            from PIL import Image
+            image = Image.open(existing_png_filepath)
+            logger.info(f"✅ 成功加载PNG图片: {image.size}, 模式: {image.mode}")
             
             # 第三步：使用Veo 3生成视频
             logger.info("🎬 第三步：使用Veo 3生成动态视频...")
@@ -979,7 +972,9 @@ class GeminiImageService:
             generated_video = video_operation.response.generated_videos[0]
             
             # 保存视频文件
-            video_filename = f"doro_video_{safe_name}_{timestamp}.mp4"
+            video_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
+            video_filename = f"doro_video_{safe_name}_{video_timestamp}.mp4"
             video_filepath = os.path.join(self.output_dir, video_filename)
             
             # 下载并保存视频
@@ -997,13 +992,8 @@ class GeminiImageService:
             
             logger.info(f"✅ Doro合影视频生成成功: {video_filename}")
             
-            # 清理临时图片文件
-            try:
-                if os.path.exists(temp_image_filepath):
-                    os.remove(temp_image_filepath)
-                    logger.info(f"🗑️ 已清理临时图片文件: {temp_image_filename}")
-            except Exception as e:
-                logger.warning(f"⚠️ 清理临时文件失败: {e}")
+            # 注意：不清理PNG图片文件，因为它是正式生成的合影图片，用户可能需要
+            logger.info(f"📷 保留原始PNG图片: {existing_png_filepath}")
             
             # 读取视频文件并转换为base64（用于前端显示）
             with open(video_filepath, 'rb') as f:
@@ -1015,9 +1005,10 @@ class GeminiImageService:
                 "filename": video_filename,
                 "filepath": video_filepath,
                 "static_image_url": image_result['image_url'],  # 也返回静态图片
+                "static_image_filepath": existing_png_filepath,  # 返回PNG文件路径
                 "prompt_used": video_prompt,
                 "attraction_name": attraction_info.get("name"),
-                "timestamp": timestamp,
+                "timestamp": video_timestamp,
                 "generation_time": waited_time
             }
             
