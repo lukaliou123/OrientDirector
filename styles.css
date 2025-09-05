@@ -367,6 +367,146 @@ body {
     border-top: 2px solid rgba(102, 126, 234, 0.1);
 }
 
+/* 城市选择器样式 */
+.city-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.city-select {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.3s ease;
+}
+
+.city-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-results {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    margin-top: 5px;
+}
+
+.search-result-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+    background-color: #f8fafc;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-city {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 4px;
+}
+
+.search-result-country {
+    font-size: 0.9em;
+    color: #718096;
+}
+
+.search-result-attractions {
+    font-size: 0.8em;
+    color: #a0aec0;
+    margin-top: 4px;
+}
+
+/* 选中的城市信息卡片 */
+.selected-city-info {
+    margin-top: 15px;
+}
+
+.city-info-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.city-info-card h4 {
+    color: #4a5568;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.city-info-card p {
+    color: #718096;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.city-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+    color: #4a5568;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* 城市选择器动画 */
+@keyframes cityCardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.selected-city-info {
+    animation: cityCardSlideIn 0.3s ease-out;
+}
+
 .explore-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
