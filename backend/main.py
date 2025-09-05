@@ -800,7 +800,14 @@ async def explore_direction_real(request: ExploreRequest):
         # 从本地数据库中获取附近景点，搜索半径50km
         places_data_list = local_attractions_db.find_nearby_attractions(target_lat, target_lon, radius_km=50)
         
-        logger.info(f"从本地数据库中找到 {len(places_data_list)} 个景点，距离目标点 ({target_lat:.4f}, {target_lon:.4f}) 50km 以内")
+        # 🆕 如果本地数据库没有找到景点，尝试从全球城市数据库搜索
+        if len(places_data_list) == 0:
+            logger.info("本地数据库未找到景点，尝试从全球城市数据库搜索...")
+            global_cities_db = GlobalCitiesDB()
+            places_data_list = global_cities_db.find_nearby_attractions(target_lat, target_lon, radius_km=50)
+            logger.info(f"从全球城市数据库中找到 {len(places_data_list)} 个景点，距离目标点 ({target_lat:.4f}, {target_lon:.4f}) 50km 以内")
+        else:
+            logger.info(f"从本地数据库中找到 {len(places_data_list)} 个景点，距离目标点 ({target_lat:.4f}, {target_lon:.4f}) 50km 以内")
         
         # 转换为PlaceInfo对象
         places = []
@@ -812,7 +819,7 @@ async def explore_direction_real(request: ExploreRequest):
                 name=place_data['name'],
                 latitude=place_data['latitude'],
                 longitude=place_data['longitude'],
-                distance=place_data['distance_to_point'],
+                distance=place_data.get('distance', 0),  # 使用distance字段，如果没有则默认为0
                 description=place_data['description'],
                 image=image_url,
                 video=place_data.get('video', None),

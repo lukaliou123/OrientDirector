@@ -1018,3 +1018,52 @@ class GlobalCitiesDB:
         elif city_key in self.china_cities:
             return self.china_cities[city_key]
         return None
+    
+    def find_nearby_attractions(self, latitude: float, longitude: float, radius_km: float = 50) -> List[Dict]:
+        """查找指定坐标附近的景点"""
+        nearby_attractions = []
+        
+        # 搜索全球城市景点
+        for city_key, city_data in self.global_cities.items():
+            for attraction in city_data["attractions"]:
+                distance = self._calculate_distance(
+                    latitude, longitude,
+                    attraction["latitude"], attraction["longitude"]
+                )
+                if distance <= radius_km:
+                    attraction_copy = attraction.copy()
+                    attraction_copy["distance"] = distance
+                    nearby_attractions.append(attraction_copy)
+        
+        # 搜索中国城市景点
+        for city_key, city_data in self.china_cities.items():
+            for attraction in city_data["attractions"]:
+                distance = self._calculate_distance(
+                    latitude, longitude,
+                    attraction["latitude"], attraction["longitude"]
+                )
+                if distance <= radius_km:
+                    attraction_copy = attraction.copy()
+                    attraction_copy["distance"] = distance
+                    nearby_attractions.append(attraction_copy)
+        
+        # 按距离排序
+        nearby_attractions.sort(key=lambda x: x["distance"])
+        return nearby_attractions
+    
+    def _calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """计算两点之间的距离（公里）"""
+        # 使用Haversine公式计算球面距离
+        R = 6371  # 地球半径（公里）
+        
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        
+        a = (math.sin(dlat/2) * math.sin(dlat/2) + 
+             math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * 
+             math.sin(dlon/2) * math.sin(dlon/2))
+        
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        distance = R * c
+        
+        return distance
