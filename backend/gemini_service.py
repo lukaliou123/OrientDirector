@@ -926,10 +926,11 @@ class GeminiImageService:
                 logger.error(f"❌ PNG文件不存在: {existing_png_filepath}")
                 return False, "PNG文件不存在，无法生成视频", None
             
-            # 使用PIL Image.open()加载PNG图片（按照范例方法）
-            from PIL import Image
-            image = Image.open(existing_png_filepath)
-            logger.info(f"✅ 成功加载PNG图片: {image.size}, 模式: {image.mode}")
+            # 读取PNG文件并转换为API要求的base64结构
+            with open(existing_png_filepath, 'rb') as f:
+                image_bytes = f.read()
+            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+            logger.info("✅ 已读取PNG文件并完成base64编码")
             
             # 第三步：使用Veo 3生成视频
             logger.info("🎬 第三步：使用Veo 3生成动态视频...")
@@ -942,12 +943,15 @@ class GeminiImageService:
             )
             logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
             
-            # 按照范例方法调用Veo 3生成视频
+            # 按照API要求，使用bytesBase64Encoded + mimeType结构传递图片
             from google.genai import types
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=image,  # 直接使用从文件加载的图片对象
+                image={
+                    "bytesBase64Encoded": image_base64,
+                    "mimeType": "image/png",
+                },
                 config=types.GenerateVideosConfig(
                     aspect_ratio="16:9",
                 ),
