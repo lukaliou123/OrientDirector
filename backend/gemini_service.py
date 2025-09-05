@@ -931,7 +931,7 @@ class GeminiImageService:
                     contents.append(style_image)
                 
                 # 添加负面提示词
-                from .prompt_generator import doro_prompt_generator
+                from prompt_generator import doro_prompt_generator
                 negative_prompt = doro_prompt_generator.get_negative_prompt()
                 contents.append(f"Avoid: {negative_prompt}")
                 
@@ -1166,7 +1166,7 @@ class GeminiImageService:
             图片生成提示词
         """
         # 导入提示词生成器
-        from .prompt_generator import doro_prompt_generator
+        from prompt_generator import doro_prompt_generator
         
         # 使用与Doro合影相同的提示词生成逻辑
         main_prompt = doro_prompt_generator.generate_attraction_doro_prompt(
