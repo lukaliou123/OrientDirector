@@ -893,120 +893,35 @@ class GeminiImageService:
             logger.info(f"📝 图片提示词: {image_prompt[:200]}...")
             
             try:
-                # 使用完整的Doro合影逻辑生成图片（与现有功能相同）
-                logger.info("🎨 使用完整的Doro合影逻辑生成图片...")
-                
-                # 读取并处理用户照片
-                user_photo.file.seek(0)
-                user_image = Image.open(user_photo.file)
-                if user_image.mode != 'RGB':
-                    user_image = user_image.convert('RGB')
-                logger.info(f"✅ 用户照片加载成功: {user_image.size}, 模式: {user_image.mode}")
-                
-                # 读取并处理Doro照片
-                doro_photo.file.seek(0)
-                doro_image = Image.open(doro_photo.file)
-                if doro_image.mode != 'RGB':
-                    doro_image = doro_image.convert('RGB')
-                logger.info(f"✅ Doro图片加载成功: {doro_image.size}, 模式: {doro_image.mode}")
-                
-                # 读取风格照片（如果有）
-                style_image = None
-                if style_photo:
-                    try:
-                        style_photo.file.seek(0)
-                        style_image = Image.open(style_photo.file)
-                        if style_image.mode != 'RGB':
-                            style_image = style_image.convert('RGB')
-                        logger.info(f"✅ 风格图片加载成功: {style_image.size}, 模式: {style_image.mode}")
-                    except Exception as e:
-                        logger.warning(f"⚠️ 风格图片加载失败，将跳过: {e}")
-                        style_image = None
-                
-                # 构建内容列表（与Doro合影相同）
-                contents = [image_prompt]
-                contents.append(user_image)
-                contents.append(doro_image)
-                if style_image:
-                    contents.append(style_image)
-                
-                # 添加负面提示词
-                from prompt_generator import doro_prompt_generator
-                negative_prompt = doro_prompt_generator.get_negative_prompt()
-                contents.append(f"Avoid: {negative_prompt}")
-                
-                logger.info(f"使用提示词: {image_prompt[:200]}...")
-                
-                # 调用Gemini API生成图片
-                response = await self._call_gemini_with_retry(contents)
-                
-                # 提取生成的图片（使用现有的提取逻辑）
-                generated_image_pil = None
-                
-                # 方法1: 直接从response.parts提取
-                for part in response.parts:
-                    if hasattr(part, 'inline_data') and part.inline_data:
-                        # 检查是否有mime_type且是图片
-                        if hasattr(part.inline_data, 'mime_type') and part.inline_data.mime_type and part.inline_data.mime_type.startswith('image/'):
-                            try:
-                                image_data = part.inline_data.data
-                                
-                                # 检查数据类型并相应处理
-                                if isinstance(image_data, str):
-                                    # 如果是base64字符串，先解码
-                                    try:
-                                        image_bytes = base64.b64decode(image_data)
-                                    except Exception:
-                                        # 如果不是base64，可能是直接的字符串数据
-                                        image_bytes = image_data.encode() if isinstance(image_data, str) else image_data
-                                else:
-                                    # 如果已经是字节数据
-                                    image_bytes = image_data
-                                
-                                # 创建BytesIO对象并重置指针
-                                image_buffer = BytesIO(image_bytes)
-                                image_buffer.seek(0)
-                                generated_image_pil = Image.open(image_buffer)
-                                logger.info(f"✅ 成功从inline_data提取图片: {generated_image_pil.size}")
-                                break
-                            except Exception as e:
-                                logger.error(f"❌ 从inline_data提取图片失败: {e}")
-                                continue
-                
-                if not generated_image_pil:
-                    return False, "无法从Gemini响应中提取图片", None
-                
-                # 保存生成的图片
+                # 主路径：使用 Imagen 3 生成静态图片，并直接传原始 image 对象
+                logger.info("🎨 使用 Imagen 3 生成静态图片（主路径）...")
+                imagen_response = client.models.generate_images(
+                    model="imagen-3.0-generate-002",
+                    prompt=image_prompt,
+                )
+                if not imagen_response.generated_images:
+                    raise Exception("Imagen未生成图片")
+
+                # 直接使用 Imagen 返回的原始图片对象
+                generated_image = imagen_response.generated_images[0].image
+                logger.info("✅ Imagen 3 静态图片生成成功")
+
+                # 保存一份到磁盘，便于前端展示与排查
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
-                imagen_filename = f"doro_video_image_{safe_name}_{timestamp}.png"
+                imagen_filename = f"imagen_{safe_name}_{timestamp}.png"
                 imagen_filepath = os.path.join(self.output_dir, imagen_filename)
-                
-                generated_image_pil.save(imagen_filepath, 'PNG')
-                logger.info(f"Doro视频图片已保存: {imagen_filename}")
-                
-                # 转换为base64
-                buffered = BytesIO()
-                generated_image_pil.save(buffered, format="PNG")
-                buffered.seek(0)
-                img_base64 = base64.b64encode(buffered.getvalue()).decode()
-                buffered.close()
-                
-                # 为视频生成创建正确的图片对象（保持成功的技术）
-                # 根据成功版本，创建ImageWrapper对象
-                img_buffer = BytesIO()
-                generated_image_pil.save(img_buffer, format="PNG")
-                img_buffer.seek(0)
-                image_bytes = img_buffer.getvalue()
-                img_buffer.close()
-                
-                class ImageWrapper:
-                    def __init__(self, data):
-                        self.data = data
-                        
-                generated_image = ImageWrapper(image_bytes)
-                
-                # 初始化image_result用于返回
+
+                if hasattr(generated_image, 'save'):
+                    generated_image.save(imagen_filepath)
+                elif hasattr(generated_image, 'data'):
+                    with open(imagen_filepath, 'wb') as f:
+                        f.write(generated_image.data)
+
+                with open(imagen_filepath, 'rb') as f:
+                    img_data = f.read()
+                img_base64 = base64.b64encode(img_data).decode()
+
                 image_result = {
                     'image_url': f"data:image/png;base64,{img_base64}",
                     'filename': imagen_filename,
@@ -1014,37 +929,27 @@ class GeminiImageService:
                 }
                 
             except Exception as e:
-                logger.error(f"❌ Imagen生成失败: {e}")
-                # 如果Imagen失败，尝试使用原有方法作为后备
-                logger.info("📸 尝试使用备用方法生成图片...")
+                logger.error(f"❌ Imagen生成失败，走降级路径: {e}")
+                # 降级路径：使用现有合影生成（含用户与Doro参照图），并以 SDK Part inline_data 结构传入视频接口
+                logger.info("📸 使用合影生成（含参照图片）作为降级路径...")
                 success, message, image_result = await self.generate_doro_selfie_with_attraction(
                     user_photo=user_photo,
                     doro_photo=doro_photo,
                     style_photo=style_photo,
                     attraction_info=attraction_info
                 )
-                
                 if not success:
                     return False, f"图片生成失败: {message}", None
-                
-                # 从base64数据创建图片对象
+
+                # 将合影的 base64 包装为 Part inline_data（注意下划线命名）
+                from google.genai import types
                 image_base64 = image_result['image_url'].split(',')[1]
-                image_data = base64.b64decode(image_base64)
-                static_image = Image.open(BytesIO(image_data))
-                
-                # 为视频生成使用正确的图片对象（保持成功的技术）
-                # 根据成功版本，创建ImageWrapper对象
-                buffered = BytesIO()
-                static_image.save(buffered, format="PNG")
-                buffered.seek(0)
-                image_bytes = buffered.getvalue()
-                buffered.close()
-                
-                class ImageWrapper:
-                    def __init__(self, data):
-                        self.data = data
-                        
-                generated_image = ImageWrapper(image_bytes)
+                generated_image = types.Part.from_dict({
+                    "inline_data": {
+                        "mime_type": "image/png",
+                        "data": image_base64
+                    }
+                })
             
             # 第二步：使用Veo 3生成视频
             logger.info("🎬 第二步：使用Veo 3生成动态视频...")
