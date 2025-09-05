@@ -992,18 +992,18 @@ class GeminiImageService:
                 img_base64 = base64.b64encode(buffered.getvalue()).decode()
                 buffered.close()
                 
-                # 创建图片对象用于视频生成
-                class ImageWrapper:
-                    def __init__(self, data):
-                        self.data = data
-                        
-                # 将PIL图片转换为字节数据
+                # 为视频生成创建正确的图片对象（保持成功的技术）
+                # 根据成功版本，创建ImageWrapper对象
                 img_buffer = BytesIO()
                 generated_image_pil.save(img_buffer, format="PNG")
                 img_buffer.seek(0)
                 image_bytes = img_buffer.getvalue()
                 img_buffer.close()
                 
+                class ImageWrapper:
+                    def __init__(self, data):
+                        self.data = data
+                        
                 generated_image = ImageWrapper(image_bytes)
                 
                 # 初始化image_result用于返回
@@ -1032,14 +1032,14 @@ class GeminiImageService:
                 image_data = base64.b64decode(image_base64)
                 static_image = Image.open(BytesIO(image_data))
                 
-                # 将PIL图片转换为API格式
+                # 为视频生成使用正确的图片对象（保持成功的技术）
+                # 根据成功版本，创建ImageWrapper对象
                 buffered = BytesIO()
                 static_image.save(buffered, format="PNG")
                 buffered.seek(0)
                 image_bytes = buffered.getvalue()
                 buffered.close()
                 
-                # 创建一个模拟的图片对象
                 class ImageWrapper:
                     def __init__(self, data):
                         self.data = data
