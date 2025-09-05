@@ -684,7 +684,10 @@ function createPlaceCard(place, index) {
     const isSelected = sceneManagement.selectedScenes.some(s => s.index === index);
     const isRejected = sceneManagement.rejectedScenes.some(s => s.index === index);
     
-    card.className = `place-card ${isSelected ? 'selected' : ''} ${isRejected ? 'rejected' : ''}`;
+    // 🆕 检查是否为当前位置
+    const isCurrentLocation = place.isCurrentLocation || false;
+    
+    card.className = `place-card ${isSelected ? 'selected' : ''} ${isRejected ? 'rejected' : ''} ${isCurrentLocation ? 'current-location' : ''}`;
     card.dataset.placeIndex = index;
     
     const modeText = {
@@ -739,8 +742,11 @@ function createPlaceCard(place, index) {
         </div>
         <div class="place-content">
             <div class="place-header">
-                <h3 class="place-name">${place.name}</h3>
-                <span class="place-distance">${formatDistance(place.distance)}</span>
+                <h3 class="place-name">
+                    ${isCurrentLocation ? '📍 ' : ''}${place.name}
+                    ${isCurrentLocation ? '<span class="current-badge">当前位置</span>' : ''}
+                </h3>
+                <span class="place-distance">${isCurrentLocation ? '0m (当前位置)' : formatDistance(place.distance)}</span>
             </div>
             
             ${place.category ? `<div class="place-category">🏷️ ${place.category}</div>` : ''}
@@ -776,17 +782,34 @@ function createPlaceCard(place, index) {
             </div>
             
             <div class="place-actions">
-                <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
-                    📸 生成合影
-                </button>
-                <button class="action-btn doro-btn" onclick="openDoroSelfie(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
-                    🤝 Doro合影
-                </button>
-                ${place.latitude && place.longitude ? `
-                <button class="action-btn streetview-btn" onclick="openStreetView(${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
-                    🏙️ 查看街景
-                </button>
-                ` : ''}
+                ${isCurrentLocation ? `
+                    <button class="action-btn current-location-btn" disabled title="当前位置">
+                        📍 当前位置
+                    </button>
+                    <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
+                        📸 生成合影
+                    </button>
+                    <button class="action-btn doro-btn" onclick="openDoroSelfie(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
+                        🤝 Doro合影
+                    </button>
+                    ${place.latitude && place.longitude ? `
+                    <button class="action-btn streetview-btn" onclick="openStreetView(${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
+                        🏙️ 查看街景
+                    </button>
+                    ` : ''}
+                ` : `
+                    <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
+                        📸 生成合影
+                    </button>
+                    <button class="action-btn doro-btn" onclick="openDoroSelfie(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
+                        🤝 Doro合影
+                    </button>
+                    ${place.latitude && place.longitude ? `
+                    <button class="action-btn streetview-btn" onclick="openStreetView(${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
+                        🏙️ 查看街景
+                    </button>
+                    ` : ''}
+                `}
             </div>
             
             <span class="place-mode">${modeText}模式</span>
@@ -3421,7 +3444,72 @@ async function executeAttractionRoaming(attraction) {
     // 重置探索状态
     resetExplorationState();
     
+    // 🆕 自动搜索附近景点并按距离排序
+    await searchNearbyAttractions(attraction);
+    
     logger.success(`✅ 漫游成功! 当前位置: ${attraction.name}`);
+}
+
+// 🆕 搜索附近景点并按距离排序
+async function searchNearbyAttractions(currentAttraction) {
+    logger.info(`🔍 搜索 ${currentAttraction.name} 附近的景点...`);
+    
+    try {
+        // 使用默认角度（0度，正北方向）搜索附近景点
+        const searchData = {
+            latitude: currentAttraction.latitude,
+            longitude: currentAttraction.longitude,
+            heading: 0, // 默认正北方向
+            segment_distance: settings.segmentDistance,
+            time_mode: settings.timeMode
+        };
+        
+        const response = await fetch(`${getAPIBaseURL()}/api/explore-real`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(searchData)
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            let places = data.places || [];
+            
+            // 将当前景点添加到列表开头
+            const currentPlace = {
+                name: currentAttraction.name,
+                latitude: currentAttraction.latitude,
+                longitude: currentAttraction.longitude,
+                description: currentAttraction.description || '当前所在景点',
+                category: currentAttraction.category || '景点',
+                opening_hours: currentAttraction.opening_hours || '全天开放',
+                ticket_price: currentAttraction.ticket_price || '免费',
+                reservation_method: currentAttraction.reservation_method || '无需预约',
+                distance: 0, // 当前景点距离为0
+                isCurrentLocation: true // 标记为当前位置
+            };
+            
+            // 将当前景点放在第一位
+            places.unshift(currentPlace);
+            
+            // 按距离排序（当前景点已经在第一位）
+            places.sort((a, b) => {
+                if (a.isCurrentLocation) return -1; // 当前景点始终在第一位
+                if (b.isCurrentLocation) return 1;
+                return (a.distance || 0) - (b.distance || 0);
+            });
+            
+            // 显示搜索结果
+            displayPlaces(places);
+            
+            logger.success(`✅ 找到 ${places.length} 个附近景点，已按距离排序`);
+        } else {
+            logger.error('搜索附近景点失败');
+        }
+    } catch (error) {
+        logger.error(`搜索附近景点时出错: ${error.message}`);
+    }
 }
 
 // 更新景点位置显示

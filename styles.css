@@ -1519,6 +1519,51 @@ body {
     pointer-events: none;
 }
 
+/* 🆕 当前位置卡片样式 */
+.place-card.current-location {
+    border: 3px solid #48bb78;
+    box-shadow: 0 8px 32px rgba(72, 187, 120, 0.3);
+    background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+    position: relative;
+}
+
+.place-card.current-location::before {
+    content: '📍 当前位置';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #48bb78;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.current-badge {
+    background: #48bb78;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7em;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.current-location-btn {
+    background: #48bb78 !important;
+    color: white !important;
+    border: 2px solid #48bb78 !important;
+    cursor: not-allowed !important;
+    opacity: 0.8;
+}
+
+.current-location-btn:hover {
+    background: #48bb78 !important;
+    transform: none !important;
+}
+
 
 
 
