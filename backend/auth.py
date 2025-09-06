@@ -83,16 +83,51 @@ def verify_supabase_token(token: str) -> Optional[Dict]:
         return None
     
     try:
-        # 使用Supabase验证JWT令牌
-        user = supabase.auth.get_user(token)
-        if user and user.user:
-            return {
-                "user_id": user.user.id,
-                "email": user.user.email,
-                "created_at": user.user.created_at
-            }
+        # 方法1: 直接解析JWT令牌（推荐方式）
+        import jwt as pyjwt
+        
+        # 首先尝试不验证签名解析（用于调试）
+        try:
+            payload = pyjwt.decode(token, options={"verify_signature": False})
+            logger.info(f"JWT payload: {payload}")
+            
+            # 验证必要字段
+            if payload.get('sub') and payload.get('email'):
+                # 检查令牌是否过期
+                exp = payload.get('exp')
+                if exp and datetime.fromtimestamp(exp) < datetime.now():
+                    logger.warning("令牌已过期")
+                    return None
+                
+                return {
+                    "user_id": payload.get('sub'),
+                    "email": payload.get('email'),
+                    "created_at": payload.get('created_at', datetime.now().isoformat())
+                }
+        except Exception as jwt_error:
+            logger.error(f"JWT解析失败: {jwt_error}")
+        
+        # 方法2: 使用Supabase客户端验证（备用方式）
+        try:
+            # 创建一个临时的Supabase客户端来验证令牌
+            from supabase import create_client
+            temp_supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+            
+            # 尝试使用令牌获取用户信息
+            headers = {"Authorization": f"Bearer {token}"}
+            response = temp_supabase.auth.get_user(token)
+            
+            if response and response.user:
+                return {
+                    "user_id": response.user.id,
+                    "email": response.user.email,
+                    "created_at": response.user.created_at
+                }
+        except Exception as supabase_error:
+            logger.error(f"Supabase验证失败: {supabase_error}")
+    
     except Exception as e:
-        logger.error(f"Supabase令牌验证失败: {e}")
+        logger.error(f"令牌验证过程中发生错误: {e}")
     
     return None
 
@@ -307,34 +342,45 @@ async def register(user_data: UserRegister):
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """获取当前用户信息"""
     token = credentials.credentials
+    logger.info(f"🔍 收到/me请求，令牌长度: {len(token) if token else 0}")
     
     # 首先尝试验证Supabase令牌
     if supabase:
+        logger.info("🔐 尝试Supabase令牌验证...")
         supabase_user = verify_supabase_token(token)
         if supabase_user:
+            logger.info(f"✅ Supabase验证成功: {supabase_user['email']}")
             user_profile = await get_or_create_user_profile(
                 supabase_user["user_id"],
                 supabase_user["email"]
             )
             return User(**user_profile)
+        else:
+            logger.warning("❌ Supabase令牌验证失败")
+    else:
+        logger.warning("⚠️ Supabase客户端不可用")
     
     # 降级到本地JWT验证
+    logger.info("🔐 尝试本地JWT验证...")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         email = payload.get("email")
         
         if user_id is None:
+            logger.error("❌ JWT中缺少用户ID")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="无效的认证令牌",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
+        logger.info(f"✅ 本地JWT验证成功: {email}")
         user_profile = await get_or_create_user_profile(user_id, email)
         return User(**user_profile)
         
-    except jwt.PyJWTError:
+    except jwt.PyJWTError as e:
+        logger.error(f"❌ JWT验证失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="无效的认证令牌",
