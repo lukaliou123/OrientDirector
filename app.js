@@ -5541,10 +5541,25 @@ async function generateDoroVideo() {
         return;
     }
     
-    const place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
+    let place = null;
+    
+    // 尝试获取景点信息
+    if (doroSelfieData.currentPlaceIndex >= 0 && doroSelfieData.currentPlaceIndex < sceneManagement.allScenes.length) {
+        place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
+    }
+    
+    // 如果没有找到，使用存储的景点信息或基本信息
     if (!place) {
-        alert('景点信息丢失，请重新开始');
-        return;
+        place = doroSelfieData.currentPlace || {
+            name: document.querySelector('#doroAttractionName')?.textContent || '未知景点',
+            city: document.querySelector('#doroAttractionLocation')?.textContent || '',
+            country: '',
+            category: '',
+            latitude: null,
+            longitude: null,
+            description: '美丽的景点'
+        };
+        logger.info('使用备用景点信息:', place);
     }
     
     // 显示加载状态
