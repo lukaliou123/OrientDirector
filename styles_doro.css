@@ -39,11 +39,16 @@
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: hidden;
     animation: modalSlideIn 0.3s ease-out;
+    box-sizing: border-box;
 }
 
 .doro-modal-content {
     padding: 0;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 @keyframes slideUp {
@@ -627,6 +632,101 @@
     background: #ccc;
     cursor: not-allowed;
     transform: none;
+}
+
+/* 视频结果展示样式 */
+.doro-video-result {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.generated-video-container {
+    position: relative;
+    max-width: 100%;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: #000;
+}
+
+.generated-video {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
+    display: block;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.video-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    pointer-events: none;
+}
+
+.video-result-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.video-result-actions button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.download-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.download-btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.regenerate-btn {
+    background: #ff9800;
+    color: white;
+}
+
+.regenerate-btn:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.share-btn {
+    background: #2196f3;
+    color: white;
+}
+
+.share-btn:hover {
+    background: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 /* 自定义提示词输入框 */
