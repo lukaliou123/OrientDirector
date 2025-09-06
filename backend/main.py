@@ -23,6 +23,7 @@ from fastapi import File, UploadFile, Form
 from fastapi.responses import FileResponse, Response
 import tempfile
 import shutil
+from auth import router as auth_router
 
 # 配置日志
 logging.basicConfig(
@@ -1114,7 +1115,7 @@ async def get_environment_config():
         
         # 根据环境变量决定API基础URL
         if use_domain_name:
-            api_base_url = "https://doro.gitagent.io"
+            api_base_url = "https://spot.gitagent.io"
             environment = "production"
         else:
             api_base_url = "http://localhost:8001"
@@ -1809,6 +1810,9 @@ async def download_generated_image(filename: str):
     except Exception as e:
         logger.error(f"下载图片时出错: {e}")
         raise HTTPException(status_code=500, detail=f"下载图片失败: {str(e)}")
+
+# 包含认证路由
+app.include_router(auth_router, prefix="/api/auth", tags=["用户认证"])
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успех",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "save": "Сохранить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "search": "Поиск",
+    "back": "Назад",
+    "next": "Далее",
+    "previous": "Предыдущий",
+    "submit": "Отправить",
+    "close": "Закрыть"
+  },
+  "header": {
+    "brand": "Ориентир Директор",
+    "tagline": "ИИ Исследование Путешествий",
+    "login": "Войти",
+    "register": "Регистрация",
+    "profile": "Профиль",
+    "logout": "Выйти",
+    "language": "Язык"
+  },
+  "homepage": {
+    "title": "Ориентир Директор",
+    "subtitle": "ИИ Исследование Путешествий, Откройте Красоту Мира",
+    "description": "Используйте технологии ИИ для исследования достопримечательностей по всему миру и испытайте иммерсивное планирование путешествий",
+    "getStarted": "Начать Исследование",
+    "features": {
+      "title": "Функции",
+      "aiExploration": {
+        "title": "ИИ Умное Исследование",
+        "description": "ИИ-рекомендации достопримечательностей и планирование маршрутов"
+      },
+      "streetView": {
+        "title": "Опыт Street View",
+        "description": "360-градусный предварительный просмотр Street View для иммерсивного опыта назначения"
+      },
+      "photoGeneration": {
+        "title": "ИИ Генерация Фото",
+        "description": "Создавайте персонализированные фотографии с известными достопримечательностями"
+      },
+      "multiLanguage": {
+        "title": "Многоязычная Поддержка",
+        "description": "Поддержка 16 языков, удобный опыт по всему миру"
+      }
+    },
+    "howItWorks": {
+      "title": "Как Это Работает",
+      "step1": {
+        "title": "Выберите Назначение",
+        "description": "Выберите город или достопримечательность, которую хотите исследовать"
+      },
+      "step2": {
+        "title": "ИИ Умные Рекомендации",
+        "description": "ИИ рекомендует популярные достопримечательности поблизости"
+      },
+      "step3": {
+        "title": "Иммерсивный Опыт",
+        "description": "Просматривайте Street View, создавайте фотографии, глубоко переживайте назначения"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Войти",
+    "registerTitle": "Создать Аккаунт",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "registerNow": "Зарегистрироваться Сейчас",
+    "loginNow": "Войти Сейчас",
+    "emailPlaceholder": "Адрес Email",
+    "passwordPlaceholder": "Пароль",
+    "confirmPasswordPlaceholder": "Подтвердить Пароль",
+    "usernamePlaceholder": "Имя Пользователя",
+    "login": "Войти",
+    "register": "Регистрация",
+    "welcomeBack": "Добро Пожаловать",
+    "joinUs": "Присоединяйтесь",
+    "forgotPassword": "Забыли Пароль?",
+    "backToHome": "Вернуться на Главную",
+    "loginSuccess": "Вход выполнен успешно!",
+    "registerSuccess": "Регистрация прошла успешно!",
+    "registerDescription": "Пожалуйста, заполните вашу информацию для создания аккаунта",
+    "validation": {
+      "emailRequired": "Пожалуйста, введите адрес email",
+      "emailInvalid": "Пожалуйста, введите действительный адрес email",
+      "passwordRequired": "Пожалуйста, введите пароль",
+      "passwordConfirmRequired": "Пожалуйста, подтвердите пароль",
+      "passwordTooShort": "Пароль должен содержать минимум 6 символов",
+      "usernameRequired": "Пожалуйста, введите имя пользователя",
+      "usernameMinLength": "Имя пользователя должно содержать минимум 3 символа"
+    },
+    "errors": {
+      "loginFailed": "Ошибка входа, попробуйте снова",
+      "invalidCredentials": "Неверный email или пароль, проверьте и попробуйте снова",
+      "registerFailed": "Ошибка регистрации",
+      "passwordMismatch": "Пароли не совпадают",
+      "emailAlreadyRegistered": "Email уже зарегистрирован, войдите напрямую"
+    }
+  },
+  "exploration": {
+    "title": "Исследовать Достопримечательности",
+    "currentLocation": "Текущее Местоположение",
+    "nearbyAttractions": "Близлежащие Достопримечательности",
+    "distance": "Расстояние",
+    "exploreHere": "Исследовать Здесь",
+    "generatePhoto": "Создать Фото",
+    "viewStreetView": "Посмотреть Панораму",
+    "doroPhoto": "Фото Доро",
+    "noAttractionsFound": "Не найдено релевантной информации о местоположении",
+    "searching": "Поиск...",
+    "loading": "Загрузка...",
+    "noInfo": "Нет Информации",
+    "modernMode": "Современный Режим",
+    "ancientMode": "Древний Режим",
+    "futureMode": "Будущий Режим"
+  },
+  "languageSelector": {
+    "title": "Выбрать Язык и Регион",
+    "currentLanguage": "Текущий Язык"
+  },
+  "profile": {
+    "title": "Профиль",
+    "username": "Имя Пользователя",
+    "email": "Email",
+    "joinDate": "Дата Присоединения",
+    "preferences": "Настройки",
+    "language": "Языковые Предпочтения",
+    "theme": "Тема",
+    "notifications": "Настройки Уведомлений",
+    "save": "Сохранить Настройки"
+  },
+  "settings": {
+    "title": "Настройки",
+    "general": "Общие Настройки",
+    "language": "Языковые Настройки",
+    "theme": "Настройки Темы",
+    "notifications": "Настройки Уведомлений",
+    "privacy": "Настройки Конфиденциальности",
+    "account": "Настройки Аккаунта",
+    "about": "О Программе",
+    "version": "Версия",
+    "feedback": "Обратная Связь",
+    "help": "Помощь",
+    "support": "Поддержка"
+  },
+  "navigation": {
+    "home": "Главная",
+    "explore": "Исследовать",
+    "profile": "Профиль",
+    "settings": "Настройки",
+    "help": "Помощь",
+    "about": "О Программе"
+  },
+  "modals": {
+    "close": "Закрыть",
+    "confirm": "Подтвердить",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успех"
+  },
+  "errors": {
+    "networkError": "Ошибка сетевого подключения",
+    "serverError": "Ошибка сервера",
+    "notFound": "Не найдено",
+    "unauthorized": "Не авторизован",
+    "forbidden": "Запрещено",
+    "validationError": "Ошибка валидации",
+    "unknownError": "Неизвестная ошибка"
+  },
+  "placeholders": {
+    "searchCity": "Поиск города...",
+    "searchAttraction": "Поиск достопримечательности...",
+    "enterEmail": "Введите адрес email",
+    "enterPassword": "Введите пароль",
+    "enterUsername": "Введите имя пользователя",
+    "selectLanguage": "Выбрать язык",
+    "selectTheme": "Выбрать тему"
+  },
+  "status": {
+    "online": "Онлайн",
+    "offline": "Офлайн",
+    "connecting": "Подключение...",
+    "connected": "Подключен",
+    "disconnected": "Отключен",
+    "loading": "Загрузка...",
+    "processing": "Обработка...",
+    "completed": "Завершено",
+    "failed": "Неудачно"
+  },
+  "time": {
+    "now": "Сейчас",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "tomorrow": "Завтра",
+    "thisWeek": "На этой неделе",
+    "thisMonth": "В этом месяце",
+    "thisYear": "В этом году",
+    "ago": "назад",
+    "in": "через"
+  },
+  "units": {
+    "kilometer": "километр",
+    "meter": "метр",
+    "mile": "миля",
+    "hour": "час",
+    "minute": "минута",
+    "second": "секунда",
+    "day": "день",
+    "week": "неделя",
+    "month": "месяц",
+    "year": "год"
+  }
+}

@@ -1,6 +1,36 @@
 // 全局变量
 let currentPosition = null;
 let currentHeading = 0;
+let currentLanguage = 'zh';
+
+// 多语言翻译函数（增强版，支持嵌套键值和变量替换）
+function t(key, options = {}) {
+    const translations = window.translations || {};
+    const langTranslations = translations[currentLanguage] || translations['zh'] || {};
+    
+    let value = langTranslations;
+    const keys = key.split('.');
+    
+    for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+            value = value[k];
+        } else {
+            return key; // 返回key本身作为fallback
+        }
+    }
+    
+    if (typeof value === 'string') {
+        // 变量替换
+        if (options) {
+            return value.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+                return options[varName] || match;
+            });
+        }
+        return value;
+    }
+    
+    return key;
+}
 
 // API配置 - 由index.html中的getAPIBaseURL()函数动态设置
 
@@ -45,9 +75,11 @@ class Logger {
     
     log(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
+        // 支持翻译键值
+        const translatedMessage = typeof message === 'string' && message.includes('.') ? t(message) : message;
         const logEntry = {
             timestamp,
-            message,
+            message: translatedMessage,
             type,
             id: Date.now()
         };
@@ -58,7 +90,7 @@ class Logger {
         }
         
         this.displayLog(logEntry);
-        console.log(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+        console.log(`[${timestamp}] ${type.toUpperCase()}: ${translatedMessage}`);
     }
     
     info(message) { this.log(message, 'info'); }
@@ -104,18 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeApp() {
-    logger.info('🧭 方向探索派对应用启动');
-    logger.info('正在初始化应用组件...');
+    logger.info('system.appStart');
+    logger.info('system.initializing');
     
     // 检查浏览器支持
     if (!checkBrowserSupport()) {
-        const errorMsg = '您的浏览器不支持所需功能，请使用现代浏览器访问';
+        const errorMsg = t('system.browserNotSupported');
         logger.error(errorMsg);
         showError(errorMsg);
         return;
     }
     
-    logger.success('浏览器兼容性检查通过');
+    logger.success('system.browserCheckPassed');
     
     // 请求权限并获取位置
     await requestPermissions();
@@ -132,7 +164,7 @@ async function initializeApp() {
     // 获取初始位置
     refreshLocation();
     
-    logger.success('应用初始化完成');
+    logger.success('system.initializationComplete');
 }
 
 // 初始化点击指南针功能
@@ -167,7 +199,7 @@ function initializeCompassClick() {
         });
         
         // 添加鼠标悬停提示
-        compass.title = '点击设置方向';
+        compass.title = t('compass.manualInput.clickToSet');
     }
 }
 
@@ -185,14 +217,14 @@ function enableManualHeadingInput() {
         manualInput.className = 'manual-heading-input';
         manualInput.style.cssText = 'background: #fff3cd; border: 1px solid #ffecc0; border-radius: 8px; padding: 15px; margin: 10px 0;';
         manualInput.innerHTML = `
-            <p style="color: #856404; margin: 0 0 10px 0; font-weight: bold;">📍 无法自动获取方向</p>
-            <p style="color: #856404; margin: 0 0 10px 0;">请点击指南针设置方向，或手动输入：</p>
+            <p style="color: #856404; margin: 0 0 10px 0; font-weight: bold;">📍 ${t('compass.manualInput.title')}</p>
+            <p style="color: #856404; margin: 0 0 10px 0;">${t('compass.manualInput.instruction')}</p>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <input type="number" id="manualHeading" min="0" max="359" value="${currentHeading || 0}" 
-                       placeholder="方向角度" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 120px;">
-                <button onclick="setManualHeading()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">设置</button>
+                       placeholder="${t('compass.manualInput.placeholder')}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 120px;">
+                <button onclick="setManualHeading()" style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">${t('compass.manualInput.button')}</button>
             </div>
-            <p style="font-size: 12px; color: #666; margin: 10px 0 0 0;">💡 提示：0°=北, 90°=东, 180°=南, 270°=西</p>
+            <p style="font-size: 12px; color: #666; margin: 10px 0 0 0;">💡 ${t('compass.manualInput.hint')}</p>
         `;
         targetElement.parentNode.insertBefore(manualInput, targetElement.nextSibling);
     }
@@ -214,7 +246,7 @@ window.setManualHeading = function() {
                 manualInput.style.display = 'none';
             }
         } else {
-            logger.error('请输入有效的方向角度 (0-359)');
+            logger.error('compass.invalidAngle');
         }
     }
 }
@@ -230,51 +262,51 @@ async function requestPermissions() {
         // 请求地理位置权限
         if ('permissions' in navigator) {
             const geoPermission = await navigator.permissions.query({name: 'geolocation'});
-            logger.info(`地理位置权限状态: ${geoPermission.state}`);
+            logger.info(t('location.permissionStatus', {status: geoPermission.state}));
         }
         
         // 请求设备方向权限 (iOS 13+)
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            logger.info('检测到iOS设备，需要请求方向权限');
+            logger.info('compass.iosPermissionRequired');
             try {
             const permission = await DeviceOrientationEvent.requestPermission();
-                logger.info(`设备方向权限: ${permission}`);
+                logger.info(t('compass.deviceOrientationPermission', {permission: permission}));
             if (permission !== 'granted') {
-                    logger.warning('需要设备方向权限才能使用指南针功能');
-                showError('需要设备方向权限才能使用指南针功能');
+                    logger.warning('compass.permissionRequired');
+                showError(t('compass.permissionRequired'));
                 }
             } catch (error) {
-                logger.error('设备方向权限请求失败: ' + error.message);
+                logger.error(t('compass.permissionRequestFailed', {error: error.message}));
             }
         } else {
-            logger.info('设备支持方向检测，无需额外权限');
+            logger.info('compass.deviceSupported');
         }
     } catch (error) {
-        logger.error('权限请求失败: ' + error.message);
+        logger.error(t('compass.permissionRequestFailedGeneric', {error: error.message}));
     }
 }
 
 function initializeCompass() {
-    logger.info('初始化指南针...');
+    logger.info('compass.initializing');
     
     // 监听设备方向变化
     if (window.DeviceOrientationEvent) {
-        logger.info('设备支持方向检测，正在添加事件监听器...');
+        logger.info('compass.deviceOrientationSupported');
         
         // 添加deviceorientation事件监听
         window.addEventListener('deviceorientation', function(event) {
             if (event.alpha !== null || event.webkitCompassHeading !== undefined) {
-                logger.success('方向事件触发成功');
+                logger.success('compass.orientationEventTriggered');
                 handleOrientation(event);
             } else {
-                logger.warning('方向事件触发但没有数据');
+                logger.warning('compass.orientationEventNoData');
             }
         }, true);
         
         // 添加deviceorientationabsolute事件监听（某些设备）
         window.addEventListener('deviceorientationabsolute', function(event) {
             if (event.absolute && event.alpha !== null) {
-                logger.info('绝对方向事件触发');
+                logger.info('compass.absoluteOrientationEvent');
                 handleOrientation(event);
             }
         }, true);
@@ -282,16 +314,16 @@ function initializeCompass() {
         // 测试是否能获取方向
         setTimeout(() => {
             if (currentHeading === null || currentHeading === undefined) {
-                logger.warning('未检测到方向数据，可能需要移动设备或检查权限');
+                logger.warning('compass.noOrientationData');
                 // 提供手动输入方向的选项
                 enableManualHeadingInput();
             } else if (currentHeading === 0) {
-                logger.info('✅ 检测到正北方向 (0°)，可以直接开始搜索');
+                logger.info('compass.northDetected');
             }
         }, 1000);  // 缩短到1秒
     } else {
-        logger.error('设备不支持方向检测');
-        showError('设备不支持方向检测功能');
+        logger.error('compass.deviceNotSupported');
+        showError(t('compass.deviceNotSupported'));
         enableManualHeadingInput();
     }
 }
@@ -331,20 +363,20 @@ function updateCompassDisplay(heading) {
         directionText.textContent = getDirectionText(heading);
     }
     
-    logger.info(`方向更新: ${Math.round(heading)}° (${getDirectionText(heading)})`);
+    logger.info(t('compass.directionUpdated', {heading: Math.round(heading), direction: getDirectionText(heading)}));
 }
 
 function getDirectionText(heading) {
     const directions = [
-        { name: '北', min: 0, max: 22.5 },
-        { name: '东北', min: 22.5, max: 67.5 },
-        { name: '东', min: 67.5, max: 112.5 },
-        { name: '东南', min: 112.5, max: 157.5 },
-        { name: '南', min: 157.5, max: 202.5 },
-        { name: '西南', min: 202.5, max: 247.5 },
-        { name: '西', min: 247.5, max: 292.5 },
-        { name: '西北', min: 292.5, max: 337.5 },
-        { name: '北', min: 337.5, max: 360 }
+        { name: t('compass.directions.north'), min: 0, max: 22.5 },
+        { name: t('compass.directions.northeast'), min: 22.5, max: 67.5 },
+        { name: t('compass.directions.east'), min: 67.5, max: 112.5 },
+        { name: t('compass.directions.southeast'), min: 112.5, max: 157.5 },
+        { name: t('compass.directions.south'), min: 157.5, max: 202.5 },
+        { name: t('compass.directions.southwest'), min: 202.5, max: 247.5 },
+        { name: t('compass.directions.west'), min: 247.5, max: 292.5 },
+        { name: t('compass.directions.northwest'), min: 292.5, max: 337.5 },
+        { name: t('compass.directions.north'), min: 337.5, max: 360 }
     ];
     
     for (const dir of directions) {
@@ -352,23 +384,23 @@ function getDirectionText(heading) {
             return dir.name;
         }
     }
-    return '北';
+    return t('compass.directions.north');
 }
 
 function refreshLocation() {
-    logger.info('开始获取位置信息...');
+    logger.info('location.gettingLocation');
     
     const locationElement = document.getElementById('currentLocation');
     const coordinatesElement = document.getElementById('coordinates');
     const accuracyElement = document.getElementById('accuracy');
     
-    locationElement.textContent = '获取中...';
-    coordinatesElement.textContent = '获取中...';
-    accuracyElement.textContent = '获取中...';
+    locationElement.textContent = t('system.getting');
+    coordinatesElement.textContent = t('system.getting');
+    accuracyElement.textContent = t('system.getting');
     
     // 检查浏览器支持
     if (!navigator.geolocation) {
-        const errorMsg = '❌ 浏览器不支持地理位置功能';
+        const errorMsg = t('location.browserNotSupported');
         logger.error(errorMsg);
         showError(errorMsg);
         showManualLocationInput();
@@ -691,15 +723,15 @@ function createPlaceCard(place, index) {
     card.dataset.placeIndex = index;
     
     const modeText = {
-        'present': '现代',
-        'past': '历史',
-        'future': '未来'
-    }[settings.timeMode] || '现代';
+        'present': t('exploration.modernMode'),
+        'past': t('exploration.ancientMode'),
+        'future': t('exploration.futureMode')
+    }[settings.timeMode] || t('exploration.modernMode');
     
     // 格式化价格显示
     const formatPrice = (price) => {
-        if (!price) return '暂无信息';
-        if (price.includes('免费')) {
+        if (!price) return t('exploration.noInfo');
+        if (price.includes('免费') || price.includes('free')) {
             return `<span class="free-price">${price}</span>`;
         }
         return `<span class="price-highlight">${price}</span>`;
@@ -744,9 +776,9 @@ function createPlaceCard(place, index) {
             <div class="place-header">
                 <h3 class="place-name">
                     ${isCurrentLocation ? '📍 ' : ''}${place.name}
-                    ${isCurrentLocation ? '<span class="current-badge">当前位置</span>' : ''}
+                    ${isCurrentLocation ? `<span class="current-badge">${t('exploration.currentLocation')}</span>` : ''}
                 </h3>
-                <span class="place-distance">${isCurrentLocation ? '0m (当前位置)' : formatDistance(place.distance)}</span>
+                <span class="place-distance">${isCurrentLocation ? `0m (${t('exploration.currentLocation')})` : formatDistance(place.distance)}</span>
             </div>
             
             ${place.category ? `<div class="place-category">🏷️ ${place.category}</div>` : ''}
@@ -786,26 +818,26 @@ function createPlaceCard(place, index) {
                     <button class="action-btn current-location-btn" disabled title="当前位置">
                         📍 当前位置
                     </button>
-                    <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
-                        📸 生成合影
+                    <button class="action-btn selfie-btn" onclick="requireLogin(openSelfieGenerator, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
+                        📸 ${t('exploration.generatePhoto')}
                     </button>
-                    <button class="action-btn doro-btn" onclick="openDoroSelfie(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
-                        🤝 Doro合影
+                    <button class="action-btn doro-btn" onclick="requireLogin(openDoroSelfie, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
+                        🤝 ${t('exploration.doroPhoto')}
                     </button>
                     ${place.latitude && place.longitude ? `
-                    <button class="action-btn streetview-btn" onclick="openStreetView(${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
+                    <button class="action-btn streetview-btn" onclick="requireLogin(openStreetView, ${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
                         🏙️ 查看街景
                     </button>
                     ` : ''}
                 ` : `
-                    <button class="action-btn selfie-btn" onclick="openSelfieGenerator(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
-                        📸 生成合影
+                    <button class="action-btn selfie-btn" onclick="requireLogin(openSelfieGenerator, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
+                        📸 ${t('exploration.generatePhoto')}
                     </button>
-                    <button class="action-btn doro-btn" onclick="openDoroSelfie(${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
-                        🤝 Doro合影
+                    <button class="action-btn doro-btn" onclick="requireLogin(openDoroSelfie, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
+                        🤝 ${t('exploration.doroPhoto')}
                     </button>
                     ${place.latitude && place.longitude ? `
-                    <button class="action-btn streetview-btn" onclick="openStreetView(${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
+                    <button class="action-btn streetview-btn" onclick="requireLogin(openStreetView, ${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
                         🏙️ 查看街景
                     </button>
                     ` : ''}
@@ -3688,7 +3720,7 @@ function createAttractionCard(attraction, index) {
             
             <div class="place-actions">
                 <button class="action-btn primary" onclick="roamToAttraction('${selectedCity.key}', ${index})">
-                    🧭 漫游到这里
+                    🧭 ${t('exploration.exploreHere')}
                 </button>
                 ${attraction.video ? `
                     <button class="action-btn" onclick="playVideo('${attraction.video}', '${attraction.name}')">
@@ -4799,7 +4831,7 @@ function generateSelfie() {
     }
     
     const { name, location, index } = window.currentAttractionInfo;
-    logger.info(`📸 生成合影 - 景点: ${name}, 位置: ${location}, 索引: ${index}`);
+    logger.info(`📸 ${t('exploration.generatePhoto')} - 景点: ${name}, 位置: ${location}, 索引: ${index}`);
     
     // 调用生成景点合影照片函数
     window.generateAttractionPhoto(name, location, index);
@@ -4834,7 +4866,7 @@ window.EnvironmentConfig = {
         this.setUseDomainName(newValue);
         
         if (newValue) {
-            logger.success('✅ 已切换到生产环境 (https://doro.gitagent.io)');
+            logger.success('✅ 已切换到生产环境 (https://spot.gitagent.io)');
         } else {
             logger.success('✅ 已切换到本地环境 (http://localhost:8001)');
         }

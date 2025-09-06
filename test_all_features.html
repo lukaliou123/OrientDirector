@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能测试 - 方向探索派对</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-section { 
+            background: white; 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title { color: #2563eb; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .test-button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            background: #2563eb; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .test-button:hover { background: #1d4ed8; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        .status.info { background: #dbeafe; color: #1e40af; }
+        .hidden { display: none; }
+        .language-dropdown { 
+            position: relative;
+            background: white; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            max-height: 200px; 
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .language-option { 
+            padding: 10px; 
+            cursor: pointer; 
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .language-option:hover { background: #f3f4f6; }
+        .language-option.active { background: #2563eb; color: white; }
+        .language-flag { margin-right: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>🧭 方向探索派对 - 功能测试页面</h1>
+    
+    <div class="test-section">
+        <div class="test-title">1. 语言选择器测试</div>
+        <button class="test-button" onclick="testLanguageSelector()">测试语言选择器</button>
+        <button class="test-button" onclick="toggleLanguageDropdown()">切换语言下拉菜单</button>
+        <div class="language-dropdown hidden" id="language-dropdown">
+            <!-- 语言选项将动态生成 -->
+        </div>
+        <div class="status info" id="language-status">点击按钮测试语言选择器功能</div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">2. 用户菜单测试</div>
+        <button class="test-button" onclick="testUserMenu()">测试用户菜单</button>
+        <button class="test-button" onclick="toggleUserMenu()">切换用户菜单</button>
+        <div class="user-dropdown hidden" id="user-dropdown">
+            <div style="padding: 10px; border: 1px solid #ccc; background: white; border-radius: 4px; margin-top: 10px;">
+                <div id="user-email">未登录</div>
+                <button onclick="showAuthModal('login')" id="login-btn">登录</button>
+                <button onclick="showAuthModal('register')" id="register-btn">注册</button>
+                <button onclick="logout()" id="logout-btn" class="hidden">退出登录</button>
+            </div>
+        </div>
+        <div class="status info" id="user-status">点击按钮测试用户菜单功能</div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">3. 登录状态检查测试</div>
+        <button class="test-button" onclick="testLoginCheck()">检查当前登录状态</button>
+        <button class="test-button" onclick="testRequireLogin()">测试需要登录的功能</button>
+        <button class="test-button" onclick="simulatePhotoGeneration()">模拟生成合影</button>
+        <button class="test-button" onclick="simulateDoroPhoto()">模拟Doro合影</button>
+        <button class="test-button" onclick="simulateStreetView()">模拟查看街景</button>
+        <div class="status info" id="login-status">点击按钮测试登录相关功能</div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">4. 新窗口登录测试</div>
+        <button class="test-button" onclick="openLoginWindow()">打开登录窗口</button>
+        <div class="status info" id="window-status">点击按钮测试新窗口登录功能</div>
+    </div>
+
+    <!-- 引入必要的脚本 -->
+    <script src="i18n/index.js"></script>
+    
+    <script>
+        // 模拟主页面的全局变量和函数
+        let currentLanguage = 'zh';
+        let currentUser = null;
+        
+        // 模拟翻译数据
+        window.translations = {
+            zh: {
+                guest: "游客",
+                notLoggedIn: "未登录",
+                login: "登录",
+                register: "注册",
+                logout: "退出登录"
+            },
+            en: {
+                guest: "Guest",
+                notLoggedIn: "Not Logged In",
+                login: "Login",
+                register: "Register",
+                logout: "Logout"
+            }
+        };
+
+        // 关键函数定义
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('language-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+                updateStatus('language-status', 'info', '语言下拉菜单切换: ' + (dropdown.classList.contains('hidden') ? '隐藏' : '显示'));
+            }
+        }
+
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+                updateStatus('user-status', 'info', '用户菜单切换: ' + (dropdown.classList.contains('hidden') ? '隐藏' : '显示'));
+            }
+        }
+
+        function checkLoginStatus() {
+            const token = localStorage.getItem('access_token');
+            return !!token;
+        }
+
+        function requireLogin(callback, ...args) {
+            if (checkLoginStatus()) {
+                updateStatus('login-status', 'success', '用户已登录，执行功能');
+                callback.apply(this, args);
+            } else {
+                updateStatus('login-status', 'error', '用户未登录，需要先登录');
+                const loginUrl = window.location.origin + '/login.html';
+                const loginWindow = window.open(loginUrl, 'login', 'width=500,height=700,scrollbars=yes,resizable=yes');
+                
+                const messageHandler = (event) => {
+                    if (event.origin !== window.location.origin) return;
+                    if (event.data.type === 'login-success') {
+                        updateStatus('login-status', 'success', '登录成功！执行原始操作');
+                        window.removeEventListener('message', messageHandler);
+                        callback.apply(this, args);
+                    }
+                };
+                
+                window.addEventListener('message', messageHandler);
+            }
+        }
+
+        // 测试函数
+        function testLanguageSelector() {
+            try {
+                const languages = i18n.getSupportedLanguages();
+                generateLanguageOptions();
+                updateStatus('language-status', 'success', `语言选择器正常，支持 ${languages.length} 种语言`);
+            } catch (error) {
+                updateStatus('language-status', 'error', '语言选择器错误: ' + error.message);
+            }
+        }
+
+        function generateLanguageOptions() {
+            const dropdown = document.getElementById('language-dropdown');
+            if (!dropdown) return;
+            
+            const languages = i18n.getSupportedLanguages();
+            dropdown.innerHTML = languages.map(lang => `
+                <div class="language-option ${lang.code === currentLanguage ? 'active' : ''}" 
+                     onclick="changeLanguage('${lang.code}')">
+                    <span class="language-flag">${lang.flag}</span>
+                    <span class="language-name">${lang.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function changeLanguage(langCode) {
+            if (i18n.changeLanguage(langCode)) {
+                currentLanguage = langCode;
+                generateLanguageOptions();
+                updateStatus('language-status', 'success', `语言已切换到: ${langCode}`);
+                toggleLanguageDropdown();
+            }
+        }
+
+        function testUserMenu() {
+            const isLoggedIn = checkLoginStatus();
+            updateUserUI(isLoggedIn ? { username: '测试用户', email: 'test@example.com' } : null);
+            updateStatus('user-status', 'info', `用户状态: ${isLoggedIn ? '已登录' : '未登录'}`);
+        }
+
+        function updateUserUI(user) {
+            const t = window.translations[currentLanguage] || window.translations['zh'];
+            const userEmailEl = document.getElementById('user-email');
+            const loginBtnEl = document.getElementById('login-btn');
+            const registerBtnEl = document.getElementById('register-btn');
+            const logoutBtnEl = document.getElementById('logout-btn');
+            
+            if (user) {
+                if (userEmailEl) userEmailEl.textContent = user.email;
+                if (loginBtnEl) loginBtnEl.classList.add('hidden');
+                if (registerBtnEl) registerBtnEl.classList.add('hidden');
+                if (logoutBtnEl) logoutBtnEl.classList.remove('hidden');
+            } else {
+                if (userEmailEl) userEmailEl.textContent = t.notLoggedIn || '未登录';
+                if (loginBtnEl) loginBtnEl.classList.remove('hidden');
+                if (registerBtnEl) registerBtnEl.classList.remove('hidden');
+                if (logoutBtnEl) logoutBtnEl.classList.add('hidden');
+            }
+        }
+
+        function testLoginCheck() {
+            const isLoggedIn = checkLoginStatus();
+            const token = localStorage.getItem('access_token');
+            updateStatus('login-status', isLoggedIn ? 'success' : 'error', 
+                `登录状态: ${isLoggedIn ? '已登录' : '未登录'}${token ? ' (Token: ' + token.substring(0, 20) + '...)' : ''}`);
+        }
+
+        function testRequireLogin() {
+            requireLogin(() => {
+                updateStatus('login-status', 'success', '登录检查通过，功能执行成功！');
+            });
+        }
+
+        function simulatePhotoGeneration() {
+            requireLogin(() => {
+                updateStatus('login-status', 'success', '📸 生成合影功能执行成功！');
+            });
+        }
+
+        function simulateDoroPhoto() {
+            requireLogin(() => {
+                updateStatus('login-status', 'success', '🤝 Doro合影功能执行成功！');
+            });
+        }
+
+        function simulateStreetView() {
+            requireLogin(() => {
+                updateStatus('login-status', 'success', '🏙️ 查看街景功能执行成功！');
+            });
+        }
+
+        function openLoginWindow() {
+            const loginUrl = window.location.origin + '/login.html';
+            const loginWindow = window.open(loginUrl, 'login', 'width=500,height=700,scrollbars=yes,resizable=yes');
+            updateStatus('window-status', 'info', '登录窗口已打开');
+            
+            const messageHandler = (event) => {
+                if (event.origin !== window.location.origin) return;
+                if (event.data.type === 'login-success') {
+                    updateStatus('window-status', 'success', '收到登录成功消息！');
+                    window.removeEventListener('message', messageHandler);
+                }
+            };
+            
+            window.addEventListener('message', messageHandler);
+        }
+
+        function updateStatus(elementId, type, message) {
+            const statusEl = document.getElementById(elementId);
+            if (statusEl) {
+                statusEl.className = `status ${type}`;
+                statusEl.textContent = message;
+            }
+        }
+
+        // 模拟其他必要函数
+        function showAuthModal(type) {
+            updateStatus('user-status', 'info', `尝试打开${type}模态框`);
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            updateStatus('user-status', 'success', '已退出登录');
+            testUserMenu();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('测试页面加载完成');
+            testLanguageSelector();
+            testUserMenu();
+            testLoginCheck();
+        });
+    </script>
+</body>
+</html>

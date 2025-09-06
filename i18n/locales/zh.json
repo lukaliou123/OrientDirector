@@ -1,0 +1,300 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "edit": "编辑",
+    "delete": "删除",
+    "search": "搜索",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "close": "关闭"
+  },
+  "header": {
+    "brand": "方向探索派对",
+    "tagline": "AI智能旅游探索",
+    "login": "登录",
+    "register": "注册",
+    "profile": "个人资料",
+    "logout": "退出登录",
+    "language": "语言"
+  },
+  "homepage": {
+    "title": "方向探索派对",
+    "subtitle": "AI智能旅游探索，发现世界之美",
+    "description": "使用AI技术探索世界各地的景点，体验沉浸式旅游规划",
+    "getStarted": "开始探索",
+    "features": {
+      "title": "功能特色",
+      "aiExploration": {
+        "title": "AI智能探索",
+        "description": "基于AI的智能景点推荐和路线规划"
+      },
+      "streetView": {
+        "title": "街景体验",
+        "description": "360度街景预览，身临其境感受目的地"
+      },
+      "photoGeneration": {
+        "title": "AI合影生成",
+        "description": "与著名景点生成个性化合影照片"
+      },
+      "multiLanguage": {
+        "title": "多语言支持",
+        "description": "支持16种语言，全球用户友好体验"
+      }
+    },
+    "howItWorks": {
+      "title": "如何使用",
+      "step1": {
+        "title": "选择目的地",
+        "description": "选择您想要探索的城市或景点"
+      },
+      "step2": {
+        "title": "AI智能推荐",
+        "description": "AI为您推荐附近的热门景点"
+      },
+      "step3": {
+        "title": "沉浸式体验",
+        "description": "查看街景、生成合影，深度体验目的地"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "登录账号",
+    "registerTitle": "创建账号",
+    "noAccount": "还没有账号？",
+    "hasAccount": "已有账号？",
+    "registerNow": "立即注册",
+    "loginNow": "立即登录",
+    "emailPlaceholder": "邮箱地址",
+    "passwordPlaceholder": "密码",
+    "confirmPasswordPlaceholder": "确认密码",
+    "usernamePlaceholder": "用户名",
+    "login": "登录",
+    "register": "注册",
+    "welcomeBack": "欢迎回来",
+    "joinUs": "加入我们",
+    "forgotPassword": "忘记密码？",
+    "backToHome": "返回首页",
+    "loginSuccess": "登录成功！",
+    "registerSuccess": "注册成功！",
+    "registerDescription": "请填写您的信息来创建账号",
+    "validation": {
+      "emailRequired": "请输入邮箱地址",
+      "emailInvalid": "请输入有效的邮箱地址",
+      "passwordRequired": "请输入密码",
+      "passwordConfirmRequired": "请确认密码",
+      "passwordTooShort": "密码长度至少为6位",
+      "usernameRequired": "请输入用户名",
+      "usernameMinLength": "用户名至少3个字符"
+    },
+    "errors": {
+      "loginFailed": "登录失败，请重试",
+      "invalidCredentials": "邮箱或密码错误，请检查后重试",
+      "registerFailed": "注册失败",
+      "passwordMismatch": "两次输入的密码不一致",
+      "emailAlreadyRegistered": "该邮箱已注册，请直接登录"
+    }
+  },
+  "exploration": {
+    "title": "探索景点",
+    "currentLocation": "当前位置",
+    "nearbyAttractions": "附近景点",
+    "distance": "距离",
+    "exploreHere": "漫游到这里",
+    "generatePhoto": "生成合影",
+    "viewStreetView": "查看街景",
+    "doroPhoto": "Doro合影",
+    "noAttractionsFound": "没有找到相关地点信息",
+    "searching": "搜索中...",
+    "loading": "加载中...",
+    "noInfo": "暂无信息",
+    "modernMode": "现代模式",
+    "ancientMode": "古代模式",
+    "futureMode": "未来模式"
+  },
+  "languageSelector": {
+    "title": "选择语言和地区",
+    "currentLanguage": "当前语言"
+  },
+  "profile": {
+    "title": "个人资料",
+    "username": "用户名",
+    "email": "邮箱",
+    "joinDate": "加入时间",
+    "preferences": "偏好设置",
+    "language": "语言偏好",
+    "theme": "主题",
+    "notifications": "通知设置",
+    "save": "保存设置"
+  },
+  "settings": {
+    "title": "设置",
+    "general": "常规设置",
+    "language": "语言设置",
+    "theme": "主题设置",
+    "notifications": "通知设置",
+    "privacy": "隐私设置",
+    "account": "账户设置",
+    "about": "关于",
+    "version": "版本",
+    "feedback": "反馈",
+    "help": "帮助",
+    "support": "支持"
+  },
+  "navigation": {
+    "home": "首页",
+    "explore": "探索",
+    "profile": "个人资料",
+    "settings": "设置",
+    "help": "帮助",
+    "about": "关于"
+  },
+  "modals": {
+    "close": "关闭",
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  },
+  "errors": {
+    "networkError": "网络连接错误",
+    "serverError": "服务器错误",
+    "notFound": "未找到",
+    "unauthorized": "未授权",
+    "forbidden": "禁止访问",
+    "validationError": "验证错误",
+    "unknownError": "未知错误"
+  },
+  "placeholders": {
+    "searchCity": "搜索城市...",
+    "searchAttraction": "搜索景点...",
+    "enterEmail": "请输入邮箱地址",
+    "enterPassword": "请输入密码",
+    "enterUsername": "请输入用户名",
+    "selectLanguage": "选择语言",
+    "selectTheme": "选择主题"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线",
+    "connecting": "连接中...",
+    "connected": "已连接",
+    "disconnected": "已断开",
+    "loading": "加载中...",
+    "processing": "处理中...",
+    "completed": "已完成",
+    "failed": "失败"
+  },
+  "time": {
+    "now": "现在",
+    "today": "今天",
+    "yesterday": "昨天",
+    "tomorrow": "明天",
+    "thisWeek": "本周",
+    "thisMonth": "本月",
+    "thisYear": "今年",
+    "ago": "前",
+    "in": "后"
+  },
+  "units": {
+    "kilometer": "公里",
+    "meter": "米",
+    "mile": "英里",
+    "hour": "小时",
+    "minute": "分钟",
+    "second": "秒",
+    "day": "天",
+    "week": "周",
+    "month": "月",
+    "year": "年"
+  },
+  "system": {
+    "appStart": "方向探索派对应用启动",
+    "initializing": "正在初始化应用组件...",
+    "browserNotSupported": "您的浏览器不支持所需功能，请使用现代浏览器访问",
+    "browserCheckPassed": "浏览器兼容性检查通过",
+    "initializationComplete": "应用初始化完成",
+    "getting": "获取中...",
+    "failed": "获取失败",
+    "unavailable": "无法获取",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  },
+  "compass": {
+    "directions": {
+      "north": "北",
+      "northeast": "东北",
+      "east": "东",
+      "southeast": "东南",
+      "south": "南",
+      "southwest": "西南",
+      "west": "西",
+      "northwest": "西北"
+    },
+    "manualInput": {
+      "title": "无法自动获取方向",
+      "instruction": "请点击指南针设置方向，或手动输入：",
+      "placeholder": "方向角度",
+      "button": "设置",
+      "hint": "提示：0°=北, 90°=东, 180°=南, 270°=西",
+      "clickToSet": "点击设置方向"
+    },
+    "permissionRequired": "需要设备方向权限才能使用指南针功能",
+    "deviceSupported": "设备支持方向检测，无需额外权限",
+    "initializing": "初始化指南针...",
+    "deviceOrientationSupported": "设备支持方向检测，正在添加事件监听器...",
+    "orientationEventTriggered": "方向事件触发成功",
+    "orientationEventNoData": "方向事件触发但没有数据",
+    "absoluteOrientationEvent": "绝对方向事件触发",
+    "noOrientationData": "未检测到方向数据，可能需要移动设备或检查权限",
+    "northDetected": "检测到正北方向 (0°)，可以直接开始搜索",
+    "deviceNotSupported": "设备不支持方向检测",
+    "directionUpdated": "方向更新: {{heading}}° ({{direction}})",
+    "manualSetSuccess": "手动设置方向: {{heading}}°",
+    "clickSetSuccess": "通过点击设置方向: {{heading}}°",
+    "invalidAngle": "请输入有效的方向角度 (0-359)"
+  },
+  "location": {
+    "gettingLocation": "开始获取位置信息...",
+    "gettingAddress": "正在获取地址信息...",
+    "addressSuccess": "地址获取成功: {{location}}",
+    "addressFailed": "地址获取失败: {{error}}",
+    "permissionStatus": "地理位置权限状态: {{status}}",
+    "iosPermissionRequired": "检测到iOS设备，需要请求方向权限",
+    "deviceOrientationPermission": "设备方向权限: {{permission}}",
+    "permissionRequestFailed": "设备方向权限请求失败: {{error}}",
+    "permissionRequestFailedGeneric": "权限请求失败: {{error}}",
+    "locationUpdated": "位置已更新为: {{location}}",
+    "locationUpdatedCoords": "位置已更新为: {{name}} ({{lat}}, {{lng}})",
+    "manualLocationSet": "手动设置位置: {{lat}}, {{lng}}",
+    "newLocation": "新位置 {{lat}}, {{lng}}",
+    "manualLocation": "手动位置 {{lat}}, {{lng}}",
+    "accuracy": "位置精度: {{accuracy}}米",
+    "continueExploration": "继续探索"
+  },
+  "places": {
+    "noResults": "没有找到相关地点信息",
+    "arrived": "已到达：{{name}}",
+    "continueQuestion": "你现在在这里，想要继续探索吗？",
+    "selectScene": "选择场景",
+    "category": "类别",
+    "distance": "距离",
+    "streetViewTitle": "{{name}} - 街景视图",
+    "unknownLocation": "未知位置"
+  },
+  "journey": {
+    "summaryGenerated": "旅程总结已生成: {{scenes}}个场景, {{distance}}km, {{time}}分钟",
+    "historyCleared": "历史记录已清空",
+    "journeyStarted": "旅程已开始",
+    "journeyEnded": "旅程已结束"
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Зареждане...",
+    "error": "Грешка",
+    "success": "Успех",
+    "cancel": "Отказ",
+    "confirm": "Потвърди",
+    "save": "Запази",
+    "edit": "Редактирай",
+    "delete": "Изтрий",
+    "search": "Търсене",
+    "back": "Назад",
+    "next": "Напред",
+    "previous": "Предишен",
+    "submit": "Изпрати",
+    "close": "Затвори"
+  },
+  "header": {
+    "brand": "Директор на Ориентация",
+    "tagline": "AI-задвижвано Пътуване",
+    "login": "Вход",
+    "register": "Регистрация",
+    "profile": "Профил",
+    "logout": "Изход",
+    "language": "Език"
+  },
+  "homepage": {
+    "title": "Директор на Ориентация",
+    "subtitle": "AI-задвижвано Пътуване, Открийте Красотата на Света",
+    "description": "Използвайте AI технология за изследване на забележителности по целия свят и изживейте завладяващо планиране на пътувания",
+    "getStarted": "Започнете Изследването",
+    "features": {
+      "title": "Функции",
+      "aiExploration": {
+        "title": "AI Интелигентно Изследване",
+        "description": "AI-базирани интелигентни препоръки за забележителности и планиране на маршрути"
+      },
+      "streetView": {
+        "title": "Street View Опит",
+        "description": "360-градусов преглед на Street View за завладяващо изживяване на дестинацията"
+      },
+      "photoGeneration": {
+        "title": "AI Генериране на Снимки",
+        "description": "Генерирайте персонализирани снимки с известни забележителности"
+      },
+      "multiLanguage": {
+        "title": "Многоезична Поддръжка",
+        "description": "Поддръжка за 16 езика, приятелско за потребители изживяване в световен мащаб"
+      }
+    },
+    "howItWorks": {
+      "title": "Как Работи",
+      "step1": {
+        "title": "Изберете Дестинация",
+        "description": "Изберете града или забележителността, която искате да изследвате"
+      },
+      "step2": {
+        "title": "AI Интелигентни Препоръки",
+        "description": "AI препоръчва популярни забележителности наблизо"
+      },
+      "step3": {
+        "title": "Завладяващо Изживяване",
+        "description": "Прегледайте street view, генерирайте снимки, изживейте дестинациите дълбоко"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Вход",
+    "registerTitle": "Създай Акаунт",
+    "noAccount": "Нямате акаунт?",
+    "hasAccount": "Вече имате акаунт?",
+    "registerNow": "Регистрирайте Сега",
+    "loginNow": "Влезте Сега",
+    "emailPlaceholder": "Имейл Адрес",
+    "passwordPlaceholder": "Парола",
+    "confirmPasswordPlaceholder": "Потвърди Парола",
+    "usernamePlaceholder": "Потребителско Име",
+    "login": "Вход",
+    "register": "Регистрация",
+    "welcomeBack": "Добре Дошли",
+    "joinUs": "Присъединете Се",
+    "forgotPassword": "Забравена Парола?",
+    "backToHome": "Обратно към Началото",
+    "loginSuccess": "Входът беше успешен!",
+    "registerSuccess": "Регистрацията беше успешна!",
+    "registerDescription": "Моля попълнете информацията си за да създадете акаунт",
+    "validation": {
+      "emailRequired": "Моля въведете имейл адрес",
+      "emailInvalid": "Моля въведете валиден имейл адрес",
+      "passwordRequired": "Моля въведете парола",
+      "passwordConfirmRequired": "Моля потвърдете паролата",
+      "passwordTooShort": "Паролата трябва да бъде поне 6 символа",
+      "usernameRequired": "Моля въведете потребителско име",
+      "usernameMinLength": "Потребителското име трябва да бъде поне 3 символа"
+    },
+    "errors": {
+      "loginFailed": "Входът неуспешен, моля опитайте отново",
+      "invalidCredentials": "Невалиден имейл или парола, моля проверете и опитайте отново",
+      "registerFailed": "Регистрацията неуспешна",
+      "passwordMismatch": "Паролите не съвпадат",
+      "emailAlreadyRegistered": "Имейлът вече е регистриран, моля влезте директно"
+    }
+  },
+  "exploration": {
+    "title": "Изследвайте Забележителности",
+    "currentLocation": "Текущо местоположение",
+    "nearbyAttractions": "Близки забележителности",
+    "distance": "Разстояние",
+    "exploreHere": "Изследвай тук",
+    "generatePhoto": "Генерирай снимка",
+    "viewStreetView": "Виж уличен изглед",
+    "doroPhoto": "Доро снимка",
+    "noAttractionsFound": "Не е намерена релевантна информация за местоположение",
+    "searching": "Търсене...",
+    "loading": "Зареждане...",
+    "noInfo": "Няма Информация",
+    "modernMode": "Модерен режим",
+    "ancientMode": "Древен режим",
+    "futureMode": "Бъдещ режим"
+  },
+  "languageSelector": {
+    "title": "Изберете Език и Регион",
+    "currentLanguage": "Текущ Език"
+  },
+  "profile": {
+    "title": "Профил",
+    "username": "Потребителско Име",
+    "email": "Имейл",
+    "joinDate": "Дата на Присъединяване",
+    "preferences": "Предпочитания",
+    "language": "Езиково Предпочитание",
+    "theme": "Тема",
+    "notifications": "Настройки за Известия",
+    "save": "Запази Настройки"
+  },
+  "settings": {
+    "title": "Настройки",
+    "general": "Общи Настройки",
+    "language": "Езикови Настройки",
+    "theme": "Настройки на Тема",
+    "notifications": "Настройки за Известия",
+    "privacy": "Настройки за Поверителност",
+    "account": "Настройки на Акаунт",
+    "about": "За",
+    "version": "Версия",
+    "feedback": "Обратна Връзка",
+    "help": "Помощ",
+    "support": "Поддръжка"
+  },
+  "navigation": {
+    "home": "Начало",
+    "explore": "Изследвай",
+    "profile": "Профил",
+    "settings": "Настройки",
+    "help": "Помощ",
+    "about": "За"
+  },
+  "modals": {
+    "close": "Затвори",
+    "confirm": "Потвърди",
+    "cancel": "Отказ",
+    "save": "Запази",
+    "loading": "Зареждане...",
+    "error": "Грешка",
+    "success": "Успех"
+  },
+  "errors": {
+    "networkError": "Грешка в мрежовата връзка",
+    "serverError": "Грешка в сървъра",
+    "notFound": "Не е намерено",
+    "unauthorized": "Неразрешено",
+    "forbidden": "Забранено",
+    "validationError": "Грешка при валидация",
+    "unknownError": "Неизвестна грешка"
+  },
+  "placeholders": {
+    "searchCity": "Търсене на град...",
+    "searchAttraction": "Търсене на забележителност...",
+    "enterEmail": "Въведете имейл адрес",
+    "enterPassword": "Въведете парола",
+    "enterUsername": "Въведете потребителско име",
+    "selectLanguage": "Изберете език",
+    "selectTheme": "Изберете тема"
+  },
+  "status": {
+    "online": "Онлайн",
+    "offline": "Офлайн",
+    "connecting": "Свързване...",
+    "connected": "Свързан",
+    "disconnected": "Прекъсната връзка",
+    "loading": "Зареждане...",
+    "processing": "Обработка...",
+    "completed": "Завършено",
+    "failed": "Неуспешно"
+  },
+  "time": {
+    "now": "Сега",
+    "today": "Днес",
+    "yesterday": "Вчера",
+    "tomorrow": "Утре",
+    "thisWeek": "Тази седмица",
+    "thisMonth": "Този месец",
+    "thisYear": "Тази година",
+    "ago": "преди",
+    "in": "след"
+  },
+  "units": {
+    "kilometer": "километър",
+    "meter": "метър",
+    "mile": "миля",
+    "hour": "час",
+    "minute": "минута",
+    "second": "секунда",
+    "day": "ден",
+    "week": "седмица",
+    "month": "месец",
+    "year": "година"
+  }
+}

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登陆注册 - spot.gitagent.io</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10070;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .auth-header h2 {
+            font-size: 20px;
+            margin-top: 10px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: #f8f9fa;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .auth-content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-footer {
+            text-align: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #fcc;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #cfc;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1 id="auth-title">登陆注册</h1>
+        </div>
+
+
+        <div class="auth-tabs">
+            <button class="tab-button active" onclick="switchTab('login')" id="login-tab">登录</button>
+            <button class="tab-button" onclick="switchTab('register')" id="register-tab">注册</button>
+        </div>
+
+        <div class="auth-content">
+            <div id="error-message" class="error-message hidden"></div>
+            <div id="success-message" class="success-message hidden"></div>
+
+            <!-- 登录表单 -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email" id="login-email-label">邮箱地址</label>
+                    <input type="email" id="login-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password" id="login-password-label">密码</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="auth-button" id="login-button">
+                    <span id="login-text">登录</span>
+                    <div class="loading hidden" id="login-loading"></div>
+                </button>
+            </form>
+
+            <!-- 注册表单 -->
+            <form id="register-form" class="auth-form hidden">
+                <div class="form-group">
+                    <label for="register-username" id="register-username-label">用户名</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email" id="register-email-label">邮箱地址</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password" id="register-password-label">密码</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password" id="register-confirm-password-label">确认密码</label>
+                    <input type="password" id="register-confirm-password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="auth-button" id="register-button">
+                    <span id="register-text">注册</span>
+                    <div class="loading hidden" id="register-loading"></div>
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <a href="#" onclick="closeModal()" id="close-modal-link">关闭</a>
+        </div>
+    </div>
+
+    <script src="i18n/index.js"></script>
+    <script>
+        // 多语言支持
+        const translations = {
+            zh: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "登陆注册",
+                login: "登录",
+                register: "注册",
+                emailLabel: "邮箱地址",
+                passwordLabel: "密码",
+                confirmPasswordLabel: "确认密码",
+                usernameLabel: "用户名",
+                emailPlaceholder: "邮箱地址",
+                passwordPlaceholder: "密码",
+                confirmPasswordPlaceholder: "确认密码",
+                usernamePlaceholder: "用户名",
+                welcomeBack: "欢迎回来",
+                joinUs: "加入我们",
+                close: "关闭",
+                loginSuccess: "登录成功！",
+                registerSuccess: "注册成功！",
+                loginFailed: "登录失败，请重试",
+                registerFailed: "注册失败",
+                passwordMismatch: "两次输入的密码不一致",
+                emailAlreadyRegistered: "该邮箱已注册，请直接登录",
+                invalidCredentials: "邮箱或密码错误，请检查后重试"
+            },
+            en: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Login & Register",
+                login: "Login",
+                register: "Register",
+                emailLabel: "Email Address",
+                passwordLabel: "Password",
+                confirmPasswordLabel: "Confirm Password",
+                usernameLabel: "Username",
+                emailPlaceholder: "Email Address",
+                passwordPlaceholder: "Password",
+                confirmPasswordPlaceholder: "Confirm Password",
+                usernamePlaceholder: "Username",
+                welcomeBack: "Welcome Back",
+                joinUs: "Join Us",
+                close: "Close",
+                loginSuccess: "Login successful!",
+                registerSuccess: "Registration successful!",
+                loginFailed: "Login failed, please try again",
+                registerFailed: "Registration failed",
+                passwordMismatch: "Passwords do not match",
+                emailAlreadyRegistered: "Email already registered, please sign in directly",
+                invalidCredentials: "Invalid email or password, please check and try again"
+            },
+            es: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Iniciar Sesión y Registrarse",
+                login: "Iniciar Sesión",
+                register: "Registrarse",
+                emailPlaceholder: "Dirección de Email",
+                passwordPlaceholder: "Contraseña",
+                confirmPasswordPlaceholder: "Confirmar Contraseña",
+                usernamePlaceholder: "Nombre de Usuario",
+                welcomeBack: "Bienvenido de Vuelta",
+                joinUs: "Únete a Nosotros",
+                backToHome: "Volver al Inicio",
+                loginSuccess: "¡Inicio de sesión exitoso!",
+                registerSuccess: "¡Registro exitoso!",
+                loginFailed: "Error al iniciar sesión, inténtalo de nuevo",
+                registerFailed: "Error en el registro",
+                passwordMismatch: "Las contraseñas no coinciden",
+                emailAlreadyRegistered: "El email ya está registrado, inicia sesión directamente",
+                invalidCredentials: "Email o contraseña inválidos, verifica e inténtalo de nuevo"
+            },
+            fr: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Connexion et Inscription",
+                login: "Connexion",
+                register: "Inscription",
+                emailPlaceholder: "Adresse Email",
+                passwordPlaceholder: "Mot de Passe",
+                confirmPasswordPlaceholder: "Confirmer le Mot de Passe",
+                usernamePlaceholder: "Nom d'Utilisateur",
+                welcomeBack: "Bon Retour",
+                joinUs: "Rejoignez-Nous",
+                backToHome: "Retour à l'Accueil",
+                loginSuccess: "Connexion réussie !",
+                registerSuccess: "Inscription réussie !",
+                loginFailed: "Échec de la connexion, réessayez",
+                registerFailed: "Échec de l'inscription",
+                passwordMismatch: "Les mots de passe ne correspondent pas",
+                emailAlreadyRegistered: "L'email est déjà enregistré, connectez-vous directement",
+                invalidCredentials: "Email ou mot de passe invalide, vérifiez et réessayez"
+            },
+            de: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Anmelden und Registrieren",
+                login: "Anmelden",
+                register: "Registrieren",
+                emailPlaceholder: "E-Mail-Adresse",
+                passwordPlaceholder: "Passwort",
+                confirmPasswordPlaceholder: "Passwort Bestätigen",
+                usernamePlaceholder: "Benutzername",
+                welcomeBack: "Willkommen Zurück",
+                joinUs: "Treten Sie Uns Bei",
+                backToHome: "Zurück zur Startseite",
+                loginSuccess: "Anmeldung erfolgreich!",
+                registerSuccess: "Registrierung erfolgreich!",
+                loginFailed: "Anmeldung fehlgeschlagen, versuchen Sie es erneut",
+                registerFailed: "Registrierung fehlgeschlagen",
+                passwordMismatch: "Passwörter stimmen nicht überein",
+                emailAlreadyRegistered: "E-Mail bereits registriert, melden Sie sich direkt an",
+                invalidCredentials: "Ungültige E-Mail oder Passwort, überprüfen und versuchen Sie es erneut"
+            },
+            ja: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "ログイン・新規登録",
+                login: "ログイン",
+                register: "新規登録",
+                emailPlaceholder: "メールアドレス",
+                passwordPlaceholder: "パスワード",
+                confirmPasswordPlaceholder: "パスワード確認",
+                usernamePlaceholder: "ユーザー名",
+                welcomeBack: "おかえりなさい",
+                joinUs: "参加する",
+                backToHome: "ホームに戻る",
+                loginSuccess: "ログイン成功！",
+                registerSuccess: "登録成功！",
+                loginFailed: "ログインに失敗しました、再試行してください",
+                registerFailed: "登録に失敗しました",
+                passwordMismatch: "パスワードが一致しません",
+                emailAlreadyRegistered: "このメールは既に登録されています、直接ログインしてください",
+                invalidCredentials: "メールまたはパスワードが無効です、確認して再試行してください"
+            },
+            ko: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "로그인 및 회원가입",
+                login: "로그인",
+                register: "회원가입",
+                emailPlaceholder: "이메일 주소",
+                passwordPlaceholder: "비밀번호",
+                confirmPasswordPlaceholder: "비밀번호 확인",
+                usernamePlaceholder: "사용자명",
+                welcomeBack: "다시 오신 것을 환영합니다",
+                joinUs: "함께하세요",
+                backToHome: "홈으로 돌아가기",
+                loginSuccess: "로그인 성공!",
+                registerSuccess: "회원가입 성공!",
+                loginFailed: "로그인에 실패했습니다, 다시 시도해주세요",
+                registerFailed: "회원가입에 실패했습니다",
+                passwordMismatch: "비밀번호가 일치하지 않습니다",
+                emailAlreadyRegistered: "이미 등록된 이메일입니다, 직접 로그인해주세요",
+                invalidCredentials: "이메일 또는 비밀번호가 잘못되었습니다, 확인 후 다시 시도해주세요"
+            },
+            it: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Accedi e Registrati",
+                login: "Accedi",
+                register: "Registrati",
+                emailPlaceholder: "Indirizzo Email",
+                passwordPlaceholder: "Password",
+                confirmPasswordPlaceholder: "Conferma Password",
+                usernamePlaceholder: "Nome Utente",
+                welcomeBack: "Bentornato",
+                joinUs: "Unisciti a Noi",
+                backToHome: "Torna alla Home",
+                loginSuccess: "Accesso riuscito!",
+                registerSuccess: "Registrazione riuscita!",
+                loginFailed: "Accesso fallito, riprova",
+                registerFailed: "Registrazione fallita",
+                passwordMismatch: "Le password non corrispondono",
+                emailAlreadyRegistered: "Email già registrata, accedi direttamente",
+                invalidCredentials: "Email o password non valide, controlla e riprova"
+            },
+            pt: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Entrar e Registrar",
+                login: "Entrar",
+                register: "Registrar",
+                emailPlaceholder: "Endereço de Email",
+                passwordPlaceholder: "Senha",
+                confirmPasswordPlaceholder: "Confirmar Senha",
+                usernamePlaceholder: "Nome de Usuário",
+                welcomeBack: "Bem-vindo de Volta",
+                joinUs: "Junte-se a Nós",
+                backToHome: "Voltar ao Início",
+                loginSuccess: "Login bem-sucedido!",
+                registerSuccess: "Registro bem-sucedido!",
+                loginFailed: "Falha no login, tente novamente",
+                registerFailed: "Falha no registro",
+                passwordMismatch: "As senhas não coincidem",
+                emailAlreadyRegistered: "Email já registrado, faça login diretamente",
+                invalidCredentials: "Email ou senha inválidos, verifique e tente novamente"
+            },
+            ru: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Вход и Регистрация",
+                login: "Войти",
+                register: "Регистрация",
+                emailPlaceholder: "Адрес Email",
+                passwordPlaceholder: "Пароль",
+                confirmPasswordPlaceholder: "Подтвердить Пароль",
+                usernamePlaceholder: "Имя Пользователя",
+                welcomeBack: "Добро Пожаловать",
+                joinUs: "Присоединяйтесь",
+                backToHome: "Вернуться на Главную",
+                loginSuccess: "Вход выполнен успешно!",
+                registerSuccess: "Регистрация прошла успешно!",
+                loginFailed: "Ошибка входа, попробуйте снова",
+                registerFailed: "Ошибка регистрации",
+                passwordMismatch: "Пароли не совпадают",
+                emailAlreadyRegistered: "Email уже зарегистрирован, войдите напрямую",
+                invalidCredentials: "Неверный email или пароль, проверьте и попробуйте снова"
+            },
+            ar: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "تسجيل الدخول والتسجيل",
+                login: "تسجيل الدخول",
+                register: "التسجيل",
+                emailPlaceholder: "عنوان البريد الإلكتروني",
+                passwordPlaceholder: "كلمة المرور",
+                confirmPasswordPlaceholder: "تأكيد كلمة المرور",
+                usernamePlaceholder: "اسم المستخدم",
+                welcomeBack: "مرحباً بعودتك",
+                joinUs: "انضم إلينا",
+                backToHome: "العودة للصفحة الرئيسية",
+                loginSuccess: "تم تسجيل الدخول بنجاح!",
+                registerSuccess: "تم التسجيل بنجاح!",
+                loginFailed: "فشل تسجيل الدخول، يرجى المحاولة مرة أخرى",
+                registerFailed: "فشل التسجيل",
+                passwordMismatch: "كلمات المرور غير متطابقة",
+                emailAlreadyRegistered: "البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول مباشرة",
+                invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة، يرجى التحقق والمحاولة مرة أخرى"
+            },
+            hi: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "लॉग इन और रजिस्टर",
+                login: "लॉग इन",
+                register: "रजिस्टर",
+                emailPlaceholder: "ईमेल पता",
+                passwordPlaceholder: "पासवर्ड",
+                confirmPasswordPlaceholder: "पासवर्ड की पुष्टि करें",
+                usernamePlaceholder: "उपयोगकर्ता नाम",
+                welcomeBack: "वापस स्वागत है",
+                joinUs: "हमसे जुड़ें",
+                backToHome: "होम पर वापस जाएं",
+                loginSuccess: "लॉग इन सफल!",
+                registerSuccess: "रजिस्ट्रेशन सफल!",
+                loginFailed: "लॉग इन असफल, कृपया पुनः प्रयास करें",
+                registerFailed: "रजिस्ट्रेशन असफल",
+                passwordMismatch: "पासवर्ड मेल नहीं खाते",
+                emailAlreadyRegistered: "ईमेल पहले से पंजीकृत है, कृपया सीधे लॉग इन करें",
+                invalidCredentials: "अमान्य ईमेल या पासवर्ड, कृपया जांच करें और पुनः प्रयास करें"
+            },
+            tr: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Giriş ve Kayıt",
+                login: "Giriş Yap",
+                register: "Kayıt Ol",
+                emailPlaceholder: "E-posta Adresi",
+                passwordPlaceholder: "Şifre",
+                confirmPasswordPlaceholder: "Şifreyi Onayla",
+                usernamePlaceholder: "Kullanıcı Adı",
+                welcomeBack: "Tekrar Hoş Geldiniz",
+                joinUs: "Bize Katılın",
+                backToHome: "Ana Sayfaya Dön",
+                loginSuccess: "Giriş başarılı!",
+                registerSuccess: "Kayıt başarılı!",
+                loginFailed: "Giriş başarısız, lütfen tekrar deneyin",
+                registerFailed: "Kayıt başarısız",
+                passwordMismatch: "Şifreler eşleşmiyor",
+                emailAlreadyRegistered: "E-posta zaten kayıtlı, lütfen doğrudan giriş yapın",
+                invalidCredentials: "Geçersiz e-posta veya şifre, lütfen kontrol edin ve tekrar deneyin"
+            },
+            nl: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Inloggen en Registreren",
+                login: "Inloggen",
+                register: "Registreren",
+                emailPlaceholder: "E-mailadres",
+                passwordPlaceholder: "Wachtwoord",
+                confirmPasswordPlaceholder: "Wachtwoord Bevestigen",
+                usernamePlaceholder: "Gebruikersnaam",
+                welcomeBack: "Welkom Terug",
+                joinUs: "Doe Mee",
+                backToHome: "Terug naar Home",
+                loginSuccess: "Inloggen succesvol!",
+                registerSuccess: "Registratie succesvol!",
+                loginFailed: "Inloggen mislukt, probeer opnieuw",
+                registerFailed: "Registratie mislukt",
+                passwordMismatch: "Wachtwoorden komen niet overeen",
+                emailAlreadyRegistered: "E-mail al geregistreerd, log direct in",
+                invalidCredentials: "Ongeldig e-mail of wachtwoord, controleer en probeer opnieuw"
+            },
+            he: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "התחברות והרשמה",
+                login: "התחבר",
+                register: "הירשם",
+                emailPlaceholder: "כתובת אימייל",
+                passwordPlaceholder: "סיסמה",
+                confirmPasswordPlaceholder: "אשר סיסמה",
+                usernamePlaceholder: "שם משתמש",
+                welcomeBack: "ברוך השב",
+                joinUs: "הצטרף אלינו",
+                backToHome: "חזור לעמוד הבית",
+                loginSuccess: "התחברות הצליחה!",
+                registerSuccess: "הרשמה הצליחה!",
+                loginFailed: "התחברות נכשלה, נסה שוב",
+                registerFailed: "הרשמה נכשלה",
+                passwordMismatch: "הסיסמאות אינן תואמות",
+                emailAlreadyRegistered: "האימייל כבר רשום, התחבר ישירות",
+                invalidCredentials: "אימייל או סיסמה לא תקינים, בדוק ונסה שוב"
+            },
+            bg: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                authTitle: "Вход и Регистрация",
+                login: "Вход",
+                register: "Регистрация",
+                emailPlaceholder: "Имейл адрес",
+                passwordPlaceholder: "Парола",
+                confirmPasswordPlaceholder: "Потвърди парола",
+                usernamePlaceholder: "Потребителско име",
+                welcomeBack: "Добре дошли отново",
+                joinUs: "Присъединете се",
+                backToHome: "Обратно към началото",
+                loginSuccess: "Входът е успешен!",
+                registerSuccess: "Регистрацията е успешна!",
+                loginFailed: "Входът неуспешен, опитайте отново",
+                registerFailed: "Регистрацията неуспешна",
+                passwordMismatch: "Паролите не съвпадат",
+                emailAlreadyRegistered: "Имейлът вече е регистриран, влезте директно",
+                invalidCredentials: "Невалиден имейл или парола, проверете и опитайте отново"
+            }
+        };
+
+        // 设置翻译
+        window.translations = translations;
+
+        // 当前语言
+        let currentLanguage = 'zh';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLanguage();
+            setupEventListeners();
+            setupLanguageSync();
+        });
+
+        function initializeLanguage() {
+            // 从父窗口获取当前语言
+            currentLanguage = window.parent ? window.parent.currentLanguage || 'zh' : 'zh';
+            updateLanguageUI();
+        }
+
+        function updateLanguageUI() {
+            const t = translations[currentLanguage] || translations['zh'];
+            
+            document.getElementById('auth-title').textContent = t.authTitle;
+            document.getElementById('login-tab').textContent = t.login;
+            document.getElementById('register-tab').textContent = t.register;
+            
+            // 更新标签文字
+            document.getElementById('login-email-label').textContent = t.emailLabel;
+            document.getElementById('login-password-label').textContent = t.passwordLabel;
+            document.getElementById('register-username-label').textContent = t.usernameLabel;
+            document.getElementById('register-email-label').textContent = t.emailLabel;
+            document.getElementById('register-password-label').textContent = t.passwordLabel;
+            document.getElementById('register-confirm-password-label').textContent = t.confirmPasswordLabel;
+            
+            // 更新占位符
+            document.getElementById('login-email').placeholder = t.emailPlaceholder;
+            document.getElementById('login-password').placeholder = t.passwordPlaceholder;
+            document.getElementById('register-username').placeholder = t.usernamePlaceholder;
+            document.getElementById('register-email').placeholder = t.emailPlaceholder;
+            document.getElementById('register-password').placeholder = t.passwordPlaceholder;
+            document.getElementById('register-confirm-password').placeholder = t.confirmPasswordPlaceholder;
+            
+            // 更新按钮文字
+            document.getElementById('login-text').textContent = t.login;
+            document.getElementById('register-text').textContent = t.register;
+            document.getElementById('close-modal-link').textContent = t.close;
+        }
+
+
+        function switchTab(tab) {
+            // 更新标签页状态
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            // 显示对应表单
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.add('hidden'));
+            document.getElementById(tab + '-form').classList.remove('hidden');
+            
+            // 清除消息
+            hideMessages();
+        }
+
+        function setupEventListeners() {
+            // 登录表单
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            
+            // 注册表单
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            showLoading('login');
+            hideMessages();
+            
+            try {
+                // 获取API基础URL
+                const apiBaseUrl = window.parent ? window.parent.API_BASE_URL || 'http://localhost:8001' : 'http://localhost:8001';
+                console.log('🔧 使用API URL:', apiBaseUrl);
+                console.log('📤 发送登录请求:', { email });
+                
+                const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                console.log('📥 收到响应状态:', response.status);
+                const data = await response.json();
+                console.log('📥 响应数据:', data);
+                
+                if (response.ok) {
+                    // 保存token
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_id', data.user_id);
+                    
+                    showSuccess(translations[currentLanguage].loginSuccess);
+                    
+                    // 通知父窗口登录成功
+                    setTimeout(() => {
+                        if (window.parent) {
+                            window.parent.postMessage({ action: 'authSuccess' }, '*');
+                        }
+                    }, 1500);
+                } else {
+                    console.error('❌ 登录失败:', response.status, data);
+                    showError(data.detail || translations[currentLanguage].loginFailed);
+                }
+            } catch (error) {
+                console.error('❌ 登录请求异常:', error);
+                showError(translations[currentLanguage].loginFailed);
+            } finally {
+                hideLoading('login');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            // 验证密码
+            if (password !== confirmPassword) {
+                showError(translations[currentLanguage].passwordMismatch);
+                return;
+            }
+            
+            showLoading('register');
+            hideMessages();
+            
+            try {
+                // 获取API基础URL
+                const apiBaseUrl = window.parent ? window.parent.API_BASE_URL || 'http://localhost:8001' : 'http://localhost:8001';
+                const response = await fetch(`${apiBaseUrl}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        username, 
+                        email, 
+                        password, 
+                        confirm_password: confirmPassword 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(translations[currentLanguage].registerSuccess);
+                    
+                    // 切换到登录标签页
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('login-email').value = email;
+                    }, 1500);
+                } else {
+                    showError(data.detail || translations[currentLanguage].registerFailed);
+                }
+            } catch (error) {
+                showError(translations[currentLanguage].registerFailed);
+            } finally {
+                hideLoading('register');
+            }
+        }
+
+        function showLoading(formType) {
+            document.getElementById(formType + '-button').disabled = true;
+            document.getElementById(formType + '-text').classList.add('hidden');
+            document.getElementById(formType + '-loading').classList.remove('hidden');
+        }
+
+        function hideLoading(formType) {
+            document.getElementById(formType + '-button').disabled = false;
+            document.getElementById(formType + '-text').classList.remove('hidden');
+            document.getElementById(formType + '-loading').classList.add('hidden');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.classList.remove('hidden');
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        function closeModal() {
+            // 通知父窗口关闭模态框
+            if (window.parent) {
+                window.parent.postMessage({ action: 'closeAuthModal' }, '*');
+            }
+        }
+        
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function setupLanguageSync() {
+            // 监听父窗口的语言变化
+            if (window.parent) {
+                // 立即同步一次
+                syncWithParentLanguage();
+                
+                // 定期检查父窗口的语言是否发生变化
+                setInterval(() => {
+                    syncWithParentLanguage();
+                }, 500);
+                
+                // 监听父窗口的语言变化事件
+                window.parent.addEventListener('languageChanged', (event) => {
+                    if (event.detail && event.detail.language) {
+                        currentLanguage = event.detail.language;
+                        updateLanguageUI();
+                    }
+                });
+            }
+        }
+        
+        function syncWithParentLanguage() {
+            const parentLanguage = window.parent ? window.parent.currentLanguage : null;
+            if (parentLanguage && parentLanguage !== currentLanguage) {
+                console.log('认证页面语言同步:', currentLanguage, '->', parentLanguage);
+                currentLanguage = parentLanguage;
+                updateLanguageUI();
+            }
+        }
+
+    </script>
+</body>
+</html>

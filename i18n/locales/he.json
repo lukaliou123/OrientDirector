@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "success": "הצלחה",
+    "cancel": "ביטול",
+    "confirm": "אישור",
+    "save": "שמירה",
+    "edit": "עריכה",
+    "delete": "מחיקה",
+    "search": "חיפוש",
+    "back": "חזרה",
+    "next": "הבא",
+    "previous": "הקודם",
+    "submit": "שליחה",
+    "close": "סגירה"
+  },
+  "header": {
+    "brand": "מנהל כיוון",
+    "tagline": "חקירת נסיעות מונעת AI",
+    "login": "התחבר",
+    "register": "הירשם",
+    "profile": "פרופיל",
+    "logout": "התנתק",
+    "language": "שפה"
+  },
+  "homepage": {
+    "title": "מנהל כיוון",
+    "subtitle": "חקירת נסיעות מונעת AI, גלה את יופיו של העולם",
+    "description": "השתמש בטכנולוגיית AI לחקור אטרקציות ברחבי העולם וחווה תכנון נסיעות מרתק",
+    "getStarted": "התחל לחקור",
+    "features": {
+      "title": "תכונות",
+      "aiExploration": {
+        "title": "חקירה חכמה של AI",
+        "description": "המלצות חכמות של אטרקציות ותכנון מסלולים מבוססי AI"
+      },
+      "streetView": {
+        "title": "חוויית תצוגת רחוב",
+        "description": "תצוגה מקדימה של 360 מעלות לתצוגת רחוב לחוויה מרתקת של היעד"
+      },
+      "photoGeneration": {
+        "title": "יצירת תמונות AI",
+        "description": "צור תמונות מותאמות אישית עם אטרקציות מפורסמות"
+      },
+      "multiLanguage": {
+        "title": "תמיכה רב-לשונית",
+        "description": "תמיכה ב-16 שפות, חוויה ידידותית למשתמש ברחבי העולם"
+      }
+    },
+    "howItWorks": {
+      "title": "איך זה עובד",
+      "step1": {
+        "title": "בחר יעד",
+        "description": "בחר את העיר או האטרקציה שאתה רוצה לחקור"
+      },
+      "step2": {
+        "title": "המלצות חכמות של AI",
+        "description": "AI ממליץ על אטרקציות פופולריות בקרבת מקום"
+      },
+      "step3": {
+        "title": "חוויה מרתקת",
+        "description": "צפה בתצוגת רחוב, צור תמונות, חווה יעדים לעומק"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "התחבר",
+    "registerTitle": "צור חשבון",
+    "noAccount": "אין לך חשבון?",
+    "hasAccount": "יש לך כבר חשבון?",
+    "registerNow": "הירשם עכשיו",
+    "loginNow": "התחבר עכשיו",
+    "emailPlaceholder": "כתובת אימייל",
+    "passwordPlaceholder": "סיסמה",
+    "confirmPasswordPlaceholder": "אשר סיסמה",
+    "usernamePlaceholder": "שם משתמש",
+    "login": "התחבר",
+    "register": "הירשם",
+    "welcomeBack": "ברוך הבא",
+    "joinUs": "הצטרף אלינו",
+    "forgotPassword": "שכחת סיסמה?",
+    "backToHome": "חזור לעמוד הבית",
+    "loginSuccess": "התחברות הצליחה!",
+    "registerSuccess": "הרשמה הצליחה!",
+    "registerDescription": "אנא מלא את הפרטים שלך כדי ליצור חשבון",
+    "validation": {
+      "emailRequired": "אנא הזן כתובת אימייל",
+      "emailInvalid": "אנא הזן כתובת אימייל תקינה",
+      "passwordRequired": "אנא הזן סיסמה",
+      "passwordConfirmRequired": "אנא אשר סיסמה",
+      "passwordTooShort": "הסיסמה חייבת להיות לפחות 6 תווים",
+      "usernameRequired": "אנא הזן שם משתמש",
+      "usernameMinLength": "שם המשתמש חייב להיות לפחות 3 תווים"
+    },
+    "errors": {
+      "loginFailed": "התחברות נכשלה, אנא נסה שוב",
+      "invalidCredentials": "כתובת אימייל או סיסמה לא תקינים, אנא בדוק ונסה שוב",
+      "registerFailed": "הרשמה נכשלה",
+      "passwordMismatch": "הסיסמאות לא תואמות",
+      "emailAlreadyRegistered": "האימייל כבר רשום, אנא התחבר ישירות"
+    }
+  },
+  "exploration": {
+    "title": "חקור אטרקציות",
+    "currentLocation": "מיקום נוכחי",
+    "nearbyAttractions": "אטרקציות קרובות",
+    "distance": "מרחק",
+    "exploreHere": "חקור כאן",
+    "generatePhoto": "צור תמונה",
+    "viewStreetView": "הצג תצוגת רחוב",
+    "doroPhoto": "תמונת דורו",
+    "noAttractionsFound": "לא נמצא מידע מיקום רלוונטי",
+    "searching": "מחפש...",
+    "loading": "טוען...",
+    "noInfo": "אין מידע",
+    "modernMode": "מצב מודרני",
+    "ancientMode": "מצב עתיק",
+    "futureMode": "מצב עתידי"
+  },
+  "languageSelector": {
+    "title": "בחר שפה ואזור",
+    "currentLanguage": "שפה נוכחית"
+  },
+  "profile": {
+    "title": "פרופיל",
+    "username": "שם משתמש",
+    "email": "אימייל",
+    "joinDate": "תאריך הצטרפות",
+    "preferences": "העדפות",
+    "language": "העדפת שפה",
+    "theme": "ערכת נושא",
+    "notifications": "הגדרות התראות",
+    "save": "שמור הגדרות"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "general": "הגדרות כלליות",
+    "language": "הגדרות שפה",
+    "theme": "הגדרות ערכת נושא",
+    "notifications": "הגדרות התראות",
+    "privacy": "הגדרות פרטיות",
+    "account": "הגדרות חשבון",
+    "about": "אודות",
+    "version": "גרסה",
+    "feedback": "משוב",
+    "help": "עזרה",
+    "support": "תמיכה"
+  },
+  "navigation": {
+    "home": "בית",
+    "explore": "חקור",
+    "profile": "פרופיל",
+    "settings": "הגדרות",
+    "help": "עזרה",
+    "about": "אודות"
+  },
+  "modals": {
+    "close": "סגור",
+    "confirm": "אשר",
+    "cancel": "ביטול",
+    "save": "שמור",
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "success": "הצלחה"
+  },
+  "errors": {
+    "networkError": "שגיאת חיבור רשת",
+    "serverError": "שגיאת שרת",
+    "notFound": "לא נמצא",
+    "unauthorized": "לא מורשה",
+    "forbidden": "אסור",
+    "validationError": "שגיאת אימות",
+    "unknownError": "שגיאה לא ידועה"
+  },
+  "placeholders": {
+    "searchCity": "חפש עיר...",
+    "searchAttraction": "חפש אטרקציה...",
+    "enterEmail": "הזן כתובת אימייל",
+    "enterPassword": "הזן סיסמה",
+    "enterUsername": "הזן שם משתמש",
+    "selectLanguage": "בחר שפה",
+    "selectTheme": "בחר ערכת נושא"
+  },
+  "status": {
+    "online": "מחובר",
+    "offline": "לא מחובר",
+    "connecting": "מתחבר...",
+    "connected": "מחובר",
+    "disconnected": "מנותק",
+    "loading": "טוען...",
+    "processing": "מעבד...",
+    "completed": "הושלם",
+    "failed": "נכשל"
+  },
+  "time": {
+    "now": "עכשיו",
+    "today": "היום",
+    "yesterday": "אתמול",
+    "tomorrow": "מחר",
+    "thisWeek": "השבוע",
+    "thisMonth": "החודש",
+    "thisYear": "השנה",
+    "ago": "לפני",
+    "in": "בעוד"
+  },
+  "units": {
+    "kilometer": "קילומטר",
+    "meter": "מטר",
+    "mile": "מייל",
+    "hour": "שעה",
+    "minute": "דקה",
+    "second": "שנייה",
+    "day": "יום",
+    "week": "שבוע",
+    "month": "חודש",
+    "year": "שנה"
+  }
+}

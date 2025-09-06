@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修复测试</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .hidden { display: none; }
+        button { padding: 10px 20px; margin: 5px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .dropdown { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+    
+    <!-- 关键函数定义 - 确保在HTML解析前就可用 -->
+    <script>
+        // 全局函数定义 - 立即可用
+        function toggleLanguageDropdown() {
+            console.log('toggleLanguageDropdown 被调用');
+            const dropdown = document.getElementById('language-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+                console.log('语言下拉菜单切换成功');
+            } else {
+                console.error('找不到 language-dropdown 元素');
+            }
+        }
+
+        function toggleUserMenu() {
+            console.log('toggleUserMenu 被调用');
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+                console.log('用户菜单切换成功');
+            } else {
+                console.error('找不到 user-dropdown 元素');
+            }
+        }
+        
+        console.log('✅ 关键函数已在头部定义');
+    </script>
+</head>
+<body>
+    <h1>🧭 函数修复测试页面</h1>
+    
+    <div class="test-section">
+        <h2>测试1: 语言选择器</h2>
+        <button onclick="toggleLanguageDropdown()">🌍 切换语言菜单</button>
+        <div class="dropdown hidden" id="language-dropdown">
+            <div>🇨🇳 中文</div>
+            <div>🇺🇸 English</div>
+            <div>🇪🇸 Español</div>
+            <div>🇫🇷 Français</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试2: 用户菜单</h2>
+        <button onclick="toggleUserMenu()">👤 切换用户菜单</button>
+        <div class="dropdown hidden" id="user-dropdown">
+            <div>👤 用户信息</div>
+            <div>🔐 登录</div>
+            <div>📝 注册</div>
+            <div>🚪 退出</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试结果</h2>
+        <p>✅ Favicon图标应该显示为指南针</p>
+        <p>✅ 点击按钮应该显示/隐藏下拉菜单</p>
+        <p>✅ 控制台应该显示调试信息</p>
+    </div>
+    
+    <script>
+        // 页面加载完成后的验证
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成');
+            console.log('toggleLanguageDropdown 类型:', typeof toggleLanguageDropdown);
+            console.log('toggleUserMenu 类型:', typeof toggleUserMenu);
+            
+            // 检查元素是否存在
+            const langDropdown = document.getElementById('language-dropdown');
+            const userDropdown = document.getElementById('user-dropdown');
+            console.log('language-dropdown 元素:', langDropdown ? '✅ 存在' : '❌ 不存在');
+            console.log('user-dropdown 元素:', userDropdown ? '✅ 存在' : '❌ 不存在');
+        });
+    </script>
+</body>
+</html>

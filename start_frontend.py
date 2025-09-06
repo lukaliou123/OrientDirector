@@ -9,6 +9,9 @@ import webbrowser
 import threading
 import time
 import sys
+import subprocess
+import signal
+import os
 from pathlib import Path
 
 PORT = 3001
@@ -35,55 +38,73 @@ class ReuseAddrTCPServer(socketserver.TCPServer):
             self.server_bind()
             self.server_activate()
 
+def kill_process_on_port(port):
+    """杀死占用指定端口的进程"""
+    try:
+        # 查找占用端口的进程
+        result = subprocess.run(
+            ['lsof', '-ti', f':{port}'],
+            capture_output=True,
+            text=True
+        )
+        
+        if result.returncode == 0 and result.stdout.strip():
+            pids = result.stdout.strip().split('\n')
+            for pid in pids:
+                if pid:
+                    try:
+                        os.kill(int(pid), signal.SIGTERM)
+                        print(f"✓ 已终止占用端口 {port} 的进程 (PID: {pid})")
+                        time.sleep(1)
+                    except (ProcessLookupError, ValueError):
+                        pass
+            
+            # 等待进程完全终止
+            time.sleep(2)
+                            
+    except FileNotFoundError:
+        print("⚠️ lsof 命令不可用，无法自动清理端口")
+    except Exception as e:
+        print(f"⚠️ 清理端口时出错: {e}")
+
 def start_server():
     """启动前端服务器"""
-    global PORT
-    max_retries = 5
+    print("🧭 方向探索派对 - 前端服务")
+    print("=" * 50)
     
-    for attempt in range(max_retries):
-        try:
-            with ReuseAddrTCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
-                print(f"🧭 方向探索派对 - 前端服务")
-                print("=" * 50)
-                print(f"✓ 服务地址: http://localhost:{PORT}")
-                print(f"✓ 在浏览器中打开应用...")
-                print("按 Ctrl+C 停止服务")
-                print("-" * 50)
-                
-                # 延迟打开浏览器
-                def open_browser():
-                    time.sleep(1)
-                    webbrowser.open(f'http://localhost:{PORT}')
-                
-                threading.Thread(target=open_browser, daemon=True).start()
-                
-                httpd.serve_forever()
-                return  # 成功启动，退出函数
-                
-        except OSError as e:
-            if (e.errno == 48 or e.errno == 98) and attempt < max_retries - 1:  # Address already in use
-                print(f"⚠️ 端口 {PORT} 被占用，尝试端口 {PORT + 1}...")
-                PORT += 1
+    # 检查并清理端口3001
+    print(f"🔍 检查端口 {PORT} 占用情况...")
+    kill_process_on_port(PORT)
+    
+    try:
+        with ReuseAddrTCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
+            print(f"✓ 服务地址: http://localhost:{PORT}")
+            print(f"✓ 在浏览器中打开应用...")
+            print("按 Ctrl+C 停止服务")
+            print("-" * 50)
+            
+            # 延迟打开浏览器
+            def open_browser():
                 time.sleep(1)
-                continue
-            else:
-                # 最后一次尝试失败
-                if e.errno == 48 or e.errno == 98:
-                    print(f"❌ 错误: 所有端口都被占用 (尝试了端口 {3001} 到 {PORT})")
-                    print("请手动释放端口或重启系统后重试")
-                else:
-                    print(f"❌ 错误: {e}")
-                sys.exit(1)
-        except KeyboardInterrupt:
-            print("\n前端服务已停止")
-            return
-        except Exception as e:
-            print(f"❌ 错误: 服务启动失败 - {e}")
-            sys.exit(1)
-    
-    # 如果循环结束还没有成功启动
-    print("❌ 错误: 无法找到可用端口启动服务")
-    sys.exit(1)
+                webbrowser.open(f'http://localhost:{PORT}')
+            
+            threading.Thread(target=open_browser, daemon=True).start()
+            
+            httpd.serve_forever()
+                
+    except OSError as e:
+        if e.errno == 48 or e.errno == 98:  # Address already in use
+            print(f"❌ 错误: 端口 {PORT} 仍被占用")
+            print("请手动释放端口或重启系统后重试")
+        else:
+            print(f"❌ 错误: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n✅ 前端服务已停止")
+        return
+    except Exception as e:
+        print(f"❌ 错误: 服务启动失败 - {e}")
+        sys.exit(1)
 
 def main():
     """主函数"""

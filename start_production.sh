@@ -125,7 +125,7 @@ fi
 echo ""
 echo "🔍 测试API连接..."
 sleep 3
-if curl -s https://doro.gitagent.io/api/health > /dev/null; then
+if curl -s https://spot.gitagent.io/api/health > /dev/null; then
     echo "✅ 后端API响应正常"
 else
     echo "❌ 后端API无响应"
@@ -134,9 +134,9 @@ fi
 echo ""
 echo "✅ 服务启动完成！"
 echo "启动完成时间: $(date '+%Y-%m-%d %H:%M:%S')"
-echo "后端服务: https://doro.gitagent.io"
+echo "后端服务: https://spot.gitagent.io"
 echo "前端服务: http://localhost:3001"
-echo "API文档: https://doro.gitagent.io/docs"
+echo "API文档: https://spot.gitagent.io/docs"
 echo ""
 echo "查看日志:"
 echo "  后端: tail -f logs/backend.log"

@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "search": "بحث",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "close": "إغلاق"
+  },
+  "header": {
+    "brand": "مدير التوجه",
+    "tagline": "استكشاف السفر بالذكاء الاصطناعي",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج",
+    "language": "اللغة"
+  },
+  "homepage": {
+    "title": "مدير التوجه",
+    "subtitle": "استكشاف السفر بالذكاء الاصطناعي، اكتشف جمال العالم",
+    "description": "استخدم تقنية الذكاء الاصطناعي لاستكشاف المعالم السياحية حول العالم واختبر التخطيط للرحلات الغامرة",
+    "getStarted": "ابدأ الاستكشاف",
+    "features": {
+      "title": "الميزات",
+      "aiExploration": {
+        "title": "الاستكشاف الذكي بالذكاء الاصطناعي",
+        "description": "توصيات ذكية للمعالم السياحية وتخطيط المسارات المدعومة بالذكاء الاصطناعي"
+      },
+      "streetView": {
+        "title": "تجربة عرض الشارع",
+        "description": "معاينة 360 درجة لعرض الشارع لتجربة غامرة للوجهة"
+      },
+      "photoGeneration": {
+        "title": "إنشاء الصور بالذكاء الاصطناعي",
+        "description": "إنشاء صور شخصية مع المعالم الشهيرة"
+      },
+      "multiLanguage": {
+        "title": "الدعم متعدد اللغات",
+        "description": "دعم 16 لغة، تجربة سهلة الاستخدام عالمياً"
+      }
+    },
+    "howItWorks": {
+      "title": "كيف يعمل",
+      "step1": {
+        "title": "اختر الوجهة",
+        "description": "اختر المدينة أو المعلم السياحي الذي تريد استكشافه"
+      },
+      "step2": {
+        "title": "التوصيات الذكية بالذكاء الاصطناعي",
+        "description": "الذكاء الاصطناعي يوصي لك بالمعالم الشهيرة القريبة"
+      },
+      "step3": {
+        "title": "التجربة الغامرة",
+        "description": "عرض الشارع، إنشاء الصور، اختبر الوجهات بعمق"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "registerTitle": "إنشاء حساب",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "registerNow": "سجل الآن",
+    "loginNow": "سجل الدخول الآن",
+    "emailPlaceholder": "عنوان البريد الإلكتروني",
+    "passwordPlaceholder": "كلمة المرور",
+    "confirmPasswordPlaceholder": "تأكيد كلمة المرور",
+    "usernamePlaceholder": "اسم المستخدم",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "welcomeBack": "مرحباً بعودتك",
+    "joinUs": "انضم إلينا",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "backToHome": "العودة للرئيسية",
+    "loginSuccess": "تم تسجيل الدخول بنجاح!",
+    "registerSuccess": "تم التسجيل بنجاح!",
+    "registerDescription": "يرجى ملء معلوماتك لإنشاء حساب",
+    "validation": {
+      "emailRequired": "يرجى إدخال عنوان البريد الإلكتروني",
+      "emailInvalid": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+      "passwordRequired": "يرجى إدخال كلمة المرور",
+      "passwordConfirmRequired": "يرجى تأكيد كلمة المرور",
+      "passwordTooShort": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+      "usernameRequired": "يرجى إدخال اسم المستخدم",
+      "usernameMinLength": "اسم المستخدم يجب أن يكون 3 أحرف على الأقل"
+    },
+    "errors": {
+      "loginFailed": "فشل تسجيل الدخول، يرجى المحاولة مرة أخرى",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة، يرجى التحقق والمحاولة مرة أخرى",
+      "registerFailed": "فشل التسجيل",
+      "passwordMismatch": "كلمات المرور غير متطابقة",
+      "emailAlreadyRegistered": "البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول مباشرة"
+    }
+  },
+  "exploration": {
+    "title": "استكشاف المعالم",
+    "currentLocation": "الموقع الحالي",
+    "nearbyAttractions": "المعالم القريبة",
+    "distance": "المسافة",
+    "exploreHere": "استكشف هنا",
+    "generatePhoto": "إنشاء صورة",
+    "viewStreetView": "عرض الشارع",
+    "doroPhoto": "صورة دورو",
+    "noAttractionsFound": "لم يتم العثور على معلومات موقع ذات صلة",
+    "searching": "جاري البحث...",
+    "loading": "جاري التحميل...",
+    "noInfo": "لا توجد معلومات",
+    "modernMode": "الوضع الحديث",
+    "ancientMode": "الوضع القديم",
+    "futureMode": "الوضع المستقبلي"
+  },
+  "languageSelector": {
+    "title": "اختر اللغة والمنطقة",
+    "currentLanguage": "اللغة الحالية"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "joinDate": "تاريخ الانضمام",
+    "preferences": "التفضيلات",
+    "language": "تفضيل اللغة",
+    "theme": "المظهر",
+    "notifications": "إعدادات الإشعارات",
+    "save": "حفظ الإعدادات"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "general": "الإعدادات العامة",
+    "language": "إعدادات اللغة",
+    "theme": "إعدادات المظهر",
+    "notifications": "إعدادات الإشعارات",
+    "privacy": "إعدادات الخصوصية",
+    "account": "إعدادات الحساب",
+    "about": "حول",
+    "version": "الإصدار",
+    "feedback": "الملاحظات",
+    "help": "المساعدة",
+    "support": "الدعم"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "explore": "استكشاف",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "help": "المساعدة",
+    "about": "حول"
+  },
+  "modals": {
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح"
+  },
+  "errors": {
+    "networkError": "خطأ في اتصال الشبكة",
+    "serverError": "خطأ في الخادم",
+    "notFound": "غير موجود",
+    "unauthorized": "غير مصرح",
+    "forbidden": "محظور",
+    "validationError": "خطأ في التحقق",
+    "unknownError": "خطأ غير معروف"
+  },
+  "placeholders": {
+    "searchCity": "البحث عن مدينة...",
+    "searchAttraction": "البحث عن معلم...",
+    "enterEmail": "أدخل عنوان البريد الإلكتروني",
+    "enterPassword": "أدخل كلمة المرور",
+    "enterUsername": "أدخل اسم المستخدم",
+    "selectLanguage": "اختر اللغة",
+    "selectTheme": "اختر المظهر"
+  },
+  "status": {
+    "online": "متصل",
+    "offline": "غير متصل",
+    "connecting": "جاري الاتصال...",
+    "connected": "متصل",
+    "disconnected": "منقطع",
+    "loading": "جاري التحميل...",
+    "processing": "جاري المعالجة...",
+    "completed": "مكتمل",
+    "failed": "فشل"
+  },
+  "time": {
+    "now": "الآن",
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "tomorrow": "غداً",
+    "thisWeek": "هذا الأسبوع",
+    "thisMonth": "هذا الشهر",
+    "thisYear": "هذا العام",
+    "ago": "مضى",
+    "in": "في"
+  },
+  "units": {
+    "kilometer": "كيلومتر",
+    "meter": "متر",
+    "mile": "ميل",
+    "hour": "ساعة",
+    "minute": "دقيقة",
+    "second": "ثانية",
+    "day": "يوم",
+    "week": "أسبوع",
+    "month": "شهر",
+    "year": "سنة"
+  }
+}

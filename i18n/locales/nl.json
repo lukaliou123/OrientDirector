@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Succes",
+    "cancel": "Annuleren",
+    "confirm": "Bevestigen",
+    "save": "Opslaan",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "search": "Zoeken",
+    "back": "Terug",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "submit": "Verzenden",
+    "close": "Sluiten"
+  },
+  "header": {
+    "brand": "Orientatie Directeur",
+    "tagline": "AI-aangedreven Reisverkenning",
+    "login": "Inloggen",
+    "register": "Registreren",
+    "profile": "Profiel",
+    "logout": "Uitloggen",
+    "language": "Taal"
+  },
+  "homepage": {
+    "title": "Orientatie Directeur",
+    "subtitle": "AI-aangedreven Reisverkenning, Ontdek de Schoonheid van de Wereld",
+    "description": "Gebruik AI-technologie om attracties over de hele wereld te verkennen en ervaar meeslepende reisplanning",
+    "getStarted": "Begin met Verkennen",
+    "features": {
+      "title": "Functies",
+      "aiExploration": {
+        "title": "AI Slimme Verkenning",
+        "description": "AI-gestuurde slimme attractie-aanbevelingen en routeplanning"
+      },
+      "streetView": {
+        "title": "Street View Ervaring",
+        "description": "360-graden Street View voorvertoning voor meeslepende bestemming ervaring"
+      },
+      "photoGeneration": {
+        "title": "AI Fotogeneratie",
+        "description": "Genereer gepersonaliseerde foto's met beroemde attracties"
+      },
+      "multiLanguage": {
+        "title": "Meertalige Ondersteuning",
+        "description": "Ondersteuning voor 16 talen, gebruiksvriendelijke ervaring wereldwijd"
+      }
+    },
+    "howItWorks": {
+      "title": "Hoe het Werkt",
+      "step1": {
+        "title": "Kies Bestemming",
+        "description": "Selecteer de stad of attractie die je wilt verkennen"
+      },
+      "step2": {
+        "title": "AI Slimme Aanbevelingen",
+        "description": "AI beveelt populaire attracties in de buurt aan"
+      },
+      "step3": {
+        "title": "Meeslepende Ervaring",
+        "description": "Bekijk street view, genereer foto's, ervaar bestemmingen diepgaand"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Inloggen",
+    "registerTitle": "Account Aanmaken",
+    "noAccount": "Geen account?",
+    "hasAccount": "Al een account?",
+    "registerNow": "Nu Registreren",
+    "loginNow": "Nu Inloggen",
+    "emailPlaceholder": "E-mailadres",
+    "passwordPlaceholder": "Wachtwoord",
+    "confirmPasswordPlaceholder": "Wachtwoord Bevestigen",
+    "usernamePlaceholder": "Gebruikersnaam",
+    "login": "Inloggen",
+    "register": "Registreren",
+    "welcomeBack": "Welkom Terug",
+    "joinUs": "Doe Mee",
+    "forgotPassword": "Wachtwoord Vergeten?",
+    "backToHome": "Terug naar Home",
+    "loginSuccess": "Inloggen succesvol!",
+    "registerSuccess": "Registratie succesvol!",
+    "registerDescription": "Vul je gegevens in om een account aan te maken",
+    "validation": {
+      "emailRequired": "Voer e-mailadres in",
+      "emailInvalid": "Voer een geldig e-mailadres in",
+      "passwordRequired": "Voer wachtwoord in",
+      "passwordConfirmRequired": "Bevestig wachtwoord",
+      "passwordTooShort": "Wachtwoord moet minimaal 6 tekens zijn",
+      "usernameRequired": "Voer gebruikersnaam in",
+      "usernameMinLength": "Gebruikersnaam moet minimaal 3 tekens zijn"
+    },
+    "errors": {
+      "loginFailed": "Inloggen mislukt, probeer opnieuw",
+      "invalidCredentials": "Ongeldig e-mailadres of wachtwoord, controleer en probeer opnieuw",
+      "registerFailed": "Registratie mislukt",
+      "passwordMismatch": "Wachtwoorden komen niet overeen",
+      "emailAlreadyRegistered": "E-mail al geregistreerd, log direct in"
+    }
+  },
+  "exploration": {
+    "title": "Verkennen Attracties",
+    "currentLocation": "Huidige Locatie",
+    "nearbyAttractions": "Nabijgelegen Bezienswaardigheden",
+    "distance": "Afstand",
+    "exploreHere": "Verken Hier",
+    "generatePhoto": "Foto Genereren",
+    "viewStreetView": "Straatweergave Bekijken",
+    "doroPhoto": "Doro Foto",
+    "noAttractionsFound": "Geen relevante locatie-informatie gevonden",
+    "searching": "Zoeken...",
+    "loading": "Laden...",
+    "noInfo": "Geen Info",
+    "modernMode": "Moderne Modus",
+    "ancientMode": "Oude Modus",
+    "futureMode": "Toekomst Modus"
+  },
+  "languageSelector": {
+    "title": "Kies Taal en Regio",
+    "currentLanguage": "Huidige Taal"
+  },
+  "profile": {
+    "title": "Profiel",
+    "username": "Gebruikersnaam",
+    "email": "E-mail",
+    "joinDate": "Lidmaatschap Datum",
+    "preferences": "Voorkeuren",
+    "language": "Taalvoorkeur",
+    "theme": "Thema",
+    "notifications": "Melding Instellingen",
+    "save": "Instellingen Opslaan"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "general": "Algemene Instellingen",
+    "language": "Taal Instellingen",
+    "theme": "Thema Instellingen",
+    "notifications": "Melding Instellingen",
+    "privacy": "Privacy Instellingen",
+    "account": "Account Instellingen",
+    "about": "Over",
+    "version": "Versie",
+    "feedback": "Feedback",
+    "help": "Hulp",
+    "support": "Ondersteuning"
+  },
+  "navigation": {
+    "home": "Home",
+    "explore": "Verkennen",
+    "profile": "Profiel",
+    "settings": "Instellingen",
+    "help": "Hulp",
+    "about": "Over"
+  },
+  "modals": {
+    "close": "Sluiten",
+    "confirm": "Bevestigen",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Succes"
+  },
+  "errors": {
+    "networkError": "Netwerkverbinding fout",
+    "serverError": "Server fout",
+    "notFound": "Niet gevonden",
+    "unauthorized": "Niet geautoriseerd",
+    "forbidden": "Verboden",
+    "validationError": "Validatie fout",
+    "unknownError": "Onbekende fout"
+  },
+  "placeholders": {
+    "searchCity": "Zoek stad...",
+    "searchAttraction": "Zoek attractie...",
+    "enterEmail": "Voer e-mailadres in",
+    "enterPassword": "Voer wachtwoord in",
+    "enterUsername": "Voer gebruikersnaam in",
+    "selectLanguage": "Selecteer taal",
+    "selectTheme": "Selecteer thema"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Verbinden...",
+    "connected": "Verbonden",
+    "disconnected": "Verbinding Verbroken",
+    "loading": "Laden...",
+    "processing": "Verwerken...",
+    "completed": "Voltooid",
+    "failed": "Mislukt"
+  },
+  "time": {
+    "now": "Nu",
+    "today": "Vandaag",
+    "yesterday": "Gisteren",
+    "tomorrow": "Morgen",
+    "thisWeek": "Deze week",
+    "thisMonth": "Deze maand",
+    "thisYear": "Dit jaar",
+    "ago": "geleden",
+    "in": "in"
+  },
+  "units": {
+    "kilometer": "kilometer",
+    "meter": "meter",
+    "mile": "mijl",
+    "hour": "uur",
+    "minute": "minuut",
+    "second": "seconde",
+    "day": "dag",
+    "week": "week",
+    "month": "maand",
+    "year": "jaar"
+  }
+}

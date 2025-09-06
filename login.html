@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 方向探索派对</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #2563eb;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            padding: 4px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #2563eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .success-message {
+            color: #059669;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🧭 方向探索派对</h1>
+            <p>登录您的账户</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" id="login-tab" onclick="switchTab('login')">登录</button>
+            <button class="tab-button" id="register-tab" onclick="switchTab('register')">注册</button>
+        </div>
+
+        <!-- 登录表单 -->
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email">邮箱地址</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">密码</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit" class="submit-btn" id="login-submit">
+                <span id="login-text">登录</span>
+                <span id="login-loading" class="loading hidden"></span>
+            </button>
+            <div class="error-message" id="login-error"></div>
+            <div class="success-message" id="login-success"></div>
+        </form>
+
+        <!-- 注册表单 -->
+        <form id="register-form" class="hidden">
+            <div class="form-group">
+                <label for="register-username">用户名</label>
+                <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">邮箱地址</label>
+                <input type="email" id="register-email" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">密码</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <div class="form-group">
+                <label for="register-confirm-password">确认密码</label>
+                <input type="password" id="register-confirm-password" required>
+            </div>
+            <button type="submit" class="submit-btn" id="register-submit">
+                <span id="register-text">注册</span>
+                <span id="register-loading" class="loading hidden"></span>
+            </button>
+            <div class="error-message" id="register-error"></div>
+            <div class="success-message" id="register-success"></div>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin.includes('localhost') ? 'http://localhost:8001' : 'https://spot.gitagent.io';
+        let currentMode = 'login';
+
+        function switchTab(mode) {
+            currentMode = mode;
+            
+            // 更新标签状态
+            document.getElementById('login-tab').classList.toggle('active', mode === 'login');
+            document.getElementById('register-tab').classList.toggle('active', mode === 'register');
+            
+            // 切换表单显示
+            document.getElementById('login-form').classList.toggle('hidden', mode !== 'login');
+            document.getElementById('register-form').classList.toggle('hidden', mode !== 'register');
+            
+            // 清除错误信息
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.querySelectorAll('.error-message, .success-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+        }
+
+        function showError(mode, message) {
+            const errorEl = document.getElementById(`${mode}-error`);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        function showSuccess(mode, message) {
+            const successEl = document.getElementById(`${mode}-success`);
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+        }
+
+        function setLoading(mode, loading) {
+            const textEl = document.getElementById(`${mode}-text`);
+            const loadingEl = document.getElementById(`${mode}-loading`);
+            const submitBtn = document.getElementById(`${mode}-submit`);
+            
+            if (loading) {
+                textEl.style.display = 'none';
+                loadingEl.classList.remove('hidden');
+                submitBtn.disabled = true;
+            } else {
+                textEl.style.display = 'inline';
+                loadingEl.classList.add('hidden');
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 登录处理
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            setLoading('login', true);
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 保存token到localStorage
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_id', data.user_id);
+                    
+                    showSuccess('login', '登录成功！');
+                    
+                    // 通知父窗口登录成功
+                    if (window.opener) {
+                        window.opener.postMessage({ type: 'login-success', data }, '*');
+                    }
+                    
+                    // 延迟关闭窗口
+                    setTimeout(() => {
+                        window.close();
+                    }, 1000);
+                } else {
+                    showError('login', data.detail || '登录失败，请重试');
+                }
+            } catch (error) {
+                showError('login', '网络错误，请检查连接');
+            } finally {
+                setLoading('login', false);
+            }
+        });
+
+        // 注册处理
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            setLoading('register', true);
+
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (password !== confirmPassword) {
+                showError('register', '两次输入的密码不一致');
+                setLoading('register', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                        confirm_password: confirmPassword,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('register', '注册成功！请登录');
+                    // 自动切换到登录标签
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('login-email').value = email;
+                    }, 1500);
+                } else {
+                    showError('register', data.detail || '注册失败，请重试');
+                }
+            } catch (error) {
+                showError('register', '网络错误，请检查连接');
+            } finally {
+                setLoading('register', false);
+            }
+        });
+
+        // 检查URL参数，自动切换到对应标签
+        const urlParams = new URLSearchParams(window.location.search);
+        const authMode = urlParams.get('auth');
+        if (authMode === 'register') {
+            switchTab('register');
+        }
+    </script>
+</body>
+</html>

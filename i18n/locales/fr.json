@@ -1,0 +1,188 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Sauvegarder",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "search": "Rechercher",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "close": "Fermer"
+  },
+  "header": {
+    "brand": "Orient Director",
+    "tagline": "Exploration de Voyage avec IA",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "language": "Langue"
+  },
+  "homepage": {
+    "title": "Orient Director",
+    "subtitle": "Exploration de Voyage avec IA, Découvrez la Beauté du Monde",
+    "description": "Utilisez la technologie IA pour explorer les attractions du monde entier et vivez une planification de voyage immersive",
+    "getStarted": "Commencer à Explorer",
+    "features": {
+      "title": "Caractéristiques",
+      "aiExploration": {
+        "title": "Exploration Intelligente avec IA",
+        "description": "Recommandations intelligentes d'attractions et planification d'itinéraires basées sur l'IA"
+      },
+      "streetView": {
+        "title": "Expérience Street View",
+        "description": "Aperçu Street View 360° pour une expérience immersive de destination"
+      },
+      "photoGeneration": {
+        "title": "Génération de Photos avec IA",
+        "description": "Générez des photos personnalisées avec des attractions célèbres"
+      },
+      "multiLanguage": {
+        "title": "Support Multi-langues",
+        "description": "Support pour 16 langues, expérience conviviale dans le monde entier"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Se Connecter",
+    "registerTitle": "Créer un Compte",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "registerNow": "S'inscrire Maintenant",
+    "loginNow": "Se Connecter Maintenant",
+    "emailPlaceholder": "Adresse Email",
+    "passwordPlaceholder": "Mot de Passe",
+    "confirmPasswordPlaceholder": "Confirmer le Mot de Passe",
+    "usernamePlaceholder": "Nom d'Utilisateur",
+    "login": "Se Connecter",
+    "register": "S'inscrire",
+    "welcomeBack": "Bon Retour",
+    "joinUs": "Rejoignez-nous",
+    "forgotPassword": "Mot de Passe Oublié ?",
+    "backToHome": "Retour à l'Accueil",
+    "loginSuccess": "Connexion réussie !",
+    "registerSuccess": "Inscription réussie !",
+    "registerDescription": "Veuillez remplir vos informations pour créer un compte"
+  },
+  "exploration": {
+    "title": "Explorer les Attractions",
+    "currentLocation": "Emplacement Actuel",
+    "nearbyAttractions": "Attractions à Proximité",
+    "distance": "Distance",
+    "exploreHere": "Explorer Ici",
+    "generatePhoto": "Générer une Photo",
+    "viewStreetView": "Voir Street View",
+    "doroPhoto": "Photo Doro",
+    "noAttractionsFound": "Aucune information de localisation pertinente trouvée",
+    "searching": "Recherche...",
+    "loading": "Chargement...",
+    "noInfo": "Aucune information",
+    "modernMode": "Mode Moderne",
+    "ancientMode": "Mode Ancien",
+    "futureMode": "Mode Futur"
+  },
+  "languageSelector": {
+    "title": "Choisir la Langue et la Région",
+    "currentLanguage": "Langue Actuelle"
+  },
+  "profile": {
+    "title": "Profil",
+    "username": "Nom d'Utilisateur",
+    "email": "Adresse Email",
+    "joinDate": "Date d'Inscription",
+    "preferences": "Préférences",
+    "language": "Préférence de Langue",
+    "theme": "Thème",
+    "notifications": "Paramètres de Notification",
+    "save": "Sauvegarder les Paramètres"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "general": "Paramètres Généraux",
+    "language": "Paramètres de Langue",
+    "theme": "Paramètres de Thème",
+    "notifications": "Paramètres de Notification",
+    "privacy": "Paramètres de Confidentialité",
+    "account": "Paramètres de Compte",
+    "about": "À Propos",
+    "version": "Version",
+    "feedback": "Commentaires",
+    "help": "Aide",
+    "support": "Support"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "explore": "Explorer",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "help": "Aide",
+    "about": "À Propos"
+  },
+  "modals": {
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "save": "Sauvegarder",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "errors": {
+    "networkError": "Erreur de connexion réseau",
+    "serverError": "Erreur du serveur",
+    "notFound": "Non trouvé",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Interdit",
+    "validationError": "Erreur de validation",
+    "unknownError": "Erreur inconnue"
+  },
+  "placeholders": {
+    "searchCity": "Rechercher une ville...",
+    "searchAttraction": "Rechercher une attraction...",
+    "enterEmail": "Entrez l'adresse email",
+    "enterPassword": "Entrez le mot de passe",
+    "enterUsername": "Entrez le nom d'utilisateur",
+    "selectLanguage": "Sélectionner la langue",
+    "selectTheme": "Sélectionner le thème"
+  },
+  "status": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "connecting": "Connexion...",
+    "connected": "Connecté",
+    "disconnected": "Déconnecté",
+    "loading": "Chargement...",
+    "processing": "Traitement...",
+    "completed": "Terminé",
+    "failed": "Échoué"
+  },
+  "time": {
+    "now": "Maintenant",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "tomorrow": "Demain",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois",
+    "thisYear": "Cette année",
+    "ago": "il y a",
+    "in": "dans"
+  },
+  "units": {
+    "kilometer": "kilomètre",
+    "meter": "mètre",
+    "mile": "mille",
+    "hour": "heure",
+    "minute": "minute",
+    "second": "seconde",
+    "day": "jour",
+    "week": "semaine",
+    "month": "mois",
+    "year": "année"
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "edit": "編集",
+    "delete": "削除",
+    "search": "検索",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "submit": "送信",
+    "close": "閉じる"
+  },
+  "header": {
+    "brand": "オリエントディレクター",
+    "tagline": "AI搭載旅行探索",
+    "login": "ログイン",
+    "register": "新規登録",
+    "profile": "プロフィール",
+    "logout": "ログアウト",
+    "language": "言語"
+  },
+  "homepage": {
+    "title": "オリエントディレクター",
+    "subtitle": "AI搭載旅行探索、世界の美しさを発見",
+    "description": "AI技術を使用して世界中の観光地を探索し、没入型の旅行計画を体験",
+    "getStarted": "探索を開始",
+    "features": {
+      "title": "機能",
+      "aiExploration": {
+        "title": "AIスマート探索",
+        "description": "AIベースのスマート観光地推薦とルート計画"
+      },
+      "streetView": {
+        "title": "ストリートビュー体験",
+        "description": "360度ストリートビュープレビューで没入型の目的地体験"
+      },
+      "photoGeneration": {
+        "title": "AI写真生成",
+        "description": "有名な観光地との個人的な写真を生成"
+      },
+      "multiLanguage": {
+        "title": "多言語サポート",
+        "description": "16言語をサポート、世界中でユーザーフレンドリーな体験"
+      }
+    },
+    "howItWorks": {
+      "title": "使い方",
+      "step1": {
+        "title": "目的地を選択",
+        "description": "探索したい都市や観光地を選択"
+      },
+      "step2": {
+        "title": "AIスマート推薦",
+        "description": "AIが近くの人気観光地を推薦"
+      },
+      "step3": {
+        "title": "没入型体験",
+        "description": "ストリートビューを表示、写真を生成、目的地を深く体験"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "ログイン",
+    "registerTitle": "アカウント作成",
+    "noAccount": "アカウントをお持ちでない方は",
+    "hasAccount": "既にアカウントをお持ちの方は",
+    "registerNow": "今すぐ登録",
+    "loginNow": "今すぐログイン",
+    "emailPlaceholder": "メールアドレス",
+    "passwordPlaceholder": "パスワード",
+    "confirmPasswordPlaceholder": "パスワード確認",
+    "usernamePlaceholder": "ユーザー名",
+    "login": "ログイン",
+    "register": "新規登録",
+    "welcomeBack": "おかえりなさい",
+    "joinUs": "参加する",
+    "forgotPassword": "パスワードを忘れましたか？",
+    "backToHome": "ホームに戻る",
+    "loginSuccess": "ログイン成功！",
+    "registerSuccess": "登録成功！",
+    "registerDescription": "アカウントを作成するために情報を入力してください",
+    "validation": {
+      "emailRequired": "メールアドレスを入力してください",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "passwordRequired": "パスワードを入力してください",
+      "passwordConfirmRequired": "パスワードを確認してください",
+      "passwordTooShort": "パスワードは6文字以上である必要があります",
+      "usernameRequired": "ユーザー名を入力してください",
+      "usernameMinLength": "ユーザー名は3文字以上である必要があります"
+    },
+    "errors": {
+      "loginFailed": "ログインに失敗しました、再試行してください",
+      "invalidCredentials": "メールまたはパスワードが無効です、確認して再試行してください",
+      "registerFailed": "登録に失敗しました",
+      "passwordMismatch": "パスワードが一致しません",
+      "emailAlreadyRegistered": "このメールは既に登録されています、直接ログインしてください"
+    }
+  },
+  "exploration": {
+    "title": "観光地を探索",
+    "currentLocation": "現在地",
+    "nearbyAttractions": "近くの観光地",
+    "distance": "距離",
+    "exploreHere": "ここを探索",
+    "generatePhoto": "写真を生成",
+    "viewStreetView": "ストリートビューを見る",
+    "doroPhoto": "Doro写真",
+    "noAttractionsFound": "関連する場所情報が見つかりません",
+    "searching": "検索中...",
+    "loading": "読み込み中...",
+    "noInfo": "情報なし",
+    "modernMode": "モダンモード",
+    "ancientMode": "古代モード",
+    "futureMode": "未来モード"
+  },
+  "languageSelector": {
+    "title": "言語と地域を選択",
+    "currentLanguage": "現在の言語"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "username": "ユーザー名",
+    "email": "メールアドレス",
+    "joinDate": "参加日",
+    "preferences": "設定",
+    "language": "言語設定",
+    "theme": "テーマ",
+    "notifications": "通知設定",
+    "save": "設定を保存"
+  },
+  "settings": {
+    "title": "設定",
+    "general": "一般設定",
+    "language": "言語設定",
+    "theme": "テーマ設定",
+    "notifications": "通知設定",
+    "privacy": "プライバシー設定",
+    "account": "アカウント設定",
+    "about": "について",
+    "version": "バージョン",
+    "feedback": "フィードバック",
+    "help": "ヘルプ",
+    "support": "サポート"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "explore": "探索",
+    "profile": "プロフィール",
+    "settings": "設定",
+    "help": "ヘルプ",
+    "about": "について"
+  },
+  "modals": {
+    "close": "閉じる",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "errors": {
+    "networkError": "ネットワーク接続エラー",
+    "serverError": "サーバーエラー",
+    "notFound": "見つかりません",
+    "unauthorized": "認証されていません",
+    "forbidden": "アクセス禁止",
+    "validationError": "検証エラー",
+    "unknownError": "不明なエラー"
+  },
+  "placeholders": {
+    "searchCity": "都市を検索...",
+    "searchAttraction": "観光地を検索...",
+    "enterEmail": "メールアドレスを入力",
+    "enterPassword": "パスワードを入力",
+    "enterUsername": "ユーザー名を入力",
+    "selectLanguage": "言語を選択",
+    "selectTheme": "テーマを選択"
+  },
+  "status": {
+    "online": "オンライン",
+    "offline": "オフライン",
+    "connecting": "接続中...",
+    "connected": "接続済み",
+    "disconnected": "切断済み",
+    "loading": "読み込み中...",
+    "processing": "処理中...",
+    "completed": "完了",
+    "failed": "失敗"
+  },
+  "time": {
+    "now": "今",
+    "today": "今日",
+    "yesterday": "昨日",
+    "tomorrow": "明日",
+    "thisWeek": "今週",
+    "thisMonth": "今月",
+    "thisYear": "今年",
+    "ago": "前",
+    "in": "後"
+  },
+  "units": {
+    "kilometer": "キロメートル",
+    "meter": "メートル",
+    "mile": "マイル",
+    "hour": "時間",
+    "minute": "分",
+    "second": "秒",
+    "day": "日",
+    "week": "週",
+    "month": "月",
+    "year": "年"
+  }
+}

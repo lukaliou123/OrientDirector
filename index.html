@@ -3,16 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>方向探索派对智能工具</title>
+    <title>spot.gitagent.io - Discover your next spot!</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles_doro.css">
+    <style>
+        /* 指南针Logo样式 */
+        .compass-logo {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            position: relative;
+            margin-right: 12px;
+            vertical-align: middle;
+            background: white;
+        }
+        
+        .compass-logo::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 12px solid #1976d2;
+            transform: translate(-50%, -50%);
+        }
+        
+        .compass-logo::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 12px solid #d32f2f;
+            transform: translate(-50%, -50%);
+        }
+        
+        .compass-logo .north {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .compass-logo .east {
+            position: absolute;
+            right: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .compass-logo .south {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .compass-logo .west {
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .app-title-text {
+            vertical-align: middle;
+        }
+    </style>
+    
+    <!-- 关键函数定义 - 确保在HTML解析前就可用 -->
+    <script>
+        // 全局函数定义 - 立即可用
+        function toggleLanguageDropdown() {
+            console.log('toggleLanguageDropdown 被调用');
+            const dropdown = document.getElementById('language-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+                console.log('语言下拉菜单切换成功');
+            } else {
+                console.error('找不到 language-dropdown 元素');
+            }
+        }
+
+        function toggleUserMenu() {
+            console.log('toggleUserMenu 被调用');
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+                console.log('用户菜单切换成功');
+            } else {
+                console.error('找不到 user-dropdown 元素');
+            }
+        }
+
+        function toggleSettings() {
+            console.log('toggleSettings 被调用');
+            const panel = document.getElementById('settingsPanel');
+            if (panel) {
+                panel.classList.toggle('active');
+                console.log('设置面板切换成功');
+            } else {
+                console.error('找不到 settingsPanel 元素');
+            }
+        }
+
+        // 检查登录状态的函数
+        function checkLoginStatus() {
+            const token = localStorage.getItem('access_token');
+            return !!token;
+        }
+
+        // 需要登录的功能检查
+        function requireLogin(callback, ...args) {
+            if (checkLoginStatus()) {
+                // 已登录，执行回调函数
+                callback.apply(this, args);
+            } else {
+                // 未登录，打开新窗口进行登录
+                const loginUrl = window.location.origin + '/login.html';
+                const loginWindow = window.open(loginUrl, 'login', 'width=500,height=700,scrollbars=yes,resizable=yes,centerscreen=yes');
+                
+                // 监听来自登录窗口的消息
+                const messageHandler = (event) => {
+                    if (event.origin !== window.location.origin) return;
+                    
+                    if (event.data.type === 'login-success') {
+                        console.log('登录成功，执行原始操作');
+                        window.removeEventListener('message', messageHandler);
+                        
+                        // 更新用户界面
+                        checkAuthStatus();
+                        
+                        // 执行原始操作
+                        setTimeout(() => {
+                            callback.apply(this, args);
+                        }, 500);
+                    }
+                };
+                
+                window.addEventListener('message', messageHandler);
+                
+                // 监听窗口关闭事件
+                const checkClosed = setInterval(() => {
+                    if (loginWindow.closed) {
+                        clearInterval(checkClosed);
+                        window.removeEventListener('message', messageHandler);
+                        
+                        // 检查是否登录成功（备用检查）
+                        if (checkLoginStatus()) {
+                            console.log('检测到登录状态，执行原始操作');
+                            checkAuthStatus();
+                            callback.apply(this, args);
+                        }
+                    }
+                }, 1000);
+                
+                console.log('用户未登录，已打开登录窗口');
+            }
+        }
+        
+        console.log('✅ 关键函数已在头部定义');
+    </script>
 </head>
 <body>
     <div class="app-container">
         <!-- 头部导航 -->
         <header class="header">
-            <h1>🧭 方向探索派对</h1>
-            <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+            <div class="header-left">
+                <h1 id="app-title">
+                    <span class="compass-logo"></span>
+                    <span class="app-title-text">spot.gitagent.io</span>
+                </h1>
+                <span id="app-subtitle" class="subtitle">Discover your next spot!</span>
+            </div>
+            <div class="header-right">
+                <!-- 语言选择器 -->
+                <div class="language-selector">
+                    <button class="language-button" onclick="toggleLanguageDropdown()">
+                        <span id="current-flag">🇨🇳</span>
+                        <span id="current-lang">中文</span>
+                    </button>
+                    <div class="language-dropdown hidden" id="language-dropdown">
+                        <!-- 语言选项将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 用户菜单 -->
+                <div class="user-menu" id="user-menu">
+                    <button class="user-button" onclick="toggleUserMenu()">
+                        <span id="user-avatar">👤</span>
+                        <span id="user-name">游客</span>
+                    </button>
+                    <div class="user-dropdown hidden" id="user-dropdown">
+                        <div class="user-info">
+                            <div id="user-email">未登录</div>
+                        </div>
+                        <div class="user-actions">
+                            <button onclick="showAuthModal('login')" id="login-btn">登录</button>
+                            <button onclick="showAuthModal('register')" id="register-btn">注册</button>
+                            <button onclick="logout()" id="logout-btn" class="hidden">退出登录</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+            </div>
         </header>
 
         <!-- 设置面板 -->
@@ -41,18 +258,18 @@
 
             <!-- 城市漫游功能 -->
             <div class="setting-group roaming-section">
-                <label class="roaming-title">🌍 城市漫游:</label>
+                <label class="roaming-title" id="cityRoamingTitle">🌍 城市漫游:</label>
                 
                 <!-- 城市选择器 -->
                 <div class="city-selector">
                     <div class="input-row">
-                        <label>选择城市:</label>
+                        <label id="selectCityLabel">选择城市:</label>
                         <select id="citySelector" class="city-select" onchange="onCitySelected()">
-                            <option value="">-- 请选择城市 --</option>
-                            <optgroup label="🌍 全球知名城市">
+                            <option value="" id="pleaseSelectCityOption">-- 请选择城市 --</option>
+                            <optgroup label="🌍 全球知名城市" id="globalCitiesGroup">
                                 <!-- 全球城市选项将通过JavaScript动态加载 -->
                             </optgroup>
-                            <optgroup label="🇨🇳 中国知名城市">
+                            <optgroup label="🇨🇳 中国知名城市" id="chinaCitiesGroup">
                                 <!-- 中国城市选项将通过JavaScript动态加载 -->
                             </optgroup>
                         </select>
@@ -60,7 +277,7 @@
                     
                     <!-- 城市搜索 -->
                     <div class="input-row">
-                        <label>搜索城市:</label>
+                        <label id="searchCityLabel">搜索城市:</label>
                         <input type="text" id="citySearch" placeholder="输入城市名称搜索..." class="roaming-input" 
                                oninput="searchCities()" onkeypress="handleSearchEnter(event)">
                     </div>
@@ -74,8 +291,8 @@
                             <h4 id="selectedCityName"></h4>
                             <p id="selectedCityDetails"></p>
                             <div class="city-actions">
-                                <button class="action-btn" onclick="showCityAttractions()">🏛️ 查看景点</button>
-                                <button class="action-btn primary" onclick="roamToRandomAttraction()">🎲 随机漫游</button>
+                                <button class="action-btn" onclick="showCityAttractions()" id="viewAttractionsBtn">🏛️ <span id="viewAttractionsText">查看景点</span></button>
+                                <button class="action-btn primary" onclick="roamToRandomAttraction()" id="randomRoamingBtn">🎲 <span id="randomRoamingText">随机漫游</span></button>
                             </div>
                         </div>
                     </div>
@@ -92,23 +309,23 @@
         <div class="status-section">
             <div class="location-info">
                 <div class="current-location">
-                    <span class="label">当前位置:</span>
+                    <span class="label" id="currentLocationLabel">当前位置:</span>
                     <span id="currentLocation">获取中...</span>
                 </div>
                 <div class="coordinates-info">
-                    <span class="label">经纬度:</span>
+                    <span class="label" id="coordinatesLabel">经纬度:</span>
                     <span id="coordinates">--°, --°</span>
                 </div>
                 <div class="accuracy-info">
-                    <span class="label">精度:</span>
+                    <span class="label" id="accuracyLabel">精度:</span>
                     <span id="accuracy">--m</span>
                 </div>
                 <div class="compass-info">
-                    <span class="label">朝向:</span>
+                    <span class="label" id="compassDirectionLabel">朝向:</span>
                     <span id="compassDirection">--°</span>
                 </div>
                 <div class="direction-text">
-                    <span class="label">方向:</span>
+                    <span class="label" id="directionTextLabel">方向:</span>
                     <span id="directionText">--</span>
                 </div>
             </div>
@@ -136,19 +353,19 @@
         <!-- 控制按钮 -->
         <div class="controls">
             <button class="explore-btn" id="exploreBtn" onclick="startExploration()">
-                🚀 开始探索
+                🚀 <span id="startExplorationText">开始探索</span>
             </button>
             <button class="refresh-btn" onclick="refreshLocation()">
-                📍 刷新位置
+                📍 <span id="refreshLocationText">刷新位置</span>
             </button>
             <button class="end-journey-btn" id="endJourneyBtn" onclick="endJourney()" style="display: none;">
-                🏠 结束旅程
+                🏠 <span id="endJourneyText">结束旅程</span>
             </button>
         </div>
 
         <!-- 历史访问场景 -->
         <div class="journey-history-section" id="journeyHistorySection" style="display: none;">
-            <h3>🎒 已访问的地点</h3>
+            <h3>🎒 <span id="visitedPlacesText">已访问的地点</span></h3>
             <div class="history-places-container" id="historyPlacesContainer">
                 <!-- 历史访问的地点卡片将在这里显示 -->
             </div>
@@ -168,8 +385,8 @@
         <!-- 日志显示区 -->
         <div class="log-section">
             <div class="log-header">
-                <h3>系统日志</h3>
-                <button class="clear-log-btn" onclick="clearLogs()">清空日志</button>
+                <h3 id="systemLogText">系统日志</h3>
+                <button class="clear-log-btn" onclick="clearLogs()" id="clearLogsBtn">清空日志</button>
             </div>
             <div class="log-container" id="logContainer">
                 <!-- 日志信息将在这里显示 -->
@@ -461,7 +678,7 @@
         // API基础URL配置 - 支持环境变量控制
         function getAPIBaseURL() {
             // 检查是否在生产环境（通过域名访问）
-            const isProduction = window.location.hostname === 'doro.gitagent.io' || 
+            const isProduction = window.location.hostname === 'spot.gitagent.io' ||
                                  window.location.hostname.includes('gitagent.io');
             
             // 检查localStorage中的配置（优先级最高）
@@ -477,7 +694,7 @@
                 return 'http://localhost:8001';
             } else if (localStorageConfig === 'true' || urlHasUseDomain || isProduction) {
                 // 生产环境或明确设置使用域名
-                return 'https://doro.gitagent.io';
+                return 'https://spot.gitagent.io';
             } else if (urlHasUseLocal) {
                 // URL参数明确指定使用本地
                 return 'http://localhost:8001';
@@ -488,6 +705,7 @@
         }
         
         const API_BASE_URL = getAPIBaseURL();
+        window.API_BASE_URL = API_BASE_URL; // 设置为全局变量，供iframe使用
         console.log('🔧 API_BASE_URL配置:', API_BASE_URL);
         
         // 应用配置 - API Key配置在环境变量中
@@ -590,6 +808,905 @@
         });
     </script>
 
+    <script src="i18n/index.js"></script>
     <script src="app.js"></script>
+    
+    <!-- 认证模态框 -->
+    <div id="auth-modal" class="auth-modal hidden">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2 id="modal-title">用户认证</h2>
+                <button class="close-btn" onclick="closeAuthModal()">×</button>
+            </div>
+            <div class="auth-modal-body">
+                <iframe src="auth-modal.html" width="100%" height="500" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 多语言和认证相关功能
+        // currentLanguage 在 app.js 中已声明
+        let currentUser = null;
+        
+        // 翻译数据
+        const translations = {
+            zh: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "用户",
+                guest: "游客",
+                login: "登录",
+                register: "注册",
+                logout: "退出登录",
+                notLoggedIn: "未登录",
+                currentLocation: "当前位置",
+                nearbyAttractions: "附近景点",
+                exploreHere: "漫游到这里",
+                generatePhoto: "生成合影",
+                viewStreetView: "查看街景",
+                doroPhoto: "Doro合影",
+                noAttractionsFound: "没有找到相关地点信息",
+                searching: "搜索中...",
+                loading: "加载中...",
+                distance: "距离",
+                settings: "设置",
+                targetDistance: "目标距离",
+                mode: "模式",
+                speed: "速度 (km/h)",
+                cityRoaming: "城市漫游",
+                selectCity: "选择城市",
+                modernMode: "现代模式",
+                ancientMode: "古代模式",
+                coordinates: "经纬度",
+                accuracy: "精度",
+                compassDirection: "朝向",
+                directionText: "方向",
+                startExploration: "开始探索",
+                refreshLocation: "刷新位置",
+                endJourney: "结束旅程",
+                visitedPlaces: "已访问的地点",
+                systemLog: "系统日志",
+                clearLogs: "清空日志",
+                viewAttractions: "查看景点",
+                randomRoaming: "随机漫游",
+                cityRoaming: "城市漫游",
+                selectCity: "选择城市",
+                searchCity: "搜索城市",
+                pleaseSelectCity: "-- 请选择城市 --",
+                enterCityName: "输入城市名称搜索...",
+                globalCities: "全球知名城市",
+                chinaCities: "中国知名城市",
+                loadingCityInfo: "正在加载城市信息...",
+                streetView: "街景视图",
+                resetView: "重置视角",
+                fullscreen: "全屏",
+                share: "分享",
+                loadingStreetView: "正在加载街景...",
+                streetViewUnavailable: "街景不可用",
+                retry: "重试",
+                location: "位置",
+                coordinates: "坐标",
+                shootingTime: "拍摄时间",
+                generateSelfie: "生成景点合影",
+                attractionName: "景点名称",
+                locationInfo: "位置信息",
+                yourPhoto: "您的照片",
+                clickToUpload: "点击上传您的照片",
+                supportFormats: "支持 JPG、PNG 格式",
+                stylePhoto: "范例风格图片（可选）",
+                clickToUploadStyle: "点击上传范例风格图片",
+                styleHint: "用于模仿服装或风格",
+                customPrompt: "自定义提示词（可选）",
+                customPromptPlaceholder: "输入额外要求，将追加到基础提示词后面。例如：按第二个橙色高子男生，换他的衣服和裤子服装，头像更换成当前主人的头像，只保留一个人",
+                generate: "生成合影",
+                cancel: "取消",
+                generatingSelfie: "正在生成您的景点合影...",
+                generatingHint: "这可能需要 10-30 秒，请耐心等待 ⏰",
+                clickImageToView: "点击图片查看大图",
+                downloadPhoto: "下载合影",
+                regenerateWithStyle: "当前风格重新生成",
+                sharePhoto: "分享合影",
+                generationFailed: "生成失败",
+                generationError: "生成合影时出现错误，请重试",
+                doroSelfie: "Doro与我合影",
+                doroSubtitle: "创建您与虚拟伙伴Doro的精彩合影",
+                selectDoro: "选择Doro形象",
+                presetDoro: "预设Doro",
+                customDoro: "自定义Doro",
+                uploadCustomDoro: "上传自定义Doro形象",
+                styleReference: "服装风格参考（可选）",
+                clickToUploadStyle: "点击上传服装风格参考",
+                styleReferenceHint: "可选：用于统一服装风格",
+                customPromptDoro: "自定义提示词（可选）",
+                generateDoroSelfie: "生成Doro合影",
+                generatingDoroSelfie: "正在生成Doro合影...",
+                generatingDoroHint: "AI正在将您、Doro和景点完美融合 🎨",
+                generatingDoroTime: "预计需要 15-30 秒 ⏰",
+                doroError: "AI抛锚了",
+                doroErrorMessage: "这点小故障，你看肿么办？"
+            },
+            en: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "User",
+                guest: "Guest",
+                login: "Login",
+                register: "Register",
+                logout: "Logout",
+                notLoggedIn: "Not Logged In",
+                currentLocation: "Current Location",
+                nearbyAttractions: "Nearby Attractions",
+                exploreHere: "Roam to Here",
+                generatePhoto: "Generate Photo",
+                viewStreetView: "View Street View",
+                doroPhoto: "Doro Photo",
+                noAttractionsFound: "No relevant location information found",
+                searching: "Searching...",
+                loading: "Loading...",
+                distance: "Distance",
+                settings: "Settings",
+                targetDistance: "Target Distance",
+                mode: "Mode",
+                speed: "Speed (km/h)",
+                cityRoaming: "City Roaming",
+                selectCity: "Select City",
+                modernMode: "Modern Mode",
+                ancientMode: "Ancient Mode",
+                coordinates: "Coordinates",
+                accuracy: "Accuracy",
+                compassDirection: "Heading",
+                directionText: "Direction",
+                startExploration: "Start Exploration",
+                refreshLocation: "Refresh Location",
+                endJourney: "End Journey",
+                visitedPlaces: "Visited Places",
+                systemLog: "System Log",
+                clearLogs: "Clear Logs",
+                viewAttractions: "View Attractions",
+                randomRoaming: "Random Roaming",
+                cityRoaming: "City Roaming",
+                selectCity: "Select City",
+                searchCity: "Search City",
+                pleaseSelectCity: "-- Please select city --",
+                enterCityName: "Enter city name to search...",
+                globalCities: "Global Famous Cities",
+                chinaCities: "China Famous Cities",
+                loadingCityInfo: "Loading city information...",
+                streetView: "Street View",
+                resetView: "Reset View",
+                fullscreen: "Fullscreen",
+                share: "Share",
+                loadingStreetView: "Loading Street View...",
+                streetViewUnavailable: "Street View Unavailable",
+                retry: "Retry",
+                location: "Location",
+                coordinates: "Coordinates",
+                shootingTime: "Shooting Time",
+                generateSelfie: "Generate Selfie",
+                attractionName: "Attraction Name",
+                locationInfo: "Location Info",
+                yourPhoto: "Your Photo",
+                clickToUpload: "Click to upload your photo",
+                supportFormats: "Supports JPG, PNG formats",
+                stylePhoto: "Style Reference Photo (Optional)",
+                clickToUploadStyle: "Click to upload style reference",
+                styleHint: "For imitating clothing or style",
+                customPrompt: "Custom Prompt (Optional)",
+                customPromptPlaceholder: "Enter additional requirements to append to the base prompt. For example: Follow the second orange tall boy, change his clothes and pants, replace the head with the current owner's head, keep only one person",
+                generate: "Generate Photo",
+                cancel: "Cancel",
+                generatingSelfie: "Generating your attraction selfie...",
+                generatingHint: "This may take 10-30 seconds, please be patient ⏰",
+                clickImageToView: "Click image to view full size",
+                downloadPhoto: "Download Photo",
+                regenerateWithStyle: "Regenerate with Current Style",
+                sharePhoto: "Share Photo",
+                generationFailed: "Generation Failed",
+                generationError: "Error generating selfie, please try again",
+                doroSelfie: "Doro & Me Selfie",
+                doroSubtitle: "Create amazing selfies with your virtual companion Doro",
+                selectDoro: "Select Doro Character",
+                presetDoro: "Preset Doro",
+                customDoro: "Custom Doro",
+                uploadCustomDoro: "Upload Custom Doro Character",
+                styleReference: "Clothing Style Reference (Optional)",
+                clickToUploadStyle: "Click to upload clothing style reference",
+                styleReferenceHint: "Optional: for unified clothing style",
+                customPromptDoro: "Custom Prompt (Optional)",
+                generateDoroSelfie: "Generate Doro Selfie",
+                generatingDoroSelfie: "Generating Doro selfie...",
+                generatingDoroHint: "AI is perfectly blending you, Doro and the attraction 🎨",
+                generatingDoroTime: "Estimated 15-30 seconds ⏰",
+                doroError: "AI Broke Down",
+                doroErrorMessage: "This little glitch, what do you think we should do?"
+            },
+            es: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Usuario",
+                guest: "Invitado",
+                login: "Iniciar Sesión",
+                register: "Registrarse",
+                logout: "Cerrar Sesión",
+                notLoggedIn: "No Conectado",
+                currentLocation: "Ubicación Actual",
+                nearbyAttractions: "Atracciones Cercanas",
+                exploreHere: "Explorar Aquí",
+                generatePhoto: "Generar Foto",
+                viewStreetView: "Ver Vista de Calle",
+                doroPhoto: "Foto Doro",
+                noAttractionsFound: "No se encontró información de ubicación relevante",
+                searching: "Buscando...",
+                loading: "Cargando...",
+                distance: "Distancia",
+                settings: "Configuración",
+                targetDistance: "Distancia Objetivo",
+                mode: "Modo",
+                speed: "Velocidad (km/h)",
+                cityRoaming: "Paseo por la Ciudad",
+                selectCity: "Seleccionar Ciudad",
+                modernMode: "Modo Moderno",
+                ancientMode: "Modo Antiguo"
+            },
+            fr: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Utilisateur",
+                guest: "Invité",
+                login: "Connexion",
+                register: "Inscription",
+                logout: "Déconnexion",
+                notLoggedIn: "Non Connecté",
+                currentLocation: "Localisation Actuelle",
+                nearbyAttractions: "Attractions Proches",
+                exploreHere: "Explorer Ici",
+                generatePhoto: "Générer Photo",
+                viewStreetView: "Voir Vue de Rue",
+                doroPhoto: "Photo Doro",
+                noAttractionsFound: "Aucune information de localisation pertinente trouvée",
+                searching: "Recherche...",
+                loading: "Chargement...",
+                distance: "Distance",
+                settings: "Paramètres",
+                targetDistance: "Distance Cible",
+                mode: "Mode",
+                speed: "Vitesse (km/h)",
+                cityRoaming: "Promenade Urbaine",
+                selectCity: "Sélectionner Ville",
+                modernMode: "Mode Moderne",
+                ancientMode: "Mode Ancien"
+            },
+            de: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Benutzer",
+                guest: "Gast",
+                login: "Anmelden",
+                register: "Registrieren",
+                logout: "Abmelden",
+                notLoggedIn: "Nicht Angemeldet",
+                currentLocation: "Aktuelle Position",
+                nearbyAttractions: "Nahegelegene Sehenswürdigkeiten",
+                exploreHere: "Hier Erkunden",
+                generatePhoto: "Foto Generieren",
+                viewStreetView: "Straßenansicht Anzeigen",
+                doroPhoto: "Doro Foto",
+                noAttractionsFound: "Keine relevanten Standortinformationen gefunden",
+                searching: "Suche...",
+                loading: "Laden...",
+                distance: "Entfernung",
+                settings: "Einstellungen",
+                targetDistance: "Zieldistanz",
+                mode: "Modus",
+                speed: "Geschwindigkeit (km/h)",
+                cityRoaming: "Stadtbummel",
+                selectCity: "Stadt Auswählen",
+                modernMode: "Moderner Modus",
+                ancientMode: "Antiker Modus"
+            },
+            ja: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "ユーザー",
+                guest: "ゲスト",
+                login: "ログイン",
+                register: "新規登録",
+                logout: "ログアウト",
+                notLoggedIn: "未ログイン",
+                currentLocation: "現在地",
+                nearbyAttractions: "近くの観光地",
+                exploreHere: "ここを探索",
+                generatePhoto: "写真を生成",
+                viewStreetView: "ストリートビューを見る",
+                doroPhoto: "Doro写真",
+                noAttractionsFound: "関連する場所情報が見つかりません",
+                searching: "検索中...",
+                loading: "読み込み中...",
+                distance: "距離",
+                settings: "設定",
+                targetDistance: "目標距離",
+                mode: "モード",
+                speed: "速度 (km/h)",
+                cityRoaming: "街歩き",
+                selectCity: "都市を選択",
+                modernMode: "モダンモード",
+                ancientMode: "古代モード"
+            },
+            ko: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "사용자",
+                guest: "게스트",
+                login: "로그인",
+                register: "회원가입",
+                logout: "로그아웃",
+                notLoggedIn: "로그인 안됨",
+                currentLocation: "현재 위치",
+                nearbyAttractions: "주변 관광지",
+                exploreHere: "여기 탐험하기",
+                generatePhoto: "사진 생성",
+                viewStreetView: "스트리트뷰 보기",
+                doroPhoto: "Doro 사진",
+                noAttractionsFound: "관련 위치 정보를 찾을 수 없습니다",
+                searching: "검색 중...",
+                loading: "로딩 중...",
+                distance: "거리",
+                settings: "설정",
+                targetDistance: "목표 거리",
+                mode: "모드",
+                speed: "속도 (km/h)",
+                cityRoaming: "도시 산책",
+                selectCity: "도시 선택",
+                modernMode: "모던 모드",
+                ancientMode: "고대 모드"
+            },
+            it: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Utente",
+                guest: "Ospite",
+                login: "Accedi",
+                register: "Registrati",
+                logout: "Disconnetti",
+                notLoggedIn: "Non Connesso",
+                currentLocation: "Posizione Attuale",
+                nearbyAttractions: "Attrazioni Vicine",
+                exploreHere: "Esplora Qui",
+                generatePhoto: "Genera Foto",
+                viewStreetView: "Visualizza Street View",
+                doroPhoto: "Foto Doro",
+                noAttractionsFound: "Nessuna informazione di posizione rilevante trovata",
+                searching: "Ricerca...",
+                loading: "Caricamento...",
+                distance: "Distanza",
+                settings: "Impostazioni",
+                targetDistance: "Distanza Obiettivo",
+                mode: "Modalità",
+                speed: "Velocità (km/h)",
+                cityRoaming: "Passeggiata in Città",
+                selectCity: "Seleziona Città",
+                modernMode: "Modalità Moderna",
+                ancientMode: "Modalità Antica"
+            },
+            pt: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Usuário",
+                guest: "Convidado",
+                login: "Entrar",
+                register: "Registrar",
+                logout: "Sair",
+                notLoggedIn: "Não Conectado",
+                currentLocation: "Localização Atual",
+                nearbyAttractions: "Atrações Próximas",
+                exploreHere: "Explorar Aqui",
+                generatePhoto: "Gerar Foto",
+                viewStreetView: "Ver Vista de Rua",
+                doroPhoto: "Foto Doro",
+                noAttractionsFound: "Nenhuma informação de localização relevante encontrada",
+                searching: "Pesquisando...",
+                loading: "Carregando...",
+                distance: "Distância",
+                settings: "Configurações",
+                targetDistance: "Distância Alvo",
+                mode: "Modo",
+                speed: "Velocidade (km/h)",
+                cityRoaming: "Passeio pela Cidade",
+                selectCity: "Selecionar Cidade",
+                modernMode: "Modo Moderno",
+                ancientMode: "Modo Antigo"
+            },
+            ru: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Пользователь",
+                guest: "Гость",
+                login: "Войти",
+                register: "Регистрация",
+                logout: "Выйти",
+                notLoggedIn: "Не Войден",
+                currentLocation: "Текущее Местоположение",
+                nearbyAttractions: "Близлежащие Достопримечательности",
+                exploreHere: "Исследовать Здесь",
+                generatePhoto: "Создать Фото",
+                viewStreetView: "Посмотреть Панораму",
+                doroPhoto: "Фото Доро",
+                noAttractionsFound: "Не найдено релевантной информации о местоположении",
+                searching: "Поиск...",
+                loading: "Загрузка...",
+                distance: "Расстояние",
+                settings: "Настройки",
+                targetDistance: "Целевое Расстояние",
+                mode: "Режим",
+                speed: "Скорость (км/ч)",
+                cityRoaming: "Городская Прогулка",
+                selectCity: "Выбрать Город",
+                modernMode: "Современный Режим",
+                ancientMode: "Древний Режим"
+            },
+            ar: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "المستخدم",
+                guest: "ضيف",
+                login: "تسجيل الدخول",
+                register: "التسجيل",
+                logout: "تسجيل الخروج",
+                notLoggedIn: "غير مسجل الدخول",
+                currentLocation: "الموقع الحالي",
+                nearbyAttractions: "المعالم القريبة",
+                exploreHere: "استكشف هنا",
+                generatePhoto: "إنشاء صورة",
+                viewStreetView: "عرض الشارع",
+                doroPhoto: "صورة دورو",
+                noAttractionsFound: "لم يتم العثور على معلومات موقع ذات صلة",
+                searching: "جاري البحث...",
+                loading: "جاري التحميل...",
+                distance: "المسافة",
+                settings: "الإعدادات",
+                targetDistance: "المسافة المستهدفة",
+                mode: "الوضع",
+                speed: "السرعة (كم/ساعة)",
+                cityRoaming: "تجول في المدينة",
+                selectCity: "اختر المدينة",
+                modernMode: "الوضع الحديث",
+                ancientMode: "الوضع القديم"
+            },
+            hi: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "उपयोगकर्ता",
+                guest: "अतिथि",
+                login: "लॉग इन",
+                register: "रजिस्टर",
+                logout: "लॉग आउट",
+                notLoggedIn: "लॉग इन नहीं",
+                currentLocation: "वर्तमान स्थान",
+                nearbyAttractions: "पास के आकर्षण",
+                exploreHere: "यहाँ अन्वेषण करें",
+                generatePhoto: "फोटो बनाएं",
+                viewStreetView: "स्ट्रीट व्यू देखें",
+                doroPhoto: "डोरो फोटो",
+                noAttractionsFound: "संबंधित स्थान जानकारी नहीं मिली",
+                searching: "खोज रहे हैं...",
+                loading: "लोड हो रहा है...",
+                distance: "दूरी",
+                settings: "सेटिंग्स",
+                targetDistance: "लक्ष्य दूरी",
+                mode: "मोड",
+                speed: "गति (किमी/घंटा)",
+                cityRoaming: "शहर भ्रमण",
+                selectCity: "शहर चुनें",
+                modernMode: "आधुनिक मोड",
+                ancientMode: "प्राचीन मोड"
+            },
+            tr: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Kullanıcı",
+                guest: "Misafir",
+                login: "Giriş Yap",
+                register: "Kayıt Ol",
+                logout: "Çıkış Yap",
+                notLoggedIn: "Giriş Yapılmamış",
+                currentLocation: "Mevcut Konum",
+                nearbyAttractions: "Yakındaki Turistik Yerler",
+                exploreHere: "Burayı Keşfet",
+                generatePhoto: "Fotoğraf Oluştur",
+                viewStreetView: "Sokak Görünümünü Görüntüle",
+                doroPhoto: "Doro Fotoğrafı",
+                noAttractionsFound: "İlgili konum bilgisi bulunamadı",
+                searching: "Aranıyor...",
+                loading: "Yükleniyor...",
+                distance: "Mesafe",
+                settings: "Ayarlar",
+                targetDistance: "Hedef Mesafe",
+                mode: "Mod",
+                speed: "Hız (km/saat)",
+                cityRoaming: "Şehir Gezisi",
+                selectCity: "Şehir Seç",
+                modernMode: "Modern Mod",
+                ancientMode: "Antik Mod"
+            },
+            nl: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Gebruiker",
+                guest: "Gast",
+                login: "Inloggen",
+                register: "Registreren",
+                logout: "Uitloggen",
+                notLoggedIn: "Niet Ingelogd",
+                currentLocation: "Huidige Locatie",
+                nearbyAttractions: "Nabijgelegen Bezienswaardigheden",
+                exploreHere: "Verken Hier",
+                generatePhoto: "Foto Genereren",
+                viewStreetView: "Straatweergave Bekijken",
+                doroPhoto: "Doro Foto",
+                noAttractionsFound: "Geen relevante locatie-informatie gevonden",
+                searching: "Zoeken...",
+                loading: "Laden...",
+                distance: "Afstand",
+                settings: "Instellingen",
+                targetDistance: "Doelafstand",
+                mode: "Modus",
+                speed: "Snelheid (km/h)",
+                cityRoaming: "Stadswandeling",
+                selectCity: "Stad Selecteren",
+                modernMode: "Moderne Modus",
+                ancientMode: "Oude Modus"
+            },
+            he: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "משתמש",
+                guest: "אורח",
+                login: "התחבר",
+                register: "הירשם",
+                logout: "התנתק",
+                notLoggedIn: "לא מחובר",
+                currentLocation: "מיקום נוכחי",
+                nearbyAttractions: "אטרקציות קרובות",
+                exploreHere: "חקור כאן",
+                generatePhoto: "צור תמונה",
+                viewStreetView: "הצג תצוגת רחוב",
+                doroPhoto: "תמונת דורו",
+                noAttractionsFound: "לא נמצא מידע מיקום רלוונטי",
+                searching: "מחפש...",
+                loading: "טוען...",
+                distance: "מרחק",
+                settings: "הגדרות",
+                targetDistance: "מרחק יעד",
+                mode: "מצב",
+                speed: "מהירות (קמ/ש)",
+                cityRoaming: "טיול עירוני",
+                selectCity: "בחר עיר",
+                modernMode: "מצב מודרני",
+                ancientMode: "מצב עתיק"
+            },
+            bg: {
+                appTitle: "spot.gitagent.io",
+                appSubtitle: "Discover your next spot!",
+                user: "Потребител",
+                guest: "Гост",
+                login: "Вход",
+                register: "Регистрация",
+                logout: "Изход",
+                notLoggedIn: "Не е влязъл",
+                currentLocation: "Текущо местоположение",
+                nearbyAttractions: "Близки забележителности",
+                exploreHere: "Изследвай тук",
+                generatePhoto: "Генерирай снимка",
+                viewStreetView: "Виж уличен изглед",
+                doroPhoto: "Доро снимка",
+                noAttractionsFound: "Не е намерена релевантна информация за местоположение",
+                searching: "Търсене...",
+                loading: "Зареждане...",
+                distance: "Разстояние",
+                settings: "Настройки",
+                targetDistance: "Целево разстояние",
+                mode: "Режим",
+                speed: "Скорост (км/ч)",
+                cityRoaming: "Градска разходка",
+                selectCity: "Избери град",
+                modernMode: "Модерен режим",
+                ancientMode: "Древен режим"
+            }
+        };
+        
+        // 设置翻译
+        window.translations = translations;
+        
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLanguage();
+            checkAuthStatus();
+            setupAuthEventListeners();
+        });
+
+        function initializeLanguage() {
+            currentLanguage = i18n.getCurrentLanguage();
+            // 设置为全局变量，供iframe访问
+            window.currentLanguage = currentLanguage;
+            updateLanguageUI();
+            generateLanguageOptions();
+            updateLanguageButton();
+        }
+        
+        function updateLanguageUI() {
+            const t = translations[currentLanguage] || translations['zh'];
+            
+            // 更新页面元素
+            document.getElementById('app-title').textContent = t.appTitle;
+            document.getElementById('app-subtitle').textContent = t.appSubtitle;
+            document.getElementById('user-name').textContent = currentUser ? currentUser.username : t.guest;
+            document.getElementById('login-btn').textContent = t.login;
+            document.getElementById('register-btn').textContent = t.register;
+            document.getElementById('logout-btn').textContent = t.logout;
+            
+            // 更新其他页面元素
+            updatePageContent(t);
+        }
+        
+        function updatePageContent(t) {
+            // 更新设置面板
+            const labels = document.querySelectorAll('.setting-group label');
+            if (labels[0]) labels[0].textContent = t.targetDistance + ':';
+            if (labels[1]) labels[1].textContent = t.mode + ':';
+            if (labels[2]) labels[2].textContent = t.speed + ':';
+            
+            // 更新选项文本
+            const options = document.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === 'present') option.textContent = t.modernMode;
+                if (option.value === 'past') option.textContent = t.ancientMode;
+            });
+            
+            // 更新状态显示区标签
+            const currentLocationLabel = document.getElementById('currentLocationLabel');
+            const coordinatesLabel = document.getElementById('coordinatesLabel');
+            const accuracyLabel = document.getElementById('accuracyLabel');
+            const compassDirectionLabel = document.getElementById('compassDirectionLabel');
+            const directionTextLabel = document.getElementById('directionTextLabel');
+            
+            if (currentLocationLabel) currentLocationLabel.textContent = t.currentLocation + ':';
+            if (coordinatesLabel) coordinatesLabel.textContent = t.coordinates + ':';
+            if (accuracyLabel) accuracyLabel.textContent = t.accuracy + ':';
+            if (compassDirectionLabel) compassDirectionLabel.textContent = t.compassDirection + ':';
+            if (directionTextLabel) directionTextLabel.textContent = t.directionText + ':';
+            
+            // 更新控制按钮文本
+            const startExplorationText = document.getElementById('startExplorationText');
+            const refreshLocationText = document.getElementById('refreshLocationText');
+            const endJourneyText = document.getElementById('endJourneyText');
+            
+            if (startExplorationText) startExplorationText.textContent = t.startExploration;
+            if (refreshLocationText) refreshLocationText.textContent = t.refreshLocation;
+            if (endJourneyText) endJourneyText.textContent = t.endJourney;
+            
+            // 更新其他界面文本
+            const visitedPlacesText = document.getElementById('visitedPlacesText');
+            const systemLogText = document.getElementById('systemLogText');
+            const clearLogsBtn = document.getElementById('clearLogsBtn');
+            
+            if (visitedPlacesText) visitedPlacesText.textContent = t.visitedPlaces;
+            if (systemLogText) systemLogText.textContent = t.systemLog;
+            if (clearLogsBtn) clearLogsBtn.textContent = t.clearLogs;
+            
+            // 更新城市相关按钮
+            const viewAttractionsText = document.getElementById('viewAttractionsText');
+            const randomRoamingText = document.getElementById('randomRoamingText');
+            
+            if (viewAttractionsText) viewAttractionsText.textContent = t.viewAttractions;
+            if (randomRoamingText) randomRoamingText.textContent = t.randomRoaming;
+            
+            // 更新城市漫游相关元素
+            const cityRoamingTitle = document.getElementById('cityRoamingTitle');
+            const selectCityLabel = document.getElementById('selectCityLabel');
+            const searchCityLabel = document.getElementById('searchCityLabel');
+            const pleaseSelectCityOption = document.getElementById('pleaseSelectCityOption');
+            const globalCitiesGroup = document.getElementById('globalCitiesGroup');
+            const chinaCitiesGroup = document.getElementById('chinaCitiesGroup');
+            const citySearch = document.getElementById('citySearch');
+            const roamingStatusText = document.getElementById('roamingStatusText');
+            
+            if (cityRoamingTitle) cityRoamingTitle.textContent = '🌍 ' + t.cityRoaming + ':';
+            if (selectCityLabel) selectCityLabel.textContent = t.selectCity + ':';
+            if (searchCityLabel) searchCityLabel.textContent = t.searchCity + ':';
+            if (pleaseSelectCityOption) pleaseSelectCityOption.textContent = t.pleaseSelectCity;
+            if (globalCitiesGroup) globalCitiesGroup.label = '🌍 ' + t.globalCities;
+            if (chinaCitiesGroup) chinaCitiesGroup.label = '🇨🇳 ' + t.chinaCities;
+            if (citySearch) citySearch.placeholder = t.enterCityName;
+            if (roamingStatusText) roamingStatusText.textContent = t.loadingCityInfo;
+        }
+        
+        function generateLanguageOptions() {
+            const dropdown = document.getElementById('language-dropdown');
+            if (!dropdown) {
+                console.error('找不到 language-dropdown 元素');
+                return;
+            }
+            
+            const languages = i18n.getSupportedLanguages();
+            console.log('生成语言选项:', languages);
+            
+            dropdown.innerHTML = languages.map(lang => `
+                <div class="language-option ${lang.code === currentLanguage ? 'active' : ''}" 
+                     onclick="changeLanguage('${lang.code}')">
+                    <span class="language-flag">${lang.flag}</span>
+                    <span class="language-name">${lang.name}</span>
+                </div>
+            `).join('');
+            
+            console.log('语言选项生成完成，共', languages.length, '种语言');
+        }
+        
+        function changeLanguage(langCode) {
+            if (i18n.changeLanguage(langCode)) {
+                currentLanguage = langCode;
+                // 设置为全局变量，供iframe访问
+                window.currentLanguage = langCode;
+                updateLanguageUI();
+                generateLanguageOptions();
+                updateLanguageButton();
+                toggleLanguageDropdown();
+                
+                // 触发语言变化事件，通知iframe
+                window.dispatchEvent(new CustomEvent('languageChanged', { 
+                    detail: { language: langCode } 
+                }));
+            }
+        }
+        
+        function updateLanguageButton() {
+            const currentLang = i18n.getCurrentLanguage();
+            const langData = i18n.getSupportedLanguages().find(lang => lang.code === currentLang);
+            if (langData) {
+                const button = document.querySelector('.language-button');
+                if (button) {
+                    button.innerHTML = `${langData.flag} ${langData.name}`;
+                }
+            }
+        }
+        
+        
+        function checkAuthStatus() {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                // 验证token并获取用户信息
+                fetchUserInfo();
+            } else {
+                updateUserUI(null);
+            }
+        }
+        
+        async function fetchUserInfo() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    currentUser = user;
+                    updateUserUI(user);
+                } else {
+                    // Token无效，清除本地存储
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('user_id');
+                    updateUserUI(null);
+                }
+            } catch (error) {
+                console.error('获取用户信息失败:', error);
+                updateUserUI(null);
+            }
+        }
+        
+        function updateUserUI(user) {
+            const t = translations[currentLanguage] || translations['zh'];
+            
+            const userNameEl = document.getElementById('user-name');
+            const userEmailEl = document.getElementById('user-email');
+            const loginBtnEl = document.getElementById('login-btn');
+            const registerBtnEl = document.getElementById('register-btn');
+            const logoutBtnEl = document.getElementById('logout-btn');
+            
+            if (user) {
+                if (userNameEl) userNameEl.textContent = user.username;
+                if (userEmailEl) userEmailEl.textContent = user.email;
+                if (loginBtnEl) loginBtnEl.classList.add('hidden');
+                if (registerBtnEl) registerBtnEl.classList.add('hidden');
+                if (logoutBtnEl) logoutBtnEl.classList.remove('hidden');
+            } else {
+                if (userNameEl) userNameEl.textContent = t.guest || '游客';
+                if (userEmailEl) userEmailEl.textContent = t.notLoggedIn || '未登录';
+                if (loginBtnEl) loginBtnEl.classList.remove('hidden');
+                if (registerBtnEl) registerBtnEl.classList.remove('hidden');
+                if (logoutBtnEl) logoutBtnEl.classList.add('hidden');
+            }
+            
+            console.log('用户界面更新完成:', user ? '已登录' : '未登录');
+        }
+        
+        function showAuthModal(type) {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('hidden');
+            
+            // 隐藏用户菜单
+            const userDropdown = document.getElementById('user-dropdown');
+            if (userDropdown) {
+                userDropdown.classList.add('hidden');
+            }
+            
+            // 通知iframe切换标签页
+            const iframe = modal.querySelector('iframe');
+            iframe.onload = function() {
+                iframe.contentWindow.postMessage({ action: 'switchTab', tab: type }, '*');
+            };
+        }
+        
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('hidden');
+        }
+        
+        async function logout() {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('登出失败:', error);
+            } finally {
+                // 清除本地存储
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user_id');
+                currentUser = null;
+                updateUserUI(null);
+                toggleUserMenu();
+            }
+        }
+        
+        function setupAuthEventListeners() {
+            // 监听来自iframe的消息
+            window.addEventListener('message', function(event) {
+                if (event.data.action === 'authSuccess') {
+                    closeAuthModal();
+                    checkAuthStatus();
+                }
+                // 监听关闭认证模态框的消息
+                if (event.data.action === 'closeAuthModal') {
+                    closeAuthModal();
+                }
+            });
+            
+            // 点击外部关闭下拉菜单
+            document.addEventListener('click', function(e) {
+                const languageDropdown = document.getElementById('language-dropdown');
+                const languageButton = document.querySelector('.language-button');
+                const userDropdown = document.getElementById('user-dropdown');
+                const userButton = document.querySelector('.user-button');
+                
+                if (!languageDropdown.contains(e.target) && !languageButton.contains(e.target)) {
+                    languageDropdown.classList.add('hidden');
+                }
+                
+                if (!userDropdown.contains(e.target) && !userButton.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 # API配置
-API_BASE_URL = "https://doro.gitagent.io"
+API_BASE_URL = "https://spot.gitagent.io"
 # API_BASE_URL = "http://localhost:8001"  # 本地测试
 
 def test_video_generation():

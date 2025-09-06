@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "save": "Salva",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "search": "Cerca",
+    "back": "Indietro",
+    "next": "Avanti",
+    "previous": "Precedente",
+    "submit": "Invia",
+    "close": "Chiudi"
+  },
+  "header": {
+    "brand": "Direttore Orientamento",
+    "tagline": "Esplorazione Viaggi AI",
+    "login": "Accedi",
+    "register": "Registrati",
+    "profile": "Profilo",
+    "logout": "Disconnetti",
+    "language": "Lingua"
+  },
+  "homepage": {
+    "title": "Direttore Orientamento",
+    "subtitle": "Esplorazione Viaggi AI, Scopri la Bellezza del Mondo",
+    "description": "Usa la tecnologia AI per esplorare attrazioni in tutto il mondo e vivi una pianificazione di viaggio immersiva",
+    "getStarted": "Inizia a Esplorare",
+    "features": {
+      "title": "Caratteristiche",
+      "aiExploration": {
+        "title": "Esplorazione Intelligente AI",
+        "description": "Raccomandazioni intelligenti di attrazioni e pianificazione di percorsi basate su AI"
+      },
+      "streetView": {
+        "title": "Esperienza Street View",
+        "description": "Anteprima Street View a 360 gradi per un'esperienza immersiva della destinazione"
+      },
+      "photoGeneration": {
+        "title": "Generazione Foto AI",
+        "description": "Genera foto personalizzate con attrazioni famose"
+      },
+      "multiLanguage": {
+        "title": "Supporto Multi-lingua",
+        "description": "Supporto per 16 lingue, esperienza user-friendly in tutto il mondo"
+      }
+    },
+    "howItWorks": {
+      "title": "Come Funziona",
+      "step1": {
+        "title": "Scegli Destinazione",
+        "description": "Seleziona la città o l'attrazione che vuoi esplorare"
+      },
+      "step2": {
+        "title": "Raccomandazioni Intelligenti AI",
+        "description": "L'AI ti raccomanda attrazioni popolari nelle vicinanze"
+      },
+      "step3": {
+        "title": "Esperienza Immersiva",
+        "description": "Visualizza street view, genera foto, vivi profondamente le destinazioni"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Accedi",
+    "registerTitle": "Crea Account",
+    "noAccount": "Non hai un account?",
+    "hasAccount": "Hai già un account?",
+    "registerNow": "Registrati Ora",
+    "loginNow": "Accedi Ora",
+    "emailPlaceholder": "Indirizzo Email",
+    "passwordPlaceholder": "Password",
+    "confirmPasswordPlaceholder": "Conferma Password",
+    "usernamePlaceholder": "Nome Utente",
+    "login": "Accedi",
+    "register": "Registrati",
+    "welcomeBack": "Bentornato",
+    "joinUs": "Unisciti a Noi",
+    "forgotPassword": "Password Dimenticata?",
+    "backToHome": "Torna alla Home",
+    "loginSuccess": "Accesso riuscito!",
+    "registerSuccess": "Registrazione riuscita!",
+    "registerDescription": "Per favore compila le tue informazioni per creare un account",
+    "validation": {
+      "emailRequired": "Per favore inserisci l'indirizzo email",
+      "emailInvalid": "Per favore inserisci un indirizzo email valido",
+      "passwordRequired": "Per favore inserisci la password",
+      "passwordConfirmRequired": "Per favore conferma la password",
+      "passwordTooShort": "La password deve essere di almeno 6 caratteri",
+      "usernameRequired": "Per favore inserisci il nome utente",
+      "usernameMinLength": "Il nome utente deve essere di almeno 3 caratteri"
+    },
+    "errors": {
+      "loginFailed": "Accesso fallito, riprova",
+      "invalidCredentials": "Email o password non valide, controlla e riprova",
+      "registerFailed": "Registrazione fallita",
+      "passwordMismatch": "Le password non corrispondono",
+      "emailAlreadyRegistered": "Email già registrata, accedi direttamente"
+    }
+  },
+  "exploration": {
+    "title": "Esplora Attrazioni",
+    "currentLocation": "Posizione Attuale",
+    "nearbyAttractions": "Attrazioni Vicine",
+    "distance": "Distanza",
+    "exploreHere": "Esplora Qui",
+    "generatePhoto": "Genera Foto",
+    "viewStreetView": "Visualizza Street View",
+    "doroPhoto": "Foto Doro",
+    "noAttractionsFound": "Nessuna informazione di posizione rilevante trovata",
+    "searching": "Ricerca...",
+    "loading": "Caricamento...",
+    "noInfo": "Nessuna Info",
+    "modernMode": "Modalità Moderna",
+    "ancientMode": "Modalità Antica",
+    "futureMode": "Modalità Futura"
+  },
+  "languageSelector": {
+    "title": "Scegli Lingua e Regione",
+    "currentLanguage": "Lingua Attuale"
+  },
+  "profile": {
+    "title": "Profilo",
+    "username": "Nome Utente",
+    "email": "Email",
+    "joinDate": "Data di Iscrizione",
+    "preferences": "Preferenze",
+    "language": "Preferenza Lingua",
+    "theme": "Tema",
+    "notifications": "Impostazioni Notifiche",
+    "save": "Salva Impostazioni"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "general": "Impostazioni Generali",
+    "language": "Impostazioni Lingua",
+    "theme": "Impostazioni Tema",
+    "notifications": "Impostazioni Notifiche",
+    "privacy": "Impostazioni Privacy",
+    "account": "Impostazioni Account",
+    "about": "Informazioni",
+    "version": "Versione",
+    "feedback": "Feedback",
+    "help": "Aiuto",
+    "support": "Supporto"
+  },
+  "navigation": {
+    "home": "Home",
+    "explore": "Esplora",
+    "profile": "Profilo",
+    "settings": "Impostazioni",
+    "help": "Aiuto",
+    "about": "Informazioni"
+  },
+  "modals": {
+    "close": "Chiudi",
+    "confirm": "Conferma",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo"
+  },
+  "errors": {
+    "networkError": "Errore di connessione di rete",
+    "serverError": "Errore del server",
+    "notFound": "Non trovato",
+    "unauthorized": "Non autorizzato",
+    "forbidden": "Vietato",
+    "validationError": "Errore di validazione",
+    "unknownError": "Errore sconosciuto"
+  },
+  "placeholders": {
+    "searchCity": "Cerca città...",
+    "searchAttraction": "Cerca attrazione...",
+    "enterEmail": "Inserisci indirizzo email",
+    "enterPassword": "Inserisci password",
+    "enterUsername": "Inserisci nome utente",
+    "selectLanguage": "Seleziona lingua",
+    "selectTheme": "Seleziona tema"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Connessione...",
+    "connected": "Connesso",
+    "disconnected": "Disconnesso",
+    "loading": "Caricamento...",
+    "processing": "Elaborazione...",
+    "completed": "Completato",
+    "failed": "Fallito"
+  },
+  "time": {
+    "now": "Ora",
+    "today": "Oggi",
+    "yesterday": "Ieri",
+    "tomorrow": "Domani",
+    "thisWeek": "Questa settimana",
+    "thisMonth": "Questo mese",
+    "thisYear": "Quest'anno",
+    "ago": "fa",
+    "in": "tra"
+  },
+  "units": {
+    "kilometer": "chilometro",
+    "meter": "metro",
+    "mile": "miglio",
+    "hour": "ora",
+    "minute": "minuto",
+    "second": "secondo",
+    "day": "giorno",
+    "week": "settimana",
+    "month": "mese",
+    "year": "anno"
+  }
+}

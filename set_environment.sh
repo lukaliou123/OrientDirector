@@ -9,7 +9,7 @@ show_help() {
     echo ""
     echo "选项:"
     echo "  local       设置为本地环境 (http://localhost:8001)"
-    echo "  production  设置为生产环境 (https://doro.gitagent.io)"
+    echo "  production  设置为生产环境 (https://spot.gitagent.io)"
     echo "  status      显示当前环境配置"
     echo "  help        显示此帮助信息"
     echo ""
@@ -33,7 +33,7 @@ set_production_environment() {
     export isUsedomainnameaddress=true
     echo "✅ 已设置为生产环境"
     echo "   isUsedomainnameaddress=true"
-    echo "   API_BASE_URL=https://doro.gitagent.io"
+    echo "   API_BASE_URL=https://spot.gitagent.io"
     echo ""
     echo "💡 要使配置永久生效，请将以下内容添加到 ~/.bashrc 或 ~/.zshrc:"
     echo "   export isUsedomainnameaddress=true"

@@ -1,0 +1,188 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "search": "Buscar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "close": "Cerrar"
+  },
+  "header": {
+    "brand": "Orient Director",
+    "tagline": "Exploración de Viajes con IA",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "profile": "Perfil",
+    "logout": "Cerrar Sesión",
+    "language": "Idioma"
+  },
+  "homepage": {
+    "title": "Orient Director",
+    "subtitle": "Exploración de Viajes con IA, Descubre la Belleza del Mundo",
+    "description": "Usa tecnología de IA para explorar atracciones alrededor del mundo y experimenta la planificación de viajes inmersiva",
+    "getStarted": "Comenzar a Explorar",
+    "features": {
+      "title": "Características",
+      "aiExploration": {
+        "title": "Exploración Inteligente con IA",
+        "description": "Recomendaciones inteligentes de atracciones y planificación de rutas basadas en IA"
+      },
+      "streetView": {
+        "title": "Experiencia de Vista de Calle",
+        "description": "Vista previa de calle 360 grados para una experiencia inmersiva del destino"
+      },
+      "photoGeneration": {
+        "title": "Generación de Fotos con IA",
+        "description": "Genera fotos personalizadas con atracciones famosas"
+      },
+      "multiLanguage": {
+        "title": "Soporte Multiidioma",
+        "description": "Soporte para 16 idiomas, experiencia amigable para usuarios en todo el mundo"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Iniciar Sesión",
+    "registerTitle": "Crear Cuenta",
+    "noAccount": "¿No tienes una cuenta?",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "registerNow": "Regístrate Ahora",
+    "loginNow": "Inicia Sesión Ahora",
+    "emailPlaceholder": "Dirección de Correo",
+    "passwordPlaceholder": "Contraseña",
+    "confirmPasswordPlaceholder": "Confirmar Contraseña",
+    "usernamePlaceholder": "Nombre de Usuario",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "welcomeBack": "Bienvenido de Vuelta",
+    "joinUs": "Únete a Nosotros",
+    "forgotPassword": "¿Olvidaste tu Contraseña?",
+    "backToHome": "Volver al Inicio",
+    "loginSuccess": "¡Inicio de sesión exitoso!",
+    "registerSuccess": "¡Registro exitoso!",
+    "registerDescription": "Por favor completa tu información para crear una cuenta"
+  },
+  "exploration": {
+    "title": "Explorar Atracciones",
+    "currentLocation": "Ubicación Actual",
+    "nearbyAttractions": "Atracciones Cercanas",
+    "distance": "Distancia",
+    "exploreHere": "Explorar Aquí",
+    "generatePhoto": "Generar Foto",
+    "viewStreetView": "Ver Vista de Calle",
+    "doroPhoto": "Foto Doro",
+    "noAttractionsFound": "No se encontró información de ubicación relevante",
+    "searching": "Buscando...",
+    "loading": "Cargando...",
+    "noInfo": "Sin información",
+    "modernMode": "Modo Moderno",
+    "ancientMode": "Modo Antiguo",
+    "futureMode": "Modo Futuro"
+  },
+  "languageSelector": {
+    "title": "Elegir Idioma y Región",
+    "currentLanguage": "Idioma Actual"
+  },
+  "profile": {
+    "title": "Perfil",
+    "username": "Nombre de Usuario",
+    "email": "Correo Electrónico",
+    "joinDate": "Fecha de Registro",
+    "preferences": "Preferencias",
+    "language": "Preferencia de Idioma",
+    "theme": "Tema",
+    "notifications": "Configuración de Notificaciones",
+    "save": "Guardar Configuración"
+  },
+  "settings": {
+    "title": "Configuración",
+    "general": "Configuración General",
+    "language": "Configuración de Idioma",
+    "theme": "Configuración de Tema",
+    "notifications": "Configuración de Notificaciones",
+    "privacy": "Configuración de Privacidad",
+    "account": "Configuración de Cuenta",
+    "about": "Acerca de",
+    "version": "Versión",
+    "feedback": "Comentarios",
+    "help": "Ayuda",
+    "support": "Soporte"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "explore": "Explorar",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "about": "Acerca de"
+  },
+  "modals": {
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "errors": {
+    "networkError": "Error de conexión de red",
+    "serverError": "Error del servidor",
+    "notFound": "No encontrado",
+    "unauthorized": "No autorizado",
+    "forbidden": "Prohibido",
+    "validationError": "Error de validación",
+    "unknownError": "Error desconocido"
+  },
+  "placeholders": {
+    "searchCity": "Buscar ciudad...",
+    "searchAttraction": "Buscar atracción...",
+    "enterEmail": "Ingrese dirección de correo",
+    "enterPassword": "Ingrese contraseña",
+    "enterUsername": "Ingrese nombre de usuario",
+    "selectLanguage": "Seleccionar idioma",
+    "selectTheme": "Seleccionar tema"
+  },
+  "status": {
+    "online": "En línea",
+    "offline": "Desconectado",
+    "connecting": "Conectando...",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "loading": "Cargando...",
+    "processing": "Procesando...",
+    "completed": "Completado",
+    "failed": "Falló"
+  },
+  "time": {
+    "now": "Ahora",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana",
+    "thisWeek": "Esta semana",
+    "thisMonth": "Este mes",
+    "thisYear": "Este año",
+    "ago": "hace",
+    "in": "en"
+  },
+  "units": {
+    "kilometer": "kilómetro",
+    "meter": "metro",
+    "mile": "milla",
+    "hour": "hora",
+    "minute": "minuto",
+    "second": "segundo",
+    "day": "día",
+    "week": "semana",
+    "month": "mes",
+    "year": "año"
+  }
+}

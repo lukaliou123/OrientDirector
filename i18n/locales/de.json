@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "search": "Suchen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "submit": "Absenden",
+    "close": "Schließen"
+  },
+  "header": {
+    "brand": "Orientierungsleiter",
+    "tagline": "KI-gestützte Reiseerkundung",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "language": "Sprache"
+  },
+  "homepage": {
+    "title": "Orientierungsleiter",
+    "subtitle": "KI-gestützte Reiseerkundung, Entdecken Sie die Schönheit der Welt",
+    "description": "Nutzen Sie KI-Technologie, um Sehenswürdigkeiten auf der ganzen Welt zu erkunden und erleben Sie immersive Reiseplanung",
+    "getStarted": "Erkundung Starten",
+    "features": {
+      "title": "Funktionen",
+      "aiExploration": {
+        "title": "KI-Intelligente Erkundung",
+        "description": "KI-gestützte intelligente Sehenswürdigkeitsempfehlungen und Routenplanung"
+      },
+      "streetView": {
+        "title": "Street View Erlebnis",
+        "description": "360-Grad-Street-View-Vorschau für ein immersives Zielerlebnis"
+      },
+      "photoGeneration": {
+        "title": "KI-Fotogenerierung",
+        "description": "Generieren Sie personalisierte Fotos mit berühmten Sehenswürdigkeiten"
+      },
+      "multiLanguage": {
+        "title": "Mehrsprachige Unterstützung",
+        "description": "Unterstützung für 16 Sprachen, benutzerfreundliche Erfahrung weltweit"
+      }
+    },
+    "howItWorks": {
+      "title": "Wie es funktioniert",
+      "step1": {
+        "title": "Ziel wählen",
+        "description": "Wählen Sie die Stadt oder Sehenswürdigkeit, die Sie erkunden möchten"
+      },
+      "step2": {
+        "title": "KI-Intelligente Empfehlungen",
+        "description": "KI empfiehlt Ihnen nahegelegene beliebte Sehenswürdigkeiten"
+      },
+      "step3": {
+        "title": "Immersives Erlebnis",
+        "description": "Street View ansehen, Fotos generieren, Ziele tiefgreifend erleben"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Anmelden",
+    "registerTitle": "Konto erstellen",
+    "noAccount": "Noch kein Konto?",
+    "hasAccount": "Bereits ein Konto?",
+    "registerNow": "Jetzt registrieren",
+    "loginNow": "Jetzt anmelden",
+    "emailPlaceholder": "E-Mail-Adresse",
+    "passwordPlaceholder": "Passwort",
+    "confirmPasswordPlaceholder": "Passwort bestätigen",
+    "usernamePlaceholder": "Benutzername",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "welcomeBack": "Willkommen zurück",
+    "joinUs": "Treten Sie uns bei",
+    "forgotPassword": "Passwort vergessen?",
+    "backToHome": "Zurück zur Startseite",
+    "loginSuccess": "Anmeldung erfolgreich!",
+    "registerSuccess": "Registrierung erfolgreich!",
+    "registerDescription": "Bitte füllen Sie Ihre Informationen aus, um ein Konto zu erstellen",
+    "validation": {
+      "emailRequired": "Bitte E-Mail eingeben",
+      "emailInvalid": "Bitte gültige E-Mail eingeben",
+      "passwordRequired": "Bitte Passwort eingeben",
+      "passwordConfirmRequired": "Bitte Passwort bestätigen",
+      "passwordTooShort": "Passwort muss mindestens 6 Zeichen haben",
+      "usernameRequired": "Bitte Benutzername eingeben",
+      "usernameMinLength": "Benutzername muss mindestens 3 Zeichen haben"
+    },
+    "errors": {
+      "loginFailed": "Anmeldung fehlgeschlagen, bitte versuchen Sie es erneut",
+      "invalidCredentials": "Ungültige E-Mail oder Passwort, bitte überprüfen und versuchen Sie es erneut",
+      "registerFailed": "Registrierung fehlgeschlagen",
+      "passwordMismatch": "Passwörter stimmen nicht überein",
+      "emailAlreadyRegistered": "E-Mail bereits registriert, bitte melden Sie sich direkt an"
+    }
+  },
+  "exploration": {
+    "title": "Sehenswürdigkeiten erkunden",
+    "currentLocation": "Aktuelle Position",
+    "nearbyAttractions": "Nahegelegene Sehenswürdigkeiten",
+    "distance": "Entfernung",
+    "exploreHere": "Hier erkunden",
+    "generatePhoto": "Foto generieren",
+    "viewStreetView": "Straßenansicht anzeigen",
+    "doroPhoto": "Doro Foto",
+    "noAttractionsFound": "Keine relevanten Standortinformationen gefunden",
+    "searching": "Suche...",
+    "loading": "Laden...",
+    "noInfo": "Keine Info",
+    "modernMode": "Moderner Modus",
+    "ancientMode": "Antiker Modus",
+    "futureMode": "Zukunftsmodus"
+  },
+  "languageSelector": {
+    "title": "Sprache und Region wählen",
+    "currentLanguage": "Aktuelle Sprache"
+  },
+  "profile": {
+    "title": "Profil",
+    "username": "Benutzername",
+    "email": "E-Mail",
+    "joinDate": "Beitrittsdatum",
+    "preferences": "Einstellungen",
+    "language": "Spracheinstellung",
+    "theme": "Thema",
+    "notifications": "Benachrichtigungseinstellungen",
+    "save": "Einstellungen speichern"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "general": "Allgemeine Einstellungen",
+    "language": "Spracheinstellungen",
+    "theme": "Themeinstellungen",
+    "notifications": "Benachrichtigungseinstellungen",
+    "privacy": "Datenschutzeinstellungen",
+    "account": "Kontoeinstellungen",
+    "about": "Über",
+    "version": "Version",
+    "feedback": "Feedback",
+    "help": "Hilfe",
+    "support": "Support"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "explore": "Erkunden",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "help": "Hilfe",
+    "about": "Über"
+  },
+  "modals": {
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  "errors": {
+    "networkError": "Netzwerkverbindungsfehler",
+    "serverError": "Serverfehler",
+    "notFound": "Nicht gefunden",
+    "unauthorized": "Nicht autorisiert",
+    "forbidden": "Verboten",
+    "validationError": "Validierungsfehler",
+    "unknownError": "Unbekannter Fehler"
+  },
+  "placeholders": {
+    "searchCity": "Stadt suchen...",
+    "searchAttraction": "Sehenswürdigkeit suchen...",
+    "enterEmail": "E-Mail-Adresse eingeben",
+    "enterPassword": "Passwort eingeben",
+    "enterUsername": "Benutzername eingeben",
+    "selectLanguage": "Sprache auswählen",
+    "selectTheme": "Thema auswählen"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Verbinden...",
+    "connected": "Verbunden",
+    "disconnected": "Getrennt",
+    "loading": "Laden...",
+    "processing": "Verarbeitung...",
+    "completed": "Abgeschlossen",
+    "failed": "Fehlgeschlagen"
+  },
+  "time": {
+    "now": "Jetzt",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "tomorrow": "Morgen",
+    "thisWeek": "Diese Woche",
+    "thisMonth": "Diesen Monat",
+    "thisYear": "Dieses Jahr",
+    "ago": "vor",
+    "in": "in"
+  },
+  "units": {
+    "kilometer": "Kilometer",
+    "meter": "Meter",
+    "mile": "Meile",
+    "hour": "Stunde",
+    "minute": "Minute",
+    "second": "Sekunde",
+    "day": "Tag",
+    "week": "Woche",
+    "month": "Monat",
+    "year": "Jahr"
+  }
+}

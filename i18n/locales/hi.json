@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफलता",
+    "cancel": "रद्द करें",
+    "confirm": "पुष्टि करें",
+    "save": "सहेजें",
+    "edit": "संपादित करें",
+    "delete": "हटाएं",
+    "search": "खोजें",
+    "back": "वापस",
+    "next": "अगला",
+    "previous": "पिछला",
+    "submit": "जमा करें",
+    "close": "बंद करें"
+  },
+  "header": {
+    "brand": "ओरिएंट डायरेक्टर",
+    "tagline": "AI-संचालित यात्रा अन्वेषण",
+    "login": "लॉग इन",
+    "register": "रजिस्टर",
+    "profile": "प्रोफाइल",
+    "logout": "लॉग आउट",
+    "language": "भाषा"
+  },
+  "homepage": {
+    "title": "ओरिएंट डायरेक्टर",
+    "subtitle": "AI-संचालित यात्रा अन्वेषण, दुनिया की सुंदरता की खोज करें",
+    "description": "दुनिया भर के आकर्षणों का अन्वेषण करने और इमर्सिव यात्रा योजना का अनुभव करने के लिए AI तकनीक का उपयोग करें",
+    "getStarted": "अन्वेषण शुरू करें",
+    "features": {
+      "title": "सुविधाएं",
+      "aiExploration": {
+        "title": "AI स्मार्ट अन्वेषण",
+        "description": "AI-आधारित स्मार्ट आकर्षण सुझाव और मार्ग योजना"
+      },
+      "streetView": {
+        "title": "स्ट्रीट व्यू अनुभव",
+        "description": "गंतव्य के इमर्सिव अनुभव के लिए 360-डिग्री स्ट्रीट व्यू पूर्वावलोकन"
+      },
+      "photoGeneration": {
+        "title": "AI फोटो जेनरेशन",
+        "description": "प्रसिद्ध आकर्षणों के साथ व्यक्तिगत फोटो बनाएं"
+      },
+      "multiLanguage": {
+        "title": "बहुभाषी समर्थन",
+        "description": "16 भाषाओं का समर्थन, विश्व स्तर पर उपयोगकर्ता-मित्र अनुभव"
+      }
+    },
+    "howItWorks": {
+      "title": "यह कैसे काम करता है",
+      "step1": {
+        "title": "गंतव्य चुनें",
+        "description": "वह शहर या आकर्षण चुनें जिसे आप अन्वेषण करना चाहते हैं"
+      },
+      "step2": {
+        "title": "AI स्मार्ट सुझाव",
+        "description": "AI आपके लिए पास के लोकप्रिय आकर्षणों की सिफारिश करता है"
+      },
+      "step3": {
+        "title": "इमर्सिव अनुभव",
+        "description": "स्ट्रीट व्यू देखें, फोटो बनाएं, गंतव्यों को गहराई से अनुभव करें"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "लॉग इन",
+    "registerTitle": "खाता बनाएं",
+    "noAccount": "खाता नहीं है?",
+    "hasAccount": "पहले से खाता है?",
+    "registerNow": "अभी रजिस्टर करें",
+    "loginNow": "अभी लॉग इन करें",
+    "emailPlaceholder": "ईमेल पता",
+    "passwordPlaceholder": "पासवर्ड",
+    "confirmPasswordPlaceholder": "पासवर्ड की पुष्टि करें",
+    "usernamePlaceholder": "उपयोगकर्ता नाम",
+    "login": "लॉग इन",
+    "register": "रजिस्टर",
+    "welcomeBack": "वापस स्वागत है",
+    "joinUs": "हमसे जुड़ें",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "backToHome": "होम पर वापस जाएं",
+    "loginSuccess": "लॉग इन सफल!",
+    "registerSuccess": "रजिस्ट्रेशन सफल!",
+    "registerDescription": "खाता बनाने के लिए कृपया अपनी जानकारी भरें",
+    "validation": {
+      "emailRequired": "कृपया ईमेल पता दर्ज करें",
+      "emailInvalid": "कृपया एक वैध ईमेल पता दर्ज करें",
+      "passwordRequired": "कृपया पासवर्ड दर्ज करें",
+      "passwordConfirmRequired": "कृपया पासवर्ड की पुष्टि करें",
+      "passwordTooShort": "पासवर्ड कम से कम 6 अक्षर का होना चाहिए",
+      "usernameRequired": "कृपया उपयोगकर्ता नाम दर्ज करें",
+      "usernameMinLength": "उपयोगकर्ता नाम कम से कम 3 अक्षर का होना चाहिए"
+    },
+    "errors": {
+      "loginFailed": "लॉग इन असफल, कृपया पुनः प्रयास करें",
+      "invalidCredentials": "अमान्य ईमेल या पासवर्ड, कृपया जांचें और पुनः प्रयास करें",
+      "registerFailed": "रजिस्ट्रेशन असफल",
+      "passwordMismatch": "पासवर्ड मेल नहीं खाते",
+      "emailAlreadyRegistered": "ईमेल पहले से पंजीकृत है, कृपया सीधे लॉग इन करें"
+    }
+  },
+  "exploration": {
+    "title": "आकर्षणों का अन्वेषण करें",
+    "currentLocation": "वर्तमान स्थान",
+    "nearbyAttractions": "पास के आकर्षण",
+    "distance": "दूरी",
+    "exploreHere": "यहाँ अन्वेषण करें",
+    "generatePhoto": "फोटो बनाएं",
+    "viewStreetView": "स्ट्रीट व्यू देखें",
+    "doroPhoto": "डोरो फोटो",
+    "noAttractionsFound": "संबंधित स्थान जानकारी नहीं मिली",
+    "searching": "खोज रहे हैं...",
+    "loading": "लोड हो रहा है...",
+    "noInfo": "कोई जानकारी नहीं",
+    "modernMode": "आधुनिक मोड",
+    "ancientMode": "प्राचीन मोड",
+    "futureMode": "भविष्य मोड"
+  },
+  "languageSelector": {
+    "title": "भाषा और क्षेत्र चुनें",
+    "currentLanguage": "वर्तमान भाषा"
+  },
+  "profile": {
+    "title": "प्रोफाइल",
+    "username": "उपयोगकर्ता नाम",
+    "email": "ईमेल",
+    "joinDate": "शामिल होने की तारीख",
+    "preferences": "प्राथमिकताएं",
+    "language": "भाषा प्राथमिकता",
+    "theme": "थीम",
+    "notifications": "अधिसूचना सेटिंग्स",
+    "save": "सेटिंग्स सहेजें"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "general": "सामान्य सेटिंग्स",
+    "language": "भाषा सेटिंग्स",
+    "theme": "थीम सेटिंग्स",
+    "notifications": "अधिसूचना सेटिंग्स",
+    "privacy": "गोपनीयता सेटिंग्स",
+    "account": "खाता सेटिंग्स",
+    "about": "के बारे में",
+    "version": "संस्करण",
+    "feedback": "फीडबैक",
+    "help": "सहायता",
+    "support": "समर्थन"
+  },
+  "navigation": {
+    "home": "होम",
+    "explore": "अन्वेषण",
+    "profile": "प्रोफाइल",
+    "settings": "सेटिंग्स",
+    "help": "सहायता",
+    "about": "के बारे में"
+  },
+  "modals": {
+    "close": "बंद करें",
+    "confirm": "पुष्टि करें",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफलता"
+  },
+  "errors": {
+    "networkError": "नेटवर्क कनेक्शन त्रुटि",
+    "serverError": "सर्वर त्रुटि",
+    "notFound": "नहीं मिला",
+    "unauthorized": "अनधिकृत",
+    "forbidden": "निषिद्ध",
+    "validationError": "सत्यापन त्रुटि",
+    "unknownError": "अज्ञात त्रुटि"
+  },
+  "placeholders": {
+    "searchCity": "शहर खोजें...",
+    "searchAttraction": "आकर्षण खोजें...",
+    "enterEmail": "ईमेल पता दर्ज करें",
+    "enterPassword": "पासवर्ड दर्ज करें",
+    "enterUsername": "उपयोगकर्ता नाम दर्ज करें",
+    "selectLanguage": "भाषा चुनें",
+    "selectTheme": "थीम चुनें"
+  },
+  "status": {
+    "online": "ऑनलाइन",
+    "offline": "ऑफलाइन",
+    "connecting": "कनेक्ट हो रहे हैं...",
+    "connected": "कनेक्टेड",
+    "disconnected": "डिस्कनेक्टेड",
+    "loading": "लोड हो रहा है...",
+    "processing": "प्रोसेसिंग...",
+    "completed": "पूरा",
+    "failed": "असफल"
+  },
+  "time": {
+    "now": "अभी",
+    "today": "आज",
+    "yesterday": "कल",
+    "tomorrow": "कल",
+    "thisWeek": "इस सप्ताह",
+    "thisMonth": "इस महीने",
+    "thisYear": "इस साल",
+    "ago": "पहले",
+    "in": "में"
+  },
+  "units": {
+    "kilometer": "किलोमीटर",
+    "meter": "मीटर",
+    "mile": "मील",
+    "hour": "घंटा",
+    "minute": "मिनट",
+    "second": "सेकंड",
+    "day": "दिन",
+    "week": "सप्ताह",
+    "month": "महीना",
+    "year": "साल"
+  }
+}

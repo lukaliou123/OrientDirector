@@ -11,7 +11,7 @@ import io
 from PIL import Image
 
 # API配置
-API_BASE_URL = "https://doro.gitagent.io"
+API_BASE_URL = "https://spot.gitagent.io"
 
 def create_dummy_image():
     """创建一个简单的测试图片"""

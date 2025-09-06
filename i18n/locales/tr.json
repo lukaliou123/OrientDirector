@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı",
+    "cancel": "İptal",
+    "confirm": "Onayla",
+    "save": "Kaydet",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "search": "Ara",
+    "back": "Geri",
+    "next": "İleri",
+    "previous": "Önceki",
+    "submit": "Gönder",
+    "close": "Kapat"
+  },
+  "header": {
+    "brand": "Yön Direktörü",
+    "tagline": "AI Destekli Seyahat Keşfi",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "profile": "Profil",
+    "logout": "Çıkış Yap",
+    "language": "Dil"
+  },
+  "homepage": {
+    "title": "Yön Direktörü",
+    "subtitle": "AI Destekli Seyahat Keşfi, Dünyanın Güzelliğini Keşfedin",
+    "description": "Dünya çapındaki cazibe merkezlerini keşfetmek ve sürükleyici seyahat planlaması deneyimi için AI teknolojisini kullanın",
+    "getStarted": "Keşfetmeye Başla",
+    "features": {
+      "title": "Özellikler",
+      "aiExploration": {
+        "title": "AI Akıllı Keşif",
+        "description": "AI tabanlı akıllı cazibe merkezi önerileri ve rota planlaması"
+      },
+      "streetView": {
+        "title": "Sokak Görünümü Deneyimi",
+        "description": "Hedef için sürükleyici deneyim için 360 derece sokak görünümü önizlemesi"
+      },
+      "photoGeneration": {
+        "title": "AI Fotoğraf Üretimi",
+        "description": "Ünlü cazibe merkezleriyle kişiselleştirilmiş fotoğraflar oluşturun"
+      },
+      "multiLanguage": {
+        "title": "Çok Dilli Destek",
+        "description": "16 dil desteği, dünya çapında kullanıcı dostu deneyim"
+      }
+    },
+    "howItWorks": {
+      "title": "Nasıl Çalışır",
+      "step1": {
+        "title": "Hedef Seçin",
+        "description": "Keşfetmek istediğiniz şehri veya cazibe merkezini seçin"
+      },
+      "step2": {
+        "title": "AI Akıllı Öneriler",
+        "description": "AI yakındaki popüler cazibe merkezlerini size önerir"
+      },
+      "step3": {
+        "title": "Sürükleyici Deneyim",
+        "description": "Sokak görünümünü görüntüleyin, fotoğraf oluşturun, hedefleri derinlemesine deneyimleyin"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Giriş Yap",
+    "registerTitle": "Hesap Oluştur",
+    "noAccount": "Hesabınız yok mu?",
+    "hasAccount": "Zaten hesabınız var mı?",
+    "registerNow": "Şimdi Kayıt Ol",
+    "loginNow": "Şimdi Giriş Yap",
+    "emailPlaceholder": "E-posta Adresi",
+    "passwordPlaceholder": "Şifre",
+    "confirmPasswordPlaceholder": "Şifreyi Onayla",
+    "usernamePlaceholder": "Kullanıcı Adı",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "welcomeBack": "Tekrar Hoş Geldiniz",
+    "joinUs": "Bize Katılın",
+    "forgotPassword": "Şifrenizi mi Unuttunuz?",
+    "backToHome": "Ana Sayfaya Dön",
+    "loginSuccess": "Giriş başarılı!",
+    "registerSuccess": "Kayıt başarılı!",
+    "registerDescription": "Hesap oluşturmak için lütfen bilgilerinizi doldurun",
+    "validation": {
+      "emailRequired": "Lütfen e-posta adresini girin",
+      "emailInvalid": "Lütfen geçerli bir e-posta adresi girin",
+      "passwordRequired": "Lütfen şifreyi girin",
+      "passwordConfirmRequired": "Lütfen şifreyi onaylayın",
+      "passwordTooShort": "Şifre en az 6 karakter olmalıdır",
+      "usernameRequired": "Lütfen kullanıcı adını girin",
+      "usernameMinLength": "Kullanıcı adı en az 3 karakter olmalıdır"
+    },
+    "errors": {
+      "loginFailed": "Giriş başarısız, lütfen tekrar deneyin",
+      "invalidCredentials": "Geçersiz e-posta veya şifre, lütfen kontrol edin ve tekrar deneyin",
+      "registerFailed": "Kayıt başarısız",
+      "passwordMismatch": "Şifreler eşleşmiyor",
+      "emailAlreadyRegistered": "E-posta zaten kayıtlı, lütfen doğrudan giriş yapın"
+    }
+  },
+  "exploration": {
+    "title": "Cazibe Merkezlerini Keşfet",
+    "currentLocation": "Mevcut Konum",
+    "nearbyAttractions": "Yakındaki Turistik Yerler",
+    "distance": "Mesafe",
+    "exploreHere": "Burayı Keşfet",
+    "generatePhoto": "Fotoğraf Oluştur",
+    "viewStreetView": "Sokak Görünümünü Görüntüle",
+    "doroPhoto": "Doro Fotoğrafı",
+    "noAttractionsFound": "İlgili konum bilgisi bulunamadı",
+    "searching": "Aranıyor...",
+    "loading": "Yükleniyor...",
+    "noInfo": "Bilgi Yok",
+    "modernMode": "Modern Mod",
+    "ancientMode": "Antik Mod",
+    "futureMode": "Gelecek Modu"
+  },
+  "languageSelector": {
+    "title": "Dil ve Bölge Seçin",
+    "currentLanguage": "Mevcut Dil"
+  },
+  "profile": {
+    "title": "Profil",
+    "username": "Kullanıcı Adı",
+    "email": "E-posta",
+    "joinDate": "Katılım Tarihi",
+    "preferences": "Tercihler",
+    "language": "Dil Tercihi",
+    "theme": "Tema",
+    "notifications": "Bildirim Ayarları",
+    "save": "Ayarları Kaydet"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "general": "Genel Ayarlar",
+    "language": "Dil Ayarları",
+    "theme": "Tema Ayarları",
+    "notifications": "Bildirim Ayarları",
+    "privacy": "Gizlilik Ayarları",
+    "account": "Hesap Ayarları",
+    "about": "Hakkında",
+    "version": "Sürüm",
+    "feedback": "Geri Bildirim",
+    "help": "Yardım",
+    "support": "Destek"
+  },
+  "navigation": {
+    "home": "Ana Sayfa",
+    "explore": "Keşfet",
+    "profile": "Profil",
+    "settings": "Ayarlar",
+    "help": "Yardım",
+    "about": "Hakkında"
+  },
+  "modals": {
+    "close": "Kapat",
+    "confirm": "Onayla",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı"
+  },
+  "errors": {
+    "networkError": "Ağ bağlantı hatası",
+    "serverError": "Sunucu hatası",
+    "notFound": "Bulunamadı",
+    "unauthorized": "Yetkisiz",
+    "forbidden": "Yasak",
+    "validationError": "Doğrulama hatası",
+    "unknownError": "Bilinmeyen hata"
+  },
+  "placeholders": {
+    "searchCity": "Şehir ara...",
+    "searchAttraction": "Cazibe merkezi ara...",
+    "enterEmail": "E-posta adresini girin",
+    "enterPassword": "Şifreyi girin",
+    "enterUsername": "Kullanıcı adını girin",
+    "selectLanguage": "Dil seçin",
+    "selectTheme": "Tema seçin"
+  },
+  "status": {
+    "online": "Çevrimiçi",
+    "offline": "Çevrimdışı",
+    "connecting": "Bağlanıyor...",
+    "connected": "Bağlandı",
+    "disconnected": "Bağlantı Kesildi",
+    "loading": "Yükleniyor...",
+    "processing": "İşleniyor...",
+    "completed": "Tamamlandı",
+    "failed": "Başarısız"
+  },
+  "time": {
+    "now": "Şimdi",
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "tomorrow": "Yarın",
+    "thisWeek": "Bu hafta",
+    "thisMonth": "Bu ay",
+    "thisYear": "Bu yıl",
+    "ago": "önce",
+    "in": "içinde"
+  },
+  "units": {
+    "kilometer": "kilometre",
+    "meter": "metre",
+    "mile": "mil",
+    "hour": "saat",
+    "minute": "dakika",
+    "second": "saniye",
+    "day": "gün",
+    "week": "hafta",
+    "month": "ay",
+    "year": "yıl"
+  }
+}

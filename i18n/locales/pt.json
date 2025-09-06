@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "search": "Pesquisar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "close": "Fechar"
+  },
+  "header": {
+    "brand": "Diretor de Orientação",
+    "tagline": "Exploração de Viagem IA",
+    "login": "Entrar",
+    "register": "Registrar",
+    "profile": "Perfil",
+    "logout": "Sair",
+    "language": "Idioma"
+  },
+  "homepage": {
+    "title": "Diretor de Orientação",
+    "subtitle": "Exploração de Viagem IA, Descubra a Beleza do Mundo",
+    "description": "Use tecnologia de IA para explorar atrações ao redor do mundo e experimente planejamento de viagem imersivo",
+    "getStarted": "Começar a Explorar",
+    "features": {
+      "title": "Recursos",
+      "aiExploration": {
+        "title": "Exploração Inteligente IA",
+        "description": "Recomendações inteligentes de atrações e planejamento de rotas baseadas em IA"
+      },
+      "streetView": {
+        "title": "Experiência Street View",
+        "description": "Visualização Street View 360 graus para experiência imersiva do destino"
+      },
+      "photoGeneration": {
+        "title": "Geração de Fotos IA",
+        "description": "Gere fotos personalizadas com atrações famosas"
+      },
+      "multiLanguage": {
+        "title": "Suporte Multi-idioma",
+        "description": "Suporte para 16 idiomas, experiência amigável globalmente"
+      }
+    },
+    "howItWorks": {
+      "title": "Como Funciona",
+      "step1": {
+        "title": "Escolha Destino",
+        "description": "Selecione a cidade ou atração que deseja explorar"
+      },
+      "step2": {
+        "title": "Recomendações Inteligentes IA",
+        "description": "IA recomenda atrações populares próximas para você"
+      },
+      "step3": {
+        "title": "Experiência Imersiva",
+        "description": "Veja street view, gere fotos, viva profundamente os destinos"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Entrar",
+    "registerTitle": "Criar Conta",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "registerNow": "Registrar Agora",
+    "loginNow": "Entrar Agora",
+    "emailPlaceholder": "Endereço de Email",
+    "passwordPlaceholder": "Senha",
+    "confirmPasswordPlaceholder": "Confirmar Senha",
+    "usernamePlaceholder": "Nome de Usuário",
+    "login": "Entrar",
+    "register": "Registrar",
+    "welcomeBack": "Bem-vindo de Volta",
+    "joinUs": "Junte-se a Nós",
+    "forgotPassword": "Esqueceu a Senha?",
+    "backToHome": "Voltar ao Início",
+    "loginSuccess": "Login bem-sucedido!",
+    "registerSuccess": "Registro bem-sucedido!",
+    "registerDescription": "Por favor preencha suas informações para criar uma conta",
+    "validation": {
+      "emailRequired": "Por favor insira o endereço de email",
+      "emailInvalid": "Por favor insira um endereço de email válido",
+      "passwordRequired": "Por favor insira a senha",
+      "passwordConfirmRequired": "Por favor confirme a senha",
+      "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+      "usernameRequired": "Por favor insira o nome de usuário",
+      "usernameMinLength": "O nome de usuário deve ter pelo menos 3 caracteres"
+    },
+    "errors": {
+      "loginFailed": "Login falhou, tente novamente",
+      "invalidCredentials": "Email ou senha inválidos, verifique e tente novamente",
+      "registerFailed": "Registro falhou",
+      "passwordMismatch": "As senhas não coincidem",
+      "emailAlreadyRegistered": "Email já registrado, faça login diretamente"
+    }
+  },
+  "exploration": {
+    "title": "Explorar Atrações",
+    "currentLocation": "Localização Atual",
+    "nearbyAttractions": "Atrações Próximas",
+    "distance": "Distância",
+    "exploreHere": "Explorar Aqui",
+    "generatePhoto": "Gerar Foto",
+    "viewStreetView": "Ver Vista de Rua",
+    "doroPhoto": "Foto Doro",
+    "noAttractionsFound": "Nenhuma informação de localização relevante encontrada",
+    "searching": "Pesquisando...",
+    "loading": "Carregando...",
+    "noInfo": "Sem Info",
+    "modernMode": "Modo Moderno",
+    "ancientMode": "Modo Antigo",
+    "futureMode": "Modo Futuro"
+  },
+  "languageSelector": {
+    "title": "Escolher Idioma e Região",
+    "currentLanguage": "Idioma Atual"
+  },
+  "profile": {
+    "title": "Perfil",
+    "username": "Nome de Usuário",
+    "email": "Email",
+    "joinDate": "Data de Entrada",
+    "preferences": "Preferências",
+    "language": "Preferência de Idioma",
+    "theme": "Tema",
+    "notifications": "Configurações de Notificação",
+    "save": "Salvar Configurações"
+  },
+  "settings": {
+    "title": "Configurações",
+    "general": "Configurações Gerais",
+    "language": "Configurações de Idioma",
+    "theme": "Configurações de Tema",
+    "notifications": "Configurações de Notificação",
+    "privacy": "Configurações de Privacidade",
+    "account": "Configurações de Conta",
+    "about": "Sobre",
+    "version": "Versão",
+    "feedback": "Feedback",
+    "help": "Ajuda",
+    "support": "Suporte"
+  },
+  "navigation": {
+    "home": "Início",
+    "explore": "Explorar",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "help": "Ajuda",
+    "about": "Sobre"
+  },
+  "modals": {
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "errors": {
+    "networkError": "Erro de conexão de rede",
+    "serverError": "Erro do servidor",
+    "notFound": "Não encontrado",
+    "unauthorized": "Não autorizado",
+    "forbidden": "Proibido",
+    "validationError": "Erro de validação",
+    "unknownError": "Erro desconhecido"
+  },
+  "placeholders": {
+    "searchCity": "Pesquisar cidade...",
+    "searchAttraction": "Pesquisar atração...",
+    "enterEmail": "Inserir endereço de email",
+    "enterPassword": "Inserir senha",
+    "enterUsername": "Inserir nome de usuário",
+    "selectLanguage": "Selecionar idioma",
+    "selectTheme": "Selecionar tema"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Conectando...",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "loading": "Carregando...",
+    "processing": "Processando...",
+    "completed": "Concluído",
+    "failed": "Falhou"
+  },
+  "time": {
+    "now": "Agora",
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "tomorrow": "Amanhã",
+    "thisWeek": "Esta semana",
+    "thisMonth": "Este mês",
+    "thisYear": "Este ano",
+    "ago": "atrás",
+    "in": "em"
+  },
+  "units": {
+    "kilometer": "quilômetro",
+    "meter": "metro",
+    "mile": "milha",
+    "hour": "hora",
+    "minute": "minuto",
+    "second": "segundo",
+    "day": "dia",
+    "week": "semana",
+    "month": "mês",
+    "year": "ano"
+  }
+}

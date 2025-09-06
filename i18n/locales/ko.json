@@ -1,0 +1,219 @@
+{
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "confirm": "확인",
+    "save": "저장",
+    "edit": "편집",
+    "delete": "삭제",
+    "search": "검색",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "submit": "제출",
+    "close": "닫기"
+  },
+  "header": {
+    "brand": "오리엔트 디렉터",
+    "tagline": "AI 기반 여행 탐험",
+    "login": "로그인",
+    "register": "회원가입",
+    "profile": "프로필",
+    "logout": "로그아웃",
+    "language": "언어"
+  },
+  "homepage": {
+    "title": "오리엔트 디렉터",
+    "subtitle": "AI 기반 여행 탐험, 세계의 아름다움을 발견하세요",
+    "description": "AI 기술을 사용하여 전 세계 관광지를 탐험하고 몰입형 여행 계획을 경험하세요",
+    "getStarted": "탐험 시작하기",
+    "features": {
+      "title": "기능",
+      "aiExploration": {
+        "title": "AI 스마트 탐험",
+        "description": "AI 기반 스마트 관광지 추천 및 경로 계획"
+      },
+      "streetView": {
+        "title": "스트리트뷰 체험",
+        "description": "몰입형 목적지 체험을 위한 360도 스트리트뷰 미리보기"
+      },
+      "photoGeneration": {
+        "title": "AI 사진 생성",
+        "description": "유명한 관광지와의 개인화된 사진 생성"
+      },
+      "multiLanguage": {
+        "title": "다국어 지원",
+        "description": "16개 언어 지원, 전 세계 사용자 친화적 경험"
+      }
+    },
+    "howItWorks": {
+      "title": "사용 방법",
+      "step1": {
+        "title": "목적지 선택",
+        "description": "탐험하고 싶은 도시나 관광지를 선택하세요"
+      },
+      "step2": {
+        "title": "AI 스마트 추천",
+        "description": "AI가 근처 인기 관광지를 추천해드립니다"
+      },
+      "step3": {
+        "title": "몰입형 체험",
+        "description": "스트리트뷰 보기, 사진 생성, 목적지를 깊이 체험하세요"
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "로그인",
+    "registerTitle": "계정 만들기",
+    "noAccount": "계정이 없으신가요?",
+    "hasAccount": "이미 계정이 있으신가요?",
+    "registerNow": "지금 가입하기",
+    "loginNow": "지금 로그인하기",
+    "emailPlaceholder": "이메일 주소",
+    "passwordPlaceholder": "비밀번호",
+    "confirmPasswordPlaceholder": "비밀번호 확인",
+    "usernamePlaceholder": "사용자명",
+    "login": "로그인",
+    "register": "회원가입",
+    "welcomeBack": "다시 오신 것을 환영합니다",
+    "joinUs": "함께하세요",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "backToHome": "홈으로 돌아가기",
+    "loginSuccess": "로그인 성공!",
+    "registerSuccess": "회원가입 성공!",
+    "registerDescription": "계정을 만들기 위해 정보를 입력해주세요",
+    "validation": {
+      "emailRequired": "이메일 주소를 입력해주세요",
+      "emailInvalid": "유효한 이메일 주소를 입력해주세요",
+      "passwordRequired": "비밀번호를 입력해주세요",
+      "passwordConfirmRequired": "비밀번호를 확인해주세요",
+      "passwordTooShort": "비밀번호는 최소 6자 이상이어야 합니다",
+      "usernameRequired": "사용자명을 입력해주세요",
+      "usernameMinLength": "사용자명은 최소 3자 이상이어야 합니다"
+    },
+    "errors": {
+      "loginFailed": "로그인에 실패했습니다, 다시 시도해주세요",
+      "invalidCredentials": "이메일 또는 비밀번호가 잘못되었습니다, 확인 후 다시 시도해주세요",
+      "registerFailed": "회원가입에 실패했습니다",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다",
+      "emailAlreadyRegistered": "이미 등록된 이메일입니다, 직접 로그인해주세요"
+    }
+  },
+  "exploration": {
+    "title": "관광지 탐험",
+    "currentLocation": "현재 위치",
+    "nearbyAttractions": "주변 관광지",
+    "distance": "거리",
+    "exploreHere": "여기 탐험하기",
+    "generatePhoto": "사진 생성",
+    "viewStreetView": "스트리트뷰 보기",
+    "doroPhoto": "Doro 사진",
+    "noAttractionsFound": "관련 위치 정보를 찾을 수 없습니다",
+    "searching": "검색 중...",
+    "loading": "로딩 중...",
+    "noInfo": "정보 없음",
+    "modernMode": "모던 모드",
+    "ancientMode": "고대 모드",
+    "futureMode": "미래 모드"
+  },
+  "languageSelector": {
+    "title": "언어와 지역 선택",
+    "currentLanguage": "현재 언어"
+  },
+  "profile": {
+    "title": "프로필",
+    "username": "사용자명",
+    "email": "이메일",
+    "joinDate": "가입일",
+    "preferences": "설정",
+    "language": "언어 설정",
+    "theme": "테마",
+    "notifications": "알림 설정",
+    "save": "설정 저장"
+  },
+  "settings": {
+    "title": "설정",
+    "general": "일반 설정",
+    "language": "언어 설정",
+    "theme": "테마 설정",
+    "notifications": "알림 설정",
+    "privacy": "개인정보 설정",
+    "account": "계정 설정",
+    "about": "정보",
+    "version": "버전",
+    "feedback": "피드백",
+    "help": "도움말",
+    "support": "지원"
+  },
+  "navigation": {
+    "home": "홈",
+    "explore": "탐험",
+    "profile": "프로필",
+    "settings": "설정",
+    "help": "도움말",
+    "about": "정보"
+  },
+  "modals": {
+    "close": "닫기",
+    "confirm": "확인",
+    "cancel": "취소",
+    "save": "저장",
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공"
+  },
+  "errors": {
+    "networkError": "네트워크 연결 오류",
+    "serverError": "서버 오류",
+    "notFound": "찾을 수 없음",
+    "unauthorized": "인증되지 않음",
+    "forbidden": "접근 금지",
+    "validationError": "검증 오류",
+    "unknownError": "알 수 없는 오류"
+  },
+  "placeholders": {
+    "searchCity": "도시 검색...",
+    "searchAttraction": "관광지 검색...",
+    "enterEmail": "이메일 주소 입력",
+    "enterPassword": "비밀번호 입력",
+    "enterUsername": "사용자명 입력",
+    "selectLanguage": "언어 선택",
+    "selectTheme": "테마 선택"
+  },
+  "status": {
+    "online": "온라인",
+    "offline": "오프라인",
+    "connecting": "연결 중...",
+    "connected": "연결됨",
+    "disconnected": "연결 끊김",
+    "loading": "로딩 중...",
+    "processing": "처리 중...",
+    "completed": "완료",
+    "failed": "실패"
+  },
+  "time": {
+    "now": "지금",
+    "today": "오늘",
+    "yesterday": "어제",
+    "tomorrow": "내일",
+    "thisWeek": "이번 주",
+    "thisMonth": "이번 달",
+    "thisYear": "올해",
+    "ago": "전",
+    "in": "후"
+  },
+  "units": {
+    "kilometer": "킬로미터",
+    "meter": "미터",
+    "mile": "마일",
+    "hour": "시간",
+    "minute": "분",
+    "second": "초",
+    "day": "일",
+    "week": "주",
+    "month": "달",
+    "year": "년"
+  }
+}
