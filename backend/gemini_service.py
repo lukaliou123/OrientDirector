@@ -851,7 +851,263 @@ class GeminiImageService:
             logger.error(f"生成Doro合影时出错: {str(e)}")
             return False, f"生成失败: {str(e)}", None
     
+    async def generate_doro_video_with_attraction(
+        self,
+        user_photo: UploadFile,
+        doro_photo: UploadFile,
+        style_photo: Optional[UploadFile],
+        attraction_info: Dict
+    ) -> Tuple[bool, str, Optional[Dict]]:
+        """
+        生成包含景点背景的Doro合影视频
+        
+        使用两步法：
+        1. 先用当前的图片生成功能创建静态合影
+        2. 再用Veo 3将静态图片转换为动态视频
+        
+        Args:
+            user_photo: 用户照片
+            doro_photo: Doro形象
+            style_photo: 服装参考（可选）
+            attraction_info: 景点信息
+            
+        Returns:
+            (成功标志, 消息, 结果数据)
+        """
+        try:
+            logger.info(f"开始生成Doro合影视频: 景点={attraction_info.get('name', 'Unknown')}")
+            
+            # 使用新的google.genai客户端
+            client = genai_client.Client()
+            
+            # 第一步：使用与Doro合影完全相同的逻辑生成静态合影图片
+            logger.info("🎨 第一步：使用Doro合影逻辑生成静态合影图片...")
+            
+            # 直接使用现有的Doro合影生成方法，确保完全一致的效果
+            success, message, image_result = await self.generate_doro_selfie_with_attraction(
+                user_photo=user_photo,
+                doro_photo=doro_photo,
+                attraction_info=attraction_info,
+                style_photo=style_photo
+            )
+            
+            if not success:
+                return False, f"静态图片生成失败: {message}", None
+            
+            # 第二步：将现有合成图片转换为Imagen兼容格式
+            logger.info("🔄 转换现有合成图片为Imagen兼容格式...")
+            
+            # 使用新的转换方法，将现有合成图片转换为PIL Image对象
+            generated_image = self._convert_existing_to_imagen_format(image_result)
+            logger.info("✅ 现有合成图片已转换为 types.Part 对象格式")
+            
+            # 第三步：使用Veo 3生成视频
+            logger.info("🎬 第三步：使用Veo 3生成动态视频...")
+            
+            # 使用生成图片时的提示词作为视频提示词的基础
+            image_prompt_used = image_result.get('prompt_used', '')
+            video_prompt = self._generate_video_prompt_from_image_prompt(
+                image_prompt_used,
+                attraction_info
+            )
+            logger.info(f"🎬 视频提示词: {video_prompt[:200]}...")
+            
+            # 使用正确的bytesBase64Encoded+mimeType格式传递给Veo 3
+            from google.genai import types
+            operation = client.models.generate_videos(
+                model="veo-3.0-generate-preview",
+                prompt=video_prompt,
+                image=generated_image,  # types.Part对象，使用types.Part.from_dict()包装
+                config=types.GenerateVideosConfig(
+                    aspect_ratio="16:9",
+                ),
+            )
+            
+            logger.info(f"🎬 视频生成作业已启动: {operation.name}")
+            video_operation = types.GenerateVideosOperation(name=operation.name)
+            
+            logger.info("🕐 等待视频生成完成...")
+            
+            # 轮询操作状态
+            max_wait_time = 600  # 最多等待10分钟
+            check_interval = 10  # 每10秒检查一次
+            waited_time = 0
+            
+            while not video_operation.done and waited_time < max_wait_time:
+                logger.info(f"⏳ 视频生成中... 已等待 {waited_time}秒")
+                await asyncio.sleep(check_interval)
+                # 刷新操作对象以获取最新状态
+                video_operation = client.operations.get(video_operation)
+                waited_time += check_interval
+                
+                # 检查是否有错误
+                if hasattr(video_operation, 'error') and video_operation.error:
+                    logger.error(f"❌ 视频生成失败: {video_operation.error}")
+                    return False, f"视频生成失败: {video_operation.error}", None
+            
+            if not video_operation.done:
+                logger.error("❌ 视频生成超时")
+                return False, "视频生成超时，请稍后重试", None
+            
+            # 确保响应存在
+            if not hasattr(video_operation, 'response') or not video_operation.response:
+                logger.error("❌ 视频生成完成但没有响应")
+                return False, "视频生成失败：没有生成结果", None
+            
+            # 获取生成的视频
+            if not video_operation.response.generated_videos:
+                logger.error("❌ 没有生成视频")
+                return False, "视频生成失败：没有视频输出", None
+                
+            generated_video = video_operation.response.generated_videos[0]
+            
+            # 保存视频文件
+            video_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_name = "".join(c for c in attraction_info.get('name', 'unknown') if c.isalnum() or c in ('_', '-'))[:30]
+            video_filename = f"doro_video_{safe_name}_{video_timestamp}.mp4"
+            video_filepath = os.path.join(self.output_dir, video_filename)
+            
+            # 下载并保存视频
+            try:
+                client.files.download(file=generated_video.video)
+                generated_video.video.save(video_filepath)
+            except Exception as e:
+                logger.error(f"❌ 视频下载失败: {e}")
+                # 尝试直接保存视频数据
+                if hasattr(generated_video, 'video_data'):
+                    with open(video_filepath, 'wb') as f:
+                        f.write(generated_video.video_data)
+                else:
+                    return False, f"视频下载失败: {e}", None
+            
+            logger.info(f"✅ Doro合影视频生成成功: {video_filename}")
+            
+            # 注意：保留原始合成图片文件，因为它是正式生成的合影图片，用户可能需要
+            logger.info(f"📷 保留原始合成图片: {image_result.get('filepath', 'N/A')}")
+            
+            # 读取视频文件并转换为base64（用于前端显示）
+            with open(video_filepath, 'rb') as f:
+                video_data = f.read()
+            video_base64 = base64.b64encode(video_data).decode()
+            
+            return True, "Doro合影视频生成成功！", {
+                "video_url": f"data:video/mp4;base64,{video_base64}",
+                "filename": video_filename,
+                "filepath": video_filepath,
+                "static_image_url": image_result['image_url'],  # 也返回静态图片
+                "static_image_filepath": image_result.get('filepath'),  # 返回原始合成图片路径
+                "prompt_used": video_prompt,
+                "attraction_name": attraction_info.get("name"),
+                "timestamp": video_timestamp,
+                "generation_time": waited_time
+            }
+            
+        except Exception as e:
+            logger.error(f"生成Doro合影视频时出错: {str(e)}")
+            return False, f"视频生成失败: {str(e)}", None
     
+    def _generate_video_prompt_from_image_prompt(self, image_prompt: str, attraction_info: Dict) -> str:
+        """
+        基于图片生成提示词创建视频提示词
+        
+        Args:
+            image_prompt: 原始图片生成提示词
+            attraction_info: 景点信息
+            
+        Returns:
+            视频生成提示词
+        """
+        # 从图片提示词中提取关键信息
+        base_description = image_prompt
+        
+        # 如果图片提示词包含中文，转换为英文视频提示词
+        if any('\u4e00' <= char <= '\u9fff' for char in image_prompt):
+            # 中文提示词转换为英文视频描述
+            attraction_name = attraction_info.get('name', '景点')
+            location = attraction_info.get('location', attraction_info.get('address', ''))
+            
+            video_prompt = f"Create a cinematic 8-second video based on this scene: A real person and their charming animated character companion Doro at {attraction_name}"
+            
+            if location:
+                video_prompt += f" in {location}"
+            
+            # 添加动态元素
+            video_prompt += ". The person and Doro are happily posing together, both smiling and waving at the camera"
+            video_prompt += ". Gentle camera movement with natural lighting"
+            video_prompt += ". High-quality travel video style with smooth motion and vibrant colors"
+            video_prompt += ". No text overlays or written content in the scene"
+        else:
+            # 英文提示词，直接基于原提示词创建视频版本
+            video_prompt = f"Create a cinematic 8-second video of this scene: {base_description}"
+            video_prompt += ". Add gentle movement: the subjects wave and smile naturally at the camera"
+            video_prompt += ". Smooth camera work with professional travel video aesthetics"
+            video_prompt += ". Natural lighting and vibrant colors. No text or written content"
+        
+        return video_prompt
+    
+    def _convert_existing_to_imagen_format(self, image_result: Dict):
+        """
+        将现有合成图片转换为Veo 3 API兼容的格式
+        使用 types.Part.from_dict() 正确包装图片数据
+        
+        Args:
+            image_result: generate_doro_selfie_with_attraction返回的结果
+            
+        Returns:
+            types.Part对象，可直接传递给generate_videos
+        """
+        try:
+            from io import BytesIO
+            from PIL import Image
+            import base64
+            from google.genai import types
+            
+            # 1) 加载图像为PIL对象
+            if 'filepath' in image_result and os.path.exists(image_result['filepath']):
+                logger.info(f"📁 从文件加载现有合成图片: {image_result['filepath']}")
+                pil_image = Image.open(image_result['filepath'])
+            elif 'image_url' in image_result and isinstance(image_result['image_url'], str):
+                logger.info("📦 从base64数据加载现有合成图片")
+                data_url = image_result['image_url']
+                # 去掉 data:image/...;base64, 前缀
+                base64_part = data_url.split(',', 1)[1] if ',' in data_url else data_url
+                image_bytes_temp = base64.b64decode(base64_part)
+                pil_image = Image.open(BytesIO(image_bytes_temp))
+            else:
+                raise ValueError("无法找到有效的图片数据")
+
+            # 2) 规范化模式：如果有Alpha则转为RGB
+            if pil_image.mode == 'RGBA':
+                logger.info("🔄 将RGBA图片转换为RGB格式")
+                pil_image = pil_image.convert('RGB')
+            elif pil_image.mode not in ('RGB', 'RGBA'):
+                logger.info(f"🔄 将{pil_image.mode}格式转换为RGB")
+                pil_image = pil_image.convert('RGB')
+
+            # 3) 保存为PNG字节（保持高质量）
+            buffer = BytesIO()
+            pil_image.save(buffer, format='PNG')
+            buffer.seek(0)
+            png_bytes = buffer.getvalue()
+            buffer.close()
+
+            # 4) 编码为base64字符串
+            base64_encoded = base64.b64encode(png_bytes).decode('utf-8')
+
+            # 5) 使用 types.Part.from_dict() 正确包装
+            generated_image = types.Part.from_dict({
+                "inline_data": {
+                    "mime_type": "image/png",  # 注意：使用下划线格式
+                    "data": base64_encoded
+                }
+            })
+
+            logger.info("✅ 现有合成图片已转换为 types.Part 对象格式")
+            return generated_image
+
+        except Exception as e:
+            logger.error(f"❌ 转换现有图片格式失败: {e}")
+            raise Exception(f"图片格式转换失败: {e}")
     
     async def health_check(self) -> dict:
         """
