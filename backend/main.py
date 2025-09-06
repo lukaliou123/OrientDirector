@@ -1746,6 +1746,87 @@ async def generate_doro_selfie(
         raise HTTPException(status_code=500, detail=f"生成失败: {str(e)}")
 
 
+@app.post("/api/doro/generate-video")
+async def generate_doro_video(
+    user_photo: UploadFile = File(...),
+    doro_image: Optional[UploadFile] = File(None),
+    doro_id: Optional[str] = Form(None),
+    style_photo: Optional[UploadFile] = File(None),
+    attraction_name: str = Form(...),
+    attraction_type: Optional[str] = Form(None),
+    location: Optional[str] = Form(None),
+    doro_style: Optional[str] = Form("default"),
+    user_description: Optional[str] = Form(None),
+    time_of_day: Optional[str] = Form(None),
+    weather: Optional[str] = Form(None),
+    season: Optional[str] = Form(None),
+    mood: Optional[str] = Form(None)
+):
+    """
+    生成Doro合影视频
+    
+    使用Imagen生成静态合影图片，然后用Veo 3生成动态视频
+    """
+    try:
+        # 获取Doro图片
+        if doro_image:
+            doro_photo = doro_image
+        elif doro_id:
+            doro_path = doro_service.get_doro_by_id(doro_id)
+            if not doro_path:
+                raise HTTPException(status_code=404, detail="指定的Doro不存在")
+            
+            # 创建UploadFile对象
+            with open(doro_path, 'rb') as f:
+                doro_content = f.read()
+            
+            import io
+            doro_file = io.BytesIO(doro_content)
+            doro_file.seek(0)
+            doro_photo = UploadFile(
+                filename=doro_path.name,
+                file=doro_file
+            )
+        else:
+            raise HTTPException(status_code=400, detail="必须提供Doro图片或Doro ID")
+        
+        # 准备景点信息
+        attraction_info = {
+            "name": attraction_name,
+            "category": attraction_type,
+            "location": location,
+            "doro_style": doro_style,
+            "user_description": user_description,
+            "time_of_day": time_of_day,
+            "weather": weather,
+            "season": season,
+            "mood": mood
+        }
+        
+        # 调用Gemini服务生成视频
+        success, message, result = await gemini_service.generate_doro_video_with_attraction(
+            user_photo=user_photo,
+            doro_photo=doro_photo,
+            style_photo=style_photo,
+            attraction_info=attraction_info
+        )
+        
+        if success:
+            return {
+                "success": True,
+                "message": message,
+                "data": result
+            }
+        else:
+            raise HTTPException(status_code=500, detail=message)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"生成Doro合影视频失败: {e}")
+        raise HTTPException(status_code=500, detail=f"生成Doro合影视频失败: {str(e)}")
+
+
 @app.delete("/api/doro/{doro_id}")
 async def delete_custom_doro(doro_id: str):
     """
