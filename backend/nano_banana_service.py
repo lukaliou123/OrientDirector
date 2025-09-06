@@ -520,6 +520,182 @@ Natural environment as it appeared in {year} AD:
                 'api_available': False,
                 'error': str(e)
             }
+    
+    async def generate_historical_selfie(self, user_image_path: str, scene_description: str, political_entity: str, year: int) -> Dict:
+        """
+        生成历史自拍照片 - 使用Gemini 2.5 Flash Image的图生图功能
+        
+        Args:
+            user_image_path: 用户头像图片路径
+            scene_description: 历史场景描述
+            political_entity: 政治实体
+            year: 历史年份
+            
+        Returns:
+            Dict: 自拍生成结果
+        """
+        if not self.client_available:
+            return {
+                'success': False,
+                'error': 'Gemini API未配置，无法生成真实图生图',
+                'demo_mode_available': True
+            }
+        
+        try:
+            print(f"📸 开始Gemini图生图自拍生成...")
+            print(f"   用户图片: {user_image_path}")
+            print(f"   历史场景: {political_entity} ({year}年)")
+            
+            # 检查用户图片是否存在
+            if not os.path.exists(user_image_path):
+                return {
+                    'success': False,
+                    'error': f'用户头像不存在: {user_image_path}'
+                }
+            
+            # 加载用户头像
+            user_image = Image.open(user_image_path)
+            print(f"✅ 用户头像加载成功: {user_image.size}")
+            
+            # 构建自拍提示词
+            selfie_prompt = self.create_selfie_prompt(scene_description, political_entity, year)
+            print(f"📝 自拍提示词长度: {len(selfie_prompt)} 字符")
+            
+            # 按照官方文档进行图生图调用
+            start_time = time.time()
+            
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash-image-preview",  # Nano Banana模型
+                contents=[selfie_prompt, user_image]  # 文本提示 + 输入图像
+            )
+            
+            generation_time = time.time() - start_time
+            
+            # 处理响应
+            generated_selfie_url = None
+            ai_description = ""
+            
+            for part in response.candidates[0].content.parts:
+                if part.text is not None:
+                    ai_description = part.text
+                    print(f"📝 AI自拍描述: {ai_description[:100]}...")
+                    
+                elif part.inline_data is not None:
+                    # 保存生成的自拍图像
+                    selfie_image = Image.open(BytesIO(part.inline_data.data))
+                    
+                    # 创建自拍文件名
+                    timestamp = int(time.time())
+                    entity_name = political_entity.replace(' ', '_').replace('/', '_')
+                    filename = f"historical_selfie_{entity_name}_{year}_{timestamp}.png"
+                    
+                    # 保存到自拍目录
+                    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    selfies_dir = os.path.join(project_root, "static", "selfies")
+                    os.makedirs(selfies_dir, exist_ok=True)
+                    
+                    filepath = os.path.join(selfies_dir, filename)
+                    selfie_image.save(filepath)
+                    
+                    # 构建URL
+                    generated_selfie_url = f"http://localhost:8000/static/selfies/{filename}"
+                    
+                    print(f"💾 历史自拍已保存: {filepath}")
+                    print(f"🔗 访问URL: {generated_selfie_url}")
+                    print(f"🖼️ 自拍尺寸: {selfie_image.size}")
+                    
+                    break  # 只处理第一张图片
+            
+            if not generated_selfie_url:
+                return {
+                    'success': False,
+                    'error': '图生图响应中未找到生成的图像数据'
+                }
+            
+            return {
+                'success': True,
+                'selfie_url': generated_selfie_url,
+                'scene_info': {
+                    'political_entity': political_entity,
+                    'year': year,
+                    'selfie_description': ai_description,
+                    'generation_method': 'Gemini 2.5 Flash Image (图生图)',
+                    'user_image_used': user_image_path
+                },
+                'generation_time': generation_time,
+                'generation_model': 'Gemini 2.5 Flash Image (Nano Banana)',
+                'api_version': 'google-genai 1.32.0',
+                'demo_mode': False
+            }
+            
+        except Exception as e:
+            print(f"❌ Gemini图生图自拍生成失败: {e}")
+            return {
+                'success': False,
+                'error': f'图生图生成失败: {str(e)}',
+                'fallback_available': True
+            }
+    
+    def create_selfie_prompt(self, scene_description: str, political_entity: str, year: int) -> str:
+        """
+        创建历史自拍的提示词 - 优化版本，改善构图和融合效果
+        
+        Args:
+            scene_description: 历史场景描述
+            political_entity: 政治实体
+            year: 年份
+        """
+        prompt = f"""
+Create a perfect historical time-travel selfie featuring the person from the input photo visiting {political_entity} in {year} AD.
+
+**Historical Scene Context:**
+{scene_description}
+
+**Composition & Camera Angle:**
+- Shot from a slightly elevated selfie angle (15-20 degrees above eye level)
+- Person occupies the left 1/3 to 1/2 of the frame (typical selfie proportion)
+- Historical architecture and scene fills the background beautifully
+- Camera held at arm's length distance (about 2-3 feet from subject)
+- Maintain natural selfie perspective - not too wide, not too close
+
+**Person Integration:**
+- Keep the exact facial features, hair, and skin tone from the input photo
+- Dress the person in tasteful modern clothing that doesn't clash with the historical setting
+- Position naturally as a tourist/time-traveler taking a photo
+- Confident, friendly expression looking slightly toward the camera
+- One arm extended slightly (suggesting they're holding the camera)
+
+**Historical Background:**
+- Authentic {political_entity} architecture from {year} AD in sharp detail
+- Historical people in period-accurate clothing in the mid and background
+- Buildings, streets, and atmosphere true to the historical period
+- Rich historical details that clearly establish the time and place
+
+**Lighting & Visual Quality:**
+- Consistent natural lighting across person and background
+- Person lit with the same light source as the historical scene
+- No harsh shadows or lighting mismatches
+- Photorealistic quality throughout the entire image
+- Museum-quality historical accuracy for all background elements
+
+**Technical Perfection:**
+- Perfect perspective alignment between person and background
+- Natural depth of field (person in focus, background slightly softer)
+- Seamless integration - no obvious compositing artifacts
+- Balanced exposure across all elements
+- Sharp, high-resolution details
+
+**Avoid:**
+- Tilted or awkward angles that make the image look "crooked"
+- Unnatural lighting differences between person and background
+- Overly modern clothing that breaks historical immersion
+- Disproportionate sizing between person and architecture
+- Blurry or low-quality elements
+
+Create a stunning, natural-looking selfie that perfectly captures the magic of time travel to {political_entity} in {year} AD.
+        """.strip()
+        
+        return prompt
 
 
 # 全局实例

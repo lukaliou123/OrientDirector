@@ -1245,11 +1245,84 @@ async def generate_historical_selfie(request: HistoricalSelfieRequest):
                 demo_mode=True
             )
         else:
-            # 实际模式：将来使用Gemini图生图
-            raise HTTPException(
-                status_code=501, 
-                detail="实际模式的图生图功能尚未实现，请使用演示模式"
+            # 实际模式：使用Gemini图生图
+            print("🎨 实际模式：调用Gemini图生图API")
+            
+            # 获取用户头像路径
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            user_image_path = os.path.join(project_root, "static", "profile_photo", "profile.jpg")
+            
+            # 检查用户头像是否存在
+            if not os.path.exists(user_image_path):
+                raise HTTPException(
+                    status_code=400,
+                    detail="请先上传头像照片才能生成历史自拍"
+                )
+            
+            # 构建历史场景描述（模拟从历史数据中获取）
+            # 实际应用中，应该根据 scene_id 或 political_entity 从历史数据或之前生成的场景中获取描述
+            scene_descriptions = {
+                'Tang Empire': """800年的大唐长安城，盛世帝国的辉煌气象尽显。雄伟的木构宫殿群采用精湛的斗拱技术，琉璃瓦片金光闪闪。身着宽袖仙裙的贵族们丝绸华服上绣着凤凰牡丹，男性官员头戴进贤冠。街市上胡商云集，丝绸之路的奇珍异宝琳琅满目。""",
+                
+                'Tokugawa Shogunate': """1600年的江户（现东京），德川幕府的城下町呈现出严谨而繁荣的景象。木质的传统建筑沿街排列，青瓦屋顶在晨光中闪耀。武士们身着正式和服，腰间佩戴双刀，体现着"士农工商"社会秩序的顶层。""",
+                
+                'Papal States': """800年教皇国的罗马，作为基督教世界的精神圣地散发着神圣威严。罗马式教堂高耸云霄，圆拱石门雕刻着精美圣像。红衣主教身着华丽法衣主持仪式，修道士们穿着朴素僧袍诵经祈祷。"""
+            }
+            
+            scene_description = scene_descriptions.get(
+                request.political_entity,
+                f"{request.political_entity}在{request.year}年展现着该时代典型的文化风貌和社会特征。宏伟的建筑、传统的服装、繁忙的街市体现了这个政治实体的历史辉煌。"
             )
+            
+            # 调用图生图服务
+            selfie_result = await nano_banana_service.generate_historical_selfie(
+                user_image_path=user_image_path,
+                scene_description=scene_description,
+                political_entity=request.political_entity,
+                year=request.year
+            )
+            
+            calculation_time = time.time() - start_time
+            
+            if selfie_result['success']:
+                print(f"✅ 图生图自拍生成成功: {request.political_entity}")
+                print(f"⚡ 总处理时间: {calculation_time:.3f}秒")
+                
+                return HistoricalSelfieResponse(
+                    success=True,
+                    selfie_url=selfie_result['selfie_url'],
+                    scene_info=selfie_result['scene_info'],
+                    generation_time=calculation_time,
+                    demo_mode=False
+                )
+            else:
+                # 图生图失败，提供演示模式备选方案
+                print(f"❌ 图生图生成失败: {selfie_result.get('error')}")
+                
+                if selfie_result.get('demo_mode_available') or selfie_result.get('fallback_available'):
+                    print("🔄 回退到演示模式...")
+                    
+                    demo_selfie_url = "http://localhost:8000/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg"
+                    scene_info = {
+                        "political_entity": request.political_entity,
+                        "year": request.year,
+                        "selfie_description": f"与{request.political_entity}({request.year}年)的时光合影（演示模式备选）",
+                        "generation_method": "演示模式（API故障备选）",
+                        "original_error": selfie_result.get('error')
+                    }
+                    
+                    return HistoricalSelfieResponse(
+                        success=True,
+                        selfie_url=demo_selfie_url,
+                        scene_info=scene_info,
+                        generation_time=calculation_time,
+                        demo_mode=True
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"历史自拍生成失败: {selfie_result.get('error')}"
+                    )
             
     except HTTPException:
         raise
