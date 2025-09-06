@@ -36,7 +36,7 @@ def start_server():
     try:
         # 切换到backend目录
         os.chdir("backend")
-        subprocess.run([sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"])
+        subprocess.run([sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"])
     except KeyboardInterrupt:
         print("\n服务已停止")
     except Exception as e:

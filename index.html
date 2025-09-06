@@ -473,16 +473,16 @@
             // 决定使用哪个API URL
             if (localStorageConfig === 'false' && !isProduction) {
                 // 明确设置为本地开发
-                return 'http://localhost:8001';
+                return 'http://localhost:8002';
             } else if (localStorageConfig === 'true' || urlHasUseDomain || isProduction) {
                 // 生产环境或明确设置使用域名
                 return 'https://doro.gitagent.io';
             } else if (urlHasUseLocal) {
                 // URL参数明确指定使用本地
-                return 'http://localhost:8001';
+                return 'http://localhost:8002';
             } else {
                 // 默认：如果通过域名访问则使用域名，否则使用本地
-                return isProduction ? 'https://doro.gitagent.io' : 'http://localhost:8001';
+                return isProduction ? 'https://doro.gitagent.io' : 'http://localhost:8002';
             }
         }
         

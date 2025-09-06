@@ -34,28 +34,20 @@ def check_requirements():
     return True
 
 def setup_environment():
-    """设置虚拟环境和依赖"""
-    print("🛠️  设置环境...")
+    """安装必要依赖"""
+    print("🛠️  检查并安装依赖...")
     
-    # 创建虚拟环境（如果不存在）
-    if not Path("venv").exists():
-        print("   创建虚拟环境...")
-        subprocess.run([sys.executable, "-m", "venv", "venv"], check=True)
-    
-    # 安装依赖
-    print("   安装依赖包...")
-    if sys.platform == "win32":
-        pip_path = "venv/Scripts/pip"
-        python_path = "venv/Scripts/python"
-    else:
-        pip_path = "venv/bin/pip"
-        python_path = "venv/bin/python"
-    
-    subprocess.run([pip_path, "install", "-r", "requirements.txt"], check=True)
-    subprocess.run([pip_path, "install", "requests"], check=True)
-    
-    print("✅ 环境设置完成")
-    return python_path
+    try:
+        # 检查并安装依赖包
+        print("   安装依赖包...")
+        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
+        subprocess.run([sys.executable, "-m", "pip", "install", "requests"], check=True)
+        
+        print("✅ 依赖安装完成")
+        return sys.executable
+    except subprocess.CalledProcessError as e:
+        print(f"❌ 依赖安装失败: {e}")
+        return None
 
 def start_backend(python_path):
     """启动后端服务"""
@@ -66,7 +58,7 @@ def start_backend(python_path):
             python_path, "-m", "uvicorn", 
             "main:app", 
             "--host", "0.0.0.0", 
-            "--port", "8000",
+            "--port", "8002",
             "--reload"
         ], cwd="backend")
     
@@ -80,7 +72,7 @@ def start_backend(python_path):
     # 检查后端是否启动成功
     try:
         import requests
-        response = requests.get("http://localhost:8000/api/health", timeout=5)
+        response = requests.get("http://localhost:8002/api/health", timeout=5)
         if response.status_code == 200:
             print("✅ 后端服务启动成功")
             return True
@@ -106,7 +98,7 @@ def start_frontend():
                 self.send_header('Access-Control-Allow-Headers', 'Content-Type')
                 super().end_headers()
         
-        with socketserver.TCPServer(("", 3000), CustomHTTPRequestHandler) as httpd:
+        with socketserver.TCPServer(("", 3002), CustomHTTPRequestHandler) as httpd:
             httpd.serve_forever()
     
     frontend_thread = threading.Thread(target=run_frontend, daemon=True)
@@ -119,7 +111,7 @@ def open_browser():
     """打开浏览器"""
     print("🌍 打开浏览器...")
     time.sleep(1)
-    webbrowser.open('http://localhost:3000')
+    webbrowser.open('http://localhost:3002')
 
 def main():
     """主函数"""
@@ -133,8 +125,10 @@ def main():
         if not check_requirements():
             sys.exit(1)
         
-        # 设置环境
+        # 安装依赖
         python_path = setup_environment()
+        if not python_path:
+            sys.exit(1)
         
         # 启动后端
         if not start_backend(python_path):
@@ -149,9 +143,9 @@ def main():
         
         print("\n" + "🎉" * 20)
         print("应用启动成功！")
-        print("🌐 前端地址: http://localhost:3000")
-        print("🔧 后端API: http://localhost:8000")
-        print("📚 API文档: http://localhost:8000/docs")
+        print("🌐 前端地址: http://localhost:3002")
+        print("🔧 后端API: http://localhost:8002")
+        print("📚 API文档: http://localhost:8002/docs")
         print("🎉" * 20)
         print("\n使用说明:")
         print("1. 在移动设备上打开前端地址")

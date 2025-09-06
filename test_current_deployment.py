@@ -9,7 +9,7 @@ import json
 
 def test_api_endpoint():
     """测试API端点"""
-    url = "http://localhost:8000/api/explore-real"
+    url = "http://localhost:8002/api/explore-real"
     
     # 测试数据
     test_cases = [
@@ -91,7 +91,7 @@ def test_api_endpoint():
 def test_health():
     """测试健康状态"""
     try:
-        response = requests.get("http://localhost:8000/api/health", timeout=5)
+        response = requests.get("http://localhost:8002/api/health", timeout=5)
         if response.status_code == 200:
             print("✅ API服务正常运行")
             return True

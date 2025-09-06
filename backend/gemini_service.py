@@ -828,6 +828,7 @@ class GeminiImageService:
                     return False, f"保存图片失败: {str(save_error)}", None
                 
                 return True, "Doro合影生成成功！", {
+                    "image": generated_image,
                     "image_url": f"data:image/png;base64,{img_base64}",
                     "filename": filename,
                     "filepath": filepath,
@@ -893,6 +894,7 @@ class GeminiImageService:
             logger.info(f"📝 图片提示词: {image_prompt[:200]}...")
             
             try:
+                hh
                 # 主路径：使用 Imagen 3 生成静态图片，并直接传原始 image 对象
                 logger.info("🎨 使用 Imagen 3 生成静态图片（主路径）...")
                 imagen_response = client.models.generate_images(
@@ -928,6 +930,7 @@ class GeminiImageService:
                     'filepath': imagen_filepath
                 }
                 
+                
             except Exception as e:
                 logger.error(f"❌ Imagen生成失败，走降级路径: {e}")
                 # 降级路径：使用现有合影生成（含用户与Doro参照图），并以 SDK Part inline_data 结构传入视频接口
@@ -938,22 +941,27 @@ class GeminiImageService:
                     style_photo=style_photo,
                     attraction_info=attraction_info
                 )
+                print("111111111111111111111111111111111111111111111111111111111")
                 if not success:
                     return False, f"图片生成失败: {message}", None
 
-                # 将合影的 base64 包装为 Part inline_data（注意下划线命名）
-                from google.genai import types
-                image_base64 = image_result['image_url'].split(',')[1]
-                generated_image = types.Part.from_dict({
-                    "inline_data": {
-                        "mime_type": "image/png",
-                        "data": image_base64
-                    }
-                })
+
+                print("222222222222222222222222222222222222222222222222222222222")
+                image_path = image_result['filepath']
+                #image = image_result['image']
+                with open(image_path, 'rb') as f:
+                    image_bytes = f.read()
+                    print("image_bytes成功")
             
             # 第二步：使用Veo 3生成视频
             logger.info("🎬 第二步：使用Veo 3生成动态视频...")
             
+            image_obj = {
+                "imageBytes": image_bytes,
+                #"mimeType": "image/jpeg"
+                "mimeType": "image/png"
+    }
+
             # 生成视频提示词（传递图片提示词以保持一致性）
             video_prompt = self._generate_video_prompt(
                 attraction_info, 
@@ -966,7 +974,7 @@ class GeminiImageService:
             operation = client.models.generate_videos(
                 model="veo-3.0-generate-preview",
                 prompt=video_prompt,
-                image=generated_image,  # 直接使用Imagen生成的图片对象
+                image=image_obj,  # 直接使用Imagen生成的图片对象
             )
             
             logger.info(f"🎬 视频生成作业已启动: {operation.name}")

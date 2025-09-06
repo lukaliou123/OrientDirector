@@ -1106,7 +1106,7 @@ async def get_environment_config():
             api_base_url = "https://doro.gitagent.io"
             environment = "production"
         else:
-            api_base_url = "http://localhost:8001"
+            api_base_url = "http://localhost:8002"
             environment = "local"
         
         # 获取服务器信息
@@ -1120,8 +1120,8 @@ async def get_environment_config():
             "use_domain_name": use_domain_name,
             "server_info": {
                 "hostname": hostname,
-                "backend_port": 8001,
-                "frontend_port": 3001
+                "backend_port": 8002,
+                "frontend_port": 3002
             },
             "timestamp": time.time()
         }
@@ -1135,7 +1135,7 @@ async def get_environment_config():
             "success": False,
             "error": str(e),
             "environment": "local",
-            "api_base_url": "http://localhost:8001",
+            "api_base_url": "http://localhost:8002",
             "use_domain_name": False
         }
 
@@ -1714,4 +1714,4 @@ async def download_generated_image(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8002)

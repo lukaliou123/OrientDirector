@@ -4237,7 +4237,7 @@ window.EnvironmentConfig = {
         if (newValue) {
             logger.success('✅ 已切换到生产环境 (https://doro.gitagent.io)');
         } else {
-            logger.success('✅ 已切换到本地环境 (http://localhost:8001)');
+            logger.success('✅ 已切换到本地环境 (http://localhost:8002)');
         }
         
         return newValue;

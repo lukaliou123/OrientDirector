@@ -11,7 +11,7 @@ import time
 import sys
 from pathlib import Path
 
-PORT = 3001
+PORT = 3002
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     """自定义HTTP请求处理器，添加CORS支持"""

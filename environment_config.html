@@ -254,7 +254,7 @@
         // 获取API基础URL
         function getAPIBaseURL() {
             const usedomainname = localStorage.getItem('isUsedomainnameaddress') === 'true';
-            return usedomainname ? 'https://doro.gitagent.io' : 'http://localhost:8001';
+            return usedomainname ? 'https://doro.gitagent.io' : 'http://localhost:8002';
         }
         
         // 更新状态显示
@@ -276,7 +276,7 @@
             localStorage.setItem('isUsedomainnameaddress', useDomain.toString());
             
             addLog(`环境已切换到: ${env}`, 'success');
-            addLog(`API基础URL: ${useDomain ? 'https://doro.gitagent.io' : 'http://localhost:8001'}`, 'info');
+            addLog(`API基础URL: ${useDomain ? 'https://doro.gitagent.io' : 'http://localhost:8002'}`, 'info');
             addLog('请刷新主页面以应用新配置', 'warning');
             
             updateStatusDisplay();

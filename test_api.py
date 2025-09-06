@@ -10,7 +10,7 @@ def test_health():
     """测试健康检查端点"""
     print("🔍 测试健康检查...")
     try:
-        response = requests.get("http://localhost:8000/api/health")
+        response = requests.get("http://localhost:8002/api/health")
         if response.status_code == 200:
             print("✅ 健康检查通过")
             print(f"   响应: {response.json()}")
@@ -35,7 +35,7 @@ def test_explore():
     
     try:
         response = requests.post(
-            "http://localhost:8000/api/explore",
+            "http://localhost:8002/api/explore",
             json=test_data,
             headers={"Content-Type": "application/json"}
         )
@@ -62,7 +62,7 @@ def test_places():
     
     for mode in ["present", "past", "future"]:
         try:
-            response = requests.get(f"http://localhost:8000/api/places/{mode}")
+            response = requests.get(f"http://localhost:8002/api/places/{mode}")
             if response.status_code == 200:
                 data = response.json()
                 print(f"✅ {mode} 模式: {len(data['places'])} 个地点")
@@ -82,8 +82,8 @@ def main():
     
     print("\n" + "=" * 50)
     print("测试完成！")
-    print("\n📱 前端访问地址: http://localhost:3000")
-    print("📚 API文档地址: http://localhost:8000/docs")
+    print("\n📱 前端访问地址: http://localhost:3002")
+print("📚 API文档地址: http://localhost:8002/docs")
 
 if __name__ == "__main__":
     main()

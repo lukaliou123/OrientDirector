@@ -27,7 +27,7 @@ def test_journey_summary_api():
     try:
         # 发送POST请求
         response = requests.post(
-            'http://localhost:8000/api/journey-summary',
+            'http://localhost:8002/api/journey-summary',
             headers={'Content-Type': 'application/json'},
             json=test_data,
             timeout=30
@@ -98,7 +98,7 @@ def test_various_scenarios():
         print(f"\n🎯 测试场景: {scenario['name']}")
         try:
             response = requests.post(
-                'http://localhost:8000/api/journey-summary',
+                'http://localhost:8002/api/journey-summary',
                 headers={'Content-Type': 'application/json'},
                 json=scenario['data'],
                 timeout=30

@@ -21,9 +21,9 @@ if [ -f logs/frontend.pid ]; then
 fi
 
 # 强制停止相关进程
-echo "强制停止相关进程..."
-pkill -f "uvicorn.*main:app" || true
-pkill -f "python3.*start_frontend.py" || true
-pkill -f "python3.*start_backend.py" || true
+#echo "强制停止相关进程..."
+#pkill -f "uvicorn.*main:app" || true
+#pkill -f "python3.*start_frontend.py" || true
+#pkill -f "python3.*start_backend.py" || true
 
 echo "✅ 所有服务已停止"
