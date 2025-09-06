@@ -605,6 +605,30 @@
     transform: none;
 }
 
+.doro-video-btn {
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s;
+    min-width: 150px;
+}
+
+.doro-video-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.doro-video-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
 /* 自定义提示词输入框 */
 #doroCustomPrompt {
     width: 100%;
