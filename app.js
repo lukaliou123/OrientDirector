@@ -5501,6 +5501,37 @@ async function shareDoroSelfie() {
     }
 }
 
+// 显示Doro错误信息
+function showDoroError(message) {
+    // 隐藏加载状态
+    document.getElementById('doroLoading').style.display = 'none';
+    
+    // 隐藏结果区域
+    document.getElementById('doroResult').style.display = 'none';
+    document.getElementById('doroVideoResult').style.display = 'none';
+    
+    // 显示错误信息
+    document.getElementById('doroError').style.display = 'block';
+    document.getElementById('doroErrorMessage').textContent = message || '操作失败，请重试';
+    
+    // 滚动到错误区域
+    setTimeout(() => {
+        const errorElement = document.getElementById('doroError');
+        if (errorElement) {
+            errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
+}
+
+// 重置Doro生成器状态
+function resetDoroGenerator() {
+    // 隐藏所有状态区域
+    document.getElementById('doroLoading').style.display = 'none';
+    document.getElementById('doroResult').style.display = 'none';
+    document.getElementById('doroVideoResult').style.display = 'none';
+    document.getElementById('doroError').style.display = 'none';
+}
+
 // ==================== Doro视频生成功能 ====================
 
 // 生成Doro合影视频
@@ -5686,6 +5717,7 @@ async function shareDoroVideo() {
 window.openDoroSelfie = openDoroSelfie;
 window.closeDoroModal = closeDoroModal;
 window.resetDoroGenerator = resetDoroGenerator;
+window.showDoroError = showDoroError;
 window.switchDoroTab = switchDoroTab;
 window.handleDoroUserPhoto = handleDoroUserPhoto;
 window.handleCustomDoro = handleCustomDoro;
