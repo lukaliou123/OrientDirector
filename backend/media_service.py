@@ -15,9 +15,15 @@ class MediaService:
         os.makedirs(self.images_path, exist_ok=True)
     
     def get_placeholder_image(self, name: str, color: str = "4ECDC4") -> str:
-        """生成占位图片URL"""
-        encoded_name = name.replace(" ", "+")
-        return f"https://via.placeholder.com/800x400/{color}/FFFFFF?text={encoded_name}"
+        """生成占位图片URL - 使用本地SVG避免外部依赖"""
+        # 使用base64编码的SVG作为占位图
+        import base64
+        svg_content = f'''<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100%" height="100%" fill="#{color}"/>
+            <text x="50%" y="50%" font-family="Arial" font-size="24" fill="#FFFFFF" text-anchor="middle" dy=".3em">{name}</text>
+        </svg>'''
+        encoded_svg = base64.b64encode(svg_content.encode('utf-8')).decode('utf-8')
+        return f"data:image/svg+xml;base64,{encoded_svg}"
     
     def get_local_image_path(self, attraction_name: str) -> str:
         """获取本地图片路径"""

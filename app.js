@@ -1796,10 +1796,10 @@ function displayHistoryScenes() {
         historyCard.style.cursor = scene.reviewData ? 'pointer' : 'default';
         
         historyCard.innerHTML = `
-            <img src="${scene.image || 'https://via.placeholder.com/400x200?text=暂无图片'}" 
+            <img src="${scene.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='}" 
                  alt="${scene.name}" 
                  class="place-image"
-                 onerror="this.src='https://via.placeholder.com/400x200?text=暂无图片'">
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='"
             <div class="place-content">
                 <div class="place-header">
                     <h3 class="place-name">${scene.name}</h3>
@@ -3597,7 +3597,7 @@ function showAttractionRoamingSuccess(attraction) {
         <div class="place-details">
             ${attraction.image ? `
                 <img src="${attraction.image}" alt="${attraction.name}" class="place-photo" 
-                     onerror="this.src='https://via.placeholder.com/400x200/667eea/ffffff?text=${encodeURIComponent(attraction.name)}'">
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='"
             ` : ''}
             
             <p class="place-description">${attraction.description}</p>
@@ -3664,7 +3664,7 @@ function createAttractionCard(attraction, index) {
         <div class="place-media">
             ${attraction.image ? `
                 <img src="${attraction.image}" alt="${attraction.name}" class="place-image" 
-                     onerror="this.src='https://via.placeholder.com/400x200/667eea/ffffff?text=${encodeURIComponent(attraction.name)}'">
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='"
             ` : `
                 <div class="place-image-placeholder" style="
                     width: 100%;
@@ -4323,11 +4323,31 @@ function generateIntelligentPrompt(place) {
 // 景点合影生成功能
 function openSelfieGenerator(placeIndex, attractionName, location) {
     // 从全局场景数据中获取完整的景点信息
-    const place = sceneManagement.allScenes[placeIndex];
+    let place = null;
+    
+    // 首先尝试通过索引获取
+    if (placeIndex >= 0 && placeIndex < sceneManagement.allScenes.length) {
+        place = sceneManagement.allScenes[placeIndex];
+    }
+    
+    // 如果索引无效，尝试通过名称查找
+    if (!place && attractionName) {
+        place = sceneManagement.allScenes.find(p => p.name === attractionName);
+        if (place) {
+            logger.info(`通过名称找到景点: ${attractionName}`);
+        }
+    }
+    
+    // 如果仍然找不到，创建一个基本的景点对象
     if (!place) {
-        logger.error(`❌ 找不到索引为 ${placeIndex} 的景点信息`);
-        alert('景点信息获取失败，请重试');
-        return;
+        logger.warning(`无法找到景点信息，使用基本信息: ${attractionName}`);
+        place = {
+            name: attractionName || '未知景点',
+            city: location || '',
+            country: location || '',
+            latitude: null,
+            longitude: null
+        };
     }
     
     const finalAttractionName = place.name || attractionName;
@@ -4572,11 +4592,23 @@ window.generateAttractionPhoto = async function(attractionName, location, placeI
     }
     
     // 获取完整的景点信息
-    const place = window.currentAttractionInfo || sceneManagement.allScenes[placeIndex];
+    let place = window.currentAttractionInfo;
+    
+    // 如果没有当前景点信息，尝试从场景管理中获取
+    if (!place && placeIndex >= 0 && placeIndex < sceneManagement.allScenes.length) {
+        place = sceneManagement.allScenes[placeIndex];
+    }
+    
+    // 如果仍然没有，使用基本信息
     if (!place) {
-        alert('景点信息获取失败，请重试');
-        logger.error('❌ 无法获取景点信息');
-        return;
+        place = {
+            name: document.getElementById('attractionName')?.textContent || '未知景点',
+            city: document.getElementById('locationInfo')?.textContent || '',
+            country: '',
+            latitude: null,
+            longitude: null
+        };
+        logger.warning('使用基本景点信息生成合影');
     }
     
     const generateBtn = document.getElementById('attractionGenerateBtn') || document.getElementById('generateBtn');
@@ -4921,15 +4953,37 @@ let doroSelfieData = {
 
 // 打开Doro合影模态框
 function openDoroSelfie(placeIndex, attractionName, category, location) {
-    const place = sceneManagement.allScenes[placeIndex];
+    let place = null;
+    
+    // 首先尝试通过索引获取
+    if (placeIndex >= 0 && placeIndex < sceneManagement.allScenes.length) {
+        place = sceneManagement.allScenes[placeIndex];
+    }
+    
+    // 如果索引无效，尝试通过名称查找
+    if (!place && attractionName) {
+        place = sceneManagement.allScenes.find(p => p.name === attractionName);
+        if (place) {
+            logger.info(`通过名称找到景点: ${attractionName}`);
+        }
+    }
+    
+    // 如果仍然找不到，创建一个基本的景点对象
     if (!place) {
-        logger.error(`❌ 找不到索引为 ${placeIndex} 的景点信息`);
-        alert('景点信息获取失败，请重试');
-        return;
+        logger.warning(`无法找到景点信息，使用基本信息: ${attractionName}`);
+        place = {
+            name: attractionName || '未知景点',
+            city: location || '',
+            country: location || '',
+            category: category || '',
+            latitude: null,
+            longitude: null
+        };
     }
     
     // 保存当前景点信息
     doroSelfieData.currentPlaceIndex = placeIndex;
+    doroSelfieData.currentPlace = place;
     
     // 更新景点信息显示
     document.getElementById('doroAttractionName').textContent = place.name || attractionName;
@@ -5280,10 +5334,24 @@ async function generateDoroSelfie() {
         return;
     }
     
-    const place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
+    let place = null;
+    
+    // 尝试获取景点信息
+    if (doroSelfieData.currentPlaceIndex >= 0 && doroSelfieData.currentPlaceIndex < sceneManagement.allScenes.length) {
+        place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
+    }
+    
+    // 如果没有找到，使用存储的景点信息或基本信息
     if (!place) {
-        alert('景点信息丢失，请重新开始');
-        return;
+        place = doroSelfieData.currentPlace || {
+            name: document.querySelector('#doroAttractionName')?.textContent || '未知景点',
+            city: document.querySelector('#doroLocationInfo')?.textContent || '',
+            country: '',
+            category: '',
+            latitude: null,
+            longitude: null
+        };
+        logger.warning('使用备用景点信息生成Doro合影');
     }
     
     // 显示加载状态
