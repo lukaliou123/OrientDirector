@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Supabase配置
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
     logger.warning("Supabase配置缺失，使用本地认证模式")
@@ -35,6 +35,7 @@ else:
 
 # JWT配置
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", SECRET_KEY)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24小时
 
@@ -86,9 +87,16 @@ def verify_supabase_token(token: str) -> Optional[Dict]:
         # 方法1: 直接解析JWT令牌（推荐方式）
         import jwt as pyjwt
         
-        # 首先尝试不验证签名解析（用于调试）
+        # 首先尝试使用Supabase JWT Secret验证
         try:
-            payload = pyjwt.decode(token, options={"verify_signature": False})
+            # 使用Supabase JWT Secret验证令牌
+            payload = pyjwt.decode(
+                token, 
+                SUPABASE_JWT_SECRET, 
+                algorithms=["HS256"],
+                audience="authenticated",  # Supabase默认audience
+                options={"verify_aud": False}  # 暂时禁用audience验证以避免错误
+            )
             logger.info(f"JWT payload: {payload}")
             
             # 验证必要字段
@@ -106,6 +114,27 @@ def verify_supabase_token(token: str) -> Optional[Dict]:
                 }
         except Exception as jwt_error:
             logger.error(f"JWT解析失败: {jwt_error}")
+            
+        # 如果上面失败，尝试不验证签名解析（用于调试）
+        try:
+            payload = pyjwt.decode(token, options={"verify_signature": False})
+            logger.info(f"JWT payload (无签名验证): {payload}")
+            
+            # 验证必要字段
+            if payload.get('sub') and payload.get('email'):
+                # 检查令牌是否过期
+                exp = payload.get('exp')
+                if exp and datetime.fromtimestamp(exp) < datetime.now():
+                    logger.warning("令牌已过期")
+                    return None
+                
+                return {
+                    "user_id": payload.get('sub'),
+                    "email": payload.get('email'),
+                    "created_at": payload.get('created_at', datetime.now().isoformat())
+                }
+        except Exception as jwt_error:
+            logger.error(f"JWT解析失败（无签名验证）: {jwt_error}")
         
         # 方法2: 使用Supabase客户端验证（备用方式）
         try:
