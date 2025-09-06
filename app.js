@@ -723,14 +723,14 @@ function createPlaceCard(place, index) {
     card.dataset.placeIndex = index;
     
     const modeText = {
-        'present': t('exploration.modernMode'),
-        'past': t('exploration.ancientMode'),
-        'future': t('exploration.futureMode')
-    }[settings.timeMode] || t('exploration.modernMode');
+        'present': t('modernMode'),
+        'past': t('ancientMode'),
+        'future': t('futureMode')
+    }[settings.timeMode] || t('modernMode');
     
     // 格式化价格显示
     const formatPrice = (price) => {
-        if (!price) return t('exploration.noInfo');
+        if (!price) return t('noInfo');
         if (price.includes('免费') || price.includes('free')) {
             return `<span class="free-price">${price}</span>`;
         }
@@ -776,9 +776,9 @@ function createPlaceCard(place, index) {
             <div class="place-header">
                 <h3 class="place-name">
                     ${isCurrentLocation ? '📍 ' : ''}${place.name}
-                    ${isCurrentLocation ? `<span class="current-badge">${t('exploration.currentLocation')}</span>` : ''}
+                    ${isCurrentLocation ? `<span class="current-badge">${t('currentLocation')}</span>` : ''}
                 </h3>
-                <span class="place-distance">${isCurrentLocation ? `0m (${t('exploration.currentLocation')})` : formatDistance(place.distance)}</span>
+                <span class="place-distance">${isCurrentLocation ? `0m (${t('currentLocation')})` : formatDistance(place.distance)}</span>
             </div>
             
             ${place.category ? `<div class="place-category">🏷️ ${place.category}</div>` : ''}
@@ -819,10 +819,10 @@ function createPlaceCard(place, index) {
                         📍 当前位置
                     </button>
                     <button class="action-btn selfie-btn" onclick="requireLogin(openSelfieGenerator, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
-                        📸 ${t('exploration.generatePhoto')}
+                        📸 ${t('generatePhoto')}
                     </button>
                     <button class="action-btn doro-btn" onclick="requireLogin(openDoroSelfie, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
-                        🤝 ${t('exploration.doroPhoto')}
+                        🤝 ${t('doroPhoto')}
                     </button>
                     ${place.latitude && place.longitude ? `
                     <button class="action-btn streetview-btn" onclick="requireLogin(openStreetView, ${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
@@ -831,10 +831,10 @@ function createPlaceCard(place, index) {
                     ` : ''}
                 ` : `
                     <button class="action-btn selfie-btn" onclick="requireLogin(openSelfieGenerator, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="生成景点合影">
-                        📸 ${t('exploration.generatePhoto')}
+                        📸 ${t('generatePhoto')}
                     </button>
                     <button class="action-btn doro-btn" onclick="requireLogin(openDoroSelfie, ${index}, '${place.name.replace(/'/g, "\\'")}', '${place.category ? place.category.replace(/'/g, "\\'") : ""}', '${place.city ? place.city.replace(/'/g, "\\'") : (place.country ? place.country.replace(/'/g, "\\'") : "")}')" title="Doro与我合影">
-                        🤝 ${t('exploration.doroPhoto')}
+                        🤝 ${t('doroPhoto')}
                     </button>
                     ${place.latitude && place.longitude ? `
                     <button class="action-btn streetview-btn" onclick="requireLogin(openStreetView, ${place.latitude}, ${place.longitude}, '${place.name.replace(/'/g, "\\'")}')" title="查看街景">
@@ -3720,7 +3720,7 @@ function createAttractionCard(attraction, index) {
             
             <div class="place-actions">
                 <button class="action-btn primary" onclick="roamToAttraction('${selectedCity.key}', ${index})">
-                    🧭 ${t('exploration.exploreHere')}
+                    🧭 ${t('exploreHere')}
                 </button>
                 ${attraction.video ? `
                     <button class="action-btn" onclick="playVideo('${attraction.video}', '${attraction.name}')">
@@ -4863,7 +4863,7 @@ function generateSelfie() {
     }
     
     const { name, location, index } = window.currentAttractionInfo;
-    logger.info(`📸 ${t('exploration.generatePhoto')} - 景点: ${name}, 位置: ${location}, 索引: ${index}`);
+    logger.info(`📸 ${t('generatePhoto')} - 景点: ${name}, 位置: ${location}, 索引: ${index}`);
     
     // 调用生成景点合影照片函数
     window.generateAttractionPhoto(name, location, index);
