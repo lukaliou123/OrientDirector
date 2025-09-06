@@ -8,6 +8,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles_doro.css">
+    <!-- Supabase客户端 -->
+    <script src="./supabase-client.js"></script>
     <style>
         /* 指南针Logo样式 */
         .compass-logo {
@@ -700,7 +702,7 @@
                 return 'http://localhost:8001';
             } else {
                 // 默认：如果通过域名访问则使用域名，否则使用本地
-                return isProduction ? 'https://doro.gitagent.io' : 'http://localhost:8001';
+                return isProduction ? 'https://spot.gitagent.io' : 'http://localhost:8001';
             }
         }
         

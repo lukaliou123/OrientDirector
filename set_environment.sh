@@ -45,7 +45,7 @@ show_status() {
     
     if [ "${isUsedomainnameaddress}" = "true" ]; then
         echo "   环境类型: 生产环境"
-        echo "   API_BASE_URL: https://doro.gitagent.io"
+        echo "   API_BASE_URL: https://spot.gitagent.io"
     elif [ "${isUsedomainnameaddress}" = "false" ]; then
         echo "   环境类型: 本地环境"
         echo "   API_BASE_URL: http://localhost:8001"

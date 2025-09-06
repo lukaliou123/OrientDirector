@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登陆注册 - spot.gitagent.io</title>
+    <!-- Supabase客户端 -->
+    <script src="./supabase-client.js"></script>
     <style>
         * {
             margin: 0;
@@ -676,9 +678,51 @@
             hideMessages();
             
             try {
-                // 获取API基础URL
+                console.log('🔧 尝试Supabase登录:', email);
+                
+                // 首先尝试使用Supabase认证
+                if (window.supabaseAuth && typeof window.supabaseAuth.signIn === 'function') {
+                    try {
+                        // 确保Supabase客户端已初始化
+                        if (!window.supabaseAuth.client) {
+                            await window.supabaseAuth.initialize();
+                        }
+                        const result = await window.supabaseAuth.signIn(email, password);
+                        console.log('✅ Supabase登录成功:', result);
+                        
+                        // 保存token
+                        if (result.session?.access_token) {
+                            localStorage.setItem('access_token', result.session.access_token);
+                            localStorage.setItem('user_id', result.user?.id);
+                        }
+                        
+                        showSuccess(translations[currentLanguage].loginSuccess);
+                        
+                        // 通知父窗口登录成功
+                        setTimeout(() => {
+                            if (window.parent) {
+                                window.parent.postMessage({ 
+                                    action: 'authSuccess',
+                                    user: result.user,
+                                    session: result.session
+                                }, '*');
+                            }
+                        }, 1500);
+                        return;
+                    } catch (supabaseError) {
+                        console.log('⚠️ Supabase登录失败，尝试后端API:', supabaseError.message);
+                        
+                        // 如果是认证错误，直接显示错误信息
+                        if (supabaseError.message.includes('Invalid login credentials')) {
+                            showError(translations[currentLanguage].invalidCredentials);
+                            return;
+                        }
+                    }
+                }
+                
+                // 降级到后端API认证
                 const apiBaseUrl = window.parent ? window.parent.API_BASE_URL || 'http://localhost:8001' : 'http://localhost:8001';
-                console.log('🔧 使用API URL:', apiBaseUrl);
+                console.log('🔧 使用后端API URL:', apiBaseUrl);
                 console.log('📤 发送登录请求:', { email });
                 
                 const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
@@ -703,11 +747,15 @@
                     // 通知父窗口登录成功
                     setTimeout(() => {
                         if (window.parent) {
-                            window.parent.postMessage({ action: 'authSuccess' }, '*');
+                            window.parent.postMessage({ 
+                                action: 'authSuccess',
+                                token: data.access_token,
+                                user: data.user
+                            }, '*');
                         }
                     }, 1500);
                 } else {
-                    console.error('❌ 登录失败:', response.status, data);
+                    console.error('❌ 后端API登录失败:', response.status, data);
                     showError(data.detail || translations[currentLanguage].loginFailed);
                 }
             } catch (error) {
@@ -736,8 +784,41 @@
             hideMessages();
             
             try {
-                // 获取API基础URL
+                console.log('📝 尝试Supabase注册:', email);
+                
+                // 首先尝试使用Supabase认证
+                if (window.supabaseAuth && typeof window.supabaseAuth.signUp === 'function') {
+                    try {
+                        // 确保Supabase客户端已初始化
+                        if (!window.supabaseAuth.client) {
+                            await window.supabaseAuth.initialize();
+                        }
+                        const result = await window.supabaseAuth.signUp(email, password, username);
+                        console.log('✅ Supabase注册成功:', result);
+                        
+                        showSuccess(translations[currentLanguage].registerSuccess);
+                        
+                        // 切换到登录标签页
+                        setTimeout(() => {
+                            switchTab('login');
+                            document.getElementById('login-email').value = email;
+                        }, 1500);
+                        return;
+                    } catch (supabaseError) {
+                        console.log('⚠️ Supabase注册失败，尝试后端API:', supabaseError.message);
+                        
+                        // 如果是邮箱已存在错误，直接显示错误信息
+                        if (supabaseError.message.includes('already registered')) {
+                            showError(translations[currentLanguage].emailAlreadyRegistered);
+                            return;
+                        }
+                    }
+                }
+                
+                // 降级到后端API注册
                 const apiBaseUrl = window.parent ? window.parent.API_BASE_URL || 'http://localhost:8001' : 'http://localhost:8001';
+                console.log('🔧 使用后端API URL:', apiBaseUrl);
+                
                 const response = await fetch(`${apiBaseUrl}/api/auth/register`, {
                     method: 'POST',
                     headers: {
@@ -765,6 +846,7 @@
                     showError(data.detail || translations[currentLanguage].registerFailed);
                 }
             } catch (error) {
+                console.error('❌ 注册请求异常:', error);
                 showError(translations[currentLanguage].registerFailed);
             } finally {
                 hideLoading('register');

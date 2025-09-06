@@ -163,17 +163,17 @@ def start_backend():
                     # 同时输出到控制台和日志文件
                     print(line.rstrip())
                     logger.info(line.rstrip())
-    except KeyboardInterrupt:
-        logger.info("🛑 收到停止信号")
-        print("\n🛑 正在停止后端服务...")
-        
-        # 优雅关闭
-        process.terminate()
-        try:
-            process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            logger.warning("⚠️ 进程未在5秒内停止，强制终止")
-            process.kill()
+        except KeyboardInterrupt:
+            logger.info("🛑 收到停止信号")
+            print("\n🛑 正在停止后端服务...")
+            
+            # 优雅关闭
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                logger.warning("⚠️ 进程未在5秒内停止，强制终止")
+                process.kill()
             process.wait()
         
         logger.info("✅ 后端服务已停止")
