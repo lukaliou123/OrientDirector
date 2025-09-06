@@ -5541,25 +5541,10 @@ async function generateDoroVideo() {
         return;
     }
     
-    let place = null;
-    
-    // 尝试获取景点信息
-    if (doroSelfieData.currentPlaceIndex >= 0 && doroSelfieData.currentPlaceIndex < sceneManagement.allScenes.length) {
-        place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
-    }
-    
-    // 如果没有找到，使用存储的景点信息或基本信息
+    const place = sceneManagement.allScenes[doroSelfieData.currentPlaceIndex];
     if (!place) {
-        place = doroSelfieData.currentPlace || {
-            name: document.querySelector('#doroAttractionName')?.textContent || '未知景点',
-            city: document.querySelector('#doroAttractionLocation')?.textContent || '',
-            country: '',
-            category: '',
-            latitude: null,
-            longitude: null,
-            description: '美丽的景点'
-        };
-        logger.info('使用备用景点信息:', place);
+        alert('景点信息丢失，请重新开始');
+        return;
     }
     
     // 显示加载状态
@@ -5579,29 +5564,28 @@ async function generateDoroVideo() {
         formData.append('user_photo', doroSelfieData.userPhoto);
         
         // 添加Doro（ID或文件）
-        if (doroSelfieData.selectedDoro.startsWith('doro')) {
-            // 预设Doro，发送ID
-            formData.append('doro_id', doroSelfieData.selectedDoro);
+        if (doroSelfieData.selectedDoro.type === 'preset') {
+            formData.append('doro_id', doroSelfieData.selectedDoro.id);
         } else {
-            // 自定义Doro，发送文件
-            formData.append('doro_photo', doroSelfieData.doroPhoto);
+            // 自定义Doro，使用ID
+            formData.append('doro_id', `custom_${doroSelfieData.selectedDoro.id}`);
         }
         
-        // 添加可选的服装风格参考
+        // 添加服装风格（如果有）
         if (doroSelfieData.stylePhoto) {
             formData.append('style_photo', doroSelfieData.stylePhoto);
         }
         
-        // 添加自定义提示词
-        const customPrompt = document.getElementById('doroCustomPrompt').value.trim();
-        if (customPrompt) {
-            formData.append('custom_prompt', customPrompt);
-        }
-        
         // 添加景点信息
         formData.append('attraction_name', place.name);
-        formData.append('attraction_location', `${place.lat},${place.lng}`);
-        formData.append('attraction_description', place.description || '');
+        formData.append('attraction_type', place.category || '');
+        formData.append('location', place.city || place.country || '');
+        
+        // 添加自定义提示词
+        const customPrompt = document.getElementById('doroCustomPrompt').value;
+        if (customPrompt) {
+            formData.append('user_description', customPrompt);
+        }
         
         logger.info('🎬 开始生成Doro合影视频...');
         
@@ -5611,25 +5595,33 @@ async function generateDoroVideo() {
             body: formData
         });
         
-        const result = await response.json();
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || '视频生成失败');
+        }
         
-        if (result.success) {
-            // 保存生成的视频数据
-            doroSelfieData.generatedVideo = result.data;
+        const data = await response.json();
+        
+        if (data.success) {
+            // 显示结果
+            doroSelfieData.generatedVideo = data.data;
+            document.getElementById('generatedDoroVideo').src = data.data.video_url;
             
-            // 显示视频结果
-            displayDoroVideoResult(result.data);
-            logger.info('✅ Doro合影视频生成成功');
+            document.getElementById('doroLoading').style.display = 'none';
+            document.getElementById('doroVideoResult').style.display = 'block';
+            
+            logger.info(`✅ Doro合影视频生成成功: ${data.data.filename}`);
         } else {
-            throw new Error(result.message || '视频生成失败');
+            throw new Error(data.message || '视频生成失败');
         }
         
     } catch (error) {
         logger.error('❌ 生成Doro合影视频失败:', error);
-        showDoroError(`视频生成失败: ${error.message}`);
-    } finally {
-        // 隐藏加载状态
+        
         document.getElementById('doroLoading').style.display = 'none';
+        document.getElementById('doroError').style.display = 'block';
+        document.getElementById('doroErrorMessage').textContent = 
+            error.message || '视频生成失败，请重试';
     }
 }
 
