@@ -828,7 +828,7 @@ class GeminiImageService:
                     return False, f"保存图片失败: {str(save_error)}", None
                 
                 return True, "Doro合影生成成功！", {
-                    "image": generated_image,
+                    # "image": generated_image,
                     "image_url": f"data:image/png;base64,{img_base64}",
                     "filename": filename,
                     "filepath": filepath,
