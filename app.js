@@ -1357,81 +1357,163 @@ async function continueExploration(lat, lng) {
 async function endJourney() {
     logger.info('🏠 准备结束旅程...');
     
-    // 🎒 调用后端API结束旅程
+    // 🎒 调用后端API结束旅程并显示总结
     if (journeyManagement.isJourneyActive && journeyManagement.currentJourneyId) {
         try {
             const result = await endCurrentJourney(journeyManagement.currentJourneyId);
             
-            // 显示旅程摘要
-            await showJourneySummary(result);
+            // 显示旅程摘要 - 不要在显示后立即清除！
+            await showModernJourneySummary(result);
+            
+            logger.success('🏠 旅程结束，感谢使用背包客探索工具！');
+            showSuccess('✨ 期待您的下次探索！');
             
         } catch (error) {
-            logger.warning('结束旅程API调用失败，但将继续本地清理');
+            logger.warning('结束旅程API调用失败:', error);
+            // API失败时也显示本地总结
+            await showLocalJourneySummary();
         }
+    } else {
+        // 没有活跃旅程时也显示本地总结
+        logger.info('💡 没有活跃的旅程，显示本地总结');
+        await showLocalJourneySummary();
     }
-    
-    logger.success('🏠 旅程结束，感谢使用背包客探索工具！');
-    showSuccess('✨ 期待您的下次探索！');
     
     // 隐藏结束旅程按钮
     hideEndJourneyButton();
     
-    // TODO: 生成旅程总结卡片
-    // TODO: 统计访问场景、总距离等
-    
-    // 重置所有状态
-    clearResults();
-    resetToInitialState();
+    // ⚠️ 注意：不要在这里清除结果，让用户查看总结后再手动重置
+    // 用户可以通过"开始新旅程"按钮来重置状态
 }
 
-// 显示旅程摘要
-function showJourneySummary(journeyResult) {
+// 清除页面显示结果
+function clearResults() {
+    logger.info('🧹 清除页面显示结果...');
+    
+    // 清除地点容器
+    const placesContainer = document.getElementById('placesContainer');
+    if (placesContainer) {
+        placesContainer.innerHTML = '';
+        placesContainer.style.display = 'none';
+    }
+    
+    // 清除旅程总结容器
+    const summaryContainer = document.getElementById('journeySummaryContainer');
+    if (summaryContainer) {
+        summaryContainer.innerHTML = '';
+        summaryContainer.style.display = 'none';
+    }
+    
+    // 清除历史访问场景
+    const historyContainer = document.getElementById('historyPlacesContainer');
+    if (historyContainer) {
+        historyContainer.innerHTML = '';
+    }
+    
+    // 隐藏历史访问区域
+    const historySection = document.getElementById('journeyHistorySection');
+    if (historySection) {
+        historySection.style.display = 'none';
+    }
+    
+    // 清除加载状态
+    const loading = document.getElementById('loading');
+    if (loading) {
+        loading.style.display = 'none';
+    }
+    
+    // 清除历史模式面板显示
+    const historicalPanel = document.getElementById('historicalSelfiePanel');
+    if (historicalPanel) {
+        historicalPanel.style.display = 'none';
+    }
+    
+    logger.success('✅ 页面结果已清除');
+}
+
+// 显示本地旅程总结（备用方案）
+async function showLocalJourneySummary() {
+    logger.info('📊 显示本地旅程总结...');
+    
+    // 计算本地统计数据
+    const stats = calculateJourneyStats();
+    
     const summaryHtml = `
-        <div class="journey-summary" style="
+        <div class="journey-summary-card" style="
             margin: 20px 0;
-            padding: 20px;
+            padding: 24px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 12px;
+            border-radius: 16px;
             text-align: center;
             box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            animation: slideUp 0.5s ease-out;
         ">
-            <h3 style="margin: 0 0 16px 0; font-size: 1.6rem;">🎉 旅程完成！</h3>
-            <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px;">
+            <h2 style="margin: 0 0 20px 0; font-size: 1.8rem;">🎉 旅程完成！</h2>
+            <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0; flex-wrap: wrap;">
                 <div>
-                    <div style="font-size: 2rem; font-weight: bold;">${journeyResult.visited_scenes_count}</div>
-                    <div style="font-size: 0.9rem; opacity: 0.8;">访问场景</div>
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #FFD700;">${stats.scenesCount}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">访问场景</div>
                 </div>
                 <div>
-                    <div style="font-size: 2rem; font-weight: bold;">${journeyResult.total_distance_km.toFixed(1)}</div>
-                    <div style="font-size: 0.9rem; opacity: 0.8;">总距离(km)</div>
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #FFD700;">${stats.totalDistance.toFixed(1)}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">总距离(km)</div>
                 </div>
                 <div>
-                    <div style="font-size: 2rem; font-weight: bold;">⭐</div>
-                    <div style="font-size: 0.9rem; opacity: 0.8;">探索完成</div>
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #FFD700;">${Math.round(stats.totalTimeMinutes)}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">探索时间(分钟)</div>
                 </div>
+            </div>
+            <p style="font-size: 1.1rem; opacity: 0.95; margin: 20px 0; line-height: 1.5;">
+                🎊 恭喜完成这次精彩的探索之旅！每一步都是独特的发现，感谢您选择方向探索派对！
+            </p>
+            <div style="margin-top: 20px;">
+                <button onclick="startNewJourney()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: 2px solid rgba(255,255,255,0.3);
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    margin: 5px;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    🚀 开始新旅程
+                </button>
+                <button onclick="shareJourney()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: 2px solid rgba(255,255,255,0.3);
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    margin: 5px;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    🔗 分享旅程
+                </button>
             </div>
         </div>
     `;
     
-    // 在旅程总结区域显示摘要
-    const summaryContainer = document.getElementById('journeySummaryContainer');
-    if (summaryContainer) {
-        summaryContainer.style.display = 'block';
-        summaryContainer.innerHTML = summaryHtml;
+    // 显示总结卡片
+    const container = document.getElementById('journeySummaryContainer');
+    if (container) {
+        container.innerHTML = summaryHtml;
+        container.style.display = 'block';
         
-        // 隐藏地点容器
-        const placesContainer = document.getElementById('placesContainer');
-        if (placesContainer) {
-            placesContainer.style.display = 'none';
-        }
+        // 滚动到总结区域
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // 滚动到总结位置
-        summaryContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
-        logger.success('📊 旅程总结已显示');
+        logger.success('✅ 旅程总结卡片显示成功');
+    } else {
+        logger.error('❌ 找不到journeySummaryContainer');
     }
 }
+
+// ❌ 已删除简单版本的现代旅程总结函数，使用增强版本
 
 // 返回场景选择
 function backToSelection() {
@@ -2041,8 +2123,8 @@ function calculateJourneyStats() {
     };
 }
 
-// 增强的旅程总结功能
-async function showJourneySummary(journeyResult) {
+// 现代探索旅程总结功能
+async function showModernJourneySummary(journeyResult) {
     // 🔧 使用本地计算的统计数据，而不是依赖后端返回的数据
     const stats = calculateJourneyStats();
     
@@ -3747,7 +3829,7 @@ function skipSelfie() {
     logger.info('❌ 用户跳过自拍，直接总结旅途');
     
     // 直接显示旅途总结
-    showJourneySummary();
+    showHistoricalJourneySummary();
 }
 
 /**
@@ -3905,13 +3987,13 @@ async function generateHistoricalSelfie(scene) {
  */
 function continueToSummary() {
     logger.info('📖 进入旅途总结');
-    showJourneySummary();
+    showHistoricalJourneySummary();
 }
 
 /**
- * 显示旅途总结
+ * 显示历史时光旅途总结
  */
-function showJourneySummary() {
+function showHistoricalJourneySummary() {
     // 显示总结界面
     document.getElementById('selfieQuestion').style.display = 'none';
     document.getElementById('selfieSceneSelector').style.display = 'none'; 
@@ -4227,3 +4309,4 @@ window.shareJourney = shareJourney;
 window.backToSelfieQuestion = backToSelfieQuestion;
 window.triggerAvatarUpload = triggerAvatarUpload;
 window.handleAvatarUpload = handleAvatarUpload;
+window.clearResults = clearResults;

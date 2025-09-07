@@ -1417,7 +1417,7 @@
   "296dbcd2-53cc-4249-9ae0-5b6f20704e69": {
     "journey_id": "296dbcd2-53cc-4249-9ae0-5b6f20704e69",
     "start_time": "2025-09-07T17:57:41.914631",
-    "end_time": null,
+    "end_time": "2025-09-07T18:03:37.960322",
     "start_location": {
       "lat": 35.7148,
       "lng": 139.7967,
@@ -1425,10 +1425,10 @@
       "address": null
     },
     "current_location": {
-      "lat": 35.4744015,
-      "lng": 140.0542111,
-      "name": "姊崎天神山古坟",
-      "address": "姊崎天神山古坟是一个旅游景点，Google评分3.3⭐，位于市原市，是值得一游的地方。"
+      "lat": 35.4206282,
+      "lng": 139.8970994,
+      "name": "金田海岸潮干狩場",
+      "address": "金田海岸潮干狩場是一个旅游景点，Google评分3.8⭐，位于Kisarazu，是值得一游的地方。"
     },
     "visited_scenes": [
       {
@@ -1458,11 +1458,186 @@
         "duration_minutes": null,
         "user_rating": null,
         "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "48c6e852-a2b9-4dd1-a2aa-8615782c8305",
+        "name": "金田海岸潮干狩場",
+        "location": {
+          "lat": 35.4206282,
+          "lng": 139.8970994,
+          "name": "金田海岸潮干狩場",
+          "address": "金田海岸潮干狩場是一个旅游景点，Google评分3.8⭐，位于Kisarazu，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:03:09.556915",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
       }
     ],
     "total_distance_km": 0.0,
-    "is_active": true,
+    "is_active": false,
     "journey_title": "探索之旅 2025/9/7 17:57:41",
     "created_at": "2025-09-07T17:57:41.914631"
+  },
+  "aaffeb03-e943-483c-ba40-02e31450a1da": {
+    "journey_id": "aaffeb03-e943-483c-ba40-02e31450a1da",
+    "start_time": "2025-09-07T18:20:08.685957",
+    "end_time": "2025-09-07T18:22:08.634052",
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.7208609,
+      "lng": 139.9492536,
+      "name": "法華經寺",
+      "address": "法華經寺是一个旅游景点，Google评分4.2⭐，位于Ichikawa，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "1fc97da7-eb82-48a1-9492-35df46ef5a2f",
+        "name": "柴又帝释天",
+        "location": {
+          "lat": 35.75840609999999,
+          "lng": 139.8784378,
+          "name": "柴又帝释天",
+          "address": "柴又帝释天是一个旅游景点，Google评分4.3⭐，位于Katsushika City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:20:14.975682",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "5d9355cf-a4a7-4de9-a9b1-98bb8c959a6d",
+        "name": "法華經寺",
+        "location": {
+          "lat": 35.7208609,
+          "lng": 139.9492536,
+          "name": "法華經寺",
+          "address": "法華經寺是一个旅游景点，Google评分4.2⭐，位于Ichikawa，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:21:27.836551",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/7 18:20:08",
+    "created_at": "2025-09-07T18:20:08.685957"
+  },
+  "37f2cde2-9b58-483a-8184-b5192ae37bad": {
+    "journey_id": "37f2cde2-9b58-483a-8184-b5192ae37bad",
+    "start_time": "2025-09-07T18:27:30.043591",
+    "end_time": "2025-09-07T18:28:19.380584",
+    "start_location": {
+      "lat": 35.6764225,
+      "lng": 139.650027,
+      "name": "位置 35.6764, 139.6500",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.7800505,
+      "lng": 139.7800452,
+      "name": "西新井大师 总持寺",
+      "address": "西新井大师 总持寺是一个旅游景点，Google评分4.2⭐，位于Adachi City，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "875247f1-e812-4f52-825b-fa83a9562be0",
+        "name": "阳光水族馆",
+        "location": {
+          "lat": 35.7289254,
+          "lng": 139.7201573,
+          "name": "阳光水族馆",
+          "address": "阳光水族馆是一个水族馆，Google评分4.2⭐，位于3-chōme-１ Higashiikebukuro，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:27:36.343167",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "95007737-ca3a-4806-afe5-99a5e122642a",
+        "name": "西新井大师 总持寺",
+        "location": {
+          "lat": 35.7800505,
+          "lng": 139.7800452,
+          "name": "西新井大师 总持寺",
+          "address": "西新井大师 总持寺是一个旅游景点，Google评分4.2⭐，位于Adachi City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:28:08.202607",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/7 18:27:30",
+    "created_at": "2025-09-07T18:27:30.043591"
+  },
+  "f9a7c92d-b4c4-4454-a4ab-502569f290b5": {
+    "journey_id": "f9a7c92d-b4c4-4454-a4ab-502569f290b5",
+    "start_time": "2025-09-07T18:30:34.509834",
+    "end_time": "2025-09-07T18:30:45.747876",
+    "start_location": {
+      "lat": 35.7800505,
+      "lng": 139.7800452,
+      "name": "位置 35.7801, 139.7800",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.7800505,
+      "lng": 139.7800452,
+      "name": "位置 35.7801, 139.7800",
+      "address": null
+    },
+    "visited_scenes": [],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/7 18:30:34",
+    "created_at": "2025-09-07T18:30:34.509834"
+  },
+  "89af6ecb-3440-4a7d-8a6e-453171fd5595": {
+    "journey_id": "89af6ecb-3440-4a7d-8a6e-453171fd5595",
+    "start_time": "2025-09-07T18:31:11.982981",
+    "end_time": "2025-09-07T18:31:35.366093",
+    "start_location": {
+      "lat": 35.6764225,
+      "lng": 139.650027,
+      "name": "位置 35.6764, 139.6500",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.696238,
+      "lng": 139.5704317,
+      "name": "三鹰之森吉卜力美术馆",
+      "address": "三鹰之森吉卜力美术馆是一个旅游景点，Google评分4.5⭐，位于Mitaka，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "7ef6d321-e9dc-4bd2-9e54-f5b3fa8a18c0",
+        "name": "三鹰之森吉卜力美术馆",
+        "location": {
+          "lat": 35.696238,
+          "lng": 139.5704317,
+          "name": "三鹰之森吉卜力美术馆",
+          "address": "三鹰之森吉卜力美术馆是一个旅游景点，Google评分4.5⭐，位于Mitaka，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:31:16.471553",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/7 18:31:11",
+    "created_at": "2025-09-07T18:31:11.982981"
   }
 }
