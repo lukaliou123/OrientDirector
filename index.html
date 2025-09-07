@@ -128,24 +128,51 @@
 
         function toggleNavigationPanel() {
             console.log('toggleNavigationPanel 被调用');
-            const panel = document.getElementById('navigationPanel');
+            const collapsibleSettings = document.getElementById('collapsibleNavigationSettings');
             const toggleText = document.getElementById('navigation-toggle-text');
             const t = translations[currentLanguage] || translations['zh'];
             
-            if (panel) {
-                const isVisible = panel.classList.contains('show');
+            if (collapsibleSettings) {
+                // 获取计算后的样式来判断当前状态
+                const computedStyle = window.getComputedStyle(collapsibleSettings);
+                const isVisible = computedStyle.display !== 'none';
                 
                 if (isVisible) {
-                    panel.classList.remove('show');
+                    collapsibleSettings.style.display = 'none';
                     if (toggleText) toggleText.textContent = t.showNavigationPanel || '显示导航面板';
-                    console.log('导航面板已隐藏');
+                    console.log('导航设置区域已隐藏');
                 } else {
-                    panel.classList.add('show');
+                    collapsibleSettings.style.display = 'block';
                     if (toggleText) toggleText.textContent = t.hideNavigationPanel || '隐藏导航面板';
-                    console.log('导航面板已显示');
+                    console.log('导航设置区域已显示');
                 }
             } else {
-                console.error('找不到 navigationPanel 元素');
+                console.error('找不到 collapsibleNavigationSettings 元素');
+            }
+        }
+        
+        function toggleTravelGuide() {
+            console.log('toggleTravelGuide 被调用');
+            const travelGuideGenerator = document.getElementById('travelGuideGenerator');
+            const toggleText = document.getElementById('travel-guide-toggle-text');
+            const t = translations[currentLanguage] || translations['zh'];
+            
+            if (travelGuideGenerator) {
+                // 获取计算后的样式来判断当前状态
+                const computedStyle = window.getComputedStyle(travelGuideGenerator);
+                const isVisible = computedStyle.display !== 'none';
+                
+                if (isVisible) {
+                    travelGuideGenerator.style.display = 'none';
+                    if (toggleText) toggleText.textContent = t.showTravelGuide || '显示生成导航';
+                    console.log('一句话生成导航区域已隐藏');
+                } else {
+                    travelGuideGenerator.style.display = 'block';
+                    if (toggleText) toggleText.textContent = t.hideTravelGuide || '隐藏生成导航';
+                    console.log('一句话生成导航区域已显示');
+                }
+            } else {
+                console.error('找不到 travelGuideGenerator 元素');
             }
         }
         
@@ -539,15 +566,18 @@
         
         <!-- 导航控制栏 -->
         <div class="navigation-control-bar">
+            <button class="travel-guide-toggle-btn" onclick="toggleTravelGuide()" title="一句话生成导航">
+                ✨ <span id="travel-guide-toggle-text">隐藏生成导航</span>
+            </button>
             <button class="navigation-toggle-btn" onclick="toggleNavigationPanel()" title="地图景点导航">
-                🗺️ <span id="navigation-toggle-text">显示导航面板</span>
+                🗺️ <span id="navigation-toggle-text">隐藏导航面板</span>
             </button>
         </div>
 
         <!-- 导航面板 -->
-        <div class="navigation-panel" id="navigationPanel">
+        <div class="navigation-panel show" id="navigationPanel">
             <!-- 一句话生成旅游导航图功能 -->
-            <div class="travel-guide-generator">
+            <div class="travel-guide-generator" id="travelGuideGenerator">
                 <h3 class="generator-title">🗺️ <span id="travel-guide-title">一句话生成旅游导航图</span></h3>
                 <div class="generator-input-section">
                     <div class="input-group">
@@ -601,34 +631,35 @@
             
             <div class="panel-divider"></div>
             
-            <!-- 原有设置 -->
-            <div class="navigation-settings">
-                <h3 class="settings-title">⚙️ <span id="navigation-settings-title">导航设置</span></h3>
+            <!-- 可折叠的导航设置区域 -->
+            <div class="collapsible-navigation-settings" id="collapsibleNavigationSettings">
+                <div class="navigation-settings">
+                    <h3 class="settings-title">⚙️ <span id="navigation-settings-title">导航设置</span></h3>
+                    <div class="setting-group">
+                        <label>目标距离:</label>
+                        <select id="segmentDistance" onchange="updateSettings()">
+                            <option value="5">5km</option>
+                            <option value="10" selected>10km</option>
+                            <option value="15">15km</option>
+                            <option value="20">20km</option>
+                        </select>
+                    </div>
                 <div class="setting-group">
-                    <label>目标距离:</label>
-                    <select id="segmentDistance" onchange="updateSettings()">
-                        <option value="5">5km</option>
-                        <option value="10" selected>10km</option>
-                        <option value="15">15km</option>
-                        <option value="20">20km</option>
+                    <label>模式:</label>
+                    <select id="timeMode" onchange="updateSettings()">
+                        <option value="present" selected>现代模式</option>
+                        <option value="past">古代模式</option>
                     </select>
                 </div>
-            <div class="setting-group">
-                <label>模式:</label>
-                <select id="timeMode" onchange="updateSettings()">
-                    <option value="present" selected>现代模式</option>
-                    <option value="past">古代模式</option>
-                </select>
-            </div>
 
-            <div class="setting-group">
-                <label>速度 (km/h):</label>
-                <input type="number" id="speed" value="120" min="1" max="1000" onchange="updateSettings()">
-            </div>
+                <div class="setting-group">
+                    <label>速度 (km/h):</label>
+                    <input type="number" id="speed" value="120" min="1" max="1000" onchange="updateSettings()">
+                </div>
 
-            <!-- 城市漫游功能 -->
-            <div class="setting-group roaming-section">
-                <label class="roaming-title" id="cityRoamingTitle">🌍 城市漫游:</label>
+                <!-- 城市漫游功能 -->
+                <div class="setting-group roaming-section">
+                    <label class="roaming-title" id="cityRoamingTitle">🌍 城市漫游:</label>
                 
                 <!-- 城市选择器 -->
                 <div class="city-selector">
@@ -671,6 +702,7 @@
                 <div class="roaming-status" id="roamingStatus" style="display: none;">
                     <div class="loading-spinner"></div>
                     <span id="roamingStatusText">正在加载城市信息...</span>
+                </div>
                 </div>
             </div>
         </div>
@@ -1341,6 +1373,8 @@
                 doroErrorMessage: "这点小故障，你看肿么办？",
                 showNavigationPanel: "显示导航面板",
                 hideNavigationPanel: "隐藏导航面板",
+                showTravelGuide: "显示生成导航",
+                hideTravelGuide: "隐藏生成导航",
                 navigationPanel: "地图景点导航",
                 travelGuideTitle: "一句话生成旅游导航图",
                 generateGuideText: "生成导航图",

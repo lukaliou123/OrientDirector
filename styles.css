@@ -64,6 +64,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .navigation-toggle-btn {
@@ -88,6 +90,31 @@ body {
 }
 
 .navigation-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.travel-guide-toggle-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.travel-guide-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.travel-guide-toggle-btn:active {
     transform: translateY(0);
 }
 
@@ -1577,18 +1604,25 @@ body {
     /* 导航控制栏移动端适配 */
     .navigation-control-bar {
         padding: 12px 15px;
+        flex-direction: column;
+        gap: 10px;
     }
     
-    .navigation-toggle-btn {
+    .navigation-toggle-btn,
+    .travel-guide-toggle-btn {
         padding: 10px 20px;
         font-size: 14px;
+        width: 100%;
+        justify-content: center;
     }
     
-    #navigation-toggle-text {
+    #navigation-toggle-text,
+    #travel-guide-toggle-text {
         display: none;
     }
     
-    .navigation-toggle-btn::after {
+    .navigation-toggle-btn::after,
+    .travel-guide-toggle-btn::after {
         content: attr(title);
         margin-left: 8px;
         font-size: 14px;
