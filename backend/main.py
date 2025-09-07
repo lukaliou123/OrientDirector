@@ -20,8 +20,11 @@ from ai_service import get_ai_service
 from historical_service import historical_service
 from nano_banana_service import nano_banana_service
 
-# 加载环境变量
-load_dotenv()
+# 加载环境变量 - 指定.env文件路径（在项目根目录）
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+load_dotenv(env_path)
+print(f"📄 环境变量文件: {env_path}")
+print(f"🔑 GOOGLE_MAPS_API_KEY: {'已加载' if os.getenv('GOOGLE_MAPS_API_KEY') else '未找到'}")
 
 app = FastAPI(title="方向探索派对API", version="1.0.0")
 

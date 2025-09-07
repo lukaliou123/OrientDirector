@@ -1376,5 +1376,93 @@
     "is_active": false,
     "journey_title": "探索之旅 2025/9/3 00:27:26",
     "created_at": "2025-09-03T00:27:26.055012"
+  },
+  "31b20557-e8d1-4418-a5bb-5dbdaa85b9a8": {
+    "journey_id": "31b20557-e8d1-4418-a5bb-5dbdaa85b9a8",
+    "start_time": "2025-09-07T17:54:08.709435",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.67928014062885,
+      "lng": 139.9037249960769,
+      "name": "历史寺院",
+      "address": "古老的佛教寺院，承载着悠久的历史和文化传统"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "328c649c-5b85-47eb-bb52-d1342f2407b8",
+        "name": "历史寺院",
+        "location": {
+          "lat": 35.67928014062885,
+          "lng": 139.9037249960769,
+          "name": "历史寺院",
+          "address": "古老的佛教寺院，承载着悠久的历史和文化传统"
+        },
+        "visit_time": "2025-09-07T17:56:34.850504",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/7 17:54:08",
+    "created_at": "2025-09-07T17:54:08.709435"
+  },
+  "296dbcd2-53cc-4249-9ae0-5b6f20704e69": {
+    "journey_id": "296dbcd2-53cc-4249-9ae0-5b6f20704e69",
+    "start_time": "2025-09-07T17:57:41.914631",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.4744015,
+      "lng": 140.0542111,
+      "name": "姊崎天神山古坟",
+      "address": "姊崎天神山古坟是一个旅游景点，Google评分3.3⭐，位于市原市，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "3ea7befd-4c26-4c1c-9d5d-79373a18a394",
+        "name": "Sakura Square",
+        "location": {
+          "lat": 35.6590228,
+          "lng": 140.0242747,
+          "name": "Sakura Square",
+          "address": "Sakura Square是一个旅游景点，Google评分4.5⭐，位于Narashino，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T17:58:10.136978",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "bb7030ab-b03e-4b9c-86f5-1a897a13b39a",
+        "name": "姊崎天神山古坟",
+        "location": {
+          "lat": 35.4744015,
+          "lng": 140.0542111,
+          "name": "姊崎天神山古坟",
+          "address": "姊崎天神山古坟是一个旅游景点，Google评分3.3⭐，位于市原市，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-07T18:00:11.128425",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/7 17:57:41",
+    "created_at": "2025-09-07T17:57:41.914631"
   }
 }

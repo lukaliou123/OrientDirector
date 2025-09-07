@@ -10,6 +10,7 @@ from typing import List, Dict, Optional
 import json
 from local_attractions_db import local_attractions_db
 from amap_service import amap_service
+from google_places_service import google_places_service
 import os
 from datetime import datetime
 
@@ -60,15 +61,67 @@ class RealDataService:
         except Exception as e:
             print(f"保存缓存失败: {e}")
     
+    def is_overseas_location(self, lat: float, lng: float) -> bool:
+        """
+        判断坐标是否在海外
+        
+        Args:
+            lat: 纬度
+            lng: 经度
+            
+        Returns:
+            bool: True表示海外，False表示中国大陆
+        """
+        # 中国大陆边界框（简化版）
+        china_bounds = {
+            'north': 53.5,  # 黑龙江北端
+            'south': 18.2,  # 海南南端  
+            'east': 134.7,  # 黑龙江东端
+            'west': 73.6    # 新疆西端
+        }
+        
+        return not (china_bounds['south'] <= lat <= china_bounds['north'] and 
+                   china_bounds['west'] <= lng <= china_bounds['east'])
+    
     async def get_real_places_along_route(self, points: List[Dict], time_mode: str = 'present') -> List[Dict]:
-        """获取目标点周围的真实地点信息"""
+        """获取目标点周围的真实地点信息（智能API选择）"""
         places = []
         
-        async with aiohttp.ClientSession() as session:
-            for point in points:
-                # 获取目标点周围5km内的多个景点
-                nearby_places = await self.get_nearby_attractions(session, point, time_mode, radius_km=5)
-                places.extend(nearby_places)
+        for point in points:
+            lat, lng = point['latitude'], point['longitude']
+            
+            print(f"🌍 检查坐标位置: ({lat:.4f}, {lng:.4f})")
+            
+            # 🔑 关键：根据坐标判断使用哪个API
+            if self.is_overseas_location(lat, lng):
+                print(f"✈️ 检测为海外坐标，使用Google Places API")
+                # 海外坐标：使用Google Places API
+                try:
+                    google_places = await google_places_service.search_nearby_places(
+                        lat, lng, radius=5000  # 5km
+                    )
+                    formatted_places = await self.format_google_places_data(google_places, point)
+                    
+                    if formatted_places:
+                        places.extend(formatted_places)
+                        print(f"🌍 Google Places API返回 {len(formatted_places)} 个场所")
+                    else:
+                        print(f"⚠️ Google Places API无结果，启用国际化降级机制...")
+                        fallback_places = await self.generate_international_fallback_data(point, time_mode)
+                        places.extend(fallback_places)
+                        
+                except Exception as e:
+                    print(f"❌ Google Places API调用失败: {e}")
+                    print(f"🎭 启用国际化降级机制...")
+                    # 降级到虚拟数据，但使用国际化名称
+                    fallback_places = await self.generate_international_fallback_data(point, time_mode)
+                    places.extend(fallback_places)
+            else:
+                print(f"🇨🇳 检测为中国坐标，使用高德API")
+                # 中国坐标：使用高德API（保持现有逻辑）
+                async with aiohttp.ClientSession() as session:
+                    nearby_places = await self.get_nearby_attractions(session, point, time_mode, radius_km=5)
+                    places.extend(nearby_places)
         
         self.save_cache()  # 保存缓存
         return places
@@ -792,6 +845,323 @@ class RealDataService:
         
         # 默认图片
         return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400"
+    
+    async def format_google_places_data(self, google_places: List[Dict], point: Dict) -> List[Dict]:
+        """
+        将Google Places数据转换为统一格式
+        
+        Args:
+            google_places: Google Places API返回的原始数据
+            point: 目标点信息
+            
+        Returns:
+            List[Dict]: 格式化后的场所数据
+        """
+        formatted_places = []
+        
+        for place in google_places:
+            # 提取基本信息
+            place_info = google_places_service.extract_place_info(place)
+            
+            # 转换为应用统一格式
+            formatted_place = {
+                'name': place_info['name'],
+                'latitude': place_info['latitude'],
+                'longitude': place_info['longitude'],
+                'distance': point['distance'],
+                'description': self.generate_place_description_from_google(place, place_info),
+                'image': place_info['photo_url'] or self.get_fallback_image_for_type(place_info['types']),
+                'category': place_info['primary_type'],
+                'opening_hours': self.format_google_opening_hours(place_info.get('is_open_now')),
+                'rating': f"Google评分：{place_info['rating']}⭐" if place_info['rating'] > 0 else 'N/A',
+                'place_id': place_info['place_id'],  # 🔑 重要：用于Street View定位
+                'country': self.extract_country_from_google_address(place_info['address']),
+                'city': self.extract_city_from_google_address(place_info['address']),
+                'ticket_price': self.estimate_ticket_price_by_type(place_info['types']),
+                'booking_method': '现场购票或在线预约'
+            }
+            formatted_places.append(formatted_place)
+            
+            # 限制返回数量
+            if len(formatted_places) >= 5:
+                break
+        
+        return formatted_places
+    
+    def generate_place_description_from_google(self, place: Dict, place_info: Dict) -> str:
+        """根据Google Places数据生成场所描述"""
+        name = place_info['name']
+        category = place_info['primary_type']
+        rating = place_info['rating']
+        address = place_info['address']
+        
+        description_parts = [f"{name}是一个{category}"]
+        
+        if rating > 0:
+            description_parts.append(f"Google评分{rating}⭐")
+        
+        if address:
+            # 提取关键地址信息
+            city = self.extract_city_from_google_address(address)
+            if city and city != '当地':
+                description_parts.append(f"位于{city}")
+        
+        description_parts.append("值得一游的地方。")
+        
+        return "，".join(description_parts[:-1]) + "，是" + description_parts[-1]
+    
+    def get_fallback_image_for_type(self, types: List[str]) -> str:
+        """根据地点类型获取默认图片"""
+        type_images = {
+            'tourist_attraction': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400',
+            'museum': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+            'park': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400',
+            'church': 'https://images.unsplash.com/photo-1520637836862-4d197d17c91a?w=400',
+            'temple': 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
+            'restaurant': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
+            'shopping_mall': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
+        }
+        
+        for place_type in types:
+            if place_type in type_images:
+                return type_images[place_type]
+        
+        # 默认旅游图片
+        return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400"
+    
+    def format_google_opening_hours(self, is_open_now: Optional[bool]) -> str:
+        """格式化营业时间信息"""
+        if is_open_now is None:
+            return "营业时间请咨询"
+        elif is_open_now:
+            return "当前营业中"
+        else:
+            return "当前不营业"
+    
+    def extract_country_from_google_address(self, address: str) -> str:
+        """从Google地址中提取国家"""
+        if not address:
+            return "当地"
+        
+        country_keywords = {
+            'Japan': '日本',
+            'France': '法国', 
+            'United States': '美国',
+            'USA': '美国',
+            'United Kingdom': '英国',
+            'UK': '英国',
+            'Australia': '澳大利亚',
+            'Italy': '意大利',
+            'Germany': '德国',
+            'Netherlands': '荷兰'
+        }
+        
+        for en_country, zh_country in country_keywords.items():
+            if en_country in address:
+                return zh_country
+        
+        return "海外"
+    
+    def extract_city_from_google_address(self, address: str) -> str:
+        """从Google地址中提取城市"""
+        if not address:
+            return "当地"
+        
+        city_keywords = {
+            'Tokyo': '东京',
+            'Paris': '巴黎',
+            'New York': '纽约',
+            'London': '伦敦',
+            'Sydney': '悉尼',
+            'San Francisco': '旧金山',
+            'Rome': '罗马',
+            'Amsterdam': '阿姆斯特丹'
+        }
+        
+        for en_city, zh_city in city_keywords.items():
+            if en_city in address:
+                return zh_city
+        
+        # 尝试提取第一个城市名（简单规则）
+        parts = address.split(',')
+        if len(parts) >= 2:
+            return parts[1].strip()
+        
+        return "当地"
+    
+    def estimate_ticket_price_by_type(self, types: List[str]) -> str:
+        """根据地点类型估算票价"""
+        price_mapping = {
+            'museum': '成人票：约$15-25',
+            'amusement_park': '成人票：约$50-80',
+            'zoo': '成人票：约$20-30',
+            'aquarium': '成人票：约$25-35',
+            'park': '免费开放',
+            'church': '免费参观',
+            'temple': '免费参观',
+            'shrine': '免费参观',
+            'tourist_attraction': '请咨询当地',
+            'shopping_mall': '免费进入',
+            'restaurant': '人均消费：约$20-50'
+        }
+        
+        for place_type in types:
+            if place_type in price_mapping:
+                return price_mapping[place_type]
+        
+        return '请咨询当地'
+    
+    async def generate_international_fallback_data(self, point: Dict, time_mode: str) -> List[Dict]:
+        """
+        生成国际化的降级数据（当Google API调用失败时）
+        根据坐标位置生成对应地区风格的场所名称
+        """
+        lat, lng = point['latitude'], point['longitude']
+        
+        # 根据坐标判断大致地区，生成对应风格的名称
+        region_styles = self.detect_region_style(lat, lng)
+        
+        fallback_places = []
+        for i, style in enumerate(region_styles):
+            place = {
+                'name': style['name'],
+                'latitude': lat + (i * 0.01),  # 略微偏移坐标
+                'longitude': lng + (i * 0.01),
+                'distance': point['distance'],
+                'description': style['description'],
+                'image': style['image'],
+                'category': style['category'],
+                'country': style['country'],
+                'city': style['city'],
+                'opening_hours': '09:00-17:00',
+                'ticket_price': style['price'],
+                'booking_method': '现场购票'
+            }
+            fallback_places.append(place)
+        
+        print(f"🎭 生成 {len(fallback_places)} 个国际化降级场所")
+        return fallback_places
+    
+    def detect_region_style(self, lat: float, lng: float) -> List[Dict]:
+        """根据坐标检测地区风格并生成对应的场所名称"""
+        # 日本地区 (大致范围)
+        if 24 <= lat <= 46 and 123 <= lng <= 146:
+            return [
+                {
+                    'name': '传统神社',
+                    'description': '传统的日式神社，体现了日本深厚的宗教文化和建筑艺术',
+                    'category': '文化古迹',
+                    'country': '日本',
+                    'city': '当地',
+                    'price': '免费参观',
+                    'image': 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400'
+                },
+                {
+                    'name': '精致庭园',
+                    'description': '精致的日式庭园，展现自然与人工设计的完美结合',
+                    'category': '自然风光', 
+                    'country': '日本',
+                    'city': '当地',
+                    'price': '成人票：500日元',
+                    'image': 'https://images.unsplash.com/photo-1480796927426-f609979314bd?w=400'
+                },
+                {
+                    'name': '历史寺院',
+                    'description': '古老的佛教寺院，承载着悠久的历史和文化传统',
+                    'category': '文化古迹',
+                    'country': '日本',
+                    'city': '当地',
+                    'price': '免费参观',
+                    'image': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400'
+                }
+            ]
+        
+        # 欧洲地区 (大致范围)
+        elif 35 <= lat <= 70 and -10 <= lng <= 40:
+            return [
+                {
+                    'name': '哥特式大教堂',
+                    'description': '历史悠久的欧式大教堂，哥特式建筑的典型代表',
+                    'category': '文化古迹',
+                    'country': '欧洲',
+                    'city': '当地',
+                    'price': '成人票：8€',
+                    'image': 'https://images.unsplash.com/photo-1520637836862-4d197d17c91a?w=400'
+                },
+                {
+                    'name': '历史广场',
+                    'description': '充满历史气息的欧洲城市广场，是当地文化生活的中心',
+                    'category': '文化景点',
+                    'country': '欧洲', 
+                    'city': '当地',
+                    'price': '免费开放',
+                    'image': 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400'
+                },
+                {
+                    'name': '艺术博物馆',
+                    'description': '收藏丰富的艺术博物馆，展示欧洲深厚的艺术底蕴',
+                    'category': '博物馆',
+                    'country': '欧洲',
+                    'city': '当地',
+                    'price': '成人票：12€',
+                    'image': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400'
+                }
+            ]
+        
+        # 北美地区
+        elif 25 <= lat <= 60 and -130 <= lng <= -60:
+            return [
+                {
+                    'name': '国家公园',
+                    'description': '壮丽的北美自然风光，保护完好的野生生态系统',
+                    'category': '自然风光',
+                    'country': '北美',
+                    'city': '当地',
+                    'price': '成人票：$25',
+                    'image': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'
+                },
+                {
+                    'name': '现代艺术博物馆',
+                    'description': '收藏丰富的现代艺术博物馆，展示当代文化艺术成就',
+                    'category': '博物馆',
+                    'country': '北美',
+                    'city': '当地', 
+                    'price': '成人票：$20',
+                    'image': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400'
+                },
+                {
+                    'name': '城市观景台',
+                    'description': '高处的观景台，可以俯瞰整个城市的壮丽景色',
+                    'category': '观景台',
+                    'country': '北美',
+                    'city': '当地',
+                    'price': '成人票：$15',
+                    'image': 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400'
+                }
+            ]
+        
+        # 默认国际化场所
+        else:
+            return [
+                {
+                    'name': '地标建筑',
+                    'description': '当地著名的地标性建筑，展现独特的建筑风格和文化特色',
+                    'category': '文化景点',
+                    'country': '当地',
+                    'city': '当地',
+                    'price': '请咨询当地',
+                    'image': 'https://images.unsplash.com/photo-1577836381629-eb4b0d34e5f4?w=400'
+                },
+                {
+                    'name': '文化中心',
+                    'description': '当地的文化活动中心，展示本地的历史和文化传统',
+                    'category': '文化中心',
+                    'country': '当地',
+                    'city': '当地',
+                    'price': '免费开放',
+                    'image': 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400'
+                }
+            ]
 
 # 全局实例
 real_data_service = RealDataService()
