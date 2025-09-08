@@ -20,6 +20,7 @@ from global_cities_db import GlobalCitiesDB
 from gemini_service import gemini_service
 from doro_service import doro_service
 from spot_api_service import spot_api_service
+from supabase_client import supabase_client
 from album_orchestrator import get_album_orchestrator
 from vector_database import get_vector_database
 from fastapi import File, UploadFile, Form
@@ -1268,12 +1269,51 @@ async def search_cities(query: str):
 async def get_city_attractions(city_key: str):
     """获取指定城市的所有景点"""
     try:
-        # 统一从Supabase数据库获取景点数据
-        if city_key == "beijing":
-            # 从Supabase获取中国景点（主要是北京）
-            attractions = await spot_api_service.get_attractions_by_country("中国")
+        # 城市到国家的映射
+        city_to_country = {
+            "beijing": "中国",
+            "paris": "法国", 
+            "london": "英国",
+            "rome": "罗马"  # 意大利在数据库中可能是"意大利"
+        }
+        
+        # 优先从Supabase数据库获取景点数据
+        if city_key in city_to_country:
+            country = city_to_country[city_key]
+            if country == "罗马":  # 特殊处理意大利
+                # 尝试按城市查询
+                attractions_result = supabase_client.client.table('spot_attractions')\
+                    .select('*')\
+                    .eq('city', '罗马')\
+                    .execute()
+                if attractions_result.data:
+                    attractions = []
+                    for row in attractions_result.data:
+                        attraction = {
+                            'id': row['id'],
+                            'name': row['name'],
+                            'latitude': row.get('latitude', 0),
+                            'longitude': row.get('longitude', 0),
+                            'category': row.get('category', ''),
+                            'country': row.get('country', ''),
+                            'city': row.get('city', ''),
+                            'address': row.get('address', ''),
+                            'opening_hours': row.get('opening_hours', ''),
+                            'ticket_price': row.get('ticket_price', ''),
+                            'booking_method': row.get('booking_method', ''),
+                            'description': row.get('description', ''),
+                            'image': row.get('main_image_url'),
+                            'video': row.get('video_url')
+                        }
+                        attractions.append(attraction)
+                else:
+                    # 如果按城市查询失败，尝试按国家查询意大利
+                    attractions = await spot_api_service.get_attractions_by_country("意大利")
+            else:
+                # 其他国家直接按国家查询
+                attractions = await spot_api_service.get_attractions_by_country(country)
         else:
-            # 从全局城市数据库获取其他城市景点
+            # 从全局城市数据库获取其他城市景点（作为后备）
             attractions = global_cities_db.get_city_attractions(city_key)
         
         if not attractions:
