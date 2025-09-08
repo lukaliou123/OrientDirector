@@ -8,6 +8,7 @@ import os
 import asyncio
 from typing import Dict, List, Optional
 from openai import AsyncOpenAI
+import google.generativeai as genai
 from dotenv import load_dotenv
 import logging
 
@@ -25,30 +26,43 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 class AIService:
-    """AI服务类，优先使用Langchain，回退到OpenAI API调用"""
+    """AI服务类，优先使用Langchain，回退到传统API调用"""
     
     def __init__(self):
-        self.api_key = os.getenv('OPENAI_API_KEY')
-        self.model = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
         self.use_langchain = os.getenv('USE_LANGCHAIN', 'true').lower() == 'true'
-        
-        if not self.api_key:
-            raise ValueError("❌ 未找到OPENAI_API_KEY环境变量")
-        
+        self.ai_provider = os.getenv('AI_PROVIDER', 'openai')
+
         # 优先尝试使用Langchain
         self.langchain_service = None
         if LANGCHAIN_AVAILABLE and self.use_langchain:
             try:
                 self.langchain_service = get_langchain_ai_service()
                 if self.langchain_service:
-                    logger.info(f"✅ AI服务初始化完成，使用Langchain + {self.model}")
+                    logger.info(f"✅ AI服务初始化完成，使用Langchain + {self.ai_provider.capitalize()}")
                     return
             except Exception as e:
-                logger.warning(f"⚠️ Langchain服务初始化失败，回退到传统OpenAI: {e}")
+                logger.warning(f"⚠️ Langchain服务初始化失败，回退到传统API: {e}")
+
+        # 回退到传统API客户端
+        if self.ai_provider == 'gemini':
+            self.api_key = os.getenv('GEMINI_API_KEY')
+            self.model = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
+            if not self.api_key:
+                raise ValueError("❌ 未找到GEMINI_API_KEY环境变量")
+            genai.configure(api_key=self.api_key)
+            self.client = genai.GenerativeModel(self.model)
+            logger.info(f"✅ AI服务初始化完成，使用传统Gemini: {self.model}")
         
-        # 回退到传统OpenAI客户端
-        self.client = AsyncOpenAI(api_key=self.api_key)
-        logger.info(f"✅ AI服务初始化完成，使用传统OpenAI: {self.model}")
+        elif self.ai_provider == 'openai':
+            self.api_key = os.getenv('OPENAI_API_KEY')
+            self.model = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+            if not self.api_key:
+                raise ValueError("❌ 未找到OPENAI_API_KEY环境变量")
+            self.client = AsyncOpenAI(api_key=self.api_key)
+            logger.info(f"✅ AI服务初始化完成，使用传统OpenAI: {self.model}")
+        
+        else:
+            raise ValueError(f"❌ 不支持的AI_PROVIDER: {self.ai_provider}")
     
     async def generate_scene_review(
         self, 
@@ -82,36 +96,37 @@ class AIService:
                 logger.info(f"✅ Langchain锐评生成成功")
                 return review_data
             except Exception as e:
-                logger.warning(f"⚠️ Langchain锐评生成失败，回退到传统OpenAI: {e}")
+                logger.warning(f"⚠️ Langchain锐评生成失败，回退到传统API: {e}")
         
-        # 回退到传统OpenAI方法
-        logger.info(f"🔄 正在使用传统OpenAI方法...")
+        # 回退到传统API方法
+        logger.info(f"🔄 正在使用传统 {self.ai_provider.capitalize()} 方法...")
         try:
-            # 构建锐评提示词
             prompt = self._build_review_prompt(scene_name, scene_description, scene_type, user_context)
-            
-            logger.info(f"🤖 使用传统OpenAI为场景 '{scene_name}' 生成锐评...")
+            logger.info(f"🤖 使用传统 {self.ai_provider.capitalize()} 为场景 '{scene_name}' 生成锐评...")
             logger.info(f"🔍 提示词长度: {len(prompt)}字符")
-            
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "你是一位资深的旅游达人和文案专家，擅长为各种景点写出有趣、个性化的锐评。你的评价风格幽默风趣，既有专业知识又贴近用户体验。"
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                max_completion_tokens=500
-            )
-            
-            content = response.choices[0].message.content.strip()
-            
+
+            if self.ai_provider == 'gemini':
+                response = await self.client.generate_content_async(prompt)
+                content = response.text.strip()
+            else: # openai
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "你是一位资深的旅游达人和文案专家，擅长为各种景点写出有趣、个性化的锐评。你的评价风格幽默风趣，既有专业知识又贴近用户体验。"
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    max_tokens=500  # 注意: gemini-1.5-flash-latest 的 max_output_tokens 在模型初始化时设置
+                )
+                content = response.choices[0].message.content.strip()
+
             # 调试：显示AI原始返回内容
-            logger.info(f"🔍 ===== OpenAI原始输出 =====")
+            logger.info(f"🔍 ===== {self.ai_provider.upper()}原始输出 =====")
             logger.info(f"内容长度: {len(content)}字符")
             logger.info(f"原始内容: <<<{content}>>>")
             logger.info(f"================================")
@@ -119,7 +134,7 @@ class AIService:
             # 解析AI返回的结构化内容
             review_data = self._parse_ai_response(content)
             
-            logger.info(f"✅ 传统OpenAI锐评生成成功: {len(content)}字符")
+            logger.info(f"✅ 传统 {self.ai_provider.capitalize()} 锐评生成成功: {len(content)}字符")
             return review_data
             
         except Exception as e:
@@ -253,13 +268,47 @@ class AIService:
                 logger.info(f"✅ Langchain旅程总结生成成功")
                 return result
             except Exception as e:
-                logger.warning(f"⚠️ Langchain旅程总结生成失败，回退到传统OpenAI: {e}")
+                logger.warning(f"⚠️ Langchain旅程总结生成失败，回退到传统API: {e}")
         
-        # 回退到传统OpenAI方法
+        # 回退到传统API方法
         try:
             scene_names = [scene.get('name', '未知地点') for scene in visited_scenes]
             
-            prompt = f"""
+            prompt = self._build_journey_summary_prompt(visited_scenes, total_distance, journey_duration)
+            
+            logger.info(f"🤖 使用传统 {self.ai_provider.capitalize()} 生成旅程总结...")
+
+            if self.ai_provider == 'gemini':
+                response = await self.client.generate_content_async(prompt)
+                result = response.text.strip()
+            else: # openai
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "你是一位温暖的旅程记录者，擅长为用户的探索旅程写出感人的总结。"
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    max_tokens=2000
+                )
+                result = response.choices[0].message.content.strip()
+
+            logger.info(f"✅ 传统 {self.ai_provider.capitalize()} 旅程总结生成成功")
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ AI旅程总结生成失败: {str(e)}")
+            return f"🎉 恭喜完成这次精彩的探索之旅！您访问了{len(visited_scenes)}个地点，总共行进了{total_distance:.1f}公里。每一步都是独特的发现，每一处风景都值得珍藏。感谢您选择方向探索派对，期待您的下次冒险！🧭✨"
+
+    def _build_journey_summary_prompt(self, visited_scenes: List[Dict], total_distance: float, journey_duration: str) -> str:
+        """构建旅程总结的提示词"""
+        scene_names = [scene.get('name', '未知地点') for scene in visited_scenes]
+        return f"""
 请为以下旅程生成一个温馨有趣的总结：
 
 **旅程信息**:
@@ -275,31 +324,6 @@ class AIService:
 4. 语言风格温暖友好
 5. 可以适当加入emoji表情
 """
-            
-            logger.info(f"🤖 使用传统OpenAI生成旅程总结...")
-            
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "你是一位温暖的旅程记录者，擅长为用户的探索旅程写出感人的总结。"
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                max_completion_tokens=2000
-            )
-            
-            result = response.choices[0].message.content.strip()
-            logger.info(f"✅ 传统OpenAI旅程总结生成成功")
-            return result
-            
-        except Exception as e:
-            logger.error(f"❌ AI旅程总结生成失败: {str(e)}")
-            return f"🎉 恭喜完成这次精彩的探索之旅！您访问了{len(visited_scenes)}个地点，总共行进了{total_distance:.1f}公里。每一步都是独特的发现，每一处风景都值得珍藏。感谢您选择方向探索派对，期待您的下次冒险！🧭✨"
 
 # 全局AI服务实例
 ai_service = None

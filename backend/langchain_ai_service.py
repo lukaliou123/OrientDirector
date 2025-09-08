@@ -12,6 +12,7 @@ import json
 
 # Langchain imports
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser, JsonOutputParser
 from pydantic import BaseModel, Field  # 使用pydantic v2
@@ -43,20 +44,42 @@ class LangchainAIService:
     """基于Langchain的AI服务类"""
     
     def __init__(self):
-        self.api_key = os.getenv('OPENAI_API_KEY')
-        self.model_name = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+        self.ai_provider = os.getenv('AI_PROVIDER', 'openai')
         
-        if not self.api_key:
-            raise ValueError("❌ 未找到OPENAI_API_KEY环境变量")
-        
-        # 初始化Langchain OpenAI模型
-        self.llm = ChatOpenAI(
-            model=self.model_name,
-            api_key=self.api_key,
-            max_completion_tokens=2000,
-            max_retries=3
-        )
-        
+        if self.ai_provider == 'gemini':
+            self.api_key = os.getenv('GEMINI_API_KEY')
+            self.model_name = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
+            if not self.api_key:
+                raise ValueError("❌ AI_PROVIDER设置为gemini，但未找到GEMINI_API_KEY环境变量")
+            
+            # 初始化Langchain Gemini模型
+            self.llm = ChatGoogleGenerativeAI(
+                model=self.model_name,
+                google_api_key=self.api_key,
+                max_output_tokens=2048,
+                temperature=0.8,
+                top_p=0.9,
+            )
+            logger.info(f"✅ Langchain AI服务初始化完成，使用Gemini模型: {self.model_name}")
+
+        elif self.ai_provider == 'openai':
+            self.api_key = os.getenv('OPENAI_API_KEY')
+            self.model_name = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+            if not self.api_key:
+                raise ValueError("❌ AI_PROVIDER设置为openai，但未找到OPENAI_API_KEY环境变量")
+            
+            # 初始化Langchain OpenAI模型
+            self.llm = ChatOpenAI(
+                model=self.model_name,
+                api_key=self.api_key,
+                max_tokens=2000,
+                max_retries=3
+            )
+            logger.info(f"✅ Langchain AI服务初始化完成，使用OpenAI模型: {self.model_name}")
+
+        else:
+            raise ValueError(f"❌ 不支持的AI_PROVIDER: {self.ai_provider}。请选择 'openai' 或 'gemini'")
+
         # 初始化输出解析器
         self.review_parser = PydanticOutputParser(pydantic_object=SceneReviewOutput)
         self.summary_parser = PydanticOutputParser(pydantic_object=JourneySummaryOutput)
@@ -67,8 +90,6 @@ class LangchainAIService:
         
         # 构建链
         self._build_chains()
-        
-        logger.info(f"✅ Langchain AI服务初始化完成，使用模型: {self.model_name}")
     
     def _init_prompt_templates(self):
         """初始化Langchain提示模板"""

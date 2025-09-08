@@ -11,6 +11,7 @@ python-dotenv>=1.0.0
 langchain>=0.1.0
 langchain-openai>=0.1.0
 langchain-core>=0.1.0
+langchain-google-genai>=0.1.0  # 新增Gemini的Langchain集成
 
 # 历史模式功能依赖
 shapely>=2.0.0        # GeoJSON空间几何计算
