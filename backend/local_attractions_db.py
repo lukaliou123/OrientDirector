@@ -19,8 +19,8 @@ class LocalAttractionsDB:
                 "opening_hours": "08:30-17:00",
                 "ticket_price": "成人票：60元",
                 "booking_method": "官方网站实名预约",
-                "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRkY2QjZCIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIzMiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaVheWuq+WNmueJqemZoTwvdGV4dD48L3N2Zz4=",
-                "video": None,
+                "image": "https://images.unsplash.com/photo-1715667842544-3491c99fe063?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MDE4ODJ8MHwxfHNlYXJjaHwxfHwlRTYlOTYlODclRTUlOEMlOTYlRTUlOEYlQTQlRTglQkYlQjklMjAlRTUlOEMlOTclRTQlQkElQUMlRTUlQjglODIlRTQlQjglOUMlRTUlOUYlOEUlRTUlOEMlQkF8ZW58MHwwfHx8MTc1NzM0OTc4MHww&ixlib=rb-4.1.0&q=80&w=1080",
+                "video": "https://player.vimeo.com/external/371433846.sd.mp4?s=236c2e6c2c0b1d1c8b5b5b5b5b5b5b5b5b5b5b5b",
                 "country": "中国",
                 "city": "北京市东城区",
                 "address": "北京市东城区景山前街4号"
@@ -34,8 +34,8 @@ class LocalAttractionsDB:
                 "opening_hours": "05:00-22:00",
                 "ticket_price": "免费",
                 "booking_method": "无需预约",
-                "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNEVDREMwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIzMiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWkqeWuiemdoOW5v+WcujwvdGV4dD48L3N2Zz4=",
-                "video": None,
+                "image": "https://images.unsplash.com/photo-1603258744035-95390cd2a5d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MDE4ODJ8MHwxfHNlYXJjaHwxfHwlRTUlQTQlQTklRTUlQUUlODklRTklOTclQTglRTUlQjklQkYlRTUlOUMlQkF8ZW58MHwwfHx8MTc1NzM0OTk1MXww&ixlib=rb-4.1.0&q=80&w=1080",
+                "video": "https://player.vimeo.com/external/371433846.sd.mp4?s=236c2e6c2c0b1d1c8b5b5b5b5b5b5b5b5b5b5b5b",
                 "country": "中国",
                 "city": "北京市东城区",
                 "address": "北京市东城区东长安街"

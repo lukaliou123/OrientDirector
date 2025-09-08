@@ -354,6 +354,56 @@ class SupabaseClient:
             logger.error(f"根据城市获取景点失败: {e}")
             return []
     
+    def get_attractions_by_country(self, country: str) -> List[Dict]:
+        """根据国家获取景点"""
+        try:
+            result = self.client.table('spot_attractions')\
+                .select('*, ST_X(location) as longitude, ST_Y(location) as latitude')\
+                .eq('country', country)\
+                .execute()
+            
+            if result.data:
+                attractions = []
+                for row in result.data:
+                    # 获取多语言内容
+                    content_result = self.client.table('spot_attraction_contents')\
+                        .select('*')\
+                        .eq('attraction_id', row['id'])\
+                        .eq('language_code', 'zh-CN')\
+                        .execute()
+                    
+                    attraction = {
+                        'id': row['id'],
+                        'name': row['name'],
+                        'latitude': row['latitude'],
+                        'longitude': row['longitude'],
+                        'category': row['category'],
+                        'country': row['country'],
+                        'city': row['city'],
+                        'address': row['address'],
+                        'opening_hours': row['opening_hours'],
+                        'ticket_price': row['ticket_price'],
+                        'booking_method': row['booking_method'],
+                        'description': '',
+                        'image': row['main_image_url'],
+                        'video': row['video_url']
+                    }
+                    
+                    # 添加多语言内容
+                    if content_result.data:
+                        content = content_result.data[0]
+                        attraction['description'] = content.get('description', '')
+                    
+                    attractions.append(attraction)
+                
+                return attractions
+            
+            return []
+            
+        except Exception as e:
+            logger.error(f"根据国家获取景点失败: {e}")
+            return []
+    
     def search_attractions(self, query: str) -> List[Dict]:
         """搜索景点"""
         try:

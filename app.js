@@ -3664,7 +3664,7 @@ function createAttractionCard(attraction, index) {
         <div class="place-media">
             ${attraction.image ? `
                 <img src="${attraction.image}" alt="${attraction.name}" class="place-image" 
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='"
+                     onerror="handleImageError(this, '${attraction.name}')"
             ` : `
                 <div class="place-image-placeholder" style="
                     width: 100%;
@@ -4059,8 +4059,28 @@ function getEmbedUrl(videoUrl) {
 // 处理图片加载错误
 function handleImageError(imgElement, placeName) {
     if (imgElement && !imgElement.src.startsWith('data:')) {
-        imgElement.src = generatePlaceholderImage(placeName);
-        logger.warning(`图片加载失败，使用占位图片: ${placeName}`);
+        // 创建一个更好的错误显示
+        const parent = imgElement.parentElement;
+        if (parent) {
+            parent.innerHTML = `
+                <div class="place-image-placeholder" style="
+                    width: 100%;
+                    height: 200px;
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: white;
+                    border-radius: 8px;
+                ">
+                    <span style="font-size: 3rem; margin-bottom: 10px;">🖼️</span>
+                    <p style="margin: 0; font-weight: bold;">图片加载失败</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.8;">${placeName}</p>
+                </div>
+            `;
+        }
+        logger.warning(`图片加载失败: ${placeName}`);
     }
 }
 

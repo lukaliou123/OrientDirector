@@ -113,6 +113,24 @@ class SpotAPIService:
             logger.error(f"根据城市获取景点失败: {e}")
             raise HTTPException(status_code=500, detail=f"获取景点失败: {str(e)}")
     
+    async def get_attractions_by_country(self, country: str) -> List[Dict]:
+        """根据国家获取景点"""
+        try:
+            if not country:
+                raise ValueError("国家不能为空")
+            
+            logger.info(f"根据国家获取景点: {country}")
+            attractions = self.supabase.get_attractions_by_country(country)
+            logger.info(f"找到 {len(attractions)} 个 {country} 的景点")
+            return attractions
+            
+        except ValueError as e:
+            logger.warning(f"参数验证失败: {e}")
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            logger.error(f"根据国家获取景点失败: {e}")
+            raise HTTPException(status_code=500, detail=f"获取景点失败: {str(e)}")
+    
     async def search_attractions(self, query: str) -> List[Dict]:
         """搜索景点"""
         try:

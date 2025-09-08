@@ -1268,28 +1268,14 @@ async def search_cities(query: str):
 async def get_city_attractions(city_key: str):
     """获取指定城市的所有景点"""
     try:
-        # 特殊处理北京，从现有数据库获取
+        # 统一从Supabase数据库获取景点数据
         if city_key == "beijing":
-            attractions = local_attractions_db.attractions
-            return [
-                AttractionInfo(
-                    name=attr["name"],
-                    latitude=attr["latitude"],
-                    longitude=attr["longitude"],
-                    category=attr["category"],
-                    description=attr["description"],
-                    opening_hours=attr["opening_hours"],
-                    ticket_price=attr["ticket_price"],
-                    booking_method=attr["booking_method"],
-                    image=attr.get("image"),
-                    video=attr.get("video"),
-                    country=attr["country"],
-                    city=attr["city"],
-                    address=attr["address"]
-                ) for attr in attractions
-            ]
+            # 从Supabase获取中国景点（主要是北京）
+            attractions = await spot_api_service.get_attractions_by_country("中国")
+        else:
+            # 从全局城市数据库获取其他城市景点
+            attractions = global_cities_db.get_city_attractions(city_key)
         
-        attractions = global_cities_db.get_city_attractions(city_key)
         if not attractions:
             raise HTTPException(status_code=404, detail=f"未找到城市 {city_key} 的景点信息")
         
@@ -1299,15 +1285,15 @@ async def get_city_attractions(city_key: str):
                 latitude=attr["latitude"],
                 longitude=attr["longitude"],
                 category=attr["category"],
-                description=attr["description"],
-                opening_hours=attr["opening_hours"],
-                ticket_price=attr["ticket_price"],
-                booking_method=attr["booking_method"],
+                description=attr.get("description", ""),
+                opening_hours=attr.get("opening_hours", ""),
+                ticket_price=attr.get("ticket_price", ""),
+                booking_method=attr.get("booking_method", ""),
                 image=attr.get("image"),
                 video=attr.get("video"),
-                country=attr["country"],
-                city=attr["city"],
-                address=attr["address"]
+                country=attr.get("country", ""),
+                city=attr.get("city", ""),
+                address=attr.get("address", "")
             ) for attr in attractions
         ]
     except HTTPException:
