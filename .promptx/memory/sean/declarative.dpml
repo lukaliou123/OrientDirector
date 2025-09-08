@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<memory>
+  <item id="mem_1757240279142_chejt9vlf" time="2025/09/07 18:17">
+    <content>
+      OrientDiscover是一个方向探索派对智能工具，核心功能是用户通过指向方向，发现沿途的有趣地点。技术架构：前端HTML5+JavaScript（方向检测、GPS定位），后端Python FastAPI（大圆航线计算），集成Google Maps API、高德地图API、Gemini AI。项目特色：支持三种时间模式（现代/过去/未来），历史场景AI生成，背包客单选探索模式。技术已相对完善，但商业方向需要明确定位。
+    </content>
+    <tags>#工具使用</tags>
+  </item>
+</memory>

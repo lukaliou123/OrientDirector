@@ -752,7 +752,24 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "方向探索派对API服务正在运行"}
+    """服务前端页面"""
+    from fastapi.responses import FileResponse
+    return FileResponse('../index.html')
+
+@app.get("/api/health")
+async def health_check():
+    return {"message": "方向探索派对API服务正在运行", "status": "healthy"}
+
+# 服务前端静态资源
+@app.get("/styles.css")
+async def get_css():
+    from fastapi.responses import FileResponse
+    return FileResponse('../styles.css')
+
+@app.get("/app.js")
+async def get_js():
+    from fastapi.responses import FileResponse
+    return FileResponse('../app.js')
 
 @app.post("/api/explore", response_model=ExploreResponse)
 async def explore_direction(request: ExploreRequest):
