@@ -973,10 +973,9 @@ class GlobalCitiesDB:
         
         # 添加中国城市
         for city_key, city_data in self.china_cities.items():
-            # 特殊处理北京：计算本地数据库的景点数量
+            # 特殊处理北京：使用固定的景点数量（实际数量从Supabase获取）
             if city_key == "beijing" and city_data["attractions"] == "use_local_db":
-                from local_attractions_db import local_attractions_db
-                attraction_count = len(local_attractions_db.attractions)
+                attraction_count = 23  # 北京景点数量
             else:
                 attraction_count = len(city_data["attractions"]) if isinstance(city_data["attractions"], list) else 0
             
@@ -997,10 +996,10 @@ class GlobalCitiesDB:
             return self.global_cities[city_key]["attractions"]
         elif city_key in self.china_cities:
             city_data = self.china_cities[city_key]
-            # 特殊处理北京：从本地数据库获取景点
+            # 特殊处理北京：标记需要从Supabase获取景点
             if city_key == "beijing" and city_data["attractions"] == "use_local_db":
-                from local_attractions_db import local_attractions_db
-                return local_attractions_db.attractions
+                # 返回空列表，让调用方使用Supabase数据
+                return []
             else:
                 return city_data["attractions"] if isinstance(city_data["attractions"], list) else []
         return []
@@ -1050,26 +1049,22 @@ class GlobalCitiesDB:
         
         # 搜索中国城市景点
         for city_key, city_data in self.china_cities.items():
-            # 特殊处理北京：使用LocalAttractionsDB数据
+            # 特殊处理北京：跳过本地数据库，让调用方使用Supabase数据
             if city_key == "beijing" and city_data["attractions"] == "use_local_db":
-                from local_attractions_db import local_attractions_db
-                local_attractions = local_attractions_db.find_nearby_attractions(latitude, longitude, radius_km)
-                for attraction in local_attractions:
-                    attraction_copy = attraction.copy()
-                    attraction_copy["distance"] = attraction.get("distance_to_point", 0)
-                    nearby_attractions.append(attraction_copy)
-            else:
-                # 处理其他城市的常规景点数据
-                if isinstance(city_data["attractions"], list):
-                    for attraction in city_data["attractions"]:
-                        distance = self._calculate_distance(
-                            latitude, longitude,
-                            attraction["latitude"], attraction["longitude"]
-                        )
-                        if distance <= radius_km:
-                            attraction_copy = attraction.copy()
-                            attraction_copy["distance"] = distance
-                            nearby_attractions.append(attraction_copy)
+                # 跳过北京，让调用方从Supabase获取数据
+                continue
+            
+            # 处理其他城市的景点数据
+            if isinstance(city_data["attractions"], list):
+                for attraction in city_data["attractions"]:
+                    distance = self._calculate_distance(
+                        latitude, longitude,
+                        attraction["latitude"], attraction["longitude"]
+                    )
+                    if distance <= radius_km:
+                        attraction_copy = attraction.copy()
+                        attraction_copy["distance"] = distance
+                        nearby_attractions.append(attraction_copy)
         
         # 按距离排序
         nearby_attractions.sort(key=lambda x: x.get("distance", 999))

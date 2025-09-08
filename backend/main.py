@@ -5,7 +5,7 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import math
 from geographiclib.geodesic import Geodesic
 import json
@@ -1315,10 +1315,15 @@ async def roam_to_city(request: CityRoamingRequest):
                 attraction=None
             )
         
-        # 特殊处理北京
+        # 统一处理所有城市
         if request.city_key == "beijing":
+            # 从Supabase获取中国景点，然后随机选择一个
             import random
-            attraction_data = random.choice(local_attractions_db.attractions)
+            attractions = await spot_api_service.get_attractions_by_country("中国")
+            if attractions:
+                attraction_data = random.choice(attractions)
+            else:
+                attraction_data = None
         else:
             attraction_data = global_cities_db.get_random_attraction(request.city_key)
         
