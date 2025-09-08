@@ -289,8 +289,8 @@ class NanoBananaHistoricalService:
         print(f"   年份: {year}")
         
         # 根据政治实体获取具体的视觉特征
-        architectural_details = self.get_architectural_details(political_entity, year)
-        clothing_details = self.get_clothing_details(political_entity, year)
+        architectural_details = self.get_architectural_details(political_entity, cultural_region, year)
+        clothing_details = self.get_clothing_details(political_entity, cultural_region, year)
         environment_details = self.get_environment_details(lat, lng, year)
         
         # 构建符合Nano Banana最佳实践的详细提示词
@@ -337,7 +337,7 @@ Ensure complete historical authenticity to {political_entity} in {year} AD.
         
         return prompt
     
-    def get_architectural_details(self, political_entity: str, year: int) -> str:
+    def get_architectural_details(self, political_entity: str, cultural_region: str, year: int) -> str:
         """获取建筑细节描述"""
         
         # 精确的政治实体建筑特征
@@ -384,14 +384,14 @@ Classical French architectural elements:
         }
         
         return entity_styles.get(political_entity, f"""
-Traditional architecture typical of {political_entity}:
-- Building styles adapted to local climate and available materials
-- Construction methods reflecting the technology level of {year} AD
-- Decorative elements showing the cultural values of the civilization
-- Urban planning patterns characteristic of this political system
+Based on your knowledge of the {cultural_region} cultural sphere, depict typical architecture for {political_entity} in the year {year}:
+- Materials: Use locally sourced materials plausible for the region and era (e.g., wood, stone, brick, mud-brick).
+- Construction: Reflect the technological level of {year}. Show characteristic building techniques.
+- Key Structures: Include common buildings like dwellings, markets, religious structures, and fortifications, typical for {political_entity}.
+- Decorative Style: Incorporate artistic and cultural motifs of the {cultural_region} on buildings.
         """)
     
-    def get_clothing_details(self, political_entity: str, year: int) -> str:
+    def get_clothing_details(self, political_entity: str, cultural_region: str, year: int) -> str:
         """获取服装细节描述"""
         
         entity_clothing = {
@@ -429,11 +429,11 @@ Classical French period appropriate dress:
         }
         
         return entity_clothing.get(political_entity, f"""
-Period-appropriate clothing for {political_entity} in {year} AD:
-- Social class distinctions visible through clothing quality and ornamentation
-- Materials and dyes available through the trade networks of that era
-- Cultural modesty standards and gender role expressions of the time
-- Practical adaptations to local climate and lifestyle needs
+Based on your knowledge of {cultural_region}, depict period-appropriate clothing for people in {political_entity} around {year} AD:
+- Social Classes: Show a variety of clothing for different social strata (e.g., rulers, merchants, artisans, peasants).
+- Materials: Use textiles and dyes that would have been available, such as wool, linen, cotton, or silk, depending on trade connections.
+- Styles: Reflect the typical attire, hairstyles, and accessories for men, women, and children of that culture.
+- Function: Differentiate between everyday wear, ceremonial dress, and work clothes.
         """)
     
     def get_environment_details(self, lat: float, lng: float, year: int) -> str:
