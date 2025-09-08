@@ -1796,10 +1796,26 @@ function displayHistoryScenes() {
         historyCard.style.cursor = scene.reviewData ? 'pointer' : 'default';
         
         historyCard.innerHTML = `
-            <img src="${scene.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='}" 
-                 alt="${scene.name}" 
-                 class="place-image"
-                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='"
+            ${scene.image ? `
+                <img src="${scene.image}" alt="${scene.name}" class="place-image"
+                     onerror="handleImageError(this, '${scene.name}')">
+            ` : `
+                <div class="place-image-placeholder" style="
+                    width: 100%;
+                    height: 200px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: white;
+                    border-radius: 8px;
+                ">
+                    <span style="font-size: 3rem; margin-bottom: 10px;">📸</span>
+                    <p style="margin: 0; font-weight: bold;">暂无图片</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.8;">${scene.name}</p>
+                </div>
+            `}
             <div class="place-content">
                 <div class="place-header">
                     <h3 class="place-name">${scene.name}</h3>
@@ -3597,8 +3613,24 @@ function showAttractionRoamingSuccess(attraction) {
         <div class="place-details">
             ${attraction.image ? `
                 <img src="${attraction.image}" alt="${attraction.name}" class="place-photo" 
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaXoOWbvueJhzwvdGV4dD48L3N2Zz4='"
-            ` : ''}
+                     onerror="handleImageError(this, '${attraction.name}')">
+            ` : `
+                <div class="place-image-placeholder" style="
+                    width: 100%;
+                    height: 200px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: white;
+                    border-radius: 8px;
+                ">
+                    <span style="font-size: 3rem; margin-bottom: 10px;">📸</span>
+                    <p style="margin: 0; font-weight: bold;">暂无图片</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.8;">${attraction.name}</p>
+                </div>
+            `}
             
             <p class="place-description">${attraction.description}</p>
             
