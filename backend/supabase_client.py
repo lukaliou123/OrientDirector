@@ -358,7 +358,7 @@ class SupabaseClient:
         """根据国家获取景点"""
         try:
             result = self.client.table('spot_attractions')\
-                .select('*, ST_X(location) as longitude, ST_Y(location) as latitude')\
+                .select('*')\
                 .eq('country', country)\
                 .execute()
             
@@ -372,11 +372,15 @@ class SupabaseClient:
                         .eq('language_code', 'zh-CN')\
                         .execute()
                     
+                    # 从数据库字段获取经纬度
+                    latitude = row.get('latitude', 39.9042)  # 默认北京纬度
+                    longitude = row.get('longitude', 116.4074)  # 默认北京经度
+                    
                     attraction = {
                         'id': row['id'],
                         'name': row['name'],
-                        'latitude': row['latitude'],
-                        'longitude': row['longitude'],
+                        'latitude': latitude,
+                        'longitude': longitude,
                         'category': row['category'],
                         'country': row['country'],
                         'city': row['city'],
