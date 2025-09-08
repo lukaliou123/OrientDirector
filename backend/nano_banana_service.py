@@ -521,15 +521,14 @@ Natural environment as it appeared in {year} AD:
                 'error': str(e)
             }
     
-    async def generate_historical_selfie(self, user_image_path: str, scene_description: str, political_entity: str, year: int) -> Dict:
+    async def generate_historical_selfie(self, user_image_path: str, historical_scene_image_path: str) -> Dict:
         """
         生成历史自拍照片 - 使用Gemini 2.5 Flash Image的图生图功能
+        将用户头像与指定的历史场景图片进行融合
         
         Args:
             user_image_path: 用户头像图片路径
-            scene_description: 历史场景描述
-            political_entity: 政治实体
-            year: 历史年份
+            historical_scene_image_path: 历史场景图片路径
             
         Returns:
             Dict: 自拍生成结果
@@ -542,31 +541,31 @@ Natural environment as it appeared in {year} AD:
             }
         
         try:
-            print(f"📸 开始Gemini图生图自拍生成...")
+            print(f"📸 开始Gemini图生图自拍生成 (双图融合)...")
             print(f"   用户图片: {user_image_path}")
-            print(f"   历史场景: {political_entity} ({year}年)")
+            print(f"   历史场景图片: {historical_scene_image_path}")
             
-            # 检查用户图片是否存在
+            # 检查输入图片是否存在
             if not os.path.exists(user_image_path):
-                return {
-                    'success': False,
-                    'error': f'用户头像不存在: {user_image_path}'
-                }
+                return {'success': False, 'error': f'用户头像不存在: {user_image_path}'}
+            if not os.path.exists(historical_scene_image_path):
+                return {'success': False, 'error': f'历史场景图片不存在: {historical_scene_image_path}'}
             
-            # 加载用户头像
+            # 加载用户头像和历史场景
             user_image = Image.open(user_image_path)
+            historical_scene_image = Image.open(historical_scene_image_path)
             print(f"✅ 用户头像加载成功: {user_image.size}")
+            print(f"✅ 历史场景加载成功: {historical_scene_image.size}")
             
             # 构建自拍提示词
-            selfie_prompt = self.create_selfie_prompt(scene_description, political_entity, year)
-            print(f"📝 自拍提示词长度: {len(selfie_prompt)} 字符")
+            selfie_prompt = self.create_selfie_prompt()
             
             # 按照官方文档进行图生图调用
             start_time = time.time()
             
             response = self.client.models.generate_content(
-                model="gemini-2.5-flash-image-preview",  # Nano Banana模型
-                contents=[selfie_prompt, user_image]  # 文本提示 + 输入图像
+                model="gemini-2.5-flash-image-preview",
+                contents=[selfie_prompt, user_image, historical_scene_image]  # 提示词 + 用户头像 + 历史背景图
             )
             
             generation_time = time.time() - start_time
@@ -586,8 +585,7 @@ Natural environment as it appeared in {year} AD:
                     
                     # 创建自拍文件名
                     timestamp = int(time.time())
-                    entity_name = political_entity.replace(' ', '_').replace('/', '_')
-                    filename = f"historical_selfie_{entity_name}_{year}_{timestamp}.png"
+                    filename = f"historical_selfie_{timestamp}.png"
                     
                     # 保存到自拍目录
                     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -616,11 +614,10 @@ Natural environment as it appeared in {year} AD:
                 'success': True,
                 'selfie_url': generated_selfie_url,
                 'scene_info': {
-                    'political_entity': political_entity,
-                    'year': year,
                     'selfie_description': ai_description,
-                    'generation_method': 'Gemini 2.5 Flash Image (图生图)',
-                    'user_image_used': user_image_path
+                    'generation_method': 'Gemini 2.5 Flash Image (双图融合)',
+                    'user_image_used': os.path.basename(user_image_path),
+                    'scene_image_used': os.path.basename(historical_scene_image_path)
                 },
                 'generation_time': generation_time,
                 'generation_model': 'Gemini 2.5 Flash Image (Nano Banana)',
@@ -636,65 +633,29 @@ Natural environment as it appeared in {year} AD:
                 'fallback_available': True
             }
     
-    def create_selfie_prompt(self, scene_description: str, political_entity: str, year: int) -> str:
+    def create_selfie_prompt(self) -> str:
         """
-        创建历史自拍的提示词 - 优化版本，改善构图和融合效果
-        
-        Args:
-            scene_description: 历史场景描述
-            political_entity: 政治实体
-            year: 年份
+        创建历史自拍的提示词 - 优化版本，用于双图融合
         """
-        prompt = f"""
-Create a perfect historical time-travel selfie featuring the person from the input photo visiting {political_entity} in {year} AD.
+        prompt = """
+Act as an expert photo editor. Your task is to create a seamless and realistic historical selfie.
 
-**Historical Scene Context:**
-{scene_description}
+You will be given two images:
+1. The first image is a portrait of a person (the user).
+2. The second image is a historical scene (the background).
 
-**Composition & Camera Angle:**
-- Shot from a slightly elevated selfie angle (15-20 degrees above eye level)
-- Person occupies the left 1/3 to 1/2 of the frame (typical selfie proportion)
-- Historical architecture and scene fills the background beautifully
-- Camera held at arm's length distance (about 2-3 feet from subject)
-- Maintain natural selfie perspective - not too wide, not too close
+Your goal is to take the person from the first image and place them into the historical scene from the second image, making it look like they are genuinely there and taking a selfie.
 
-**Person Integration:**
-- Keep the exact facial features, hair, and skin tone from the input photo
-- Dress the person in tasteful modern clothing that doesn't clash with the historical setting
-- Position naturally as a tourist/time-traveler taking a photo
-- Confident, friendly expression looking slightly toward the camera
-- One arm extended slightly (suggesting they're holding the camera)
+**Instructions:**
+1. **Extract the Person:** Identify and extract the person from the first image. Maintain their exact facial features, expression, and appearance.
+2. **Integrate into Scene:** Place the extracted person naturally into the foreground of the second image (the historical scene).
+3. **Match the Style:** The final image's style, lighting, color palette, and texture must match the historical scene image. The person should look like they are part of that environment.
+4. **Selfie Composition:** The composition should resemble a selfie. The person can occupy about one-third of the frame, slightly off-center, with one arm slightly extended as if holding the camera. The historical scene should be the main background.
+5. **Realism is Key:** Ensure the lighting on the person is consistent with the lighting in the historical scene. Pay attention to shadows and perspective to create a photorealistic result.
+6. **Clothing:** The person should be wearing the modern clothing from their photo. Do not change their clothes to be period-accurate. They are a time traveler.
 
-**Historical Background:**
-- Authentic {political_entity} architecture from {year} AD in sharp detail
-- Historical people in period-accurate clothing in the mid and background
-- Buildings, streets, and atmosphere true to the historical period
-- Rich historical details that clearly establish the time and place
-
-**Lighting & Visual Quality:**
-- Consistent natural lighting across person and background
-- Person lit with the same light source as the historical scene
-- No harsh shadows or lighting mismatches
-- Photorealistic quality throughout the entire image
-- Museum-quality historical accuracy for all background elements
-
-**Technical Perfection:**
-- Perfect perspective alignment between person and background
-- Natural depth of field (person in focus, background slightly softer)
-- Seamless integration - no obvious compositing artifacts
-- Balanced exposure across all elements
-- Sharp, high-resolution details
-
-**Avoid:**
-- Tilted or awkward angles that make the image look "crooked"
-- Unnatural lighting differences between person and background
-- Overly modern clothing that breaks historical immersion
-- Disproportionate sizing between person and architecture
-- Blurry or low-quality elements
-
-Create a stunning, natural-looking selfie that perfectly captures the magic of time travel to {political_entity} in {year} AD.
+Create a single, beautiful, and convincing image that looks like a genuine selfie taken in a historical setting.
         """.strip()
-        
         return prompt
 
 

@@ -1262,27 +1262,82 @@ async def generate_historical_selfie(request: HistoricalSelfieRequest):
                     detail="请先上传头像照片才能生成历史自拍"
                 )
             
-            # 构建历史场景描述（模拟从历史数据中获取）
-            # 实际应用中，应该根据 scene_id 或 political_entity 从历史数据或之前生成的场景中获取描述
-            scene_descriptions = {
-                'Tang Empire': """800年的大唐长安城，盛世帝国的辉煌气象尽显。雄伟的木构宫殿群采用精湛的斗拱技术，琉璃瓦片金光闪闪。身着宽袖仙裙的贵族们丝绸华服上绣着凤凰牡丹，男性官员头戴进贤冠。街市上胡商云集，丝绸之路的奇珍异宝琳琅满目。""",
-                
-                'Tokugawa Shogunate': """1600年的江户（现东京），德川幕府的城下町呈现出严谨而繁荣的景象。木质的传统建筑沿街排列，青瓦屋顶在晨光中闪耀。武士们身着正式和服，腰间佩戴双刀，体现着"士农工商"社会秩序的顶层。""",
-                
-                'Papal States': """800年教皇国的罗马，作为基督教世界的精神圣地散发着神圣威严。罗马式教堂高耸云霄，圆拱石门雕刻着精美圣像。红衣主教身着华丽法衣主持仪式，修道士们穿着朴素僧袍诵经祈祷。"""
-            }
+            # 根据scene_id查找对应的历史场景图片
+            # 首先尝试在生成的图片目录中查找
+            generated_images_dir = os.path.join(project_root, "static", "generated_images")
+            pregenerated_images_dir = os.path.join(project_root, "static", "pregenerated_images")
             
-            scene_description = scene_descriptions.get(
-                request.political_entity,
-                f"{request.political_entity}在{request.year}年展现着该时代典型的文化风貌和社会特征。宏伟的建筑、传统的服装、繁忙的街市体现了这个政治实体的历史辉煌。"
-            )
+            historical_scene_image_path = None
+            
+            # 方法1: 如果scene_id是完整的文件名，直接查找
+            if request.scene_id.endswith(('.png', '.jpg', '.jpeg')):
+                # 尝试在生成的图片目录中查找
+                potential_path = os.path.join(generated_images_dir, request.scene_id)
+                if os.path.exists(potential_path):
+                    historical_scene_image_path = potential_path
+                else:
+                    # 尝试在预生成图片目录中查找
+                    potential_path = os.path.join(pregenerated_images_dir, request.scene_id)
+                    if os.path.exists(potential_path):
+                        historical_scene_image_path = potential_path
+            
+            # 方法2: 如果scene_id不是完整文件名，尝试匹配包含scene_id的文件
+            if not historical_scene_image_path:
+                # 在生成的图片目录中查找包含scene_id的文件
+                try:
+                    for filename in os.listdir(generated_images_dir):
+                        if request.scene_id in filename and filename.endswith(('.png', '.jpg', '.jpeg')):
+                            historical_scene_image_path = os.path.join(generated_images_dir, filename)
+                            break
+                except:
+                    pass
+                
+                # 如果还没找到，在预生成图片目录中查找
+                if not historical_scene_image_path:
+                    try:
+                        for filename in os.listdir(pregenerated_images_dir):
+                            if request.scene_id in filename and filename.endswith(('.png', '.jpg', '.jpeg')):
+                                historical_scene_image_path = os.path.join(pregenerated_images_dir, filename)
+                                break
+                    except:
+                        pass
+            
+            # 方法3: 根据political_entity和year查找最近的历史场景图片
+            if not historical_scene_image_path:
+                try:
+                    entity_name = request.political_entity.replace(' ', '_').replace('/', '_')
+                    pattern = f"nano_banana_{entity_name}_{request.year}_"
+                    
+                    # 查找最新的匹配文件
+                    latest_file = None
+                    latest_time = 0
+                    
+                    for filename in os.listdir(generated_images_dir):
+                        if filename.startswith(pattern) and filename.endswith('.png'):
+                            file_path = os.path.join(generated_images_dir, filename)
+                            file_time = os.path.getmtime(file_path)
+                            if file_time > latest_time:
+                                latest_time = file_time
+                                latest_file = file_path
+                    
+                    if latest_file:
+                        historical_scene_image_path = latest_file
+                except:
+                    pass
+            
+            # 如果找不到历史场景图片，返回错误
+            if not historical_scene_image_path:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"找不到场景ID '{request.scene_id}' 对应的历史场景图片。请先生成历史场景图片。"
+                )
+            
+            print(f"✅ 找到历史场景图片: {os.path.basename(historical_scene_image_path)}")
             
             # 调用图生图服务
             selfie_result = await nano_banana_service.generate_historical_selfie(
                 user_image_path=user_image_path,
-                scene_description=scene_description,
-                political_entity=request.political_entity,
-                year=request.year
+                historical_scene_image_path=historical_scene_image_path
             )
             
             calculation_time = time.time() - start_time
