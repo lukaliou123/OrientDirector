@@ -2378,6 +2378,10 @@ body {
 /* 自拍结果显示 */
 .selfie-result {
     text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .selfie-result h4 {
@@ -2387,14 +2391,20 @@ body {
 
 .selfie-image-container {
     margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .selfie-image-container img {
     max-width: 400px;
-    width: 100%;
+    width: auto;
+    height: auto;
     border-radius: 15px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    margin-bottom: 15px;
+    margin: 0 auto 15px auto;
+    display: block;
 }
 
 .selfie-info {

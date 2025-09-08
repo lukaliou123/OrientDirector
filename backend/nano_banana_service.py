@@ -635,26 +635,62 @@ Natural environment as it appeared in {year} AD:
     
     def create_selfie_prompt(self) -> str:
         """
-        创建历史自拍的提示词 - 优化版本，用于双图融合
+        创建历史自拍的提示词 - 电影级自然融合版本
+        专注于光影匹配、环境交互和电影感表现
         """
         prompt = """
-Act as an expert photo editor. Your task is to create a seamless and realistic historical selfie.
+You are a master photo compositor and cinematic artist. Create a stunning, photorealistic historical selfie that looks like it was shot by a professional cinematographer.
 
-You will be given two images:
-1. The first image is a portrait of a person (the user).
-2. The second image is a historical scene (the background).
+You will receive two images:
+1. A portrait of a person (modern visitor/time traveler)  
+2. A historical scene (destination/background)
 
-Your goal is to take the person from the first image and place them into the historical scene from the second image, making it look like they are genuinely there and taking a selfie.
+Transform these into a single, breathtaking cinematic selfie with film-quality realism.
 
-**Instructions:**
-1. **Extract the Person:** Identify and extract the person from the first image. Maintain their exact facial features, expression, and appearance.
-2. **Integrate into Scene:** Place the extracted person naturally into the foreground of the second image (the historical scene).
-3. **Match the Style:** The final image's style, lighting, color palette, and texture must match the historical scene image. The person should look like they are part of that environment.
-4. **Selfie Composition:** The composition should resemble a selfie. The person can occupy about one-third of the frame, slightly off-center, with one arm slightly extended as if holding the camera. The historical scene should be the main background.
-5. **Realism is Key:** Ensure the lighting on the person is consistent with the lighting in the historical scene. Pay attention to shadows and perspective to create a photorealistic result.
-6. **Clothing:** The person should be wearing the modern clothing from their photo. Do not change their clothes to be period-accurate. They are a time traveler.
+**CINEMATIC INTEGRATION:**
+- Position the person as if they naturally belong in this historical moment
+- Create genuine interaction: have them lean against architecture, gesture toward landmarks, or react to their surroundings
+- Use dynamic angles and depth of field like a movie scene
+- Make it feel like a candid moment captured during their historical adventure
 
-Create a single, beautiful, and convincing image that looks like a genuine selfie taken in a historical setting.
+**LIGHTING MASTERY:**
+- Analyze the historical scene's lighting direction, intensity, and color temperature
+- Perfectly match lighting on the person's face, skin, and clothing
+- Add realistic shadows that the person would cast in this environment  
+- Ensure rim lighting and ambient light are consistent throughout
+- No harsh transitions or mismatched lighting zones
+
+**PHOTOREALISTIC DEPTH:**
+- Place the person at the correct scale and perspective for their distance from camera
+- Create natural depth of field: person sharp, background with appropriate softness
+- Add atmospheric perspective and environmental reflections on their skin/eyes
+- Include subtle environmental elements like dust particles, ambient fog, or atmospheric haze
+
+**NATURAL COMPOSITION:**
+- Classic selfie angle: slightly elevated (15-20°), arm's length distance
+- Person occupies 25-35% of frame, positioned naturally off-center
+- Show one arm extended subtly (holding camera) while the other interacts with the scene
+- Confident, genuine expression - excitement of discovery, not posed
+
+**SEAMLESS BLENDING:**
+- Perfectly match grain, texture, and image quality between person and background
+- Harmonize color grading so the person appears shot in the same conditions
+- Add realistic edge softening and light wrap around the person's silhouette
+- Include environmental elements like appropriate reflections in eyes
+
+**ENVIRONMENTAL STORYTELLING:**
+- Have the person genuinely react to and interact with the historical setting
+- Show them touching, leaning on, or gesturing toward historical elements
+- Their body language should convey wonder and authentic presence
+- Make background characters and elements feel aware of the time traveler's presence
+
+**TECHNICAL EXCELLENCE:**
+- Match the exact color palette, saturation, and contrast of the historical scene
+- Ensure consistent film grain and image quality throughout
+- Perfect edge blending with no visible compositing artifacts
+- Balance exposure across all elements for cinematic cohesion
+
+The final result should look like a genuine behind-the-scenes photo from a big-budget historical film, where a modern visitor has been naturally transported into the past and is documenting their incredible experience.
         """.strip()
         return prompt
 
