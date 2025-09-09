@@ -763,25 +763,64 @@ def get_region_info(lat, lon):
 @app.on_event("startup")
 async def startup_event():
     """应用启动时加载数据"""
+    print("🌟 FastAPI应用启动中...")
+    print(f"   当前工作目录: {os.getcwd()}")
+    print(f"   环境变量PORT: {os.environ.get('PORT', '未设置')}")
+    
+    # 测试前端文件路径
+    test_files = ['index.html', 'styles.css', 'app.js']
+    print("\n📁 前端文件路径测试:")
+    for file in test_files:
+        path = get_frontend_file_path(file)
+        exists = os.path.exists(path)
+        print(f"   {file}: {'✅' if exists else '❌'} {path}")
+    
     load_places_data()
-    print("地点数据加载完成")
+    print("\n✅ 地点数据加载完成")
+    print("🚀 FastAPI应用启动完成！")
+
+# 辅助函数：获取前端文件的实际路径
+def get_frontend_file_path(filename):
+    """获取前端文件的实际路径，兼容Docker和本地环境"""
+    # 尝试不同的路径
+    possible_paths = [
+        f'/app/{filename}',  # Docker环境
+        f'../{filename}',    # 本地开发（从backend目录运行）
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), filename)  # 绝对路径
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+    
+    # 如果都找不到，返回最可能的路径
+    return possible_paths[0]
 
 @app.get("/")
 async def root():
     """服务前端页面"""
     from fastapi.responses import FileResponse
-    return FileResponse('../index.html')
+    file_path = get_frontend_file_path('index.html')
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"Frontend file not found: index.html")
+    return FileResponse(file_path)
 
 # 服务前端静态资源
 @app.get("/styles.css")
 async def get_css():
     from fastapi.responses import FileResponse
-    return FileResponse('../styles.css')
+    file_path = get_frontend_file_path('styles.css')
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"Frontend file not found: styles.css")
+    return FileResponse(file_path)
 
 @app.get("/app.js")
 async def get_js():
     from fastapi.responses import FileResponse
-    return FileResponse('../app.js')
+    file_path = get_frontend_file_path('app.js')
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"Frontend file not found: app.js")
+    return FileResponse(file_path)
 
 @app.post("/api/explore", response_model=ExploreResponse)
 async def explore_direction(request: ExploreRequest):

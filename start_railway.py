@@ -8,22 +8,38 @@ import sys
 import uvicorn
 
 def main():
-    # 添加backend目录到Python路径
-    backend_path = os.path.join(os.path.dirname(__file__), 'backend')
-    sys.path.insert(0, backend_path)
+    # 获取当前脚本所在目录
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # 添加项目根目录到Python路径（确保能导入backend包）
+    sys.path.insert(0, script_dir)
     
     # 获取端口号
     port = int(os.environ.get('PORT', 8000))
     
     print(f"🚀 Railway部署启动")
     print(f"   工作目录: {os.getcwd()}")
-    print(f"   Backend路径: {backend_path}")
+    print(f"   脚本目录: {script_dir}")
     print(f"   端口: {port}")
-    print(f"   Python路径: {sys.path[:2]}")
+    print(f"   Python路径: {sys.path[:3]}")
+    
+    # 列出关键文件检查
+    print("\n📁 文件检查:")
+    files_to_check = ['index.html', 'styles.css', 'app.js', 'backend/main.py', '.env']
+    for file in files_to_check:
+        full_path = os.path.join(script_dir, file)
+        exists = os.path.exists(full_path)
+        print(f"   {file}: {'✅ 存在' if exists else '❌ 不存在'} ({full_path})")
+    
     print("-" * 50)
     
-    # 从backend模块导入app
-    from backend.main import app
+    try:
+        # 从backend模块导入app
+        from backend.main import app
+        print("✅ 成功导入FastAPI应用")
+    except ImportError as e:
+        print(f"❌ 导入失败: {e}")
+        sys.exit(1)
     
     # 启动uvicorn服务器
     uvicorn.run(
