@@ -2131,15 +2131,23 @@ async function showModernJourneySummary(journeyResult) {
     // 生成旅程亮点
     const highlights = generateJourneyHighlights();
     
-    // 🤖 生成AI旅程总结文字
-    let aiSummaryText = '';
+    // 🤖 生成AI旅程总结数据
+    let aiSummaryData = {
+        summary: '🎉 恭喜完成这次精彩的探索之旅！每一步都是独特的发现，感谢您选择方向探索派对！',
+        highlights: [],
+        recommendation: '继续探索更多精彩地点'
+    };
+    
     try {
         logger.info('🤖 开始生成AI旅程总结...');
         const aiSummary = await generateAIJourneySummary(stats);
-        aiSummaryText = aiSummary || '🎉 恭喜完成这次精彩的探索之旅！每一步都是独特的发现，感谢您选择方向探索派对！';
+        if (aiSummary && typeof aiSummary === 'object') {
+            aiSummaryData = aiSummary;
+        } else if (typeof aiSummary === 'string') {
+            aiSummaryData.summary = aiSummary;
+        }
     } catch (error) {
-        logger.warning('AI旅程总结生成失败，使用默认文字');
-        aiSummaryText = '🎉 恭喜完成这次精彩的探索之旅！每一步都是独特的发现，感谢您选择方向探索派对！';
+        logger.warning('AI旅程总结生成失败，使用默认内容');
     }
     
     const summaryHtml = `
@@ -2202,35 +2210,87 @@ async function showModernJourneySummary(journeyResult) {
                     </div>
                 </div>
                 
-                <!-- AI生成的旅程总结文字 -->
-                <div class="ai-summary-text" style="
-                    background: rgba(255, 255, 255, 0.15);
-                    border-radius: 15px;
-                    padding: 20px;
+                <!-- AI生成的旅程总结 -->
+                <div class="ai-summary-section" style="
                     margin: 25px 0;
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
                 ">
-                    <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 8px; text-align: center;">
-                        🤖 AI旅程回顾
-                    </div>
-                    <p style="
-                        margin: 0;
-                        font-size: 1.1rem;
-                        line-height: 1.6;
-                        font-style: italic;
-                        text-align: center;
-                    ">${aiSummaryText}</p>
-                </div>
-                
-                ${highlights.length > 0 ? `
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
-                        <h3 style="margin: 0 0 10px 0;">✨ 旅程亮点</h3>
-                        <div style="font-size: 0.9rem; line-height: 1.6;">
-                            ${highlights.join('<br>')}
+                    <!-- 主要总结 -->
+                    <div style="
+                        background: rgba(255, 255, 255, 0.15);
+                        border-radius: 15px;
+                        padding: 20px;
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    ">
+                        <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            🤖 <span>AI旅程回顾</span>
                         </div>
+                        <p style="
+                            margin: 0;
+                            font-size: 1.1rem;
+                            line-height: 1.6;
+                            font-style: italic;
+                            text-align: center;
+                        ">${aiSummaryData.summary}</p>
                     </div>
-                ` : ''}
+                    
+                    <!-- 旅程亮点 -->
+                    ${aiSummaryData.highlights && aiSummaryData.highlights.length > 0 ? `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.12);
+                            border-radius: 15px;
+                            padding: 20px;
+                            backdrop-filter: blur(10px);
+                            border: 1px solid rgba(255, 255, 255, 0.15);
+                        ">
+                            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                ✨ <span>旅程亮点</span>
+                            </div>
+                            <div style="
+                                display: flex;
+                                flex-direction: column;
+                                gap: 8px;
+                                font-size: 0.95rem;
+                                line-height: 1.5;
+                            ">
+                                ${aiSummaryData.highlights.map(highlight => 
+                                    `<div style="
+                                        background: rgba(255, 255, 255, 0.1);
+                                        padding: 12px 16px;
+                                        border-radius: 10px;
+                                        border-left: 4px solid rgba(255, 255, 255, 0.4);
+                                        text-align: left;
+                                    ">• ${highlight}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 探索建议 -->
+                    ${aiSummaryData.recommendation ? `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.1);
+                            border-radius: 15px;
+                            padding: 18px;
+                            backdrop-filter: blur(10px);
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                        ">
+                            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                🚀 <span>下次探索建议</span>
+                            </div>
+                            <p style="
+                                margin: 0;
+                                font-size: 1rem;
+                                line-height: 1.5;
+                                text-align: center;
+                                opacity: 0.95;
+                            ">${aiSummaryData.recommendation}</p>
+                        </div>
+                    ` : ''}
+                </div>
                 
                 <div style="margin-top: 20px; font-size: 1.1rem; opacity: 0.9;">
                     感谢您选择方向探索派对！期待下次旅程 🧭
@@ -2800,6 +2860,73 @@ function displaySceneReview(reviewData, scene) {
     logger.info('🎨 场景锐评已显示');
 }
 
+// 解析AI旅程总结数据结构
+function parseAIJourneySummary(rawSummary) {
+    try {
+        // 尝试解析结构化数据
+        let parsedData = {
+            summary: '',
+            highlights: [],
+            recommendation: ''
+        };
+        
+        // 情况1: 如果是纯文本，直接返回
+        if (typeof rawSummary === 'string' && !rawSummary.includes('summary=') && !rawSummary.includes('highlights=')) {
+            return { summary: rawSummary, highlights: [], recommendation: '' };
+        }
+        
+        // 情况2: 解析类似 "summary='...' highlights=[...] recommendation='...'" 的格式
+        const summaryMatch = rawSummary.match(/summary='(.*?)'\s*highlights=/);
+        if (summaryMatch) {
+            parsedData.summary = summaryMatch[1];
+        } else {
+            // 备用匹配
+            const altSummaryMatch = rawSummary.match(/summary='([^']*?)'/);
+            if (altSummaryMatch) {
+                parsedData.summary = altSummaryMatch[1];
+            }
+        }
+        
+        const highlightsMatch = rawSummary.match(/highlights=\[(.*?)\]\s*recommendation=/);
+        if (highlightsMatch) {
+            // 解析数组内容 - 处理单引号包围的内容
+            let highlightsStr = highlightsMatch[1];
+            // 分割并清理每个项目
+            let highlights = [];
+            const matches = highlightsStr.match(/'([^']*)'/g);
+            if (matches) {
+                highlights = matches.map(match => match.slice(1, -1)); // 去除引号
+            }
+            parsedData.highlights = highlights;
+        }
+        
+        const recommendationMatch = rawSummary.match(/recommendation='(.*?)'\s*(?:\w+|$)/);
+        if (recommendationMatch) {
+            parsedData.recommendation = recommendationMatch[1];
+        } else {
+            // 备用匹配 - 匹配到字符串结尾
+            const altRecommendationMatch = rawSummary.match(/recommendation='(.*)$/);
+            if (altRecommendationMatch) {
+                let rec = altRecommendationMatch[1];
+                // 去除末尾可能的引号和其他字符
+                rec = rec.replace(/'\s*\w*\s*$/, '');
+                parsedData.recommendation = rec;
+            }
+        }
+        
+        console.log('📝 解析AI总结数据:', parsedData);
+        return parsedData;
+        
+    } catch (error) {
+        console.error('❌ AI总结解析失败:', error);
+        return {
+            summary: rawSummary,
+            highlights: [],
+            recommendation: '继续探索更多精彩地点'
+        };
+    }
+}
+
 // 生成AI旅程总结
 async function generateAIJourneySummary(stats) {
     try {
@@ -2824,7 +2951,8 @@ async function generateAIJourneySummary(stats) {
         
         if (data.success && data.summary) {
             logger.success('🤖 AI旅程总结生成成功');
-            return data.summary;
+            // 解析AI返回的结构化数据
+            return parseAIJourneySummary(data.summary);
         } else {
             throw new Error(data.message || '生成失败');
         }
@@ -3901,13 +4029,21 @@ async function generateHistoricalSelfie(scene) {
     try {
         showLoading(true, '🤳 正在生成您的时光自拍...');
         
+        // 🔍 调试：检查scene数据结构
+        console.log('🔍 Scene数据结构:', scene);
+        console.log('🔍 Political entity:', scene.political_entity);
+        console.log('🔍 Year:', scene.year);
+        console.log('🔍 Query year:', scene.query_year);
+        
         // 调用后端自拍生成API
         const requestData = {
-            scene_id: `${scene.political_entity}_${scene.year}`,
+            scene_id: `${scene.political_entity}_${scene.year || scene.query_year}`,
             political_entity: scene.political_entity,
-            year: scene.year,
+            year: scene.year || scene.query_year,  // 兼容两种字段名
             user_image: null  // 演示模式不需要用户图片
         };
+        
+        console.log('📤 发送请求数据:', requestData);
         
         const response = await fetch('http://localhost:8000/api/generate-historical-selfie', {
             method: 'POST',
@@ -3923,6 +4059,10 @@ async function generateHistoricalSelfie(scene) {
         
         const data = await response.json();
         
+        // 🔍 调试：检查返回数据
+        console.log('📤 后端返回数据:', data);
+        console.log('📤 Scene info:', data.scene_info);
+        
         if (data.success) {
             const selfieImage = document.getElementById('selfieImage');
             const selfieDescription = document.getElementById('selfieDescription');
@@ -3935,10 +4075,14 @@ async function generateHistoricalSelfie(scene) {
             
             // 更新描述信息
             if (selfieDescription && data.scene_info) {
+                // 🛡️ 防御性编程：确保数据不为undefined
+                const politicalEntity = data.scene_info.political_entity || scene.political_entity || 'Unknown';
+                const year = data.scene_info.year || scene.year || scene.query_year || 'Unknown';
+                
                 selfieDescription.innerHTML = `
-                    <p>🎉 太棒了！您与 <strong>${data.scene_info.political_entity}</strong> (${data.scene_info.year}年) 的时光自拍已生成！</p>
+                    <p>🎉 太棒了！您与 <strong>${politicalEntity}</strong> (${year}年) 的时光自拍已生成！</p>
                     <p class="selfie-note">✨ ${data.demo_mode ? '演示模式：使用预设时光旅行者角色' : '实时生成模式'}</p>
-                    <p class="selfie-note">⚡ 生成时间: ${data.generation_time.toFixed(2)}秒</p>
+                    <p class="selfie-note">⚡ 生成时间: ${data.generation_time ? data.generation_time.toFixed(2) : '0.10'}秒</p>
                 `;
             }
             
@@ -3971,9 +4115,13 @@ async function generateHistoricalSelfie(scene) {
         }
         
         if (selfieDescription) {
+            // 🛡️ 防御性编程：确保备用方案也不显示undefined
+            const politicalEntity = scene.political_entity || 'Unknown';
+            const year = scene.year || scene.query_year || 'Unknown';
+            
             selfieDescription.innerHTML = `
                 <p>🎭 使用备用演示自拍（API调用失败）</p>
-                <p class="selfie-note">✨ 与 ${scene.political_entity} (${scene.year}年) 的时光合影</p>
+                <p class="selfie-note">✨ 与 ${politicalEntity} (${year}年) 的时光合影</p>
             `;
         }
         

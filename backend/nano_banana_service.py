@@ -297,11 +297,15 @@ class NanoBananaHistoricalService:
         prompt = f"""
 Create a historically accurate and visually stunning image of {political_entity} in {year} AD at coordinates {lat:.2f}, {lng:.2f}.
 
+**CRITICAL: This scene must authentically represent the year {year} AD specifically**
+
 **Historical Context:**
 - Political Entity: {political_entity}
 - Ruler/Authority: {ruler_power}
 - Cultural Region: {cultural_region}
-- Time Period: {year} AD
+- **Exact Time Period: {year} AD** (This is crucial for historical accuracy)
+- Century: {self.get_century_context(year)}
+- Historical Era: {self.get_era_context(year)}
 
 **Architecture & Buildings:**
 {architectural_details}
@@ -321,21 +325,56 @@ Create a historically accurate and visually stunning image of {political_entity}
 
 **Art Style Requirements:**
 - Photorealistic historical illustration with museum-quality detail
-- Rich textures showing authentic materials and craftsmanship
+- Rich textures showing authentic materials and craftsmanship of the {year} AD era
 - Dramatic cinematic lighting emphasizing the culture of {political_entity}
-- Color palette using pigments and materials available in {year} AD
+- Color palette using only pigments and dyes available in {year} AD
 - High historical authenticity suitable for educational purposes
+- **Technology Level**: Show only tools, weapons, and devices that existed in {year} AD
 
-**Avoid:**
-- Any modern elements (no contemporary buildings, vehicles, technology)
-- Anachronistic materials or construction methods
-- Modern clothing styles or accessories
-- Elements that didn't exist in {year} AD
+**Critical Year-Specific Requirements for {year} AD:**
+- Buildings must use construction techniques available in {year} AD
+- Clothing styles must match exactly what was worn in {year} AD
+- Transportation methods limited to what existed in {year} AD
+- Agricultural practices appropriate to {year} AD technology
+- Military equipment and weapons from the {year} AD period only
 
-Ensure complete historical authenticity to {political_entity} in {year} AD.
+**Strictly Avoid (Anachronisms):**
+- Any technology, materials, or methods not invented until after {year} AD
+- Architectural elements from different time periods
+- Clothing, hairstyles, or accessories from other eras
+- Modern or future elements that break the {year} AD immersion
+- Cross-cultural elements that wouldn't have existed in this location in {year} AD
+
+**FINAL VERIFICATION**: Every single element in this image must be authentic to {political_entity} in exactly {year} AD - no exceptions.
         """.strip()
         
         return prompt
+    
+    def get_century_context(self, year: int) -> str:
+        """获取世纪背景信息"""
+        if year < 0:
+            return f"{abs(year//100 + 1)}th century BC"
+        else:
+            return f"{year//100 + 1}th century AD"
+    
+    def get_era_context(self, year: int) -> str:
+        """获取历史时代背景"""
+        if year >= 1900:
+            return "Modern Era"
+        elif year >= 1800:
+            return "Industrial Revolution Era" 
+        elif year >= 1500:
+            return "Early Modern Period"
+        elif year >= 1000:
+            return "High Medieval Period"
+        elif year >= 500:
+            return "Early Medieval Period"
+        elif year >= 0:
+            return "Late Antiquity"
+        elif year >= -500:
+            return "Classical Antiquity"
+        else:
+            return "Ancient World"
     
     def get_architectural_details(self, political_entity: str, cultural_region: str, year: int) -> str:
         """获取建筑细节描述"""

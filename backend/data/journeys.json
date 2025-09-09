@@ -1785,5 +1785,93 @@
     "is_active": true,
     "journey_title": "探索之旅 2025/9/9 13:27:33",
     "created_at": "2025-09-09T13:27:33.494063"
+  },
+  "a8a363f0-fd9b-43c9-b84e-17785a0c75d4": {
+    "journey_id": "a8a363f0-fd9b-43c9-b84e-17785a0c75d4",
+    "start_time": "2025-09-09T13:34:21.333294",
+    "end_time": "2025-09-09T13:36:16.326525",
+    "start_location": {
+      "lat": 40.758,
+      "lng": -73.9855,
+      "name": "位置 40.7580, -73.9855",
+      "address": null
+    },
+    "current_location": {
+      "lat": 40.7629104,
+      "lng": -73.75311769999999,
+      "name": "Alley Pond Environmental Center",
+      "address": "Alley Pond Environmental Center是一个旅游景点，Google评分4.7⭐，位于Douglaston，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "636effcb-2a65-4020-8ed6-3a1c5010fada",
+        "name": "布朗克斯动物园",
+        "location": {
+          "lat": 40.8501415,
+          "lng": -73.87672169999999,
+          "name": "布朗克斯动物园",
+          "address": "布朗克斯动物园是一个动物园，Google评分4.6⭐，位于The Bronx，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T13:34:26.359981",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "67f7d187-8f2a-4dd9-bf33-da101f1f9e7a",
+        "name": "Alley Pond Environmental Center",
+        "location": {
+          "lat": 40.7629104,
+          "lng": -73.75311769999999,
+          "name": "Alley Pond Environmental Center",
+          "address": "Alley Pond Environmental Center是一个旅游景点，Google评分4.7⭐，位于Douglaston，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T13:35:19.584566",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/9 13:34:21",
+    "created_at": "2025-09-09T13:34:21.333294"
+  },
+  "4f892718-d920-4e32-9378-15911008e267": {
+    "journey_id": "4f892718-d920-4e32-9378-15911008e267",
+    "start_time": "2025-09-09T13:49:19.314248",
+    "end_time": "2025-09-09T13:49:59.400221",
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8931617,
+      "lng": 2.3905342,
+      "name": "维莱特公园",
+      "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "84f81db1-f301-44db-81a0-1093ae684de2",
+        "name": "维莱特公园",
+        "location": {
+          "lat": 48.8931617,
+          "lng": 2.3905342,
+          "name": "维莱特公园",
+          "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T13:49:42.971278",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/9 13:49:19",
+    "created_at": "2025-09-09T13:49:19.314248"
   }
 }
