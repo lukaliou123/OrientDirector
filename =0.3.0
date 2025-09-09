@@ -1,9 +1,0 @@
-Collecting google-generativeai
-  Using cached google_generativeai-0.8.5-py3-none-any.whl.metadata (3.9 kB)
-Using cached google_generativeai-0.8.5-py3-none-any.whl (155 kB)
-Installing collected packages: google-generativeai
-  Attempting uninstall: google-generativeai
-    Found existing installation: google-generativeai 0.8.5
-    Uninstalling google-generativeai-0.8.5:
-      Successfully uninstalled google-generativeai-0.8.5
-Successfully installed google-generativeai-0.8.5

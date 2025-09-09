@@ -756,10 +756,6 @@ async def root():
     from fastapi.responses import FileResponse
     return FileResponse('../index.html')
 
-@app.get("/api/health")
-async def health_check():
-    return {"message": "方向探索派对API服务正在运行", "status": "healthy"}
-
 # 服务前端静态资源
 @app.get("/styles.css")
 async def get_css():

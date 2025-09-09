@@ -25,12 +25,12 @@ RUN mkdir -p /app/static/generated_images \
     && mkdir -p /app/static/selfies \
     && mkdir -p /app/static/profile_photo
 
-# 暴露端口（Railway会动态分配端口）
-EXPOSE $PORT
+# 暴露默认端口（Railway会通过环境变量覆盖）
+EXPOSE 8000
 
-# 健康检查 - 使用动态端口
+# 健康检查 - 运行时动态检测端口
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-8000}/api/health || exit 1
+  CMD curl -f http://localhost:8000/api/health || exit 1
 
-# 启动命令 - 使用Railway提供的动态端口
-CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# 启动命令 - 使用Python启动脚本确保路径正确
+CMD ["python", "start_railway.py"]
