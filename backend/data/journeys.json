@@ -2035,5 +2035,343 @@
     "is_active": true,
     "journey_title": "探索之旅 2025/9/9 21:26:37",
     "created_at": "2025-09-09T21:26:37.265603"
+  },
+  "7d02ca0c-0531-4eff-8a9a-2998127f85af": {
+    "journey_id": "7d02ca0c-0531-4eff-8a9a-2998127f85af",
+    "start_time": "2025-09-09T21:41:58.592625",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.639467,
+      "lng": 139.7406425,
+      "name": "高輪大木戶跡",
+      "address": "高輪大木戶跡是一个旅游景点，Google评分3.7⭐，位于Minato City，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "d3ae10c0-6bc2-483e-8eb0-504f49278ffc",
+        "name": "高輪大木戶跡",
+        "location": {
+          "lat": 35.639467,
+          "lng": 139.7406425,
+          "name": "高輪大木戶跡",
+          "address": "高輪大木戶跡是一个旅游景点，Google评分3.7⭐，位于Minato City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:42:12.222902",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:41:58",
+    "created_at": "2025-09-09T21:41:58.592625"
+  },
+  "e7521e20-cd00-4976-919c-6a10941b7c7a": {
+    "journey_id": "e7521e20-cd00-4976-919c-6a10941b7c7a",
+    "start_time": "2025-09-09T21:44:09.916623",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8064008,
+      "lng": 2.2349494,
+      "name": "Museum of Art and History of the City of Meudon",
+      "address": "Museum of Art and History of the City of Meudon是一个旅游景点，Google评分4.5⭐，位于Meudon，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "31578467-6231-4b47-9851-9ed9abc71d93",
+        "name": "Museum of Art and History of the City of Meudon",
+        "location": {
+          "lat": 48.8064008,
+          "lng": 2.2349494,
+          "name": "Museum of Art and History of the City of Meudon",
+          "address": "Museum of Art and History of the City of Meudon是一个旅游景点，Google评分4.5⭐，位于Meudon，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:44:16.477953",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:44:09",
+    "created_at": "2025-09-09T21:44:09.916623"
+  },
+  "be10eccd-10e9-4f97-a481-0767afccdd64": {
+    "journey_id": "be10eccd-10e9-4f97-a481-0767afccdd64",
+    "start_time": "2025-09-09T21:48:31.409408",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8931617,
+      "lng": 2.3905342,
+      "name": "维莱特公园",
+      "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "1b907c56-97f4-4ba2-9f6e-4db66b5cf0d7",
+        "name": "维莱特公园",
+        "location": {
+          "lat": 48.8931617,
+          "lng": 2.3905342,
+          "name": "维莱特公园",
+          "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:48:35.793994",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:48:31",
+    "created_at": "2025-09-09T21:48:31.409408"
+  },
+  "a0370597-59eb-48fe-a731-e040e7b65a8d": {
+    "journey_id": "a0370597-59eb-48fe-a731-e040e7b65a8d",
+    "start_time": "2025-09-09T21:53:19.072465",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.75840609999999,
+      "lng": 139.8784378,
+      "name": "柴又帝释天",
+      "address": "柴又帝释天是一个旅游景点，Google评分4.3⭐，位于Katsushika City，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "57df39af-db2d-449a-ad8a-30e216158664",
+        "name": "柴又帝释天",
+        "location": {
+          "lat": 35.75840609999999,
+          "lng": 139.8784378,
+          "name": "柴又帝释天",
+          "address": "柴又帝释天是一个旅游景点，Google评分4.3⭐，位于Katsushika City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:53:25.049622",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:53:19",
+    "created_at": "2025-09-09T21:53:19.072465"
+  },
+  "9352c2de-1fac-4977-a0f3-77ed7144299c": {
+    "journey_id": "9352c2de-1fac-4977-a0f3-77ed7144299c",
+    "start_time": "2025-09-09T21:55:36.264050",
+    "end_time": "2025-09-09T21:56:22.893517",
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.80579580000001,
+      "lng": 139.6962849,
+      "name": "Shichifuku No Yu",
+      "address": "Shichifuku No Yu是一个旅游景点，Google评分4⭐，位于Toda，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "9eab23e8-4de5-4a0a-8235-897e19b7dad3",
+        "name": "Shichifuku No Yu",
+        "location": {
+          "lat": 35.80579580000001,
+          "lng": 139.6962849,
+          "name": "Shichifuku No Yu",
+          "address": "Shichifuku No Yu是一个旅游景点，Google评分4⭐，位于Toda，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:55:40.829030",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/9 21:55:36",
+    "created_at": "2025-09-09T21:55:36.264050"
+  },
+  "5bcc73a9-4f48-4f95-ba84-353e829a6939": {
+    "journey_id": "5bcc73a9-4f48-4f95-ba84-353e829a6939",
+    "start_time": "2025-09-09T21:56:52.115474",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8338325,
+      "lng": 2.3324222,
+      "name": "巴黎地下墓穴",
+      "address": "巴黎地下墓穴是一个旅游景点，Google评分4⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "3054cb29-3405-49a9-b6fe-7f8f4199f17c",
+        "name": "维莱特公园",
+        "location": {
+          "lat": 48.8931617,
+          "lng": 2.3905342,
+          "name": "维莱特公园",
+          "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:56:56.419138",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "a5e8534b-4361-4a90-9dd6-40b5f2298664",
+        "name": "巴黎地下墓穴",
+        "location": {
+          "lat": 48.8338325,
+          "lng": 2.3324222,
+          "name": "巴黎地下墓穴",
+          "address": "巴黎地下墓穴是一个旅游景点，Google评分4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:57:37.337185",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:56:52",
+    "created_at": "2025-09-09T21:56:52.115474"
+  },
+  "f12c40ab-cbd9-4e41-bbd8-d001a9b32c34": {
+    "journey_id": "f12c40ab-cbd9-4e41-bbd8-d001a9b32c34",
+    "start_time": "2025-09-09T22:16:12.421064",
+    "end_time": "2025-09-09T22:18:25.976312",
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8282797,
+      "lng": 2.4330972,
+      "name": "文森森林",
+      "address": "文森森林是一个公园，Google评分4.5⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "54bddc94-f9f8-451c-921e-59f4658439db",
+        "name": "维莱特公园",
+        "location": {
+          "lat": 48.8931617,
+          "lng": 2.3905342,
+          "name": "维莱特公园",
+          "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T22:16:19.844589",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "17f2742f-3fd1-48f0-9eff-e15735789540",
+        "name": "文森森林",
+        "location": {
+          "lat": 48.8282797,
+          "lng": 2.4330972,
+          "name": "文森森林",
+          "address": "文森森林是一个公园，Google评分4.5⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T22:17:21.793801",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/9 22:16:12",
+    "created_at": "2025-09-09T22:16:12.421064"
+  },
+  "f5103b1a-fe18-4a36-bb95-bbd6aa3f6ffa": {
+    "journey_id": "f5103b1a-fe18-4a36-bb95-bbd6aa3f6ffa",
+    "start_time": "2025-09-09T22:28:38.384051",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8282797,
+      "lng": 2.4330972,
+      "name": "文森森林",
+      "address": "文森森林是一个公园，Google评分4.5⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "1c3cefcb-7d61-49fe-81cc-f471f3f9c14d",
+        "name": "维莱特公园",
+        "location": {
+          "lat": 48.8931617,
+          "lng": 2.3905342,
+          "name": "维莱特公园",
+          "address": "维莱特公园是一个公园，Google评分4.4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T22:28:42.563176",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "68fe8081-db1f-4916-9f69-fb80de3d8d12",
+        "name": "文森森林",
+        "location": {
+          "lat": 48.8282797,
+          "lng": 2.4330972,
+          "name": "文森森林",
+          "address": "文森森林是一个公园，Google评分4.5⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T22:29:31.045528",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 22:28:38",
+    "created_at": "2025-09-09T22:28:38.384051"
   }
 }

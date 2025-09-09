@@ -1,3 +1,30 @@
+// 🌍 环境配置：智能检测本地开发vs云部署
+const API_CONFIG = {
+    // 检测是否为本地开发环境
+    isLocalDev: window.location.hostname === 'localhost' && window.location.port === '3000',
+    
+    // 根据环境返回API基础URL
+    getApiBaseUrl() {
+        if (this.isLocalDev) {
+            return 'http://localhost:8000';  // 本地开发：后端在8000端口
+        } else {
+            return '';  // 云环境：使用相对路径
+        }
+    },
+    
+    // 构建完整的API URL
+    getApiUrl(endpoint) {
+        return this.getApiBaseUrl() + endpoint;
+    }
+};
+
+console.log('🌍 环境检测:', {
+    hostname: window.location.hostname,
+    port: window.location.port,
+    isLocalDev: API_CONFIG.isLocalDev,
+    apiBaseUrl: API_CONFIG.getApiBaseUrl()
+});
+
 // 全局变量
 let currentPosition = null;
 let currentHeading = 0;
@@ -652,7 +679,7 @@ async function startExploration() {
         const startTime = Date.now();
         
                 // 使用真实数据API端点
-        const apiEndpoint = '/api/explore-real';  // 使用相对URL
+        const apiEndpoint = API_CONFIG.getApiUrl('/api/explore-real');  // 智能环境适配
         logger.info('使用真实数据源');
         
         // 调用后端API计算路径
@@ -729,6 +756,8 @@ function displayPlaces(places) {
         return;
     }
     
+    // 🔧 关键修复：确保容器可见
+    container.style.display = 'block';
     container.innerHTML = '';
     
     if (!places || places.length === 0) {
@@ -1338,19 +1367,18 @@ async function continueExploration(lat, lng) {
         logger.warning('地址获取失败，使用坐标显示');
     }
     
-    // 清除之前的结果
-    clearResults();
-    
-    // 重置场景管理状态
-    sceneManagement.allScenes = [];
-    sceneManagement.selectedScenes = [];
-    sceneManagement.rejectedScenes = [];
-    sceneManagement.isSelectionMode = false;
+    // 只清除待选择的目的地，保留已访问场景
+    clearPendingDestinations();
     
     showSuccess('📍 位置已更新！请设置新的探索方向并点击"开始探索"');
     
-    // 回到探索界面
-    document.getElementById('controls').style.display = 'block';
+    // 回到探索界面 - 使用正确的选择器和防御性检查
+    const controlsElement = document.querySelector('.controls');
+    if (controlsElement) {
+        controlsElement.style.display = 'block';
+    } else {
+        logger.warning('⚠️ 未找到controls元素，可能已被清除');
+    }
 }
 
 // 结束旅程
@@ -1386,7 +1414,27 @@ async function endJourney() {
     // 用户可以通过"开始新旅程"按钮来重置状态
 }
 
-// 清除页面显示结果
+// 只清除待选择的目的地（用于继续探索）
+function clearPendingDestinations() {
+    logger.info('🧹 清除待选择的目的地...');
+    
+    // 只清除地点容器（待选择的目的地）
+    const placesContainer = document.getElementById('placesContainer');
+    if (placesContainer) {
+        placesContainer.innerHTML = '';
+        placesContainer.style.display = 'none';
+    }
+    
+    // 重置选择相关状态，但保留已访问场景
+    sceneManagement.allScenes = [];
+    sceneManagement.selectedScenes = [];
+    sceneManagement.rejectedScenes = [];
+    sceneManagement.isSelectionMode = false;
+    
+    logger.success('✅ 待选择目的地已清除，已访问场景已保留');
+}
+
+// 清除页面显示结果（完全重置，用于新旅程）
 function clearResults() {
     logger.info('🧹 清除页面显示结果...');
     
@@ -1603,8 +1651,8 @@ function resetToInitialState() {
     // 清除结果显示
     clearResults();
     
-    // 显示控制面板
-    const controls = document.getElementById('controls');
+    // 显示控制面板 - 使用正确的选择器
+    const controls = document.querySelector('.controls');
     if (controls) {
         controls.style.display = 'block';
     }
@@ -1627,7 +1675,7 @@ async function startJourney(lat, lng, locationName, journeyTitle = null) {
     try {
         logger.info('🎒 开始创建新旅程...');
         
-        const response = await fetch('/api/journey/start', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/journey/start'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1683,7 +1731,7 @@ async function recordSceneVisit(journeyId, scene, rating = null, notes = null) {
     try {
         logger.info(`📍 记录场景访问: ${scene.name}`);
         
-        const response = await fetch('/api/journey/visit', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/journey/visit'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1736,7 +1784,7 @@ async function endCurrentJourney(journeyId) {
     try {
         logger.info('🏠 结束当前旅程...');
         
-        const response = await fetch(`/api/journey/${journeyId}/end`, {
+        const response = await fetch(API_CONFIG.getApiUrl(`/api/journey/${journeyId}/end`), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1776,7 +1824,7 @@ async function endCurrentJourney(journeyId) {
  */
 async function getCurrentJourneyInfo(journeyId) {
     try {
-        const response = await fetch(`/api/journey/${journeyId}`);
+        const response = await fetch(API_CONFIG.getApiUrl(`/api/journey/${journeyId}`));
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2727,7 +2775,7 @@ async function generateAndShowSceneReview(scene) {
         };
         
         // 调用后端API生成锐评
-        const response = await fetch('/api/scene-review', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/scene-review'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2781,8 +2829,25 @@ async function generateAndShowSceneReview(scene) {
 
 // 显示场景锐评
 function displaySceneReview(reviewData, scene) {
-    const confirmationDiv = document.getElementById('arrivalConfirmation');
-    if (!confirmationDiv) return;
+    // 🧹 清理旧的独立锐评容器，避免重复显示
+    const oldIndependentContainer = document.getElementById('independentReviewContainer');
+    if (oldIndependentContainer) {
+        oldIndependentContainer.remove();
+        logger.info('🧹 清理旧的独立锐评容器');
+    }
+    
+    // 🔧 修复：优先查找现有容器，如果不存在则创建独立显示区域
+    let targetContainer = document.getElementById('arrivalConfirmation');
+    
+    if (!targetContainer) {
+        // 创建独立的锐评显示容器
+        targetContainer = createIndependentReviewContainer(scene);
+    }
+    
+    if (!targetContainer) {
+        logger.error('❌ 无法创建锐评显示区域');
+        return;
+    }
     
     const reviewHtml = `
         <div class="scene-review" style="
@@ -2846,8 +2911,12 @@ function displaySceneReview(reviewData, scene) {
         </div>
     `;
     
-    // 在到达确认界面前插入锐评
-    confirmationDiv.insertAdjacentHTML('beforebegin', reviewHtml);
+    // 在目标容器前插入锐评，如果是独立容器则直接插入
+    if (targetContainer.id === 'independentReviewContainer') {
+        targetContainer.innerHTML = reviewHtml;
+    } else {
+        targetContainer.insertAdjacentHTML('beforebegin', reviewHtml);
+    }
     
     // 滚动到锐评位置
     setTimeout(() => {
@@ -2858,6 +2927,69 @@ function displaySceneReview(reviewData, scene) {
     }, 100);
     
     logger.info('🎨 场景锐评已显示');
+}
+
+// 创建独立的锐评显示容器（当原容器不存在时）
+function createIndependentReviewContainer(scene) {
+    try {
+        // 查找一个合适的父容器来插入锐评
+        const placesContainer = document.getElementById('placesContainer');
+        const historyContainer = document.getElementById('journeyHistorySection');
+        const mainContainer = document.querySelector('.app-container');
+        
+        const parentContainer = placesContainer || historyContainer || mainContainer;
+        
+        if (!parentContainer) {
+            logger.error('❌ 找不到合适的父容器来显示锐评');
+            return null;
+        }
+        
+        // 创建独立的锐评容器
+        const reviewContainer = document.createElement('div');
+        reviewContainer.id = 'independentReviewContainer';
+        reviewContainer.style.cssText = `
+            margin: 20px 0;
+            padding: 0;
+            position: relative;
+            z-index: 10;
+        `;
+        
+        // 添加标题提示
+        const titleHtml = `
+            <div style="
+                background: rgba(102, 126, 234, 0.1);
+                border: 2px solid rgba(102, 126, 234, 0.3);
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 15px;
+                text-align: center;
+                font-weight: bold;
+                color: #667eea;
+            ">
+                🎯 场景锐评已生成 - ${scene.name}
+                <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">
+                    AI分析完成，精彩内容如下 ↓
+                </div>
+            </div>
+        `;
+        reviewContainer.innerHTML = titleHtml;
+        
+        // 插入到合适位置
+        if (placesContainer) {
+            // 插入到地点容器后面
+            placesContainer.parentNode.insertBefore(reviewContainer, placesContainer.nextSibling);
+        } else {
+            // 插入到父容器开头
+            parentContainer.insertBefore(reviewContainer, parentContainer.firstChild);
+        }
+        
+        logger.info(`✅ 创建独立锐评容器成功，位置: ${parentContainer.id || 'app-container'}`);
+        return reviewContainer;
+        
+    } catch (error) {
+        logger.error(`❌ 创建独立锐评容器失败: ${error.message}`);
+        return null;
+    }
 }
 
 // 解析AI旅程总结数据结构
@@ -2930,7 +3062,7 @@ function parseAIJourneySummary(rawSummary) {
 // 生成AI旅程总结
 async function generateAIJourneySummary(stats) {
     try {
-        const response = await fetch('/api/journey-summary', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/journey-summary'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3434,7 +3566,7 @@ async function startHistoricalExploration() {
         
         const startTime = Date.now();
         
-        const response = await fetch('/api/generate-historical-scene', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/generate-historical-scene'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4045,7 +4177,7 @@ async function generateHistoricalSelfie(scene) {
         
         console.log('📤 发送请求数据:', requestData);
         
-        const response = await fetch('/api/generate-historical-selfie', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/generate-historical-selfie'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4110,7 +4242,7 @@ async function generateHistoricalSelfie(scene) {
         const selfieDescription = document.getElementById('selfieDescription');
         
         if (selfieImage) {
-            selfieImage.src = '/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg';
+            selfieImage.src = API_CONFIG.getApiUrl('/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg');
             selfieImage.style.display = 'block';
         }
         
@@ -4354,7 +4486,7 @@ async function handleAvatarUpload(event) {
         avatarImage.style.opacity = '0.5';
         
         // 上传到后端
-        const response = await fetch('/api/upload-avatar', {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/upload-avatar'), {
             method: 'POST',
             body: formData
         });
