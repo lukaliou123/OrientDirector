@@ -148,8 +148,8 @@ class NanoBananaHistoricalService:
     def return_pregenerated_scene(self, scene_data: Dict, historical_info: Dict) -> Dict:
         """返回预生成的场景数据"""
         
-        # 构建图片URL - 指向后端静态服务
-        image_url = f"http://localhost:8000/static/pregenerated_images/{scene_data['image_filename']}"
+        # 构建图片URL - 使用相对路径适配云环境
+        image_url = f"/static/pregenerated_images/{scene_data['image_filename']}"
         image_path = os.path.join(self.pregenerated_dir, scene_data['image_filename'])
         
         # 获取图片信息
@@ -246,8 +246,8 @@ class NanoBananaHistoricalService:
                     # 保存图像
                     image.save(filepath)
                     
-                    # 构建URL - 指向后端静态服务
-                    image_url = f"http://localhost:8000/static/generated_images/{filename}"
+                    # 构建URL - 使用相对路径适配云环境  
+                    image_url = f"/static/generated_images/{filename}"
                     generated_images.append(image_url)
                     
                     print(f"💾 Nano Banana图像已保存: {filepath}")
@@ -634,8 +634,8 @@ Natural environment as it appeared in {year} AD:
                     filepath = os.path.join(selfies_dir, filename)
                     selfie_image.save(filepath)
                     
-                    # 构建URL
-                    generated_selfie_url = f"http://localhost:8000/static/selfies/{filename}"
+                    # 构建URL - 使用相对路径适配云环境
+                    generated_selfie_url = f"/static/selfies/{filename}"
                     
                     print(f"💾 历史自拍已保存: {filepath}")
                     print(f"🔗 访问URL: {generated_selfie_url}")

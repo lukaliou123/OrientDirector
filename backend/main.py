@@ -972,8 +972,8 @@ async def upload_avatar(avatar: UploadFile = File(...)):
         # 计算处理后的文件大小
         final_size = output_path.stat().st_size
         
-        # 生成访问URL
-        avatar_url = "http://localhost:8000/static/profile_photo/profile.jpg"
+        # 生成访问URL - 使用相对路径适配云环境
+        avatar_url = "/static/profile_photo/profile.jpg"
         
         print(f"✅ 头像上传成功:")
         print(f"   原始大小: {file_size / 1024:.1f}KB")
@@ -1240,8 +1240,8 @@ async def generate_historical_selfie(request: HistoricalSelfieRequest):
         if demo_mode:
             print("🎭 演示模式：使用预设时光自拍照片")
             
-            # 预设自拍照片URL
-            demo_selfie_url = "http://localhost:8000/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg"
+            # 预设自拍照片URL - 使用相对路径适配云环境
+            demo_selfie_url = "/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg"
             
             # 构建场景信息
             scene_info = {
@@ -1377,7 +1377,7 @@ async def generate_historical_selfie(request: HistoricalSelfieRequest):
                 if selfie_result.get('demo_mode_available') or selfie_result.get('fallback_available'):
                     print("🔄 回退到演示模式...")
                     
-                    demo_selfie_url = "http://localhost:8000/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg"
+                    demo_selfie_url = "/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg"
                     scene_info = {
                         "political_entity": request.political_entity,
                         "year": request.year,

@@ -652,7 +652,7 @@ async function startExploration() {
         const startTime = Date.now();
         
                 // 使用真实数据API端点
-        const apiEndpoint = 'http://localhost:8000/api/explore-real';
+        const apiEndpoint = '/api/explore-real';  // 使用相对URL
         logger.info('使用真实数据源');
         
         // 调用后端API计算路径
@@ -1627,7 +1627,7 @@ async function startJourney(lat, lng, locationName, journeyTitle = null) {
     try {
         logger.info('🎒 开始创建新旅程...');
         
-        const response = await fetch('http://localhost:8000/api/journey/start', {
+        const response = await fetch('/api/journey/start', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1683,7 +1683,7 @@ async function recordSceneVisit(journeyId, scene, rating = null, notes = null) {
     try {
         logger.info(`📍 记录场景访问: ${scene.name}`);
         
-        const response = await fetch('http://localhost:8000/api/journey/visit', {
+        const response = await fetch('/api/journey/visit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1736,7 +1736,7 @@ async function endCurrentJourney(journeyId) {
     try {
         logger.info('🏠 结束当前旅程...');
         
-        const response = await fetch(`http://localhost:8000/api/journey/${journeyId}/end`, {
+        const response = await fetch(`/api/journey/${journeyId}/end`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1776,7 +1776,7 @@ async function endCurrentJourney(journeyId) {
  */
 async function getCurrentJourneyInfo(journeyId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/journey/${journeyId}`);
+        const response = await fetch(`/api/journey/${journeyId}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2727,7 +2727,7 @@ async function generateAndShowSceneReview(scene) {
         };
         
         // 调用后端API生成锐评
-        const response = await fetch('http://localhost:8000/api/scene-review', {
+        const response = await fetch('/api/scene-review', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2930,7 +2930,7 @@ function parseAIJourneySummary(rawSummary) {
 // 生成AI旅程总结
 async function generateAIJourneySummary(stats) {
     try {
-        const response = await fetch('http://localhost:8000/api/journey-summary', {
+        const response = await fetch('/api/journey-summary', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3434,7 +3434,7 @@ async function startHistoricalExploration() {
         
         const startTime = Date.now();
         
-        const response = await fetch('http://localhost:8000/api/generate-historical-scene', {
+        const response = await fetch('/api/generate-historical-scene', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4045,7 +4045,7 @@ async function generateHistoricalSelfie(scene) {
         
         console.log('📤 发送请求数据:', requestData);
         
-        const response = await fetch('http://localhost:8000/api/generate-historical-selfie', {
+        const response = await fetch('/api/generate-historical-selfie', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4110,7 +4110,7 @@ async function generateHistoricalSelfie(scene) {
         const selfieDescription = document.getElementById('selfieDescription');
         
         if (selfieImage) {
-            selfieImage.src = 'http://localhost:8000/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg';
+            selfieImage.src = '/static/take_photo/0b8459cf-b5ce-4c44-b3e3-352abe04d2de.jpg';
             selfieImage.style.display = 'block';
         }
         
@@ -4354,7 +4354,7 @@ async function handleAvatarUpload(event) {
         avatarImage.style.opacity = '0.5';
         
         // 上传到后端
-        const response = await fetch('http://localhost:8000/api/upload-avatar', {
+        const response = await fetch('/api/upload-avatar', {
             method: 'POST',
             body: formData
         });

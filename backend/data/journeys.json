@@ -1873,5 +1873,167 @@
     "is_active": false,
     "journey_title": "探索之旅 2025/9/9 13:49:19",
     "created_at": "2025-09-09T13:49:19.314248"
+  },
+  "1789072b-91ca-491d-a6f3-e0546dc252dd": {
+    "journey_id": "1789072b-91ca-491d-a6f3-e0546dc252dd",
+    "start_time": "2025-09-09T21:11:41.182106",
+    "end_time": "2025-09-09T21:27:59.159991",
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.6511238,
+      "lng": 139.82782,
+      "name": "梦之岛公园",
+      "address": "梦之岛公园是一个公园，Google评分3.9⭐，位于Koto City，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "cfb4ebee-9264-41cd-98c8-710a14440caf",
+        "name": "梦之岛公园",
+        "location": {
+          "lat": 35.6511238,
+          "lng": 139.82782,
+          "name": "梦之岛公园",
+          "address": "梦之岛公园是一个公园，Google评分3.9⭐，位于Koto City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:18:45.087951",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/9 21:11:41",
+    "created_at": "2025-09-09T21:11:41.182106"
+  },
+  "40254b2f-ea13-499e-bc3e-04fea2b5ab96": {
+    "journey_id": "40254b2f-ea13-499e-bc3e-04fea2b5ab96",
+    "start_time": "2025-09-09T21:16:14.210381",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.9382562,
+      "lng": 2.3476744,
+      "name": "Amazonie-voyage",
+      "address": "Amazonie-voyage是一个游乐园，位于Saint-Denis，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "52e014c7-ba58-48d4-92c4-62c19e2edb28",
+        "name": "Amazonie-voyage",
+        "location": {
+          "lat": 48.9382562,
+          "lng": 2.3476744,
+          "name": "Amazonie-voyage",
+          "address": "Amazonie-voyage是一个游乐园，位于Saint-Denis，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:17:15.298852",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "78f28e7b-1a2b-4802-8e7c-7555eddacaa9",
+        "name": "Amazonie-voyage",
+        "location": {
+          "lat": 48.9382562,
+          "lng": 2.3476744,
+          "name": "Amazonie-voyage",
+          "address": "Amazonie-voyage是一个游乐园，位于Saint-Denis，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:18:20.714473",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:16:14",
+    "created_at": "2025-09-09T21:16:14.210381"
+  },
+  "2f5968ed-33ac-4aef-80f1-3d9ed71f4bca": {
+    "journey_id": "2f5968ed-33ac-4aef-80f1-3d9ed71f4bca",
+    "start_time": "2025-09-09T21:21:56.159944",
+    "end_time": "2025-09-09T21:24:35.354485",
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8363163,
+      "lng": 2.3812948,
+      "name": "贝西公园",
+      "address": "贝西公园是一个公园，Google评分4⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "7ca532d5-1af1-4dd9-8aaf-2c18a549dae8",
+        "name": "贝西公园",
+        "location": {
+          "lat": 48.8363163,
+          "lng": 2.3812948,
+          "name": "贝西公园",
+          "address": "贝西公园是一个公园，Google评分4⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:22:06.751359",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": false,
+    "journey_title": "探索之旅 2025/9/9 21:21:56",
+    "created_at": "2025-09-09T21:21:56.159944"
+  },
+  "53ed3be3-31b9-4cb7-b03a-d0a71ddfd30f": {
+    "journey_id": "53ed3be3-31b9-4cb7-b03a-d0a71ddfd30f",
+    "start_time": "2025-09-09T21:26:37.265603",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.75840609999999,
+      "lng": 139.8784378,
+      "name": "柴又帝释天",
+      "address": "柴又帝释天是一个旅游景点，Google评分4.3⭐，位于Katsushika City，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "f2024d50-c73c-4f3d-8c9c-af268c82d9c0",
+        "name": "柴又帝释天",
+        "location": {
+          "lat": 35.75840609999999,
+          "lng": 139.8784378,
+          "name": "柴又帝释天",
+          "address": "柴又帝释天是一个旅游景点，Google评分4.3⭐，位于Katsushika City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T21:26:46.735082",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 21:26:37",
+    "created_at": "2025-09-09T21:26:37.265603"
   }
 }
