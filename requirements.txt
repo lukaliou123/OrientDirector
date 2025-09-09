@@ -15,7 +15,6 @@ langchain-google-genai>=0.1.0  # 新增Gemini的Langchain集成
 
 # 历史模式功能依赖
 shapely>=2.0.0        # GeoJSON空间几何计算
-geopandas>=0.14.0     # 地理数据处理 (可选，增强功能用)
 
 # Google AI依赖 (for Nano Banana)
 google-genai>=1.32.0        # 新版Gemini SDK，支持Nano Banana
