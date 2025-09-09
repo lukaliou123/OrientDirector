@@ -25,12 +25,16 @@ RUN mkdir -p /app/static/generated_images \
     && mkdir -p /app/static/selfies \
     && mkdir -p /app/static/profile_photo
 
+# 设置环境变量，确保Python能找到模块
+ENV PYTHONPATH=/app:/app/backend
+
 # 暴露默认端口（Railway会通过环境变量覆盖）
 EXPOSE 8000
 
-# 健康检查 - 运行时动态检测端口
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/api/health || exit 1
+# 注意：Railway的健康检查使用railway.json中的配置，不使用Dockerfile的HEALTHCHECK
+# 如果需要本地测试，可以使用以下命令：
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:${PORT:-8000}/api/health || exit 1
 
-# 启动命令 - 使用Python启动脚本确保路径正确
+# 启动命令 - 使用Python启动脚本
 CMD ["python", "start_railway.py"]

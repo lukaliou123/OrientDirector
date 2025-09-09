@@ -20,8 +20,16 @@ from ai_service import get_ai_service
 from historical_service import historical_service
 from nano_banana_service import nano_banana_service
 
-# 加载环境变量 - 指定.env文件路径（在项目根目录）
-env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+# 加载环境变量 - 支持多种部署环境
+# 在Docker中，工作目录是/app，.env在根目录
+# 在本地开发中，可能需要向上查找
+if os.path.exists('/app/.env'):
+    env_path = '/app/.env'  # Docker环境
+elif os.path.exists('.env'):
+    env_path = '.env'  # 当前目录
+else:
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')  # 向上查找
+
 load_dotenv(env_path)
 print(f"📄 环境变量文件: {env_path}")
 print(f"🔑 GOOGLE_MAPS_API_KEY: {'已加载' if os.getenv('GOOGLE_MAPS_API_KEY') else '未找到'}")
@@ -38,8 +46,16 @@ app.add_middleware(
 )
 
 # 配置静态文件服务 - 支持历史模式图片访问
-# 由于后端从backend/目录启动，需要使用../static指向项目根目录的static
-app.mount("/static", StaticFiles(directory="../static"), name="static")
+# 自动检测static目录位置
+if os.path.exists('/app/static'):
+    static_dir = '/app/static'  # Docker环境
+elif os.path.exists('../static'):
+    static_dir = '../static'  # 本地开发（从backend目录运行）
+else:
+    static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static')
+
+print(f"📁 静态文件目录: {static_dir}")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # 数据模型
 class ExploreRequest(BaseModel):
