@@ -20,18 +20,8 @@ from ai_service import get_ai_service
 from historical_service import historical_service
 from nano_banana_service import nano_banana_service
 
-# 加载环境变量 - 支持多种部署环境
-# 在Docker中，工作目录是/app，.env在根目录
-# 在本地开发中，可能需要向上查找
-if os.path.exists('/app/.env'):
-    env_path = '/app/.env'  # Docker环境
-elif os.path.exists('.env'):
-    env_path = '.env'  # 当前目录
-else:
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')  # 向上查找
-
-load_dotenv(env_path)
-print(f"📄 环境变量文件: {env_path}")
+# 加载环境变量
+load_dotenv()
 print(f"🔑 GOOGLE_MAPS_API_KEY: {'已加载' if os.getenv('GOOGLE_MAPS_API_KEY') else '未找到'}")
 
 app = FastAPI(title="方向探索派对API", version="1.0.0")
@@ -45,17 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 配置静态文件服务 - 支持历史模式图片访问
-# 自动检测static目录位置
-if os.path.exists('/app/static'):
-    static_dir = '/app/static'  # Docker环境
-elif os.path.exists('../static'):
-    static_dir = '../static'  # 本地开发（从backend目录运行）
-else:
-    static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static')
-
-print(f"📁 静态文件目录: {static_dir}")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+# 配置静态文件服务
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # 数据模型
 class ExploreRequest(BaseModel):
@@ -763,64 +744,24 @@ def get_region_info(lat, lon):
 @app.on_event("startup")
 async def startup_event():
     """应用启动时加载数据"""
-    print("🌟 FastAPI应用启动中...")
-    print(f"   当前工作目录: {os.getcwd()}")
-    print(f"   环境变量PORT: {os.environ.get('PORT', '未设置')}")
-    
-    # 测试前端文件路径
-    test_files = ['index.html', 'styles.css', 'app.js']
-    print("\n📁 前端文件路径测试:")
-    for file in test_files:
-        path = get_frontend_file_path(file)
-        exists = os.path.exists(path)
-        print(f"   {file}: {'✅' if exists else '❌'} {path}")
-    
     load_places_data()
-    print("\n✅ 地点数据加载完成")
-    print("🚀 FastAPI应用启动完成！")
-
-# 辅助函数：获取前端文件的实际路径
-def get_frontend_file_path(filename):
-    """获取前端文件的实际路径，兼容Docker和本地环境"""
-    # 尝试不同的路径
-    possible_paths = [
-        f'/app/{filename}',  # Docker环境
-        f'../{filename}',    # 本地开发（从backend目录运行）
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), filename)  # 绝对路径
-    ]
-    
-    for path in possible_paths:
-        if os.path.exists(path):
-            return path
-    
-    # 如果都找不到，返回最可能的路径
-    return possible_paths[0]
+    print("✅ 应用启动完成")
 
 @app.get("/")
 async def root():
     """服务前端页面"""
     from fastapi.responses import FileResponse
-    file_path = get_frontend_file_path('index.html')
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail=f"Frontend file not found: index.html")
-    return FileResponse(file_path)
+    return FileResponse('index.html')
 
-# 服务前端静态资源
 @app.get("/styles.css")
 async def get_css():
     from fastapi.responses import FileResponse
-    file_path = get_frontend_file_path('styles.css')
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail=f"Frontend file not found: styles.css")
-    return FileResponse(file_path)
+    return FileResponse('styles.css')
 
 @app.get("/app.js")
 async def get_js():
     from fastapi.responses import FileResponse
-    file_path = get_frontend_file_path('app.js')
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail=f"Frontend file not found: app.js")
-    return FileResponse(file_path)
+    return FileResponse('app.js')
 
 @app.post("/api/explore", response_model=ExploreResponse)
 async def explore_direction(request: ExploreRequest):
