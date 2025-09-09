@@ -4206,7 +4206,7 @@ async function handleAvatarUpload(event) {
         avatarImage.style.opacity = '0.5';
         
         // 上传到后端
-        const response = await fetch('/api/upload-avatar', {
+        const response = await fetch('http://localhost:8000/api/upload-avatar', {
             method: 'POST',
             body: formData
         });

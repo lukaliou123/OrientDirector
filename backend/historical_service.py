@@ -349,8 +349,9 @@ class HistoricalService:
         Returns:
             Dict: 文化上下文信息
         """
-        cultural_region = properties.get('PARTOF', '')
-        political_entity = properties.get('NAME', '')
+        # 安全获取属性值，确保不为None
+        cultural_region = properties.get('PARTOF') or ''
+        political_entity = properties.get('NAME') or ''
         
         context = {
             'religion': self.infer_dominant_religion(cultural_region, political_entity, year),
@@ -363,8 +364,9 @@ class HistoricalService:
     
     def infer_dominant_religion(self, cultural_region: str, political_entity: str, year: int) -> str:
         """推断主要宗教"""
-        cultural_lower = cultural_region.lower()
-        entity_lower = political_entity.lower()
+        # 安全处理可能为None的值
+        cultural_lower = (cultural_region or '').lower()
+        entity_lower = (political_entity or '').lower()
         
         if any(keyword in cultural_lower for keyword in ['christian', 'byzantine', 'orthodox']):
             return '基督教'

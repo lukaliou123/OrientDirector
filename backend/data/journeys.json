@@ -1690,5 +1690,100 @@
     "is_active": false,
     "journey_title": "探索之旅 2025/9/8 19:48:46",
     "created_at": "2025-09-08T19:48:46.547117"
+  },
+  "80899e12-8f18-4ff6-8868-d7846011d552": {
+    "journey_id": "80899e12-8f18-4ff6-8868-d7846011d552",
+    "start_time": "2025-09-09T13:02:48.737436",
+    "end_time": null,
+    "start_location": {
+      "lat": 39.98384769855942,
+      "lng": 116.30712782500419,
+      "name": "位置 39.9838, 116.3071",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8282797,
+      "lng": 2.4330972,
+      "name": "文森森林",
+      "address": "文森森林是一个公园，Google评分4.5⭐，位于巴黎，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "655897d0-76e6-4b2d-9f87-e83f00b36316",
+        "name": "晔迹自然博物馆",
+        "location": {
+          "lat": 39.999624,
+          "lng": 116.413035,
+          "name": "晔迹自然博物馆",
+          "address": "距此约1.3公里 - 晔迹自然博物馆位于安慧北里逸园25号楼邻里服务中心地下一层，是展示历史文化和艺术珍品的重要场所。"
+        },
+        "visit_time": "2025-09-09T13:03:04.342210",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      },
+      {
+        "scene_id": "1a1b2460-d73f-4289-ae8e-ded71d679594",
+        "name": "文森森林",
+        "location": {
+          "lat": 48.8282797,
+          "lng": 2.4330972,
+          "name": "文森森林",
+          "address": "文森森林是一个公园，Google评分4.5⭐，位于巴黎，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-09T13:03:41.362193",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 13:02:48",
+    "created_at": "2025-09-09T13:02:48.737436"
+  },
+  "e03d8071-8e4b-4707-be54-f55812d7c01e": {
+    "journey_id": "e03d8071-8e4b-4707-be54-f55812d7c01e",
+    "start_time": "2025-09-09T13:13:52.953116",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.7148,
+      "lng": 139.7967,
+      "name": "位置 35.7148, 139.7967",
+      "address": null
+    },
+    "visited_scenes": [],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 13:13:52",
+    "created_at": "2025-09-09T13:13:52.953116"
+  },
+  "5b50cd2c-d8e2-4164-a2f8-e4a2b5c1575f": {
+    "journey_id": "5b50cd2c-d8e2-4164-a2f8-e4a2b5c1575f",
+    "start_time": "2025-09-09T13:27:33.494063",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "visited_scenes": [],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/9 13:27:33",
+    "created_at": "2025-09-09T13:27:33.494063"
   }
 }
