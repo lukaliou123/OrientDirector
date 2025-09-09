@@ -8,7 +8,7 @@ import os
 import asyncio
 from typing import Dict, List, Optional
 from openai import AsyncOpenAI
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 import logging
 
