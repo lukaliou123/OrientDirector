@@ -14,11 +14,22 @@ from datetime import datetime
 from pathlib import Path
 from PIL import Image
 from dotenv import load_dotenv
-from real_data_service import real_data_service
-from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
-from ai_service import get_ai_service
-from historical_service import historical_service
-from nano_banana_service import nano_banana_service
+
+# 使用相对导入，在backend包内
+try:
+    # 尝试作为包导入（Docker环境）
+    from .real_data_service import real_data_service
+    from .journey_service import journey_service, Journey, JourneyLocation, VisitedScene
+    from .ai_service import get_ai_service
+    from .historical_service import historical_service
+    from .nano_banana_service import nano_banana_service
+except ImportError:
+    # 直接导入（本地开发环境）
+    from real_data_service import real_data_service
+    from journey_service import journey_service, Journey, JourneyLocation, VisitedScene
+    from ai_service import get_ai_service
+    from historical_service import historical_service
+    from nano_banana_service import nano_banana_service
 
 # 加载环境变量
 load_dotenv()
@@ -36,7 +47,15 @@ app.add_middleware(
 )
 
 # 配置静态文件服务
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# 尝试找到static目录
+if os.path.exists("static"):
+    static_dir = "static"
+elif os.path.exists("/app/static"):
+    static_dir = "/app/static"
+else:
+    static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # 数据模型
 class ExploreRequest(BaseModel):
