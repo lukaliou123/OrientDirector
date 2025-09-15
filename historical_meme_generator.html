@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史梗图生成器 - OrientDiscover</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 专门为历史梗图生成器设计的样式 */
+        .meme-generator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .step-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .textarea-large {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .historical-info-display {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .image-preview {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .image-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .image-upload-area:hover {
+            border-color: #667eea;
+        }
+
+        .image-upload-area.dragover {
+            border-color: #667eea;
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .scene-elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .scene-element {
+            background: #e7f3ff;
+            color: #0066cc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: 1px solid #b3d9ff;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .step-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .result-container h2 {
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* 预设地点显示样式增强 */
+        #selectedLocationDisplay {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+            border: 1px solid #d1ecf1;
+            border-left: 4px solid #17a2b8;
+        }
+
+        #selectedLocationDisplay h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        #selectedLocationDisplay small {
+            color: #6c757d;
+        }
+
+        /* 历史信息结果样式增强 */
+        #historicalInfoResult {
+            background: linear-gradient(135deg, #fff8e1 0%, #f3e5f5 100%);
+            border-left: 4px solid #ff6b35;
+        }
+
+        #historicalInfoResult h4 {
+            color: #d84315;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="meme-generator-container">
+        <div class="header">
+            <h1>🎨 历史梗图生成器</h1>
+            <p>将历史与现代完美融合，创造独特的梗图体验</p>
+        </div>
+
+        <!-- 步骤1: 历史时期选择 -->
+        <div class="step-container" id="step1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div class="step-title">选择历史时期</div>
+            </div>
+            
+            <!-- 预设地点选择器 -->
+            <div class="form-group">
+                <label class="form-label">📍 选择地点：</label>
+                <select id="presetLocationSelect" class="form-control" onchange="handlePresetLocationChange()">
+                    <option value="">🌍 选择预设地址...</option>
+                    <option value="tokyo">🏯 东京 - 浅草寺区域</option>
+                    <option value="paris">🗼 巴黎 - 埃菲尔铁塔</option>
+                    <option value="newyork">🗽 纽约 - 时代广场</option>
+                    <option value="london">🏰 伦敦 - 大本钟</option>
+                    <option value="sydney">🎭 悉尼 - 歌剧院</option>
+                    <option value="sanfrancisco">🌉 旧金山 - 金门大桥</option>
+                    <option value="rome">🏛️ 罗马 - 斗兽场</option>
+                    <option value="beijing" selected>🏮 北京 - 故宫</option>
+                    <option value="amsterdam">🌷 阿姆斯特丹 - 运河区</option>
+                    <option value="manual">✋ 手动输入坐标</option>
+                </select>
+            </div>
+            
+            <div class="two-column">
+                <div class="form-group">
+                    <label class="form-label">📅 选择历史时期：</label>
+                    <select id="historicalPeriod" class="form-control">
+                        <option value="">选择历史时期...</option>
+                        <option value="2000">现代 (2000年)</option>
+                        <option value="1945" selected>二战后 (1945年)</option>
+                        <option value="1914">一战前 (1914年)</option>
+                        <option value="1880">工业革命 (1880年)</option>
+                        <option value="1815">拿破仑战争后 (1815年)</option>
+                        <option value="1650">威斯特伐利亚和约 (1650年)</option>
+                        <option value="1600">江户时代 (1600年)</option>
+                        <option value="1492">大航海时代 (1492年)</option>
+                        <option value="1279">元朝建立 (1279年)</option>
+                        <option value="800">查理大帝加冕 (800年)</option>
+                        <option value="400">罗马帝国分裂 (400年)</option>
+                        <option value="-1">古典时期 (公元前1年)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="coordinateInputs" style="display: none;">
+                    <label class="form-label">🌍 位置坐标：</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="latitude" class="form-control" placeholder="纬度" step="any" value="39.9042">
+                        <input type="number" id="longitude" class="form-control" placeholder="经度" step="any" value="116.4074">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 当前选择的地点显示 -->
+            <div class="historical-info-display" id="selectedLocationDisplay" style="display: none;">
+                <h4>📍 当前选择的地点</h4>
+                <p id="locationDetails"></p>
+                <div style="font-size: 0.9em; color: #666;">
+                    <span>坐标：</span>
+                    <span id="selectedCoordinates">--</span>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="generateHistoricalInfo()">🔍 查询历史信息</button>
+            
+            <div id="historicalInfoResult" style="display: none;" class="historical-info-display">
+                <!-- 历史信息将在这里显示 -->
+            </div>
+        </div>
+
+        <!-- 步骤2: 历史场景生成 -->
+        <div class="step-container step-disabled" id="step2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div class="step-title">生成历史场景</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">✨ 历史场景描述Prompt：</label>
+                <textarea id="scenePrompt" class="form-control textarea-large" 
+                          placeholder="描述你想要的历史场景...例如：展现这个时期的典型建筑风格，人们的日常生活，服装特色等"></textarea>
+            </div>
+            
+            <button class="btn" onclick="generateHistoricalScene()">🎨 生成历史场景图</button>
+            
+            <div id="sceneImageResult" style="display: none;">
+                <div class="image-preview">
+                    <img id="sceneImage" alt="历史场景图">
+                </div>
+                <div class="progress-bar" id="sceneProgress" style="display: none;">
+                    <div class="progress-bar-fill" id="sceneProgressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤3: 场景解构 -->
+        <div class="step-container step-disabled" id="step3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div class="step-title">解构历史场景</div>
+            </div>
+            
+            <p>点击下方按钮，AI将分析历史场景图，提取关键元素用于梗图制作：</p>
+            
+            <button class="btn" onclick="analyzeSceneElements()">🔍 解构场景元素</button>
+            
+            <div id="sceneAnalysisResult" style="display: none;">
+                <h4>🎯 提取的场景元素：</h4>
+                <div id="sceneElements" class="scene-elements">
+                    <!-- 场景元素标签将在这里显示 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤4: 梗图生成 -->
+        <div class="step-container step-disabled" id="step4">
+            <div class="step-header">
+                <div class="step-number">4</div>
+                <div class="step-title">生成梗图</div>
+            </div>
+            
+            <div class="two-column">
+                <div class="form-group">
+                    <label class="form-label">👤 人物素材 (必需)：</label>
+                    <div class="image-upload-area" id="characterUpload" onclick="document.getElementById('characterFile').click()">
+                        <div id="characterPreview">
+                            <p>📁 点击上传或拖放人物图片</p>
+                            <small>支持 JPG, PNG 格式</small>
+                        </div>
+                    </div>
+                    <input type="file" id="characterFile" accept="image/*" style="display: none;" onchange="handleCharacterUpload(event)">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">🖼️ 构图素材 (可选)：</label>
+                    <div class="image-upload-area" id="compositionUpload" onclick="document.getElementById('compositionFile').click()">
+                        <div id="compositionPreview">
+                            <p>📁 点击上传或拖放构图图片</p>
+                            <small>可选，用于指定构图风格</small>
+                        </div>
+                    </div>
+                    <input type="file" id="compositionFile" accept="image/*" style="display: none;" onchange="handleCompositionUpload(event)">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">💬 梗图创意Prompt：</label>
+                <textarea id="memePrompt" class="form-control textarea-large" 
+                          placeholder="描述你想要的梗图效果...AI会结合历史场景元素、人物素材和构图素材来生成"></textarea>
+            </div>
+            
+            <button class="btn btn-success" onclick="generateMeme()" disabled id="generateMemeBtn">
+                🚀 生成梗图
+            </button>
+            
+            <div id="memeResult" style="display: none;">
+                <div class="image-preview">
+                    <img id="memeImage" alt="生成的梗图">
+                </div>
+                <div class="progress-bar" id="memeProgress" style="display: none;">
+                    <div class="progress-bar-fill" id="memeProgressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最终结果展示 -->
+        <div class="result-container" id="finalResult" style="display: none;">
+            <h2>🎉 梗图创作完成！</h2>
+            <div class="image-preview">
+                <img id="finalMemeImage" alt="最终梗图">
+            </div>
+            <button class="btn" onclick="downloadMeme()">💾 下载梗图</button>
+            <button class="btn btn-secondary" onclick="shareResult()">📤 分享结果</button>
+            <button class="btn btn-secondary" onclick="createNew()">🔄 创作新梗图</button>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div id="loadingIndicator" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p style="text-align: center; color: white; margin-top: 10px;">正在处理中...</p>
+        </div>
+    </div>
+
+    <script>
+        // 预设地址数据 - 全球知名景点
+        const PRESET_LOCATIONS = {
+            tokyo: {
+                name: "东京浅草寺区域",
+                latitude: 35.7148,
+                longitude: 139.7967,
+                country: "日本",
+                description: "传统与现代交融的东京文化中心，浅草寺历史悠久"
+            },
+            paris: {
+                name: "巴黎埃菲尔铁塔",
+                latitude: 48.8584,
+                longitude: 2.2945,
+                country: "法国",
+                description: "浪漫之都的标志性建筑，艺术与文化的圣地"
+            },
+            newyork: {
+                name: "纽约时代广场",
+                latitude: 40.7580,
+                longitude: -73.9855,
+                country: "美国",
+                description: "世界十字路口，国际化大都市的繁华中心"
+            },
+            london: {
+                name: "伦敦大本钟",
+                latitude: 51.4994,
+                longitude: -0.1245,
+                country: "英国",
+                description: "历史悠久的英伦象征，泰晤士河畔的经典地标"
+            },
+            sydney: {
+                name: "悉尼歌剧院",
+                latitude: -33.8568,
+                longitude: 151.2153,
+                country: "澳大利亚",
+                description: "南半球璀璨明珠，现代建筑艺术的杰作"
+            },
+            sanfrancisco: {
+                name: "旧金山金门大桥",
+                latitude: 37.8199,
+                longitude: -122.4783,
+                country: "美国",
+                description: "科技与自然完美结合的西海岸明珠"
+            },
+            rome: {
+                name: "罗马斗兽场",
+                latitude: 41.9028,
+                longitude: 12.4964,
+                country: "意大利",
+                description: "永恒之城的历史见证，古罗马帝国的辉煌"
+            },
+            beijing: {
+                name: "北京故宫",
+                latitude: 39.9042,
+                longitude: 116.4074,
+                country: "中国",
+                description: "紫禁城的辉煌，中华文明的璀璨明珠"
+            },
+            amsterdam: {
+                name: "阿姆斯特丹运河区",
+                latitude: 52.3676,
+                longitude: 4.9041,
+                country: "荷兰",
+                description: "欧洲独特水城风情，艺术与自由的完美融合"
+            }
+        };
+
+        // 全局状态管理
+        const state = {
+            historicalInfo: null,
+            sceneImageUrl: null,
+            sceneElements: [],
+            characterImage: null,
+            compositionImage: null,
+            finalMemeUrl: null,
+            selectedLocation: null
+        };
+
+        // API基础URL
+        const API_BASE = window.location.hostname === 'localhost' ? 
+            'http://localhost:8000' : '';
+
+        // 预设地点选择处理
+        function handlePresetLocationChange() {
+            const selector = document.getElementById('presetLocationSelect');
+            const selectedValue = selector.value;
+            const coordinateInputs = document.getElementById('coordinateInputs');
+            const selectedLocationDisplay = document.getElementById('selectedLocationDisplay');
+            const locationDetails = document.getElementById('locationDetails');
+            const selectedCoordinates = document.getElementById('selectedCoordinates');
+            
+            if (!selectedValue || selectedValue === '') {
+                // 未选择任何选项
+                coordinateInputs.style.display = 'none';
+                selectedLocationDisplay.style.display = 'none';
+                state.selectedLocation = null;
+                return;
+            }
+            
+            if (selectedValue === 'manual') {
+                // 选择手动输入
+                coordinateInputs.style.display = 'block';
+                selectedLocationDisplay.style.display = 'none';
+                state.selectedLocation = null;
+                
+            } else if (PRESET_LOCATIONS[selectedValue]) {
+                // 选择预设地址
+                const location = PRESET_LOCATIONS[selectedValue];
+                state.selectedLocation = location;
+                
+                // 更新输入框的值
+                document.getElementById('latitude').value = location.latitude;
+                document.getElementById('longitude').value = location.longitude;
+                
+                // 显示选择的地点信息
+                locationDetails.innerHTML = `
+                    <strong>${location.name}</strong> - ${location.country}<br>
+                    <small>${location.description}</small>
+                `;
+                selectedCoordinates.textContent = `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
+                
+                coordinateInputs.style.display = 'none';
+                selectedLocationDisplay.style.display = 'block';
+                
+                console.log('📍 选择预设地点:', location.name);
+            }
+        }
+
+        // 步骤1: 生成历史信息
+        async function generateHistoricalInfo() {
+            const period = document.getElementById('historicalPeriod').value;
+            const presetLocation = document.getElementById('presetLocationSelect').value;
+            
+            if (!period) {
+                alert('请选择历史时期');
+                return;
+            }
+            
+            let latitude, longitude;
+            
+            // 检查是否选择了预设地点或手动输入
+            if (!presetLocation) {
+                alert('请选择一个地点或手动输入坐标');
+                return;
+            }
+            
+            if (presetLocation === 'manual') {
+                // 手动输入模式
+                latitude = parseFloat(document.getElementById('latitude').value);
+                longitude = parseFloat(document.getElementById('longitude').value);
+                
+                if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+                    alert('请输入有效的经纬度坐标');
+                    return;
+                }
+                
+                if (latitude < -90 || latitude > 90) {
+                    alert('纬度必须在-90到90之间');
+                    return;
+                }
+                
+                if (longitude < -180 || longitude > 180) {
+                    alert('经度必须在-180到180之间');
+                    return;
+                }
+            } else {
+                // 预设地点模式
+                const location = PRESET_LOCATIONS[presetLocation];
+                if (!location) {
+                    alert('无效的预设地点');
+                    return;
+                }
+                latitude = location.latitude;
+                longitude = location.longitude;
+            }
+
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/generate-historical-scene`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        year: parseInt(period),
+                        latitude: latitude,
+                        longitude: longitude
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('历史信息查询失败');
+                }
+
+                const data = await response.json();
+                state.historicalInfo = data.historical_info;
+                
+                displayHistoricalInfo(data.historical_info);
+                enableStep(2);
+                
+            } catch (error) {
+                console.error('历史信息查询错误:', error);
+                alert('历史信息查询失败，请重试');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 显示历史信息
+        function displayHistoricalInfo(info) {
+            const resultDiv = document.getElementById('historicalInfoResult');
+            const selectedLocation = state.selectedLocation;
+            
+            let locationInfo = '';
+            if (selectedLocation) {
+                locationInfo = `
+                    <p><strong>探索地点:</strong> ${selectedLocation.name} (${selectedLocation.country})</p>
+                    <p><small>${selectedLocation.description}</small></p>
+                `;
+            } else {
+                const lat = document.getElementById('latitude').value;
+                const lng = document.getElementById('longitude').value;
+                locationInfo = `
+                    <p><strong>探索坐标:</strong> ${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}</p>
+                `;
+            }
+            
+            resultDiv.innerHTML = `
+                <h4>🏛️ 历史信息查询结果</h4>
+                ${locationInfo}
+                <hr style="margin: 15px 0; border: 1px solid #e1e5e9;">
+                <p><strong>历史政治实体:</strong> ${info.political_entity}</p>
+                <p><strong>查询年份:</strong> ${info.query_year}年</p>
+                <p><strong>文化区域:</strong> ${info.cultural_region}</p>
+                <p><strong>统治者/政权:</strong> ${info.ruler_or_power || '未知'}</p>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                    <small>💡 基于Historical-basemaps学术数据的真实历史查询结果</small>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        // 步骤2: 生成历史场景
+        async function generateHistoricalScene() {
+            const prompt = document.getElementById('scenePrompt').value;
+            
+            if (!prompt.trim()) {
+                alert('请输入场景描述');
+                return;
+            }
+
+            if (!state.historicalInfo) {
+                alert('请先生成历史信息');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                // 调用现有的历史场景生成API，但传入自定义prompt
+                const response = await fetch(`${API_BASE}/api/generate-custom-historical-scene`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        historical_info: state.historicalInfo,
+                        custom_prompt: prompt
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('历史场景生成失败');
+                }
+
+                const data = await response.json();
+                state.sceneImageUrl = data.image_url;
+                
+                displaySceneImage(data.image_url);
+                enableStep(3);
+                
+            } catch (error) {
+                console.error('历史场景生成错误:', error);
+                alert('历史场景生成失败，请重试');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 显示场景图片
+        function displaySceneImage(imageUrl) {
+            const resultDiv = document.getElementById('sceneImageResult');
+            const img = document.getElementById('sceneImage');
+            
+            img.src = imageUrl;
+            resultDiv.style.display = 'block';
+        }
+
+        // 步骤3: 解构场景元素
+        async function analyzeSceneElements() {
+            if (!state.sceneImageUrl) {
+                alert('请先生成历史场景图');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/analyze-scene-elements`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image_url: state.sceneImageUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('场景解构失败');
+                }
+
+                const data = await response.json();
+                state.sceneElements = data.elements;
+                
+                displaySceneElements(data.elements);
+                enableStep(4);
+                
+            } catch (error) {
+                console.error('场景解构错误:', error);
+                alert('场景解构失败，请重试');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 显示场景元素
+        function displaySceneElements(elements) {
+            const resultDiv = document.getElementById('sceneAnalysisResult');
+            const elementsDiv = document.getElementById('sceneElements');
+            
+            elementsDiv.innerHTML = elements.map(element => 
+                `<div class="scene-element">${element}</div>`
+            ).join('');
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // 处理人物图片上传
+        function handleCharacterUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state.characterImage = e.target.result;
+                    const preview = document.getElementById('characterPreview');
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+                    checkMemeGenerationReady();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 处理构图图片上传
+        function handleCompositionUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state.compositionImage = e.target.result;
+                    const preview = document.getElementById('compositionPreview');
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 检查梗图生成准备状态
+        function checkMemeGenerationReady() {
+            const btn = document.getElementById('generateMemeBtn');
+            const prompt = document.getElementById('memePrompt').value;
+            
+            if (state.characterImage && state.sceneElements.length > 0 && prompt.trim()) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        // 监听梗图提示词输入
+        document.getElementById('memePrompt').addEventListener('input', checkMemeGenerationReady);
+
+        // 步骤4: 生成梗图
+        async function generateMeme() {
+            const prompt = document.getElementById('memePrompt').value;
+            
+            if (!prompt.trim()) {
+                alert('请输入梗图创意描述');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                const formData = new FormData();
+                
+                // 将base64图片转换为blob
+                const characterBlob = dataURLtoBlob(state.characterImage);
+                formData.append('character_image', characterBlob);
+                
+                if (state.compositionImage) {
+                    const compositionBlob = dataURLtoBlob(state.compositionImage);
+                    formData.append('composition_image', compositionBlob);
+                }
+                
+                formData.append('scene_elements', JSON.stringify(state.sceneElements));
+                formData.append('meme_prompt', prompt);
+                formData.append('historical_info', JSON.stringify(state.historicalInfo));
+
+                const response = await fetch(`${API_BASE}/api/generate-historical-meme`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('梗图生成失败');
+                }
+
+                const data = await response.json();
+                state.finalMemeUrl = data.meme_url;
+                
+                displayFinalResult(data.meme_url);
+                
+            } catch (error) {
+                console.error('梗图生成错误:', error);
+                alert('梗图生成失败，请重试');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 显示最终结果
+        function displayFinalResult(memeUrl) {
+            const img = document.getElementById('finalMemeImage');
+            img.src = memeUrl;
+            
+            document.getElementById('finalResult').style.display = 'block';
+            
+            // 滚动到结果
+            document.getElementById('finalResult').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 工具函数
+        function enableStep(stepNumber) {
+            document.getElementById(`step${stepNumber}`).classList.remove('step-disabled');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+        }
+
+        function dataURLtoBlob(dataURL) {
+            const arr = dataURL.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
+        // 下载梗图
+        function downloadMeme() {
+            if (state.finalMemeUrl) {
+                const link = document.createElement('a');
+                link.href = state.finalMemeUrl;
+                link.download = `历史梗图_${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // 分享结果
+        function shareResult() {
+            if (navigator.share && state.finalMemeUrl) {
+                navigator.share({
+                    title: '我的历史梗图创作',
+                    text: '用AI创造的历史梗图，快来看看！',
+                    url: state.finalMemeUrl
+                });
+            } else {
+                // 复制到剪贴板
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('链接已复制到剪贴板！');
+                });
+            }
+        }
+
+        // 创作新梗图
+        function createNew() {
+            if (confirm('确定要开始新的创作吗？当前进度将被重置。')) {
+                location.reload();
+            }
+        }
+
+        // 拖拽上传支持
+        function setupDragAndDrop() {
+            const uploadAreas = document.querySelectorAll('.image-upload-area');
+            
+            uploadAreas.forEach(area => {
+                area.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    area.classList.add('dragover');
+                });
+                
+                area.addEventListener('dragleave', () => {
+                    area.classList.remove('dragover');
+                });
+                
+                area.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    area.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const file = files[0];
+                        if (file.type.startsWith('image/')) {
+                            // 触发对应的文件输入
+                            const fileInput = area.onclick.toString().includes('characterFile') ? 
+                                document.getElementById('characterFile') : 
+                                document.getElementById('compositionFile');
+                            
+                            // 创建新的文件列表
+                            const dt = new DataTransfer();
+                            dt.items.add(file);
+                            fileInput.files = dt.files;
+                            
+                            // 触发change事件
+                            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                });
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            
+            // 初始化默认地点选择
+            handlePresetLocationChange();
+            
+            console.log('🎨 历史梗图生成器已初始化');
+            console.log('📍 默认地点: 北京故宫');
+        });
+    </script>
+</body>
+</html>

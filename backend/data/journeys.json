@@ -2373,5 +2373,42 @@
     "is_active": true,
     "journey_title": "探索之旅 2025/9/9 22:28:38",
     "created_at": "2025-09-09T22:28:38.384051"
+  },
+  "e874521f-fdbb-443c-a2f5-042bee884a20": {
+    "journey_id": "e874521f-fdbb-443c-a2f5-042bee884a20",
+    "start_time": "2025-09-10T11:18:35.560529",
+    "end_time": null,
+    "start_location": {
+      "lat": 35.6764225,
+      "lng": 139.650027,
+      "name": "位置 35.6764, 139.6500",
+      "address": null
+    },
+    "current_location": {
+      "lat": 35.7138211,
+      "lng": 139.7312132,
+      "name": "鸠山会馆",
+      "address": "鸠山会馆是一个博物馆，Google评分4⭐，位于Bunkyo City，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "292d6a96-f301-4c76-a8b0-ee841667dabb",
+        "name": "鸠山会馆",
+        "location": {
+          "lat": 35.7138211,
+          "lng": 139.7312132,
+          "name": "鸠山会馆",
+          "address": "鸠山会馆是一个博物馆，Google评分4⭐，位于Bunkyo City，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-10T11:18:41.708068",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/10 11:18:35",
+    "created_at": "2025-09-10T11:18:35.560529"
   }
 }

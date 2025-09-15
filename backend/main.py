@@ -1899,6 +1899,213 @@ async def get_maps_config():
         "message": "Google Maps配置已加载"
     }
 
+# ====================================
+# 新增：历史梗图生成器 API端点
+# ====================================
+
+from pydantic import BaseModel
+from typing import Optional, List
+from fastapi import UploadFile, File, Form
+import uuid
+
+class CustomHistoricalSceneRequest(BaseModel):
+    """自定义历史场景生成请求"""
+    historical_info: Dict
+    custom_prompt: str
+
+class CustomHistoricalSceneResponse(BaseModel):
+    """自定义历史场景生成响应"""
+    success: bool
+    image_url: str
+    scene_description: str
+    generation_time: float
+
+class SceneAnalysisRequest(BaseModel):
+    """场景分析请求"""
+    image_url: str
+
+class SceneAnalysisResponse(BaseModel):
+    """场景分析响应"""
+    success: bool
+    elements: List[str]
+    analysis_time: float
+
+class HistoricalMemeResponse(BaseModel):
+    """历史梗图生成响应"""
+    success: bool
+    meme_url: str
+    generation_time: float
+
+@app.post("/api/generate-custom-historical-scene", response_model=CustomHistoricalSceneResponse)
+async def generate_custom_historical_scene(request: CustomHistoricalSceneRequest):
+    """
+    使用自定义提示词生成历史场景
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🎨 自定义历史场景生成: {request.historical_info['political_entity']} ({request.historical_info['query_year']}年)")
+        print(f"💬 用户提示词: {request.custom_prompt}")
+        
+        # 构建历史准确的提示词
+        historical_context = f"""
+你是一位专业的历史场景画家，请根据以下历史背景和用户需求，生成一幅详细的历史场景图：
+
+📍 历史背景：
+- 政治实体: {request.historical_info['political_entity']}
+- 年份: {request.historical_info['query_year']}年
+- 文化区域: {request.historical_info['cultural_region']}
+- 统治者: {request.historical_info.get('ruler_or_power', '未知')}
+
+🎯 用户需求: {request.custom_prompt}
+
+请生成一幅历史准确、视觉丰富的场景图，展现该时期的建筑风格、服装特色、日常生活场景等。
+图片应该具有高品质的艺术效果，色彩丰富，细节丰富。
+"""
+        
+        # 使用nano_banana_service生成图像
+        result = await nano_banana_service.generate_scene_with_custom_prompt(
+            historical_context, request.historical_info
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=500, detail="场景图片生成失败")
+        
+        generation_time = time.time() - start_time
+        
+        return CustomHistoricalSceneResponse(
+            success=True,
+            image_url=result['image_url'],
+            scene_description=result.get('scene_description', '自定义历史场景'),
+            generation_time=generation_time
+        )
+        
+    except Exception as e:
+        generation_time = time.time() - start_time
+        print(f"❌ 自定义历史场景生成失败: {e}")
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"自定义历史场景生成失败: {str(e)}"
+        )
+
+@app.post("/api/analyze-scene-elements", response_model=SceneAnalysisResponse)
+async def analyze_scene_elements(request: SceneAnalysisRequest):
+    """
+    分析历史场景图，提取关键元素
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🔍 开始分析场景元素: {request.image_url}")
+        
+        # 使用Gemini Vision进行图片分析
+        result = await nano_banana_service.analyze_image_elements(request.image_url)
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=500, detail="图片分析失败")
+        
+        analysis_time = time.time() - start_time
+        
+        return SceneAnalysisResponse(
+            success=True,
+            elements=result['elements'],
+            analysis_time=analysis_time
+        )
+        
+    except Exception as e:
+        analysis_time = time.time() - start_time
+        print(f"❌ 场景元素分析失败: {e}")
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"场景元素分析失败: {str(e)}"
+        )
+
+@app.post("/api/generate-historical-meme", response_model=HistoricalMemeResponse)
+async def generate_historical_meme(
+    character_image: UploadFile = File(...),
+    composition_image: Optional[UploadFile] = File(None),
+    scene_elements: str = Form(...),
+    meme_prompt: str = Form(...),
+    historical_info: str = Form(...)
+):
+    """
+    生成历史梗图
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🎭 开始生成历史梗图")
+        
+        # 解析JSON字符串
+        import json
+        scene_elements_list = json.loads(scene_elements)
+        historical_info_dict = json.loads(historical_info)
+        
+        print(f"💬 梗图提示: {meme_prompt}")
+        print(f"🏛️ 场景元素: {scene_elements_list}")
+        
+        # 保存上传的图片
+        character_image_path = None
+        composition_image_path = None
+        
+        if character_image:
+            character_image_path = f"/tmp/character_{uuid.uuid4().hex}.{character_image.filename.split('.')[-1]}"
+            with open(character_image_path, "wb") as f:
+                content = await character_image.read()
+                f.write(content)
+        
+        if composition_image:
+            composition_image_path = f"/tmp/composition_{uuid.uuid4().hex}.{composition_image.filename.split('.')[-1]}"
+            with open(composition_image_path, "wb") as f:
+                content = await composition_image.read()
+                f.write(content)
+        
+        # 使用nano_banana_service生成梗图
+        result = await nano_banana_service.generate_historical_meme(
+            character_image_path=character_image_path,
+            composition_image_path=composition_image_path,
+            scene_elements=scene_elements_list,
+            meme_prompt=meme_prompt,
+            historical_info=historical_info_dict
+        )
+        
+        # 清理临时文件
+        if character_image_path and os.path.exists(character_image_path):
+            os.remove(character_image_path)
+        if composition_image_path and os.path.exists(composition_image_path):
+            os.remove(composition_image_path)
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=500, detail="梗图生成失败")
+        
+        generation_time = time.time() - start_time
+        
+        return HistoricalMemeResponse(
+            success=True,
+            meme_url=result['meme_url'],
+            generation_time=generation_time
+        )
+        
+    except Exception as e:
+        generation_time = time.time() - start_time
+        print(f"❌ 历史梗图生成失败: {e}")
+        
+        # 清理临时文件
+        try:
+            if 'character_image_path' in locals() and character_image_path and os.path.exists(character_image_path):
+                os.remove(character_image_path)
+            if 'composition_image_path' in locals() and composition_image_path and os.path.exists(composition_image_path):
+                os.remove(composition_image_path)
+        except:
+            pass
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"历史梗图生成失败: {str(e)}"
+        )
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

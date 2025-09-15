@@ -2645,3 +2645,41 @@ body {
         opacity: 1;
     }
 }
+
+
+/* 历史梗图生成器相关样式 */
+.header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.meme-generator-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-size: 0.9em;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.meme-generator-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+    .header-buttons {
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .meme-generator-btn {
+        font-size: 0.8em;
+        padding: 6px 10px;
+    }
+}

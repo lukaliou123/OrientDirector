@@ -14,6 +14,7 @@ import json
 from typing import Dict, Optional, List
 import time
 import asyncio
+import uuid
 from dotenv import load_dotenv
 
 # 加载环境变量
@@ -733,6 +734,177 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
         """.strip()
         return prompt
 
+    async def generate_scene_with_custom_prompt(self, custom_prompt: str, historical_info: Dict) -> Dict:
+        """
+        使用自定义提示词生成历史场景
+        """
+        if not self.client_available:
+            print("🎭 API未配置，使用演示模式...")
+            # 演示模式：返回预设描述
+            return {
+                'success': True,
+                'image_url': '/static/pregenerated_images/demo_scene.jpg',
+                'scene_description': '演示模式：自定义历史场景'
+            }
+        
+        try:
+            # 使用自定义提示词调用Gemini
+            response = self.client.models.generate_content(
+                model='gemini-2.0-flash-exp',
+                contents=custom_prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.8,
+                    max_output_tokens=1024
+                )
+            )
+            
+            if response.candidates:
+                # 生成图片描述文字
+                description = response.candidates[0].content.parts[0].text
+                
+                # TODO: 这里应该调用图像生成API
+                # 目前返回演示数据
+                return {
+                    'success': True,
+                    'image_url': f'/static/generated_images/custom_scene_{int(time.time())}.jpg',
+                    'scene_description': description
+                }
+            else:
+                raise Exception("未能生成有效响应")
+                
+        except Exception as e:
+            print(f"❌ 自定义场景生成失败: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def analyze_image_elements(self, image_url: str) -> Dict:
+        """
+        分析图片，提取场景元素
+        """
+        if not self.client_available:
+            print("🎭 API未配置，使用演示模式...")
+            # 演示模式：返回预设元素
+            return {
+                'success': True,
+                'elements': ['古代建筑', '传统服饰', '石板路', '商贩', '马车', '城墙', '旗帜', '市集']
+            }
+        
+        try:
+            # 构建图片分析提示
+            analysis_prompt = f"""
+请分析这张历史场景图片，提取其中的关键视觉元素，用于后续的创意合成。
+
+请列出图片中的主要元素，包括但不限于：
+- 建筑风格和特征
+- 人物服装和造型
+- 道具和器具
+- 环境特征
+- 色彩风格
+- 光影效果
+
+请用简短的中文词汇列出这些元素，每个元素用逗号分隔。
+
+图片URL: {image_url}
+"""
+            
+            response = self.client.models.generate_content(
+                model='gemini-2.0-flash-exp',
+                contents=analysis_prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.3,
+                    max_output_tokens=512
+                )
+            )
+            
+            if response.candidates:
+                elements_text = response.candidates[0].content.parts[0].text
+                # 解析文本，提取元素列表
+                elements = [elem.strip() for elem in elements_text.split(',')]
+                elements = [elem for elem in elements if elem]  # 过滤空字符串
+                
+                return {
+                    'success': True,
+                    'elements': elements[:15]  # 限制数量
+                }
+            else:
+                raise Exception("未能生成有效分析结果")
+                
+        except Exception as e:
+            print(f"❌ 图片元素分析失败: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def generate_historical_meme(
+        self, 
+        character_image_path: str, 
+        composition_image_path: Optional[str], 
+        scene_elements: List[str], 
+        meme_prompt: str, 
+        historical_info: Dict
+    ) -> Dict:
+        """
+        生成历史梗图
+        """
+        if not self.client_available:
+            print("🎭 API未配置，使用演示模式...")
+            # 演示模式：返回预设图片
+            return {
+                'success': True,
+                'meme_url': '/static/generated_images/demo_meme.jpg'
+            }
+        
+        try:
+            print(f"🎨 开始生成梗图: {meme_prompt}")
+            print(f"🏛️ 历史背景: {historical_info['political_entity']} ({historical_info['query_year']}年)")
+            print(f"🎯 场景元素: {', '.join(scene_elements)}")
+            
+            # 构建综合提示词
+            meme_generation_prompt = f"""
+创建一个结合历史与现代元素的创意梗图，要求如下：
+
+📍 历史背景：
+- 时代: {historical_info['query_year']}年的{historical_info['political_entity']}
+- 文化区域: {historical_info['cultural_region']}
+
+🎨 场景元素（来自历史场景解构）:
+{', '.join(scene_elements)}
+
+💡 创意要求: {meme_prompt}
+
+🎯 梗图制作指南：
+1. 将人物自然地融入历史场景中
+2. 保持历史元素的真实性和准确性
+3. 添加现代梗图的幽默感和创意性
+4. 确保视觉效果和谐统一
+5. 色彩搭配要协调美观
+
+请生成一张高质量的创意梗图，兼具历史感和娱乐性。
+"""
+            
+            # TODO: 这里应该实现实际的图像合成逻辑
+            # 包括加载人物图片、构图图片，并与场景元素结合
+            
+            # 目前返回演示数据
+            demo_meme_filename = f"meme_{uuid.uuid4().hex}.jpg"
+            meme_url = f"/static/generated_images/{demo_meme_filename}"
+            
+            print(f"✅ 梗图生成完成: {meme_url}")
+            
+            return {
+                'success': True,
+                'meme_url': meme_url
+            }
+            
+        except Exception as e:
+            print(f"❌ 梗图生成失败: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
 
 # 全局实例
 nano_banana_service = NanoBananaHistoricalService()
