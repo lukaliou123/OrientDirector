@@ -1291,34 +1291,50 @@ async def generate_historical_selfie(request: HistoricalSelfieRequest):
                 )
             
             # 根据scene_id查找对应的历史场景图片
-            # 首先尝试在生成的图片目录中查找
-            generated_images_dir = os.path.join(project_root, "static", "generated_images")
+            # 使用新的目录结构查找
+            scene_images_dir = os.path.join(project_root, "static", "meme", "scene_view")
+            generated_images_dir = os.path.join(project_root, "static", "generated_images")  # 向后兼容
             pregenerated_images_dir = os.path.join(project_root, "static", "pregenerated_images")
             
             historical_scene_image_path = None
             
             # 方法1: 如果scene_id是完整的文件名，直接查找
             if request.scene_id.endswith(('.png', '.jpg', '.jpeg')):
-                # 尝试在生成的图片目录中查找
-                potential_path = os.path.join(generated_images_dir, request.scene_id)
+                # 首先尝试在新的meme/scene_view目录中查找
+                potential_path = os.path.join(scene_images_dir, request.scene_id)
                 if os.path.exists(potential_path):
                     historical_scene_image_path = potential_path
                 else:
-                    # 尝试在预生成图片目录中查找
-                    potential_path = os.path.join(pregenerated_images_dir, request.scene_id)
+                    # 向后兼容：尝试在旧的generated_images目录中查找
+                    potential_path = os.path.join(generated_images_dir, request.scene_id)
                     if os.path.exists(potential_path):
                         historical_scene_image_path = potential_path
+                    else:
+                        # 尝试在预生成图片目录中查找
+                        potential_path = os.path.join(pregenerated_images_dir, request.scene_id)
+                        if os.path.exists(potential_path):
+                            historical_scene_image_path = potential_path
             
             # 方法2: 如果scene_id不是完整文件名，尝试匹配包含scene_id的文件
             if not historical_scene_image_path:
-                # 在生成的图片目录中查找包含scene_id的文件
+                # 首先在新的meme/scene_view目录中查找包含scene_id的文件
                 try:
-                    for filename in os.listdir(generated_images_dir):
+                    for filename in os.listdir(scene_images_dir):
                         if request.scene_id in filename and filename.endswith(('.png', '.jpg', '.jpeg')):
-                            historical_scene_image_path = os.path.join(generated_images_dir, filename)
+                            historical_scene_image_path = os.path.join(scene_images_dir, filename)
                             break
                 except:
                     pass
+                
+                # 向后兼容：在旧的generated_images目录中查找
+                if not historical_scene_image_path:
+                    try:
+                        for filename in os.listdir(generated_images_dir):
+                            if request.scene_id in filename and filename.endswith(('.png', '.jpg', '.jpeg')):
+                                historical_scene_image_path = os.path.join(generated_images_dir, filename)
+                                break
+                    except:
+                        pass
                 
                 # 如果还没找到，在预生成图片目录中查找
                 if not historical_scene_image_path:
@@ -1340,13 +1356,27 @@ async def generate_historical_selfie(request: HistoricalSelfieRequest):
                     latest_file = None
                     latest_time = 0
                     
-                    for filename in os.listdir(generated_images_dir):
-                        if filename.startswith(pattern) and filename.endswith('.png'):
-                            file_path = os.path.join(generated_images_dir, filename)
-                            file_time = os.path.getmtime(file_path)
-                            if file_time > latest_time:
-                                latest_time = file_time
-                                latest_file = file_path
+                    # 首先在新的scene_view目录中查找
+                    try:
+                        for filename in os.listdir(scene_images_dir):
+                            if filename.startswith(pattern) and filename.endswith('.png'):
+                                file_path = os.path.join(scene_images_dir, filename)
+                                file_time = os.path.getmtime(file_path)
+                                if file_time > latest_time:
+                                    latest_time = file_time
+                                    latest_file = file_path
+                    except:
+                        pass
+                    
+                    # 向后兼容：在旧的generated_images目录中查找
+                    if not latest_file:
+                        for filename in os.listdir(generated_images_dir):
+                            if filename.startswith(pattern) and filename.endswith('.png'):
+                                file_path = os.path.join(generated_images_dir, filename)
+                                file_time = os.path.getmtime(file_path)
+                                if file_time > latest_time:
+                                    latest_time = file_time
+                                    latest_file = file_path
                     
                     if latest_file:
                         historical_scene_image_path = latest_file

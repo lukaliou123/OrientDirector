@@ -42,14 +42,24 @@ class NanoBananaHistoricalService:
                 self.client = None  
                 self.client_available = False
         
-        # 图像保存目录 - 统一到项目根目录
+        # 图像保存目录 - 使用新的目录结构
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.images_dir = os.path.join(project_root, "static", "generated_images")
+        self.scene_images_dir = os.path.join(project_root, "static", "meme", "scene_view")
+        self.selfie_images_dir = os.path.join(project_root, "static", "meme", "selfie")
+        self.char_images_dir = os.path.join(project_root, "static", "char")
+        self.composition_images_dir = os.path.join(project_root, "static", "构图")
         self.pregenerated_dir = os.path.join(project_root, "static", "pregenerated_images")
         
+        # 保持向后兼容性的旧目录
+        self.images_dir = os.path.join(project_root, "static", "generated_images")
+        
         # 确保目录存在
-        os.makedirs(self.images_dir, exist_ok=True)
+        os.makedirs(self.scene_images_dir, exist_ok=True)
+        os.makedirs(self.selfie_images_dir, exist_ok=True)
+        os.makedirs(self.char_images_dir, exist_ok=True)
+        os.makedirs(self.composition_images_dir, exist_ok=True)
         os.makedirs(self.pregenerated_dir, exist_ok=True)
+        os.makedirs(self.images_dir, exist_ok=True)  # 向后兼容
         
         # 演示模式配置
         self.demo_mode = os.getenv('DEMO_MODE', 'false').lower() == 'true'
@@ -60,7 +70,10 @@ class NanoBananaHistoricalService:
         print(f"🎨 Nano Banana历史服务已初始化")
         print(f"   API状态: {'已配置' if self.client_available else '未配置'}")
         print(f"   演示模式: {'开启' if self.demo_mode else '关闭'}")
-        print(f"   图像目录: {self.images_dir}")
+        print(f"   场景图目录: {self.scene_images_dir}")
+        print(f"   自拍图目录: {self.selfie_images_dir}")
+        print(f"   人像目录: {self.char_images_dir}")
+        print(f"   构图目录: {self.composition_images_dir}")
         print(f"   预生成目录: {self.pregenerated_dir}")
         if self.demo_mode and self.demo_scenes_index:
             print(f"   预设场景: {len(self.demo_scenes_index.get('demo_scenes', []))} 个")
@@ -242,13 +255,13 @@ class NanoBananaHistoricalService:
                     timestamp = int(time.time())
                     entity_name = historical_info['political_entity'].replace(' ', '_').replace('/', '_')
                     filename = f"nano_banana_{entity_name}_{historical_info['query_year']}_{timestamp}.png"
-                    filepath = os.path.join(self.images_dir, filename)
+                    filepath = os.path.join(self.scene_images_dir, filename)
                     
                     # 保存图像
                     image.save(filepath)
                     
-                    # 构建URL - 使用相对路径适配云环境  
-                    image_url = f"/static/generated_images/{filename}"
+                    # 构建URL - 使用新的meme目录结构  
+                    image_url = f"/static/meme/scene_view/{filename}"
                     generated_images.append(image_url)
                     
                     print(f"💾 Nano Banana图像已保存: {filepath}")
@@ -627,16 +640,12 @@ Natural environment as it appeared in {year} AD:
                     timestamp = int(time.time())
                     filename = f"historical_selfie_{timestamp}.png"
                     
-                    # 保存到自拍目录
-                    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    selfies_dir = os.path.join(project_root, "static", "selfies")
-                    os.makedirs(selfies_dir, exist_ok=True)
-                    
-                    filepath = os.path.join(selfies_dir, filename)
+                    # 保存到新的meme自拍目录
+                    filepath = os.path.join(self.selfie_images_dir, filename)
                     selfie_image.save(filepath)
                     
-                    # 构建URL - 使用相对路径适配云环境
-                    generated_selfie_url = f"/static/selfies/{filename}"
+                    # 构建URL - 使用新的meme目录结构
+                    generated_selfie_url = f"/static/meme/selfie/{filename}"
                     
                     print(f"💾 历史自拍已保存: {filepath}")
                     print(f"🔗 访问URL: {generated_selfie_url}")
@@ -854,7 +863,7 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             # 演示模式：返回预设图片
             return {
                 'success': True,
-                'meme_url': '/static/generated_images/demo_meme.jpg'
+                'meme_url': '/static/meme/scene_view/demo_meme.jpg'
             }
         
         try:
@@ -888,9 +897,9 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             # TODO: 这里应该实现实际的图像合成逻辑
             # 包括加载人物图片、构图图片，并与场景元素结合
             
-            # 目前返回演示数据
+            # 目前返回演示数据 - 使用新的meme目录结构
             demo_meme_filename = f"meme_{uuid.uuid4().hex}.jpg"
-            meme_url = f"/static/generated_images/{demo_meme_filename}"
+            meme_url = f"/static/meme/scene_view/{demo_meme_filename}"
             
             print(f"✅ 梗图生成完成: {meme_url}")
             
