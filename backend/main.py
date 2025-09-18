@@ -2122,15 +2122,26 @@ async def generate_historical_meme(
     composition_image: Optional[UploadFile] = File(None),
     scene_elements: str = Form(...),
     meme_prompt: str = Form(...),
-    historical_info: str = Form(...)
+    historical_info: str = Form(...),
+    template_id: Optional[str] = Form(None)
 ):
     """
     生成历史梗图
+    
+    Args:
+        character_image: 人物素材图片
+        composition_image: 构图参考图片（可选）
+        scene_elements: 场景元素列表（JSON字符串）
+        meme_prompt: 用户自定义梗图提示词
+        historical_info: 历史背景信息（JSON字符串）
+        template_id: 预设模板ID（可选，如'cinematic_selfie'）
     """
     start_time = time.time()
     
     try:
         print(f"🎭 开始生成历史梗图")
+        if template_id:
+            print(f"📋 使用预设模板: {template_id}")
         
         # 解析JSON字符串
         import json
@@ -2139,6 +2150,7 @@ async def generate_historical_meme(
         
         print(f"💬 梗图提示: {meme_prompt}")
         print(f"🏛️ 场景元素: {scene_elements_list}")
+        print(f"🎯 模板ID: {template_id or '无'}")
         
         # 保存上传的图片
         character_image_path = None
@@ -2162,7 +2174,8 @@ async def generate_historical_meme(
             composition_image_path=composition_image_path,
             scene_elements=scene_elements_list,
             meme_prompt=meme_prompt,
-            historical_info=historical_info_dict
+            historical_info=historical_info_dict,
+            template_id=template_id
         )
         
         # 清理临时文件
@@ -2198,6 +2211,41 @@ async def generate_historical_meme(
         raise HTTPException(
             status_code=500,
             detail=f"历史梗图生成失败: {str(e)}"
+        )
+
+@app.get("/api/meme-templates")
+async def get_meme_templates():
+    """
+    获取可用的梗图模板列表
+    """
+    try:
+        from nano_banana_service import nano_banana_service
+        
+        templates = nano_banana_service.meme_templates.get('templates', [])
+        
+        # 返回简化的模板信息（用于前端显示）
+        simplified_templates = []
+        for template in templates:
+            simplified_templates.append({
+                'id': template['id'],
+                'name': template['name'],
+                'description': template['description'],
+                'category': template.get('category', 'general'),
+                'tags': template.get('tags', []),
+                'usage_count': template.get('usage_count', 0)
+            })
+        
+        return {
+            'success': True,
+            'templates': simplified_templates,
+            'total_count': len(simplified_templates)
+        }
+        
+    except Exception as e:
+        print(f"❌ 获取梗图模板失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取梗图模板失败: {str(e)}"
         )
 
 if __name__ == "__main__":

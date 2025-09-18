@@ -68,6 +68,9 @@ class NanoBananaHistoricalService:
         # 加载预生成图片索引
         self.demo_scenes_index = self.load_demo_scenes_index()
         
+        # 加载梗图提示词模板
+        self.meme_templates = self.load_meme_templates()
+        
         print(f"🎨 Nano Banana历史服务已初始化")
         print(f"   API状态: {'已配置' if self.client_available else '未配置'}")
         print(f"   演示模式: {'开启' if self.demo_mode else '关闭'}")
@@ -76,6 +79,7 @@ class NanoBananaHistoricalService:
         print(f"   人像目录: {self.char_images_dir}")
         print(f"   构图目录: {self.composition_images_dir}")
         print(f"   预生成目录: {self.pregenerated_dir}")
+        print(f"   梗图模板: {len(self.meme_templates.get('templates', []))} 个")
         if self.demo_mode and self.demo_scenes_index:
             print(f"   预设场景: {len(self.demo_scenes_index.get('demo_scenes', []))} 个")
     
@@ -107,6 +111,136 @@ class NanoBananaHistoricalService:
             print(f"   文件路径: {index_path}")
             print(f"   文件存在: {os.path.exists(index_path)}")
             return {'demo_scenes': []}
+    
+    def load_meme_templates(self) -> Dict:
+        """加载梗图提示词模板"""
+        template_path = os.path.join(os.path.dirname(__file__), 'meme_prompt_templates.json')
+        
+        try:
+            print(f"🔍 尝试加载梗图模板: {template_path}")
+            
+            if os.path.exists(template_path):
+                with open(template_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    template_count = len(data.get('templates', []))
+                    print(f"✅ 梗图模板加载成功: {template_count} 个模板")
+                    
+                    # 调试：显示加载的模板
+                    if template_count > 0:
+                        for template in data['templates'][:3]:  # 显示前3个
+                            print(f"   - {template.get('name', 'N/A')} ({template.get('id', 'N/A')})")
+                    
+                    return data
+            else:
+                print(f"⚠️ 梗图模板文件不存在: {template_path}")
+                return {'templates': [], 'scene_element_translations': {}, 'historical_periods': {}}
+                
+        except Exception as e:
+            print(f"❌ 加载梗图模板失败: {e}")
+            print(f"   文件路径: {template_path}")
+            print(f"   文件存在: {os.path.exists(template_path)}")
+            return {'templates': [], 'scene_element_translations': {}, 'historical_periods': {}}
+    
+    def get_meme_template(self, template_id: str) -> Optional[Dict]:
+        """获取指定的梗图模板"""
+        templates = self.meme_templates.get('templates', [])
+        for template in templates:
+            if template.get('id') == template_id:
+                return template
+        return None
+    
+    def translate_scene_elements(self, elements: List[str]) -> str:
+        """将中文场景元素翻译为英文描述"""
+        translations = self.meme_templates.get('scene_element_translations', {})
+        translated_elements = []
+        
+        for element in elements:
+            # 优先使用配置文件中的翻译
+            if element in translations:
+                translated_elements.append(translations[element])
+            else:
+                # 简单的后备翻译
+                translated_elements.append(element)
+        
+        return ', '.join(translated_elements)
+    
+    def build_historical_background_description(self, historical_info: Dict, scene_elements: List[str]) -> str:
+        """构建英文历史背景描述"""
+        political_entity = historical_info.get('political_entity', '')
+        year = historical_info.get('query_year', 0)
+        cultural_region = historical_info.get('cultural_region', '')
+        
+        # 确定历史时期描述
+        period_description = self.get_historical_period_description(year, political_entity)
+        
+        # 翻译场景元素
+        translated_elements = self.translate_scene_elements(scene_elements)
+        
+        # 构建完整的背景描述
+        background_description = f"a {period_description} in {political_entity}, around {abs(year)} {'CE' if year >= 0 else 'BCE'}, featuring {translated_elements}"
+        
+        return background_description
+    
+    def get_historical_period_description(self, year: int, political_entity: str) -> str:
+        """获取历史时期的英文描述"""
+        # 基于年份和政治实体确定时期描述
+        if 'Essex' in political_entity:
+            if 700 <= year <= 900:
+                return "medieval Anglo-Saxon village street"
+        elif 'Roman' in political_entity or '罗马' in political_entity:
+            if year <= 500:
+                return "classical Roman forum or street scene"
+        elif 'Tang' in political_entity or '唐' in political_entity:
+            if 600 <= year <= 900:
+                return "Tang Dynasty imperial capital street"
+        elif 'Tokugawa' in political_entity or '德川' in political_entity:
+            if 1600 <= year <= 1700:
+                return "Edo period Japanese town street"
+        
+        # 通用描述
+        if year >= 1500:
+            return "early modern period street scene"
+        elif year >= 1000:
+            return "medieval town square"
+        elif year >= 500:
+            return "early medieval settlement"
+        elif year >= 0:
+            return "late antiquity urban area"
+        else:
+            return "ancient classical civilization scene"
+    
+    def process_meme_template(
+        self, 
+        template_id: str, 
+        historical_info: Dict, 
+        scene_elements: List[str]
+    ) -> str:
+        """处理梗图模板，自动替换占位符"""
+        template = self.get_meme_template(template_id)
+        if not template:
+            raise Exception(f"模板不存在: {template_id}")
+        
+        # 获取模板内容
+        template_content = template['template']
+        
+        # 构建历史背景描述
+        background_description = self.build_historical_background_description(historical_info, scene_elements)
+        
+        # 替换占位符
+        processed_prompt = template_content.replace(
+            '[场景元素]', background_description
+        ).replace(
+            '[year]', str(abs(historical_info.get('query_year', 0))) + (' CE' if historical_info.get('query_year', 0) >= 0 else ' BCE')
+        ).replace(
+            '[location]', historical_info.get('political_entity', 'Unknown')
+        )
+        
+        print(f"📝 模板处理完成:")
+        print(f"   模板ID: {template_id}")
+        print(f"   模板名称: {template['name']}")
+        print(f"   背景描述: {background_description[:100]}...")
+        
+        return processed_prompt
     
     def find_matching_demo_scene(self, historical_info: Dict, lat: float, lng: float) -> Optional[Dict]:
         """查找匹配的预生成演示场景 - 支持近似匹配"""
@@ -856,16 +990,93 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
                     print(f"🖼️ 图像尺寸: {image.size}")
                     print(f"📁 生成历史已记录 ID:{generation_id}")
                     
-                    return {
-                        'success': True,
+                return {
+                    'success': True,
                         'image_url': image_url,
                         'scene_description': scene_description,
                         'generation_time': generation_time,
                         'generation_id': generation_id
                     }
             
-            # 如果没有生成图像数据，返回错误
-            raise Exception("API返回了文本但没有生成图像数据")
+            # 如果没有生成图像数据，尝试重试机制
+            if not scene_description:
+                raise Exception("API没有返回任何有效内容")
+            
+            print("⚠️ API首次调用只返回了文本，尝试重新生成...")
+            print(f"📝 返回的文本: {scene_description[:200]}...")
+            
+            # 构建更明确的图像生成提示词
+            retry_prompt = f"""IMPORTANT: Generate a high-quality historical image based on this description.
+
+Original request: {custom_prompt}
+
+Historical context: {historical_info.get('political_entity', 'historical location')} in {historical_info.get('query_year', 'ancient times')}.
+
+CRITICAL: Please generate an actual image, not just text description. The output must include visual content.
+"""
+            
+            print("🔄 正在重试图像生成...")
+            retry_start_time = time.time()
+            
+            retry_response = self.client.models.generate_content(
+                model="gemini-2.5-flash-image-preview",
+                contents=[retry_prompt]
+            )
+            
+            retry_generation_time = time.time() - retry_start_time
+            
+            # 处理重试响应
+            for part in retry_response.candidates[0].content.parts:
+                if part.inline_data is not None:
+                    # 处理生成的图像数据
+                    image = Image.open(BytesIO(part.inline_data.data))
+                    
+                    # 创建文件名
+                    timestamp = int(time.time())
+                    entity_name = historical_info['political_entity'].replace(' ', '_').replace('/', '_')
+                    filename = f"custom_scene_{entity_name}_{historical_info['query_year']}_{timestamp}_retry.png"
+                    filepath = os.path.join(self.scene_images_dir, filename)
+                    
+                    # 保存图像
+                    image.save(filepath)
+                    
+                    # 构建URL
+                    image_url = f"/static/meme/scene_view/{filename}"
+                    
+                    # 记录生成历史到数据库
+                    generation_id = prompt_db.record_generation(
+                        prompt_id=prompt_id,
+                        image_path=f"static/meme/scene_view/{filename}",
+                        image_url=image_url,
+                        success=True,
+                        generation_time=generation_time + retry_generation_time,
+                        historical_context=historical_info,
+                        api_parameters={
+                            'model': 'gemini-2.5-flash-image-preview',
+                            'custom_prompt': True,
+                            'retry': True,
+                            'image_size': image.size
+                        }
+                    )
+                    
+                    print(f"✅ 重试成功！图像已保存: {filepath}")
+                    print(f"🔗 访问URL: {image_url}")
+                    print(f"🖼️ 图像尺寸: {image.size}")
+                    print(f"📁 生成历史已记录 ID:{generation_id}")
+                    
+                    return {
+                        'success': True,
+                        'image_url': image_url,
+                        'scene_description': scene_description,
+                        'generation_time': generation_time + retry_generation_time,
+                        'generation_id': generation_id,
+                        'retry_used': True
+                    }
+            
+            # 如果重试也失败，返回有意义的错误信息
+            error_msg = f"Gemini API两次调用都只返回文本描述，可能是'{historical_info.get('political_entity', '未知')}' ({historical_info.get('query_year', '未知')}年)这个历史背景无法生成图像"
+            print(f"❌ {error_msg}")
+            raise Exception(error_msg)
                 
         except Exception as e:
             print(f"❌ 自定义场景生成失败: {e}")
@@ -889,17 +1100,17 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
         try:
             # 构建图片分析提示
             analysis_prompt = f"""
-请分析这张历史场景图片，提取其中的关键视觉元素，用于后续的创意合成。
+请仔细分析这张历史场景图片，并提取其中最能体现历史时代与地域特征的视觉元素。  
+输出时请尽量简短，突出时代感和文化特征。  
 
-请列出图片中的主要元素，包括但不限于：
-- 建筑风格和特征
-- 人物服装和造型
-- 道具和器具
-- 环境特征
-- 色彩风格
-- 光影效果
+必须包含：  
+- 建筑风格与材料（如木屋、茅草屋顶、石墙）  
+- 人物的服装与配饰（长袍、斗篷、头巾、靴子）  
+- 场景活动或道具（集市、篮子、木桶、农作物）  
+- 环境细节（泥土路、空气氛围、季节特征）  
+- 色彩与光影风格（如柔和日光、棕灰色调）  
 
-请用简短的中文词汇列出这些元素，每个元素用逗号分隔。
+输出格式：每个元素用简短中文词语列出，用逗号分隔。
 
 图片URL: {image_url}
 """
@@ -939,10 +1150,19 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
         composition_image_path: Optional[str], 
         scene_elements: List[str], 
         meme_prompt: str, 
-        historical_info: Dict
+        historical_info: Dict,
+        template_id: Optional[str] = None
     ) -> Dict:
         """
         生成历史梗图
+        
+        Args:
+            character_image_path: 人物素材图片路径
+            composition_image_path: 构图参考图片路径（可选）
+            scene_elements: 场景元素列表
+            meme_prompt: 用户自定义梗图提示词
+            historical_info: 历史背景信息
+            template_id: 预设模板ID（可选，如'cinematic_selfie'）
         """
         if not self.client_available:
             print("🎭 API未配置，使用演示模式...")
@@ -956,9 +1176,19 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             print(f"🎨 开始生成梗图: {meme_prompt}")
             print(f"🏛️ 历史背景: {historical_info['political_entity']} ({historical_info['query_year']}年)")
             print(f"🎯 场景元素: {', '.join(scene_elements)}")
+            if template_id:
+                print(f"📋 使用预设模板: {template_id}")
             
-            # 构建综合提示词
-            meme_generation_prompt = f"""
+            # 构建提示词：使用模板或自定义
+            if template_id:
+                # 使用预设模板并自动填充
+                meme_generation_prompt = self.process_meme_template(
+                    template_id, historical_info, scene_elements
+                )
+                print(f"✅ 预设模板处理完成，最终提示词长度: {len(meme_generation_prompt)} 字符")
+            else:
+                # 使用传统的自定义提示词构建方式
+                meme_generation_prompt = f"""
 创建一个结合历史与现代元素的创意梗图，要求如下：
 
 📍 历史背景：
@@ -979,6 +1209,7 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
 
 请生成一张高质量的创意梗图，兼具历史感和娱乐性。
 """
+                print(f"📝 自定义提示词构建完成，长度: {len(meme_generation_prompt)} 字符")
             
             # 记录prompt使用到数据库
             prompt_id = prompt_db.record_prompt_usage(
@@ -1079,9 +1310,9 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
                     print(f"🔗 访问URL: {generated_meme_url}")
                     print(f"🖼️ 梗图尺寸: {meme_image.size}")
                     print(f"📁 生成历史已记录 ID:{generation_id}")
-                    
-                    return {
-                        'success': True,
+            
+            return {
+                'success': True,
                         'meme_url': generated_meme_url,
                         'generation_time': generation_time,
                         'generation_id': generation_id,

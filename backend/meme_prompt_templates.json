@@ -1,0 +1,65 @@
+{
+  "templates": [
+    {
+      "id": "cinematic_selfie",
+      "name": "电影感自拍梗图",
+      "description": "生成电影感的历史穿越自拍梗图，具有现代旅行博主风格",
+      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm's length.\nBackground: [场景元素],\nwith background characters casually looking at the camera out of curiosity,\nbut not directly interacting.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.",
+      "placeholders": {
+        "[reference image pic2]": "构图参考图片",
+        "[person from pic1]": "人物图片", 
+        "[场景元素]": "历史场景元素和背景",
+        "[year]": "历史年份",
+        "[location]": "历史地点"
+      },
+      "category": "selfie",
+      "tags": ["电影感", "自拍", "旅行", "梗图"],
+      "usage_count": 0
+    },
+    {
+      "id": "documentary_style",
+      "name": "纪录片风格梗图",
+      "description": "生成严肃纪录片风格的历史对比梗图",
+      "template": "Create a documentary-style comparison meme featuring [person from pic1] as a time traveler.\nSplit screen composition: Left side shows modern person, right side shows [场景元素].\nText overlay: \"Time Travel Documentary: [year] [location]\"\nStyle: National Geographic documentary aesthetic, professional photography, historical accuracy.\nCaption: Humorous comparison between modern and ancient times.",
+      "placeholders": {
+        "[person from pic1]": "人物图片",
+        "[场景元素]": "历史场景元素和背景", 
+        "[year]": "历史年份",
+        "[location]": "历史地点"
+      },
+      "category": "documentary",
+      "tags": ["纪录片", "对比", "专业"],
+      "usage_count": 0
+    }
+  ],
+  "scene_element_translations": {
+    "中世纪建筑": "medieval timber-framed buildings",
+    "石头教堂": "stone churches with rounded arches",
+    "木质房屋": "wooden houses with thatched roofs",
+    "石板路": "cobblestone streets",
+    "修道士袍服": "monks in brown robes",
+    "农民服装": "peasants in wool tunics and cloaks", 
+    "贵族长袍": "nobles in elaborate robes",
+    "马车": "horse-drawn carts",
+    "市集": "market stalls with goods",
+    "手工艺人": "craftsmen at work",
+    "牲畜": "livestock (cattle, sheep, pigs)",
+    "篝火": "cooking fires and torches",
+    "古代建筑": "ancient stone structures",
+    "传统服饰": "traditional period clothing",
+    "商贩": "merchants and traders",
+    "城墙": "fortified walls and gates",
+    "旗帜": "banners and standards"
+  },
+  "historical_periods": {
+    "中世纪早期": "Early Medieval",
+    "中世纪": "Medieval", 
+    "古典时期": "Classical Antiquity",
+    "铁器时代": "Iron Age",
+    "青铜时代": "Bronze Age",
+    "罗马时期": "Roman Period",
+    "盎格鲁撒克逊": "Anglo-Saxon",
+    "维京时代": "Viking Age",
+    "封建时代": "Feudal Period"
+  }
+}
