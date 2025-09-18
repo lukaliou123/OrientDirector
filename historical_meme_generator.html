@@ -361,6 +361,20 @@
             
             <div class="form-group">
                 <label class="form-label">✨ 历史场景描述Prompt：</label>
+                
+                <!-- 场景模板选择区域 -->
+                <div class="template-selection" style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 8px;">
+                        <strong>📋 快速模板选择：</strong>
+                        <span id="selectedSceneTemplate" style="color: #666; margin-left: 10px;">无</span>
+                        <button type="button" onclick="clearSceneTemplate()" style="margin-left: 10px; padding: 2px 8px; font-size: 12px;">清除</button>
+                    </div>
+                    <div id="sceneTemplateButtons" class="template-buttons">
+                        <!-- 模板按钮将通过JavaScript动态加载 -->
+                        <div style="color: #999; font-style: italic;">正在加载模板...</div>
+                    </div>
+                </div>
+                
                 <textarea id="scenePrompt" class="form-control textarea-large" 
                           placeholder="描述你想要的历史场景...例如：展现这个时期的典型建筑风格，人们的日常生活，服装特色等"></textarea>
             </div>
@@ -429,6 +443,20 @@
             
             <div class="form-group">
                 <label class="form-label">💬 梗图创意Prompt：</label>
+                
+                <!-- 梗图模板选择区域 -->
+                <div class="template-selection" style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 8px;">
+                        <strong>📋 快速模板选择：</strong>
+                        <span id="selectedMemeTemplate" style="color: #666; margin-left: 10px;">无</span>
+                        <button type="button" onclick="clearMemeTemplate()" style="margin-left: 10px; padding: 2px 8px; font-size: 12px;">清除</button>
+                    </div>
+                    <div id="memeTemplateButtons" class="template-buttons">
+                        <!-- 梗图模板按钮将通过JavaScript动态加载 -->
+                        <div style="color: #999; font-style: italic;">正在加载梗图模板...</div>
+                    </div>
+                </div>
+                
                 <textarea id="memePrompt" class="form-control textarea-large" 
                           placeholder="描述你想要的梗图效果...AI会结合历史场景元素、人物素材和构图素材来生成"></textarea>
             </div>
@@ -711,6 +739,161 @@
                 </div>
             `;
             resultDiv.style.display = 'block';
+            
+            // 如果用户已经选择了场景模板，自动重新填充prompt框
+            if (selectedSceneTemplate) {
+                setTimeout(async () => {
+                    try {
+                        const processedPrompt = await processSceneTemplateOnClient(selectedSceneTemplate);
+                        document.getElementById('scenePrompt').value = processedPrompt;
+                        console.log(`📋 历史信息更新后，自动重新填充场景模板: ${selectedSceneTemplate}`);
+                    } catch (error) {
+                        console.error('❌ 自动填充模板失败:', error);
+                    }
+                }, 100);
+            }
+        }
+
+        // 场景模板相关函数
+        let selectedSceneTemplate = null;
+
+        // 加载场景模板
+        async function loadSceneTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/scene-templates`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ 场景模板加载成功:', data.templates);
+                    displaySceneTemplateButtons(data.templates);
+                } else {
+                    console.error('❌ 场景模板加载失败');
+                    document.getElementById('sceneTemplateButtons').innerHTML = '<div style="color: #999;">暂无可用模板</div>';
+                }
+            } catch (error) {
+                console.error('❌ 场景模板加载错误:', error);
+                document.getElementById('sceneTemplateButtons').innerHTML = '<div style="color: #999;">模板加载失败</div>';
+            }
+        }
+
+        // 显示场景模板按钮
+        function displaySceneTemplateButtons(templates) {
+            const container = document.getElementById('sceneTemplateButtons');
+            container.innerHTML = '';
+            
+            templates.forEach(template => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'template-btn';
+                button.style.cssText = `
+                    margin: 4px;
+                    padding: 8px 12px;
+                    border: 2px solid #ddd;
+                    border-radius: 6px;
+                    background: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 13px;
+                `;
+                
+                button.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 2px;">${template.name}</div>
+                    <div style="font-size: 11px; color: #666;">${template.description}</div>
+                `;
+                
+                button.onclick = () => selectSceneTemplate(template.id, template.name);
+                
+                // 悬停效果
+                button.onmouseover = () => {
+                    button.style.borderColor = '#007bff';
+                    button.style.background = '#f8f9fa';
+                };
+                button.onmouseout = () => {
+                    if (selectedSceneTemplate !== template.id) {
+                        button.style.borderColor = '#ddd';
+                        button.style.background = 'white';
+                    }
+                };
+                
+                container.appendChild(button);
+            });
+        }
+
+        // 选择场景模板
+        async function selectSceneTemplate(templateId, templateName) {
+            selectedSceneTemplate = templateId;
+            
+            // 更新UI显示选中状态
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+            });
+            event.target.style.borderColor = '#007bff';
+            event.target.style.background = '#e3f2fd';
+            
+            // 显示选中的模板
+            document.getElementById('selectedSceneTemplate').textContent = templateName;
+            
+            // 如果有历史信息，自动生成并填充prompt
+            if (state.historicalInfo) {
+                try {
+                    // 调用后端处理模板
+                    const response = await fetch(`${API_BASE}/api/scene-templates`);
+                    const data = await response.json();
+                    
+                    const template = data.templates.find(t => t.id === templateId);
+                    if (template) {
+                        // 构建处理后的prompt (简化版前端处理)
+                        const processedPrompt = await processSceneTemplateOnClient(templateId);
+                        document.getElementById('scenePrompt').value = processedPrompt;
+                        
+                        console.log(`📋 已选择并填充场景模板: ${templateName}`);
+                    }
+                } catch (error) {
+                    console.error('❌ 模板处理失败:', error);
+                }
+            } else {
+                console.log(`📋 已选择场景模板: ${templateName} (等待历史信息后自动填充)`);
+            }
+        }
+
+        // 客户端处理场景模板
+        async function processSceneTemplateOnClient(templateId) {
+            const templates = {
+                'scene_prompt1': 'A realistic travel photo, as if taken by a traveler with a handheld camera, street-level perspective, [historical location] as it looked in [year]. Local people in traditional clothing of that era, daily life on the street, buildings and landmarks clearly visible, cinematic natural lighting, slightly weathered travel photography look, film grain. Good composition for a selfie background with open space in the foreground.',
+                'documentary_scene': 'A professional documentary-style historical photograph of [historical location] in [year]. Authentic period architecture, people in accurate historical clothing, bustling daily activities typical of the era. Museum-quality historical accuracy, natural lighting, rich detail showing the social structure and urban life of the time. Composition suitable for educational or documentary purposes.',
+                'artistic_scene': 'An artistic historical painting of [historical location] during [year], rendered in the style of classical historical paintings. Rich colors, dramatic lighting, detailed period architecture and costumes. People engaged in typical daily activities of the era. Composition follows classical painting principles with strong focal points and atmospheric perspective.'
+            };
+            
+            let template = templates[templateId] || '';
+            
+            if (state.historicalInfo) {
+                const year = Math.abs(state.historicalInfo.query_year) + (state.historicalInfo.query_year >= 0 ? ' CE' : ' BCE');
+                template = template
+                    .replace(/\[historical location\]/g, state.historicalInfo.political_entity)
+                    .replace(/\[year\]/g, year);
+            }
+            
+            return template;
+        }
+
+        // 清除场景模板选择
+        function clearSceneTemplate() {
+            selectedSceneTemplate = null;
+            
+            // 清除选中状态
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+            });
+            
+            // 更新显示
+            document.getElementById('selectedSceneTemplate').textContent = '无';
+            
+            // 清空prompt框
+            document.getElementById('scenePrompt').value = '';
+            
+            console.log('📋 已清除场景模板选择');
         }
 
         // 步骤2: 生成历史场景
@@ -730,16 +913,27 @@
             showLoading(true);
             
             try {
-                // 调用现有的历史场景生成API，但传入自定义prompt
+                // 构建请求体
+                const requestBody = {
+                    historical_info: state.historicalInfo,
+                    custom_prompt: prompt
+                };
+                
+                // 如果选择了模板，添加template_id参数
+                if (selectedSceneTemplate) {
+                    requestBody.template_id = selectedSceneTemplate;
+                    console.log(`📋 使用场景模板生成: ${selectedSceneTemplate}`);
+                } else {
+                    console.log('📝 使用自定义prompt生成');
+                }
+                
+                // 调用历史场景生成API
                 const response = await fetch(`${API_BASE}/api/generate-custom-historical-scene`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        historical_info: state.historicalInfo,
-                        custom_prompt: prompt
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
@@ -863,12 +1057,125 @@
         // 监听梗图提示词输入
         document.getElementById('memePrompt').addEventListener('input', checkMemeGenerationReady);
 
+        // 梗图模板相关函数
+        let selectedMemeTemplate = null;
+
+        // 加载梗图模板
+        async function loadMemeTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/meme-templates`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ 梗图模板加载成功:', data.templates);
+                    displayMemeTemplateButtons(data.templates);
+                } else {
+                    console.error('❌ 梗图模板加载失败');
+                    document.getElementById('memeTemplateButtons').innerHTML = '<div style="color: #999;">暂无可用模板</div>';
+                }
+            } catch (error) {
+                console.error('❌ 梗图模板加载错误:', error);
+                document.getElementById('memeTemplateButtons').innerHTML = '<div style="color: #999;">模板加载失败</div>';
+            }
+        }
+
+        // 显示梗图模板按钮
+        function displayMemeTemplateButtons(templates) {
+            const container = document.getElementById('memeTemplateButtons');
+            container.innerHTML = '';
+            
+            templates.forEach(template => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'meme-template-btn';
+                button.style.cssText = `
+                    margin: 4px;
+                    padding: 8px 12px;
+                    border: 2px solid #ddd;
+                    border-radius: 6px;
+                    background: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 13px;
+                    min-width: 180px;
+                `;
+                
+                button.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 2px;">${template.name}</div>
+                    <div style="font-size: 11px; color: #666;">${template.description}</div>
+                `;
+                
+                button.onclick = () => selectMemeTemplate(template.id, template.name);
+                
+                // 悬停效果
+                button.onmouseover = () => {
+                    button.style.borderColor = '#28a745';
+                    button.style.background = '#f8fff9';
+                };
+                button.onmouseout = () => {
+                    if (selectedMemeTemplate !== template.id) {
+                        button.style.borderColor = '#ddd';
+                        button.style.background = 'white';
+                    }
+                };
+                
+                container.appendChild(button);
+            });
+        }
+
+        // 选择梗图模板
+        function selectMemeTemplate(templateId, templateName) {
+            selectedMemeTemplate = templateId;
+            
+            // 更新UI显示选中状态
+            document.querySelectorAll('.meme-template-btn').forEach(btn => {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+            });
+            event.target.style.borderColor = '#28a745';
+            event.target.style.background = '#e8f5e8';
+            
+            // 显示选中的模板
+            document.getElementById('selectedMemeTemplate').textContent = templateName;
+            
+            // 根据模板类型提供提示
+            if (templateId === 'cinematic_selfie') {
+                const suggestion = "将生成电影感历史穿越自拍梗图，自动融合历史场景元素";
+                document.getElementById('memePrompt').value = suggestion;
+            } else if (templateId === 'documentary_style') {
+                const suggestion = "将生成纪录片风格历史对比梗图，专业且有趣";
+                document.getElementById('memePrompt').value = suggestion;
+            }
+            
+            console.log(`📋 已选择梗图模板: ${templateName} (${templateId})`);
+        }
+
+        // 清除梗图模板选择
+        function clearMemeTemplate() {
+            selectedMemeTemplate = null;
+            
+            // 清除选中状态
+            document.querySelectorAll('.meme-template-btn').forEach(btn => {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+            });
+            
+            // 更新显示
+            document.getElementById('selectedMemeTemplate').textContent = '无';
+            
+            // 清空prompt框
+            document.getElementById('memePrompt').value = '';
+            
+            console.log('📋 已清除梗图模板选择');
+        }
+
         // 步骤4: 生成梗图
         async function generateMeme() {
             const prompt = document.getElementById('memePrompt').value;
             
-            if (!prompt.trim()) {
-                alert('请输入梗图创意描述');
+            // 如果选择了模板，允许prompt为空（使用模板自动生成）
+            if (!prompt.trim() && !selectedMemeTemplate) {
+                alert('请输入梗图创意描述或选择预设模板');
                 return;
             }
 
@@ -887,8 +1194,16 @@
                 }
                 
                 formData.append('scene_elements', JSON.stringify(state.sceneElements));
-                formData.append('meme_prompt', prompt);
+                formData.append('meme_prompt', prompt || '使用预设模板生成');
                 formData.append('historical_info', JSON.stringify(state.historicalInfo));
+                
+                // 如果选择了梗图模板，添加template_id参数
+                if (selectedMemeTemplate) {
+                    formData.append('template_id', selectedMemeTemplate);
+                    console.log(`📋 使用梗图模板生成: ${selectedMemeTemplate}`);
+                } else {
+                    console.log('📝 使用自定义prompt生成梗图');
+                }
 
                 const response = await fetch(`${API_BASE}/api/generate-historical-meme`, {
                     method: 'POST',
@@ -1026,8 +1341,16 @@
             // 初始化默认地点选择
             handlePresetLocationChange();
             
+            // 加载场景模板
+            loadSceneTemplates();
+            
+            // 加载梗图模板
+            loadMemeTemplates();
+            
             console.log('🎨 历史梗图生成器已初始化');
             console.log('📍 默认地点: 北京故宫');
+            console.log('📋 正在加载场景模板...');
+            console.log('📋 正在加载梗图模板...');
         });
     </script>
 </body>

@@ -1,0 +1,55 @@
+{
+  "scene_templates": [
+    {
+      "id": "scene_prompt1",
+      "name": "旅行摄影风格历史场景",
+      "description": "生成真实的旅行摄影风格历史场景，适合作为自拍背景",
+      "template": "A realistic travel photo, as if taken by a traveler with a handheld camera, street-level perspective, [historical location] as it looked in [year]. Local people in traditional clothing of that era, daily life on the street, buildings and landmarks clearly visible, cinematic natural lighting, slightly weathered travel photography look, film grain. Good composition for a selfie background with open space in the foreground.",
+      "placeholders": {
+        "[historical location]": "历史地点",
+        "[year]": "历史年份"
+      },
+      "category": "travel_photography",
+      "tags": ["旅行", "摄影", "真实", "街景"],
+      "usage_count": 0,
+      "author": "用户提供",
+      "created_at": "2025-09-18"
+    },
+    {
+      "id": "documentary_scene",
+      "name": "纪录片风格历史场景",
+      "description": "专业纪录片级别的历史场景重现，注重历史准确性",
+      "template": "A professional documentary-style historical photograph of [historical location] in [year]. Authentic period architecture, people in accurate historical clothing, bustling daily activities typical of the era. Museum-quality historical accuracy, natural lighting, rich detail showing the social structure and urban life of the time. Composition suitable for educational or documentary purposes.",
+      "placeholders": {
+        "[historical location]": "历史地点",
+        "[year]": "历史年份"
+      },
+      "category": "documentary",
+      "tags": ["纪录片", "专业", "教育", "准确"],
+      "usage_count": 0,
+      "author": "系统预设",
+      "created_at": "2025-09-18"
+    },
+    {
+      "id": "artistic_scene",
+      "name": "艺术绘画风格历史场景",
+      "description": "具有绘画艺术感的历史场景，色彩丰富，构图优美",
+      "template": "An artistic historical painting of [historical location] during [year], rendered in the style of classical historical paintings. Rich colors, dramatic lighting, detailed period architecture and costumes. People engaged in typical daily activities of the era. Composition follows classical painting principles with strong focal points and atmospheric perspective.",
+      "placeholders": {
+        "[historical location]": "历史地点", 
+        "[year]": "历史年份"
+      },
+      "category": "artistic",
+      "tags": ["艺术", "绘画", "色彩", "经典"],
+      "usage_count": 0,
+      "author": "系统预设", 
+      "created_at": "2025-09-18"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "description": "历史场景生成提示词模板库",
+    "last_updated": "2025-09-18",
+    "total_templates": 3
+  }
+}

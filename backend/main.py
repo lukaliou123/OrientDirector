@@ -2006,6 +2006,7 @@ class CustomHistoricalSceneRequest(BaseModel):
     """自定义历史场景生成请求"""
     historical_info: Dict
     custom_prompt: str
+    template_id: Optional[str] = None
 
 class CustomHistoricalSceneResponse(BaseModel):
     """自定义历史场景生成响应"""
@@ -2040,9 +2041,17 @@ async def generate_custom_historical_scene(request: CustomHistoricalSceneRequest
     try:
         print(f"🎨 自定义历史场景生成: {request.historical_info['political_entity']} ({request.historical_info['query_year']}年)")
         print(f"💬 用户提示词: {request.custom_prompt}")
+        if request.template_id:
+            print(f"📋 使用场景模板: {request.template_id}")
         
-        # 构建历史准确的提示词
-        historical_context = f"""
+        # 构建提示词：使用模板或自定义
+        if request.template_id:
+            # 使用场景模板，直接传递给服务层处理
+            final_prompt = request.custom_prompt  # 这里传递原始prompt，让服务层处理模板
+            print(f"📋 将使用场景模板进行处理: {request.template_id}")
+        else:
+            # 使用传统的历史背景构建方式
+            final_prompt = f"""
 你是一位专业的历史场景画家，请根据以下历史背景和用户需求，生成一幅详细的历史场景图：
 
 📍 历史背景：
@@ -2056,10 +2065,11 @@ async def generate_custom_historical_scene(request: CustomHistoricalSceneRequest
 请生成一幅历史准确、视觉丰富的场景图，展现该时期的建筑风格、服装特色、日常生活场景等。
 图片应该具有高品质的艺术效果，色彩丰富，细节丰富。
 """
+            print(f"📝 使用传统历史背景构建方式")
         
         # 使用nano_banana_service生成图像
         result = await nano_banana_service.generate_scene_with_custom_prompt(
-            historical_context, request.historical_info
+            final_prompt, request.historical_info, request.template_id
         )
         
         if not result.get('success'):
@@ -2246,6 +2256,41 @@ async def get_meme_templates():
         raise HTTPException(
             status_code=500,
             detail=f"获取梗图模板失败: {str(e)}"
+        )
+
+@app.get("/api/scene-templates")
+async def get_scene_templates():
+    """
+    获取可用的场景模板列表
+    """
+    try:
+        from nano_banana_service import nano_banana_service
+        
+        templates = nano_banana_service.scene_templates.get('scene_templates', [])
+        
+        # 返回简化的模板信息（用于前端显示）
+        simplified_templates = []
+        for template in templates:
+            simplified_templates.append({
+                'id': template['id'],
+                'name': template['name'],
+                'description': template['description'],
+                'category': template.get('category', 'general'),
+                'tags': template.get('tags', []),
+                'usage_count': template.get('usage_count', 0)
+            })
+        
+        return {
+            'success': True,
+            'templates': simplified_templates,
+            'total_count': len(simplified_templates)
+        }
+        
+    except Exception as e:
+        print(f"❌ 获取场景模板失败: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取场景模板失败: {str(e)}"
         )
 
 if __name__ == "__main__":

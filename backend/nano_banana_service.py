@@ -71,6 +71,9 @@ class NanoBananaHistoricalService:
         # 加载梗图提示词模板
         self.meme_templates = self.load_meme_templates()
         
+        # 加载场景提示词模板
+        self.scene_templates = self.load_scene_templates()
+        
         print(f"🎨 Nano Banana历史服务已初始化")
         print(f"   API状态: {'已配置' if self.client_available else '未配置'}")
         print(f"   演示模式: {'开启' if self.demo_mode else '关闭'}")
@@ -80,6 +83,7 @@ class NanoBananaHistoricalService:
         print(f"   构图目录: {self.composition_images_dir}")
         print(f"   预生成目录: {self.pregenerated_dir}")
         print(f"   梗图模板: {len(self.meme_templates.get('templates', []))} 个")
+        print(f"   场景模板: {len(self.scene_templates.get('scene_templates', []))} 个")
         if self.demo_mode and self.demo_scenes_index:
             print(f"   预设场景: {len(self.demo_scenes_index.get('demo_scenes', []))} 个")
     
@@ -140,6 +144,67 @@ class NanoBananaHistoricalService:
             print(f"   文件路径: {template_path}")
             print(f"   文件存在: {os.path.exists(template_path)}")
             return {'templates': [], 'scene_element_translations': {}, 'historical_periods': {}}
+    
+    def load_scene_templates(self) -> Dict:
+        """加载场景提示词模板"""
+        template_path = os.path.join(os.path.dirname(__file__), 'scene_prompt_templates.json')
+        
+        try:
+            print(f"🔍 尝试加载场景模板: {template_path}")
+            
+            if os.path.exists(template_path):
+                with open(template_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    template_count = len(data.get('scene_templates', []))
+                    print(f"✅ 场景模板加载成功: {template_count} 个模板")
+                    
+                    # 调试：显示加载的模板
+                    if template_count > 0:
+                        for template in data['scene_templates'][:3]:  # 显示前3个
+                            print(f"   - {template.get('name', 'N/A')} ({template.get('id', 'N/A')})")
+                    
+                    return data
+            else:
+                print(f"⚠️ 场景模板文件不存在: {template_path}")
+                return {'scene_templates': []}
+                
+        except Exception as e:
+            print(f"❌ 加载场景模板失败: {e}")
+            print(f"   文件路径: {template_path}")
+            print(f"   文件存在: {os.path.exists(template_path)}")
+            return {'scene_templates': []}
+    
+    def get_scene_template(self, template_id: str) -> Optional[Dict]:
+        """获取指定的场景模板"""
+        templates = self.scene_templates.get('scene_templates', [])
+        for template in templates:
+            if template.get('id') == template_id:
+                return template
+        return None
+    
+    def process_scene_template(self, template_id: str, historical_info: Dict) -> str:
+        """处理场景模板，自动替换占位符"""
+        template = self.get_scene_template(template_id)
+        if not template:
+            raise Exception(f"场景模板不存在: {template_id}")
+        
+        # 获取模板内容
+        template_content = template['template']
+        
+        # 替换占位符
+        processed_prompt = template_content.replace(
+            '[historical location]', historical_info.get('political_entity', 'Unknown')
+        ).replace(
+            '[year]', str(abs(historical_info.get('query_year', 0))) + (' CE' if historical_info.get('query_year', 0) >= 0 else ' BCE')
+        )
+        
+        print(f"📝 场景模板处理完成:")
+        print(f"   模板ID: {template_id}")
+        print(f"   模板名称: {template['name']}")
+        print(f"   历史地点: {historical_info.get('political_entity', 'Unknown')}")
+        print(f"   历史年份: {historical_info.get('query_year', 0)}")
+        
+        return processed_prompt
     
     def get_meme_template(self, template_id: str) -> Optional[Dict]:
         """获取指定的梗图模板"""
@@ -906,9 +971,14 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
         """.strip()
         return prompt
 
-    async def generate_scene_with_custom_prompt(self, custom_prompt: str, historical_info: Dict) -> Dict:
+    async def generate_scene_with_custom_prompt(self, custom_prompt: str, historical_info: Dict, template_id: Optional[str] = None) -> Dict:
         """
         使用自定义提示词生成历史场景
+        
+        Args:
+            custom_prompt: 用户自定义提示词
+            historical_info: 历史背景信息
+            template_id: 预设模板ID（可选，如'scene_prompt1'）
         """
         if not self.client_available:
             print("🎭 API未配置，使用演示模式...")
@@ -920,26 +990,38 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             }
         
         try:
+            # 构建最终的提示词：使用模板或自定义
+            if template_id:
+                # 使用预设模板并自动填充占位符
+                final_prompt = self.process_scene_template(template_id, historical_info)
+                print(f"✅ 场景模板处理完成，最终提示词长度: {len(final_prompt)} 字符")
+            else:
+                # 使用用户自定义提示词
+                final_prompt = custom_prompt
+                print(f"📝 使用自定义提示词，长度: {len(final_prompt)} 字符")
+            
             # 记录prompt使用到数据库
             prompt_id = prompt_db.record_prompt_usage(
-                prompt=custom_prompt,
+                prompt=final_prompt,
                 prompt_type='scene',
                 historical_period=str(historical_info.get('query_year')),
                 political_entity=historical_info.get('political_entity'),
                 cultural_region=historical_info.get('cultural_region'),
-                notes='自定义历史场景prompt'
+                notes=f'场景模板: {template_id}' if template_id else '自定义历史场景prompt'
             )
             
-            print(f"🎨 开始自定义场景图像生成: {historical_info['political_entity']} ({historical_info['query_year']}年)")
-            print(f"📝 自定义提示词长度: {len(custom_prompt)} 字符")
+            print(f"🎨 开始场景图像生成: {historical_info['political_entity']} ({historical_info['query_year']}年)")
+            print(f"📝 最终提示词长度: {len(final_prompt)} 字符")
             print(f"📁 Prompt已记录到数据库 ID:{prompt_id}")
+            if template_id:
+                print(f"📋 使用模板: {template_id}")
             
             # 使用正确的图像生成模型 - 与generate_historical_scene_image相同的逻辑
             start_time = time.time()
             
             response = self.client.models.generate_content(
                 model="gemini-2.5-flash-image-preview",  # 使用图像生成模型
-                contents=[custom_prompt]  # 注意：这里需要传递列表
+                contents=[final_prompt]  # 使用处理后的最终提示词
             )
             
             generation_time = time.time() - start_time
@@ -989,14 +1071,17 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
                     print(f"🔗 访问URL: {image_url}")
                     print(f"🖼️ 图像尺寸: {image.size}")
                     print(f"📁 生成历史已记录 ID:{generation_id}")
-                    
+            
+            # 处理完所有parts后，检查是否成功生成了图像
+            if generated_images:
+                # 成功生成图像
                 return {
                     'success': True,
-                        'image_url': image_url,
-                        'scene_description': scene_description,
-                        'generation_time': generation_time,
-                        'generation_id': generation_id
-                    }
+                    'image_url': generated_images[0],  # 返回第一张图片
+                    'scene_description': scene_description,
+                    'generation_time': generation_time,
+                    'generation_id': generation_id if 'generation_id' in locals() else None
+                }
             
             # 如果没有生成图像数据，尝试重试机制
             if not scene_description:
@@ -1098,8 +1183,41 @@ CRITICAL: Please generate an actual image, not just text description. The output
             }
         
         try:
+            # 将图片URL转换为本地文件路径
+            if image_url.startswith('/static/'):
+                # 转换相对URL为绝对路径
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                local_image_path = os.path.join(project_root, image_url.lstrip('/'))
+            else:
+                local_image_path = image_url
+            
+            print(f"📷 图片路径转换: {image_url} → {local_image_path}")
+            
+            # 检查图片文件是否存在
+            if not os.path.exists(local_image_path):
+                print(f"❌ 图片文件不存在: {local_image_path}")
+                return {
+                    'success': False,
+                    'error': f'图片文件不存在: {local_image_path}'
+                }
+            
+            # 读取图片数据
+            with open(local_image_path, 'rb') as f:
+                image_bytes = f.read()
+            
+            print(f"✅ 图片数据读取成功: {len(image_bytes)} 字节")
+            
+            # 检测图片格式
+            mime_type = 'image/jpeg'
+            if local_image_path.lower().endswith('.png'):
+                mime_type = 'image/png'
+            elif local_image_path.lower().endswith('.webp'):
+                mime_type = 'image/webp'
+            
+            print(f"📝 图片格式: {mime_type}")
+            
             # 构建图片分析提示
-            analysis_prompt = f"""
+            analysis_prompt = """
 请仔细分析这张历史场景图片，并提取其中最能体现历史时代与地域特征的视觉元素。  
 输出时请尽量简短，突出时代感和文化特征。  
 
@@ -1111,31 +1229,60 @@ CRITICAL: Please generate an actual image, not just text description. The output
 - 色彩与光影风格（如柔和日光、棕灰色调）  
 
 输出格式：每个元素用简短中文词语列出，用逗号分隔。
-
-图片URL: {image_url}
 """
             
+            # 使用正确的多模态方式传递图片和提示词
             response = self.client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=analysis_prompt,
+                model='gemini-2.0-flash-exp',  # 恢复到之前成功的模型
+                contents=[
+                    types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                    analysis_prompt
+                ],
                 config=types.GenerateContentConfig(
                     temperature=0.3,
                     max_output_tokens=512
                 )
             )
             
-            if response.candidates:
+            # 添加完善的null检查
+            if (response.candidates and 
+                len(response.candidates) > 0 and 
+                response.candidates[0] and 
+                response.candidates[0].content and 
+                response.candidates[0].content.parts and 
+                len(response.candidates[0].content.parts) > 0 and
+                response.candidates[0].content.parts[0].text):
+                
                 elements_text = response.candidates[0].content.parts[0].text
+                print(f"📝 AI元素分析结果: {elements_text[:100]}...")
+                
                 # 解析文本，提取元素列表
                 elements = [elem.strip() for elem in elements_text.split(',')]
                 elements = [elem for elem in elements if elem]  # 过滤空字符串
+                
+                print(f"✅ 提取到 {len(elements)} 个场景元素")
                 
                 return {
                     'success': True,
                     'elements': elements[:15]  # 限制数量
                 }
             else:
-                raise Exception("未能生成有效分析结果")
+                # 详细诊断返回结果
+                print("🔍 API响应诊断:")
+                print(f"   response.candidates 存在: {bool(response.candidates)}")
+                if response.candidates:
+                    print(f"   candidates 长度: {len(response.candidates)}")
+                    if len(response.candidates) > 0:
+                        candidate = response.candidates[0]
+                        print(f"   candidate[0] 存在: {bool(candidate)}")
+                        if candidate:
+                            print(f"   content 存在: {bool(candidate.content)}")
+                            if candidate.content:
+                                print(f"   parts 存在: {bool(candidate.content.parts)}")
+                                if candidate.content.parts:
+                                    print(f"   parts 长度: {len(candidate.content.parts)}")
+                
+                raise Exception("API响应结构异常，无法提取场景元素")
                 
         except Exception as e:
             print(f"❌ 图片元素分析失败: {e}")
