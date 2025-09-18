@@ -16,6 +16,7 @@ import time
 import asyncio
 import uuid
 from dotenv import load_dotenv
+from prompt_database import prompt_db
 
 # 加载环境变量
 load_dotenv()
@@ -225,8 +226,18 @@ class NanoBananaHistoricalService:
             # 构建历史准确的提示词
             prompt = self.create_nano_banana_prompt(historical_info, lat, lng)
             
+            # 记录prompt使用到数据库
+            prompt_id = prompt_db.record_prompt_usage(
+                prompt=prompt,
+                prompt_type='scene',
+                historical_period=str(historical_info.get('query_year')),
+                political_entity=historical_info.get('political_entity'),
+                cultural_region=historical_info.get('cultural_region')
+            )
+            
             print(f"🎨 开始Nano Banana图像生成: {historical_info['political_entity']} ({historical_info['query_year']}年)")
             print(f"📝 提示词长度: {len(prompt)} 字符")
+            print(f"📁 Prompt已记录到数据库 ID:{prompt_id}")
             
             # 按照官方文档调用图像生成API
             start_time = time.time()
@@ -264,9 +275,26 @@ class NanoBananaHistoricalService:
                     image_url = f"/static/meme/scene_view/{filename}"
                     generated_images.append(image_url)
                     
+                    # 记录生成历史到数据库
+                    generation_id = prompt_db.record_generation(
+                        prompt_id=prompt_id,
+                        image_path=f"static/meme/scene_view/{filename}",
+                        image_url=image_url,
+                        success=True,
+                        generation_time=generation_time,
+                        historical_context=historical_info,
+                        api_parameters={
+                            'model': 'gemini-2.5-flash-image-preview',
+                            'lat': lat,
+                            'lng': lng,
+                            'image_size': image.size
+                        }
+                    )
+                    
                     print(f"💾 Nano Banana图像已保存: {filepath}")
                     print(f"🔗 访问URL: {image_url}")
                     print(f"🖼️ 图像尺寸: {image.size}")
+                    print(f"📁 生成历史已记录 ID:{generation_id}")
             
             return {
                 'success': True,
@@ -277,7 +305,8 @@ class NanoBananaHistoricalService:
                 'generation_time': generation_time,
                 'api_version': 'google-genai 1.32.0',
                 'image_count': len(generated_images),
-                'prompt_length': len(prompt)
+                'prompt_length': len(prompt),
+                'generation_id': generation_id if 'generation_id' in locals() else None  # 返回生成ID便于后续评分
             }
             
         except Exception as e:
@@ -894,6 +923,17 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
 请生成一张高质量的创意梗图，兼具历史感和娱乐性。
 """
             
+            # 记录prompt使用到数据库
+            prompt_id = prompt_db.record_prompt_usage(
+                prompt=meme_generation_prompt,
+                prompt_type='meme',
+                historical_period=str(historical_info.get('query_year')),
+                political_entity=historical_info.get('political_entity'),
+                cultural_region=historical_info.get('cultural_region'),
+                notes=f"梗图提示: {meme_prompt}"
+            )
+            print(f"📁 Meme Prompt已记录到数据库 ID:{prompt_id}")
+            
             # TODO: 这里应该实现实际的图像合成逻辑
             # 包括加载人物图片、构图图片，并与场景元素结合
             
@@ -901,11 +941,29 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             demo_meme_filename = f"meme_{uuid.uuid4().hex}.jpg"
             meme_url = f"/static/meme/scene_view/{demo_meme_filename}"
             
+            # 记录生成历史到数据库
+            generation_id = prompt_db.record_generation(
+                prompt_id=prompt_id,
+                image_path=f"static/meme/scene_view/{demo_meme_filename}",
+                image_url=meme_url,
+                success=True,
+                generation_time=0.5,  # 演示模式固定时间
+                scene_elements=scene_elements,
+                historical_context=historical_info,
+                api_parameters={
+                    'character_image': character_image_path,
+                    'composition_image': composition_image_path,
+                    'user_prompt': meme_prompt
+                }
+            )
+            
             print(f"✅ 梗图生成完成: {meme_url}")
+            print(f"📁 梗图生成历史已记录 ID:{generation_id}")
             
             return {
                 'success': True,
-                'meme_url': meme_url
+                'meme_url': meme_url,
+                'generation_id': generation_id  # 返回生成ID便于后续评分
             }
             
         except Exception as e:
