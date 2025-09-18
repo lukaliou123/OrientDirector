@@ -786,29 +786,86 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             }
         
         try:
-            # 使用自定义提示词调用Gemini
-            response = self.client.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=custom_prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.8,
-                    max_output_tokens=1024
-                )
+            # 记录prompt使用到数据库
+            prompt_id = prompt_db.record_prompt_usage(
+                prompt=custom_prompt,
+                prompt_type='scene',
+                historical_period=str(historical_info.get('query_year')),
+                political_entity=historical_info.get('political_entity'),
+                cultural_region=historical_info.get('cultural_region'),
+                notes='自定义历史场景prompt'
             )
             
-            if response.candidates:
-                # 生成图片描述文字
-                description = response.candidates[0].content.parts[0].text
-                
-                # TODO: 这里应该调用图像生成API
-                # 目前返回演示数据
-                return {
-                    'success': True,
-                    'image_url': f'/static/generated_images/custom_scene_{int(time.time())}.jpg',
-                    'scene_description': description
-                }
-            else:
-                raise Exception("未能生成有效响应")
+            print(f"🎨 开始自定义场景图像生成: {historical_info['political_entity']} ({historical_info['query_year']}年)")
+            print(f"📝 自定义提示词长度: {len(custom_prompt)} 字符")
+            print(f"📁 Prompt已记录到数据库 ID:{prompt_id}")
+            
+            # 使用正确的图像生成模型 - 与generate_historical_scene_image相同的逻辑
+            start_time = time.time()
+            
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash-image-preview",  # 使用图像生成模型
+                contents=[custom_prompt]  # 注意：这里需要传递列表
+            )
+            
+            generation_time = time.time() - start_time
+            
+            # 处理响应 - 按照与generate_historical_scene_image相同的方式
+            generated_images = []
+            scene_description = ""
+            
+            for part in response.candidates[0].content.parts:
+                if part.text is not None:
+                    scene_description = part.text
+                    print(f"📝 AI场景描述: {scene_description[:100]}...")
+                    
+                elif part.inline_data is not None:
+                    # 处理生成的图像数据
+                    image = Image.open(BytesIO(part.inline_data.data))
+                    
+                    # 创建文件名
+                    timestamp = int(time.time())
+                    entity_name = historical_info['political_entity'].replace(' ', '_').replace('/', '_')
+                    filename = f"custom_scene_{entity_name}_{historical_info['query_year']}_{timestamp}.png"
+                    filepath = os.path.join(self.scene_images_dir, filename)
+                    
+                    # 保存图像
+                    image.save(filepath)
+                    
+                    # 构建URL
+                    image_url = f"/static/meme/scene_view/{filename}"
+                    generated_images.append(image_url)
+                    
+                    # 记录生成历史到数据库
+                    generation_id = prompt_db.record_generation(
+                        prompt_id=prompt_id,
+                        image_path=f"static/meme/scene_view/{filename}",
+                        image_url=image_url,
+                        success=True,
+                        generation_time=generation_time,
+                        historical_context=historical_info,
+                        api_parameters={
+                            'model': 'gemini-2.5-flash-image-preview',
+                            'custom_prompt': True,
+                            'image_size': image.size
+                        }
+                    )
+                    
+                    print(f"💾 自定义场景图像已保存: {filepath}")
+                    print(f"🔗 访问URL: {image_url}")
+                    print(f"🖼️ 图像尺寸: {image.size}")
+                    print(f"📁 生成历史已记录 ID:{generation_id}")
+                    
+                    return {
+                        'success': True,
+                        'image_url': image_url,
+                        'scene_description': scene_description,
+                        'generation_time': generation_time,
+                        'generation_id': generation_id
+                    }
+            
+            # 如果没有生成图像数据，返回错误
+            raise Exception("API返回了文本但没有生成图像数据")
                 
         except Exception as e:
             print(f"❌ 自定义场景生成失败: {e}")
@@ -848,7 +905,7 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
 """
             
             response = self.client.models.generate_content(
-                model='gemini-2.0-flash-exp',
+                model='gemini-2.5-flash',
                 contents=analysis_prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.3,
@@ -934,37 +991,112 @@ The final result should look like a genuine behind-the-scenes photo from a big-b
             )
             print(f"📁 Meme Prompt已记录到数据库 ID:{prompt_id}")
             
-            # TODO: 这里应该实现实际的图像合成逻辑
-            # 包括加载人物图片、构图图片，并与场景元素结合
+            # 🖼️ 实现真正的图文生图逻辑 - 基于generate_historical_selfie的成功模式
             
-            # 目前返回演示数据 - 使用新的meme目录结构
-            demo_meme_filename = f"meme_{uuid.uuid4().hex}.jpg"
-            meme_url = f"/static/meme/scene_view/{demo_meme_filename}"
+            # 1. 检查和加载图片 
+            print(f"📷 开始加载图片素材...")
+            print(f"   人物素材: {character_image_path}")
+            print(f"   构图素材: {composition_image_path or '无'}")
             
-            # 记录生成历史到数据库
-            generation_id = prompt_db.record_generation(
-                prompt_id=prompt_id,
-                image_path=f"static/meme/scene_view/{demo_meme_filename}",
-                image_url=meme_url,
-                success=True,
-                generation_time=0.5,  # 演示模式固定时间
-                scene_elements=scene_elements,
-                historical_context=historical_info,
-                api_parameters={
-                    'character_image': character_image_path,
-                    'composition_image': composition_image_path,
-                    'user_prompt': meme_prompt
-                }
+            # 检查人物图片是否存在（必需）
+            if not character_image_path or not os.path.exists(character_image_path):
+                raise Exception(f"人物素材图片不存在: {character_image_path}")
+            
+            # 加载人物图片
+            character_image = Image.open(character_image_path)
+            print(f"✅ 人物素材加载成功: {character_image.size}")
+            
+            # 加载构图参考图片（可选）
+            composition_image = None
+            if composition_image_path and os.path.exists(composition_image_path):
+                composition_image = Image.open(composition_image_path)
+                print(f"✅ 构图素材加载成功: {composition_image.size}")
+            else:
+                print(f"ℹ️ 未使用构图素材")
+            
+            # 2. 构建多模态输入内容 - 与generate_historical_selfie相同的模式
+            contents = [meme_generation_prompt, character_image]
+            if composition_image is not None:
+                contents.append(composition_image)
+            
+            print(f"🎯 多模态输入准备完成: {len(contents)} 个元素（提示词 + {len(contents)-1} 张图片）")
+            
+            # 3. 调用Gemini图像生成API - 使用与selfie相同的模型和方式
+            start_time = time.time()
+            
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash-image-preview",  # 与selfie方法相同的模型
+                contents=contents  # 多模态输入：提示词 + 人物图 + (可选)构图图
             )
             
-            print(f"✅ 梗图生成完成: {meme_url}")
-            print(f"📁 梗图生成历史已记录 ID:{generation_id}")
+            generation_time = time.time() - start_time
             
-            return {
-                'success': True,
-                'meme_url': meme_url,
-                'generation_id': generation_id  # 返回生成ID便于后续评分
-            }
+            # 4. 处理响应 - 与selfie方法相同的处理逻辑
+            generated_meme_url = None
+            ai_description = ""
+            
+            for part in response.candidates[0].content.parts:
+                if part.text is not None:
+                    ai_description = part.text
+                    print(f"📝 AI梗图描述: {ai_description[:100]}...")
+                    
+                elif part.inline_data is not None:
+                    # 保存生成的梗图
+                    meme_image = Image.open(BytesIO(part.inline_data.data))
+                    
+                    # 创建梗图文件名
+                    timestamp = int(time.time())
+                    entity_name = historical_info['political_entity'].replace(' ', '_').replace('/', '_')
+                    filename = f"historical_meme_{entity_name}_{historical_info['query_year']}_{timestamp}.png"
+                    
+                    # 保存到meme scene_view目录
+                    filepath = os.path.join(self.scene_images_dir, filename)
+                    meme_image.save(filepath)
+                    
+                    # 构建URL
+                    generated_meme_url = f"/static/meme/scene_view/{filename}"
+                    
+                    # 记录生成历史到数据库
+                    generation_id = prompt_db.record_generation(
+                        prompt_id=prompt_id,
+                        image_path=f"static/meme/scene_view/{filename}",
+                        image_url=generated_meme_url,
+                        success=True,
+                        generation_time=generation_time,
+                        scene_elements=scene_elements,
+                        historical_context=historical_info,
+                        api_parameters={
+                            'model': 'gemini-2.5-flash-image-preview',
+                            'character_image': character_image_path,
+                            'composition_image': composition_image_path,
+                            'user_prompt': meme_prompt,
+                            'multimodal_inputs': len(contents),
+                            'image_size': meme_image.size
+                        }
+                    )
+                    
+                    print(f"💾 历史梗图已保存: {filepath}")
+                    print(f"🔗 访问URL: {generated_meme_url}")
+                    print(f"🖼️ 梗图尺寸: {meme_image.size}")
+                    print(f"📁 生成历史已记录 ID:{generation_id}")
+                    
+                    return {
+                        'success': True,
+                        'meme_url': generated_meme_url,
+                        'generation_time': generation_time,
+                        'generation_id': generation_id,
+                        'ai_description': ai_description,
+                        'multimodal_generation': True,
+                        'inputs_used': {
+                            'character_image': True,
+                            'composition_image': composition_image is not None,
+                            'prompt': True
+                        }
+                    }
+            
+            # 如果没有生成图像数据，返回错误
+            if not generated_meme_url:
+                raise Exception("API响应中未找到生成的梗图图像数据")
             
         except Exception as e:
             print(f"❌ 梗图生成失败: {e}")

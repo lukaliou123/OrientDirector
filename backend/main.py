@@ -1141,6 +1141,70 @@ async def get_dataset_info(year: int):
             'error': str(e)
         }
 
+@app.post("/api/query-historical-info")
+async def query_historical_info(request: HistoricalSceneRequest):
+    """
+    仅查询历史信息API（不生成图片）
+    
+    专门为meme页面设计，只查询Historical-basemaps数据，
+    不进行图片生成，避免长时间等待
+    
+    Args:
+        request: 包含纬度、经度和年份的查询请求
+        
+    Returns:
+        仅包含历史信息的响应
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🔍 历史信息查询请求: {request.year}年 ({request.latitude}, {request.longitude})")
+        
+        # 验证输入参数
+        if not (-90 <= request.latitude <= 90):
+            raise HTTPException(status_code=400, detail="纬度必须在-90到90之间")
+        if not (-180 <= request.longitude <= 180):
+            raise HTTPException(status_code=400, detail="经度必须在-180到180之间")
+        if not (-3000 <= request.year <= 2024):
+            raise HTTPException(status_code=400, detail="年份必须在公元前3000年到2024年之间")
+        
+        # 仅查询Historical-basemaps获取真实历史位置信息
+        historical_result = await historical_service.query_historical_location(
+            request.latitude, 
+            request.longitude, 
+            request.year
+        )
+        
+        if not historical_result['success']:
+            raise HTTPException(status_code=404, detail="未找到该时空点的历史信息")
+        
+        calculation_time = time.time() - start_time
+        
+        print(f"✅ 历史信息查询完成: {historical_result['political_entity']}")
+        print(f"⚡ 查询耗时: {calculation_time:.3f}秒")
+        
+        # 转换为响应格式
+        historical_info = HistoricalLocationInfo(**historical_result)
+        
+        return {
+            'success': True,
+            'historical_info': historical_info.dict(),
+            'calculation_time': calculation_time,
+            'message': '历史信息查询成功'
+        }
+        
+    except HTTPException as e:
+        raise e
+        
+    except Exception as e:
+        calculation_time = time.time() - start_time
+        print(f"❌ 历史信息查询失败: {e}")
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"历史信息查询失败: {str(e)}"
+        )
+
 @app.post("/api/generate-historical-scene", response_model=HistoricalSceneResponse)
 async def generate_historical_scene(request: HistoricalSceneRequest):
     """
