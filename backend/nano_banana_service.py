@@ -1231,58 +1231,32 @@ CRITICAL: Please generate an actual image, not just text description. The output
 输出格式：每个元素用简短中文词语列出，用逗号分隔。
 """
             
-            # 使用正确的多模态方式传递图片和提示词
+            # 使用官方推荐的 gemini-2.5-flash 方法传递图片和提示词
             response = self.client.models.generate_content(
-                model='gemini-2.0-flash-exp',  # 恢复到之前成功的模型
+                model='gemini-2.5-flash',
                 contents=[
-                    types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                    types.Part.from_bytes(
+                        data=image_bytes,
+                        mime_type=mime_type,
+                    ),
                     analysis_prompt
-                ],
-                config=types.GenerateContentConfig(
-                    temperature=0.3,
-                    max_output_tokens=512
-                )
+                ]
             )
             
-            # 添加完善的null检查
-            if (response.candidates and 
-                len(response.candidates) > 0 and 
-                response.candidates[0] and 
-                response.candidates[0].content and 
-                response.candidates[0].content.parts and 
-                len(response.candidates[0].content.parts) > 0 and
-                response.candidates[0].content.parts[0].text):
-                
-                elements_text = response.candidates[0].content.parts[0].text
-                print(f"📝 AI元素分析结果: {elements_text[:100]}...")
-                
-                # 解析文本，提取元素列表
-                elements = [elem.strip() for elem in elements_text.split(',')]
-                elements = [elem for elem in elements if elem]  # 过滤空字符串
-                
-                print(f"✅ 提取到 {len(elements)} 个场景元素")
-                
-                return {
-                    'success': True,
-                    'elements': elements[:15]  # 限制数量
-                }
-            else:
-                # 详细诊断返回结果
-                print("🔍 API响应诊断:")
-                print(f"   response.candidates 存在: {bool(response.candidates)}")
-                if response.candidates:
-                    print(f"   candidates 长度: {len(response.candidates)}")
-                    if len(response.candidates) > 0:
-                        candidate = response.candidates[0]
-                        print(f"   candidate[0] 存在: {bool(candidate)}")
-                        if candidate:
-                            print(f"   content 存在: {bool(candidate.content)}")
-                            if candidate.content:
-                                print(f"   parts 存在: {bool(candidate.content.parts)}")
-                                if candidate.content.parts:
-                                    print(f"   parts 长度: {len(candidate.content.parts)}")
-                
-                raise Exception("API响应结构异常，无法提取场景元素")
+            # 使用官方推荐的简洁响应处理方式
+            elements_text = response.text
+            print(f"📝 AI元素分析结果: {elements_text[:100]}...")
+            
+            # 解析文本，提取元素列表
+            elements = [elem.strip() for elem in elements_text.split(',')]
+            elements = [elem for elem in elements if elem]  # 过滤空字符串
+            
+            print(f"✅ 提取到 {len(elements)} 个场景元素")
+            
+            return {
+                'success': True,
+                'elements': elements[:15]  # 限制数量
+            }
                 
         except Exception as e:
             print(f"❌ 图片元素分析失败: {e}")
