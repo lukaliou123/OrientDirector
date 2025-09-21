@@ -457,6 +457,19 @@
                     </div>
                 </div>
                 
+                <!-- 互动选择区域 -->
+                <div id="interactionSelection" class="interaction-selection" style="display: none; margin-bottom: 15px;">
+                    <div style="margin-bottom: 8px;">
+                        <strong>🎭 互动动作选择：</strong>
+                        <span id="selectedInteraction" style="color: #666; margin-left: 10px;">无</span>
+                        <button type="button" onclick="clearInteractionSelection()" style="margin-left: 10px; padding: 2px 8px; font-size: 12px;">清除</button>
+                    </div>
+                    <div id="interactionButtons" class="interaction-buttons" style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 6px;">
+                        <!-- 互动按钮将通过JavaScript动态加载 -->
+                        <div style="color: #999; font-style: italic;">请选择一个互动动作</div>
+                    </div>
+                </div>
+                
                 <textarea id="memePrompt" class="form-control textarea-large" 
                           placeholder="描述你想要的梗图效果...AI会结合历史场景元素、人物素材和构图素材来生成"></textarea>
             </div>
@@ -1064,6 +1077,8 @@
 
         // 梗图模板相关函数
         let selectedMemeTemplate = null;
+        let selectedInteraction = null;
+        let currentInteractions = {};
 
         // 加载梗图模板
         async function loadMemeTemplates() {
@@ -1073,6 +1088,8 @@
                 
                 if (data.success) {
                     console.log('✅ 梗图模板加载成功:', data.templates);
+                    console.log('🎭 互动数据加载成功:', data.interactions);
+                    currentInteractions = data.interactions || {};
                     displayMemeTemplateButtons(data.templates);
                 } else {
                     console.error('❌ 梗图模板加载失败');
@@ -1147,12 +1164,202 @@
             if (templateId === 'cinematic_selfie') {
                 const suggestion = "将生成电影感历史穿越自拍梗图，自动融合历史场景元素";
                 document.getElementById('memePrompt').value = suggestion;
+                hideInteractionSelection();
             } else if (templateId === 'documentary_style') {
                 const suggestion = "将生成纪录片风格历史对比梗图，专业且有趣";
                 document.getElementById('memePrompt').value = suggestion;
+                hideInteractionSelection();
+            } else if (templateId === 'interactive_selfie') {
+                // 如果有历史信息，生成基础的prompt
+                if (state.historicalInfo) {
+                    try {
+                        const basePrompt = processMemeTemplateOnClient(templateId, null);
+                        document.getElementById('memePrompt').value = basePrompt;
+                        console.log('📝 已生成强互动模板基础prompt');
+                    } catch (error) {
+                        console.error('❌ 生成基础prompt失败:', error);
+                        const suggestion = "将生成强互动历史自拍梗图，请选择互动动作";
+                        document.getElementById('memePrompt').value = suggestion;
+                    }
+                } else {
+                    const suggestion = "将生成强互动历史自拍梗图，请先生成历史信息，然后选择互动动作";
+                    document.getElementById('memePrompt').value = suggestion;
+                }
+                showInteractionSelection();
+            } else {
+                hideInteractionSelection();
             }
             
             console.log(`📋 已选择梗图模板: ${templateName} (${templateId})`);
+        }
+
+        // 互动选择相关函数
+        
+        // 显示互动选择区域
+        function showInteractionSelection() {
+            document.getElementById('interactionSelection').style.display = 'block';
+            displayInteractionButtons(currentInteractions);
+        }
+
+        // 隐藏互动选择区域
+        function hideInteractionSelection() {
+            document.getElementById('interactionSelection').style.display = 'none';
+            clearInteractionSelection();
+        }
+
+        // 显示互动按钮
+        function displayInteractionButtons(interactions) {
+            const container = document.getElementById('interactionButtons');
+            container.innerHTML = '';
+            
+            Object.keys(interactions).forEach(categoryName => {
+                // 创建分类标题
+                const categoryTitle = document.createElement('div');
+                categoryTitle.innerHTML = `<h4 style="color: #007bff; margin: 10px 0 5px 0; font-size: 14px;">${categoryName}</h4>`;
+                container.appendChild(categoryTitle);
+                
+                // 创建该分类的按钮容器
+                const categoryContainer = document.createElement('div');
+                categoryContainer.style.cssText = `
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-bottom: 15px;
+                `;
+                
+                interactions[categoryName].forEach(interaction => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'interaction-btn';
+                    button.style.cssText = `
+                        padding: 6px 10px;
+                        border: 2px solid #ddd;
+                        border-radius: 4px;
+                        background: white;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        font-size: 12px;
+                        flex: 0 0 auto;
+                        min-width: 100px;
+                    `;
+                    
+                    button.innerHTML = `
+                        <div style="font-weight: bold; margin-bottom: 2px;">${interaction.name}</div>
+                        <div style="font-size: 10px; color: #666; line-height: 1.2;">${interaction.description}</div>
+                    `;
+                    
+                    button.onclick = () => selectInteraction(interaction.id, interaction.name);
+                    
+                    // 悬停效果
+                    button.onmouseover = () => {
+                        button.style.borderColor = '#007bff';
+                        button.style.background = '#f8f9fa';
+                    };
+                    button.onmouseout = () => {
+                        if (selectedInteraction !== interaction.id) {
+                            button.style.borderColor = '#ddd';
+                            button.style.background = 'white';
+                        }
+                    };
+                    
+                    categoryContainer.appendChild(button);
+                });
+                
+                container.appendChild(categoryContainer);
+            });
+        }
+
+        // 选择互动动作
+        function selectInteraction(interactionId, interactionName) {
+            selectedInteraction = interactionId;
+            document.getElementById('selectedInteraction').textContent = interactionName;
+            
+            // 更新按钮选中状态
+            document.querySelectorAll('.interaction-btn').forEach(btn => {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+            });
+            event.target.style.borderColor = '#28a745';
+            event.target.style.background = '#e8f5e8';
+            
+            console.log(`🎭 已选择互动动作: ${interactionName} (${interactionId})`);
+            
+            // 如果有历史信息和选中的模板，自动生成并填充prompt
+            if (state.historicalInfo && selectedMemeTemplate) {
+                try {
+                    const processedPrompt = processMemeTemplateOnClient(selectedMemeTemplate, interactionId);
+                    document.getElementById('memePrompt').value = processedPrompt;
+                    console.log(`📝 已自动生成梗图prompt，长度: ${processedPrompt.length} 字符`);
+                } catch (error) {
+                    console.error('❌ 自动填充梗图prompt失败:', error);
+                }
+            } else {
+                console.log(`ℹ️ 等待历史信息或模板选择后自动生成prompt`);
+            }
+        }
+
+        // 客户端处理梗图模板
+        function processMemeTemplateOnClient(templateId, interactionId = null) {
+            const templates = {
+                'cinematic_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: making awkward eye contact with the camera, reacting with shock or confusion.\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.',
+                'documentary_style': 'Create a documentary-style comparison meme featuring [person from pic1] as a time traveler.\nSplit screen composition: Left side shows modern person, right side shows [场景元素].\nText overlay: "Time Travel Documentary: [year] [location]"\nStyle: National Geographic documentary aesthetic, professional photography, historical accuracy.\nCaption: Humorous comparison between modern and ancient times.',
+                'interactive_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.'
+            };
+            
+            let template = templates[templateId] || '';
+            
+            if (state.historicalInfo) {
+                const year = Math.abs(state.historicalInfo.query_year) + (state.historicalInfo.query_year >= 0 ? ' CE' : ' BCE');
+                const location = state.historicalInfo.political_entity;
+                
+                // 构建场景元素描述
+                const sceneElementsText = state.sceneElements && state.sceneElements.length > 0 
+                    ? state.sceneElements.join(', ') 
+                    : 'historical scene elements';
+                
+                // 获取互动描述
+                let interactionDescription = "making awkward eye contact with the camera, reacting with shock or confusion.";
+                if (interactionId && currentInteractions) {
+                    // 在所有互动分类中查找匹配的ID
+                    for (const categoryName of Object.keys(currentInteractions)) {
+                        const interactions = currentInteractions[categoryName];
+                        const foundInteraction = interactions.find(interaction => interaction.id === interactionId);
+                        if (foundInteraction) {
+                            interactionDescription = foundInteraction.description;
+                            break;
+                        }
+                    }
+                }
+                
+                template = template
+                    .replace(/\[场景元素\]/g, sceneElementsText)
+                    .replace(/\[year\]/g, year)
+                    .replace(/\[location\]/g, location)
+                    .replace(/\[interaction\]/g, interactionDescription);
+            }
+            
+            return template;
+        }
+
+        // 清除互动选择
+        function clearInteractionSelection() {
+            selectedInteraction = null;
+            document.getElementById('selectedInteraction').textContent = '无';
+            document.querySelectorAll('.interaction-btn').forEach(btn => {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+            });
+            
+            // 如果有选中的互动模板，重新生成基础prompt
+            if (selectedMemeTemplate === 'interactive_selfie' && state.historicalInfo) {
+                try {
+                    const basePrompt = processMemeTemplateOnClient(selectedMemeTemplate, null);
+                    document.getElementById('memePrompt').value = basePrompt;
+                    console.log('🔄 已重置为基础互动prompt');
+                } catch (error) {
+                    console.error('❌ 重置prompt失败:', error);
+                }
+            }
         }
 
         // 清除梗图模板选择
@@ -1170,6 +1377,9 @@
             
             // 清空prompt框
             document.getElementById('memePrompt').value = '';
+            
+            // 隐藏互动选择区域
+            hideInteractionSelection();
             
             console.log('📋 已清除梗图模板选择');
         }
@@ -1208,6 +1418,12 @@
                     console.log(`📋 使用梗图模板生成: ${selectedMemeTemplate}`);
                 } else {
                     console.log('📝 使用自定义prompt生成梗图');
+                }
+                
+                // 如果选择了互动动作，添加interaction_id参数
+                if (selectedInteraction) {
+                    formData.append('interaction_id', selectedInteraction);
+                    console.log(`🎭 使用互动动作: ${selectedInteraction}`);
                 }
 
                 const response = await fetch(`${API_BASE}/api/generate-historical-meme`, {

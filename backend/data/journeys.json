@@ -2410,5 +2410,42 @@
     "is_active": true,
     "journey_title": "探索之旅 2025/9/10 11:18:35",
     "created_at": "2025-09-10T11:18:35.560529"
+  },
+  "b6d6fe9f-fea6-4a18-ad5b-d5620e359aad": {
+    "journey_id": "b6d6fe9f-fea6-4a18-ad5b-d5620e359aad",
+    "start_time": "2025-09-21T16:09:33.506436",
+    "end_time": null,
+    "start_location": {
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "name": "位置 48.8584, 2.2945",
+      "address": null
+    },
+    "current_location": {
+      "lat": 48.861472,
+      "lng": 2.3934725,
+      "name": "拉雪兹神父公墓",
+      "address": "拉雪兹神父公墓是一个旅游景点，Google评分4.6⭐，是值得一游的地方。"
+    },
+    "visited_scenes": [
+      {
+        "scene_id": "e1703358-ad52-43bf-828f-dabcecd68177",
+        "name": "拉雪兹神父公墓",
+        "location": {
+          "lat": 48.861472,
+          "lng": 2.3934725,
+          "name": "拉雪兹神父公墓",
+          "address": "拉雪兹神父公墓是一个旅游景点，Google评分4.6⭐，是值得一游的地方。"
+        },
+        "visit_time": "2025-09-21T16:10:01.655651",
+        "duration_minutes": null,
+        "user_rating": null,
+        "notes": "通过OrientDiscover探索发现的场景"
+      }
+    ],
+    "total_distance_km": 0.0,
+    "is_active": true,
+    "journey_title": "探索之旅 2025/9/21 16:09:33",
+    "created_at": "2025-09-21T16:09:33.506436"
   }
 }
