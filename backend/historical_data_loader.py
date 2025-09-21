@@ -21,6 +21,7 @@ class HistoricalDataLoader:
         # 可用的历史数据文件映射 (基于Historical-basemaps项目的实际文件)
         # 注意：文件名使用下划线 (_) 而不是连字符 (-)
         self.available_datasets = {
+            # 公元后 (CE/AD)
             2000: "world_2000.geojson",
             1994: "world_1994.geojson", 
             1960: "world_1960.geojson",
@@ -36,10 +37,28 @@ class HistoricalDataLoader:
             1530: "world_1530.geojson",
             1492: "world_1492.geojson",
             1279: "world_1279.geojson",
-            800: "world_800.geojson",
             1000: "world_1000.geojson",
+            800: "world_800.geojson",
             400: "world_400.geojson",
-            -1: "world__1.geojson"  # 公元前1年 (双下划线)
+            
+            # 公元前 (BCE/BC) - 使用负数表示
+            -1: "world_bc1.geojson",        # 公元前1年
+            -100: "world_bc100.geojson",    # 公元前100年
+            -200: "world_bc200.geojson",    # 公元前200年  
+            -300: "world_bc300.geojson",    # 公元前300年
+            -323: "world_bc323.geojson",    # 公元前323年（亚历山大大帝逝世）
+            -400: "world_bc400.geojson",    # 公元前400年
+            -500: "world_bc500.geojson",    # 公元前500年
+            -700: "world_bc700.geojson",    # 公元前700年
+            -1000: "world_bc1000.geojson",  # 公元前1000年
+            -1500: "world_bc1500.geojson",  # 公元前1500年
+            -2000: "world_bc2000.geojson",  # 公元前2000年
+            -3000: "world_bc3000.geojson",  # 公元前3000年
+            -4000: "world_bc4000.geojson",  # 公元前4000年
+            -5000: "world_bc5000.geojson",  # 公元前5000年
+            -8000: "world_bc8000.geojson",  # 公元前8000年（新石器时代）
+            -10000: "world_bc10000.geojson", # 公元前10000年
+            -123000: "world_bc123000.geojson" # 公元前123000年（旧石器时代）
         }
         
         # 缓存配置
