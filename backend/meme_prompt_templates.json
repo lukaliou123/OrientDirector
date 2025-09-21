@@ -30,8 +30,141 @@
       "category": "documentary",
       "tags": ["纪录片", "对比", "专业"],
       "usage_count": 0
+    },
+    {
+      "id": "interactive_selfie",
+      "name": "强互动自拍梗图",
+      "description": "主角与历史人物强烈互动的搞笑自拍梗图",
+      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm's length, making an exaggerated expression.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.",
+      "placeholders": {
+        "[reference image pic2]": "构图参考图片",
+        "[person from pic1]": "人物图片",
+        "[interaction]": "互动动作描述",
+        "[场景元素]": "历史场景元素和背景",
+        "[year]": "历史年份",
+        "[location]": "历史地点"
+      },
+      "category": "interactive",
+      "tags": ["互动", "自拍", "搞笑", "梗图"],
+      "usage_count": 0,
+      "has_interactions": true
     }
   ],
+  "interactions": {
+    "肢体动作类": [
+      {
+        "id": "push_into_frame",
+        "name": "推入镜头",
+        "description": "被主角用手推着拉进镜头，表情一脸懵"
+      },
+      {
+        "id": "shoulder_grab", 
+        "name": "搂肩硬拽",
+        "description": "被主角搂着肩硬拽进来，强行同框"
+      },
+      {
+        "id": "phone_grab",
+        "name": "抢手机",
+        "description": "正在抢手机，两人同时入镜，滑稽的拉扯感"
+      },
+      {
+        "id": "victory_pose",
+        "name": "比胜利手势", 
+        "description": "主角和角色比划剪刀手/胜利手势，对比感很强"
+      },
+      {
+        "id": "face_block",
+        "name": "挡脸入镜",
+        "description": "主角用手挡住角色的脸，角色还是探头硬入镜"
+      },
+      {
+        "id": "group_squeeze",
+        "name": "多人挤镜头",
+        "description": "两人一起被另一个配角挤入画面，画面混乱有趣"
+      }
+    ],
+    "表情互动类": [
+      {
+        "id": "confused_stare",
+        "name": "困惑瞪眼", 
+        "description": "角色瞪大眼睛，直勾勾看着镜头，一脸困惑"
+      },
+      {
+        "id": "shocked_mouth",
+        "name": "惊吓张嘴",
+        "description": "角色被吓到，张大嘴巴，像是被抓到现行"
+      },
+      {
+        "id": "eye_roll",
+        "name": "翻白眼",
+        "description": "角色翻白眼，一副我不想在这的表情"
+      },
+      {
+        "id": "contrast_emotion",
+        "name": "情绪对比",
+        "description": "主角兴奋大笑，角色冷漠对比，形成强烈反差"
+      },
+      {
+        "id": "funny_face",
+        "name": "搞怪鬼脸",
+        "description": "两人同时鬼脸（伸舌头、鼓腮帮子），制造meme感"
+      }
+    ],
+    "道具/物品类": [
+      {
+        "id": "weird_object",
+        "name": "举奇怪物品",
+        "description": "角色手里莫名其妙地举着一个奇怪的物品（古代武器、烤鸡腿等）"
+      },
+      {
+        "id": "hat_steal",
+        "name": "抢帽子",
+        "description": "角色把主角的帽子戴在自己头上，姿势僵硬搞笑"
+      },
+      {
+        "id": "map_confusion",
+        "name": "举地图困惑",
+        "description": "角色举着地图/卷轴，却困惑地看向镜头"
+      },
+      {
+        "id": "drink_steal",
+        "name": "抢饮料",
+        "description": "主角喝饮料，角色在旁边抢吸管"
+      },
+      {
+        "id": "weapon_fight",
+        "name": "抢武器",
+        "description": "两人抢一把武器/神器，却一起被拍进镜头"
+      }
+    ],
+    "空间位置类": [
+      {
+        "id": "sneak_behind",
+        "name": "背后探头",
+        "description": "角色突然从背后探头，吓主角一跳"
+      },
+      {
+        "id": "close_face",
+        "name": "贴脸入镜",
+        "description": "角色贴脸入镜，几乎把镜头占满"
+      },
+      {
+        "id": "background_chase",
+        "name": "背景追击",
+        "description": "主角前景清晰，角色在模糊的背景中狂奔追来，像背景杀"
+      },
+      {
+        "id": "symmetric_peek",
+        "name": "对称探头",
+        "description": "主角与角色从画面两侧同时探头，对称搞笑"
+      },
+      {
+        "id": "half_cut",
+        "name": "半身被裁",
+        "description": "角色半身被裁掉，只露一只眼或半张脸，制造糊图笑点"
+      }
+    ]
+  },
   "scene_element_translations": {
     "中世纪建筑": "medieval timber-framed buildings",
     "石头教堂": "stone churches with rounded arches",

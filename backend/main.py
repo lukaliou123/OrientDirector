@@ -2133,7 +2133,8 @@ async def generate_historical_meme(
     scene_elements: str = Form(...),
     meme_prompt: str = Form(...),
     historical_info: str = Form(...),
-    template_id: Optional[str] = Form(None)
+    template_id: Optional[str] = Form(None),
+    interaction_id: Optional[str] = Form(None)
 ):
     """
     生成历史梗图
@@ -2185,7 +2186,8 @@ async def generate_historical_meme(
             scene_elements=scene_elements_list,
             meme_prompt=meme_prompt,
             historical_info=historical_info_dict,
-            template_id=template_id
+            template_id=template_id,
+            interaction_id=interaction_id
         )
         
         # 清理临时文件
@@ -2236,19 +2238,24 @@ async def get_meme_templates():
         # 返回简化的模板信息（用于前端显示）
         simplified_templates = []
         for template in templates:
-            simplified_templates.append({
+            template_data = {
                 'id': template['id'],
                 'name': template['name'],
                 'description': template['description'],
                 'category': template.get('category', 'general'),
                 'tags': template.get('tags', []),
                 'usage_count': template.get('usage_count', 0)
-            })
+            }
+            # 如果模板支持互动选择，标记它
+            if template.get('has_interactions'):
+                template_data['has_interactions'] = True
+            simplified_templates.append(template_data)
         
         return {
             'success': True,
             'templates': simplified_templates,
-            'total_count': len(simplified_templates)
+            'total_count': len(simplified_templates),
+            'interactions': nano_banana_service.meme_templates.get('interactions', {})
         }
         
     except Exception as e:

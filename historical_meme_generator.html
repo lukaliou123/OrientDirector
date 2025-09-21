@@ -861,17 +861,22 @@
         async function processSceneTemplateOnClient(templateId) {
             const templates = {
                 'scene_prompt1': 'A realistic travel photo, as if taken by a traveler with a handheld camera, street-level perspective, [historical location] as it looked in [year]. Local people in traditional clothing of that era, daily life on the street, buildings and landmarks clearly visible, cinematic natural lighting, slightly weathered travel photography look, film grain. Good composition for a selfie background with open space in the foreground.',
-                'documentary_scene': 'A professional documentary-style historical photograph of [historical location] in [year]. Authentic period architecture, people in accurate historical clothing, bustling daily activities typical of the era. Museum-quality historical accuracy, natural lighting, rich detail showing the social structure and urban life of the time. Composition suitable for educational or documentary purposes.',
-                'artistic_scene': 'An artistic historical painting of [historical location] during [year], rendered in the style of classical historical paintings. Rich colors, dramatic lighting, detailed period architecture and costumes. People engaged in typical daily activities of the era. Composition follows classical painting principles with strong focal points and atmospheric perspective.'
+                'immersive_scene': 'A first-person immersive view of [historical location] in [year], as if the viewer is standing in the scene. Foreground may include the viewer\'s hands or objects they hold (e.g., a torch, a scroll). Surroundings filled with authentic architecture, people moving naturally, ambient details like weather, sound atmosphere implied. The perspective should create a strong sense of being inside the historical moment.',
+                'event_scene': 'A vivid historical scene depicting [historical event] at [historical location] in [year]. The composition captures the crowd, leaders, soldiers, or citizens actively participating. Period-accurate clothing and banners, dramatic atmosphere, and strong visual storytelling emphasize the significance of the event.',
+                'fantasy_scene': 'A fantastical reinterpretation of [historical location] in [year], blending authentic period details with imaginative elements such as steampunk machinery, futuristic neon lights, or mythical creatures like dragons or phoenixes. Dramatic lighting, surreal atmosphere, and visually striking contrasts create an alternate-history vibe.',
+                'miniature_scene': 'A miniature diorama of [historical location] in [year], designed as a detailed model with small figurines, tiny buildings, and stylized terrain. The scene looks like a handcrafted museum display or a LEGO set, with clear visual storytelling and playful aesthetic.'
             };
             
             let template = templates[templateId] || '';
             
             if (state.historicalInfo) {
                 const year = Math.abs(state.historicalInfo.query_year) + (state.historicalInfo.query_year >= 0 ? ' CE' : ' BCE');
+                const historicalEvent = `a significant historical moment in ${state.historicalInfo.political_entity}`;
+                
                 template = template
                     .replace(/\[historical location\]/g, state.historicalInfo.political_entity)
-                    .replace(/\[year\]/g, year);
+                    .replace(/\[year\]/g, year)
+                    .replace(/\[historical event\]/g, historicalEvent);
             }
             
             return template;

@@ -278,7 +278,8 @@ class NanoBananaHistoricalService:
         self, 
         template_id: str, 
         historical_info: Dict, 
-        scene_elements: List[str]
+        scene_elements: List[str],
+        interaction_id: Optional[str] = None
     ) -> str:
         """处理梗图模板，自动替换占位符"""
         template = self.get_meme_template(template_id)
@@ -291,6 +292,11 @@ class NanoBananaHistoricalService:
         # 构建历史背景描述
         background_description = self.build_historical_background_description(historical_info, scene_elements)
         
+        # 获取互动描述（如果提供了interaction_id）
+        interaction_description = ""
+        if interaction_id:
+            interaction_description = self.get_interaction_description(interaction_id)
+        
         # 替换占位符
         processed_prompt = template_content.replace(
             '[场景元素]', background_description
@@ -298,6 +304,8 @@ class NanoBananaHistoricalService:
             '[year]', str(abs(historical_info.get('query_year', 0))) + (' CE' if historical_info.get('query_year', 0) >= 0 else ' BCE')
         ).replace(
             '[location]', historical_info.get('political_entity', 'Unknown')
+        ).replace(
+            '[interaction]', interaction_description
         )
         
         print(f"📝 模板处理完成:")
@@ -306,6 +314,19 @@ class NanoBananaHistoricalService:
         print(f"   背景描述: {background_description[:100]}...")
         
         return processed_prompt
+    
+    def get_interaction_description(self, interaction_id: str) -> str:
+        """根据interaction_id获取互动描述"""
+        interactions = self.meme_templates.get('interactions', {})
+        
+        # 遍历所有互动分类查找匹配的ID
+        for category_name, category_interactions in interactions.items():
+            for interaction in category_interactions:
+                if interaction.get('id') == interaction_id:
+                    return interaction.get('description', '')
+        
+        # 如果没找到，返回默认描述
+        return "making awkward eye contact with the camera, reacting with shock or confusion."
     
     def find_matching_demo_scene(self, historical_info: Dict, lat: float, lng: float) -> Optional[Dict]:
         """查找匹配的预生成演示场景 - 支持近似匹配"""
@@ -1272,7 +1293,8 @@ CRITICAL: Please generate an actual image, not just text description. The output
         scene_elements: List[str], 
         meme_prompt: str, 
         historical_info: Dict,
-        template_id: Optional[str] = None
+        template_id: Optional[str] = None,
+        interaction_id: Optional[str] = None
     ) -> Dict:
         """
         生成历史梗图
@@ -1299,12 +1321,14 @@ CRITICAL: Please generate an actual image, not just text description. The output
             print(f"🎯 场景元素: {', '.join(scene_elements)}")
             if template_id:
                 print(f"📋 使用预设模板: {template_id}")
+            if interaction_id:
+                print(f"🎭 使用互动动作: {interaction_id}")
             
             # 构建提示词：使用模板或自定义
             if template_id:
                 # 使用预设模板并自动填充
                 meme_generation_prompt = self.process_meme_template(
-                    template_id, historical_info, scene_elements
+                    template_id, historical_info, scene_elements, interaction_id
                 )
                 print(f"✅ 预设模板处理完成，最终提示词长度: {len(meme_generation_prompt)} 字符")
             else:

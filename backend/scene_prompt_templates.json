@@ -16,40 +16,71 @@
       "created_at": "2025-09-18"
     },
     {
-      "id": "documentary_scene",
-      "name": "纪录片风格历史场景",
-      "description": "专业纪录片级别的历史场景重现，注重历史准确性",
-      "template": "A professional documentary-style historical photograph of [historical location] in [year]. Authentic period architecture, people in accurate historical clothing, bustling daily activities typical of the era. Museum-quality historical accuracy, natural lighting, rich detail showing the social structure and urban life of the time. Composition suitable for educational or documentary purposes.",
+      "id": "immersive_scene",
+      "name": "沉浸式体验历史场景",
+      "description": "第一人称沉浸视角的历史场景，好像用户亲身站在其中",
+      "template": "A first-person immersive view of [historical location] in [year], as if the viewer is standing in the scene. Foreground may include the viewer's hands or objects they hold (e.g., a torch, a scroll). Surroundings filled with authentic architecture, people moving naturally, ambient details like weather, sound atmosphere implied. The perspective should create a strong sense of being inside the historical moment.",
       "placeholders": {
         "[historical location]": "历史地点",
         "[year]": "历史年份"
       },
-      "category": "documentary",
-      "tags": ["纪录片", "专业", "教育", "准确"],
+      "category": "immersive_experience",
+      "tags": ["沉浸", "第一人称", "临场感", "体验"],
       "usage_count": 0,
       "author": "系统预设",
-      "created_at": "2025-09-18"
+      "created_at": "2025-09-21"
     },
     {
-      "id": "artistic_scene",
-      "name": "艺术绘画风格历史场景",
-      "description": "具有绘画艺术感的历史场景，色彩丰富，构图优美",
-      "template": "An artistic historical painting of [historical location] during [year], rendered in the style of classical historical paintings. Rich colors, dramatic lighting, detailed period architecture and costumes. People engaged in typical daily activities of the era. Composition follows classical painting principles with strong focal points and atmospheric perspective.",
+      "id": "event_scene",
+      "name": "重大历史事件场景",
+      "description": "展现某个重大历史事件正在发生的场景",
+      "template": "A vivid historical scene depicting [historical event] at [historical location] in [year]. The composition captures the crowd, leaders, soldiers, or citizens actively participating. Period-accurate clothing and banners, dramatic atmosphere, and strong visual storytelling emphasize the significance of the event.",
       "placeholders": {
-        "[historical location]": "历史地点", 
+        "[historical event]": "历史事件",
+        "[historical location]": "历史地点",
         "[year]": "历史年份"
       },
-      "category": "artistic",
-      "tags": ["艺术", "绘画", "色彩", "经典"],
+      "category": "historical_event",
+      "tags": ["历史事件", "集会", "战争", "仪式"],
       "usage_count": 0,
-      "author": "系统预设", 
-      "created_at": "2025-09-18"
+      "author": "系统预设",
+      "created_at": "2025-09-21"
+    },
+    {
+      "id": "fantasy_scene",
+      "name": "奇幻融合历史场景",
+      "description": "将奇幻或未来元素融入历史场景，创造另类的时空交错氛围",
+      "template": "A fantastical reinterpretation of [historical location] in [year], blending authentic period details with imaginative elements such as steampunk machinery, futuristic neon lights, or mythical creatures like dragons or phoenixes. Dramatic lighting, surreal atmosphere, and visually striking contrasts create an alternate-history vibe.",
+      "placeholders": {
+        "[historical location]": "历史地点",
+        "[year]": "历史年份"
+      },
+      "category": "fantasy",
+      "tags": ["奇幻", "跨界", "蒸汽朋克", "神话"],
+      "usage_count": 0,
+      "author": "系统预设",
+      "created_at": "2025-09-21"
+    },
+    {
+      "id": "miniature_scene",
+      "name": "微缩模型历史场景",
+      "description": "以乐高、沙盘或微缩模型风格展现历史场景",
+      "template": "A miniature diorama of [historical location] in [year], designed as a detailed model with small figurines, tiny buildings, and stylized terrain. The scene looks like a handcrafted museum display or a LEGO set, with clear visual storytelling and playful aesthetic.",
+      "placeholders": {
+        "[historical location]": "历史地点",
+        "[year]": "历史年份"
+      },
+      "category": "miniature",
+      "tags": ["微缩", "沙盘", "乐高", "可爱"],
+      "usage_count": 0,
+      "author": "系统预设",
+      "created_at": "2025-09-21"
     }
   ],
   "metadata": {
-    "version": "1.0",
-    "description": "历史场景生成提示词模板库",
-    "last_updated": "2025-09-18",
-    "total_templates": 3
+    "version": "1.1",
+    "description": "历史场景生成提示词模板库（扩展版）",
+    "last_updated": "2025-09-21",
+    "total_templates": 5
   }
 }
