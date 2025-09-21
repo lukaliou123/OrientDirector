@@ -1222,18 +1222,54 @@ CRITICAL: Please generate an actual image, not just text description. The output
                     'error': f'图片文件不存在: {local_image_path}'
                 }
             
-            # 读取图片数据
+            # 读取并可能压缩图片数据
             with open(local_image_path, 'rb') as f:
                 image_bytes = f.read()
             
             print(f"✅ 图片数据读取成功: {len(image_bytes)} 字节")
             
-            # 检测图片格式
-            mime_type = 'image/jpeg'
-            if local_image_path.lower().endswith('.png'):
-                mime_type = 'image/png'
-            elif local_image_path.lower().endswith('.webp'):
-                mime_type = 'image/webp'
+            # 如果图片超过1MB，进行压缩以提高API成功率
+            if len(image_bytes) > 1024 * 1024:  # 1MB
+                print(f"📉 图片较大({len(image_bytes)/(1024*1024):.1f}MB)，进行压缩...")
+                try:
+                    from PIL import Image
+                    img = Image.open(local_image_path)
+                    
+                    # 压缩图片：保持比例，最大尺寸1024
+                    max_size = 1024
+                    if max(img.size) > max_size:
+                        ratio = max_size / max(img.size)
+                        new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
+                        img = img.resize(new_size, Image.Resampling.LANCZOS)
+                        print(f"🔧 图片压缩: {img.size}")
+                    
+                    # 转换为字节
+                    from io import BytesIO
+                    img_buffer = BytesIO()
+                    img.save(img_buffer, format='JPEG', quality=85, optimize=True)
+                    image_bytes = img_buffer.getvalue()
+                    
+                    # 更新mime_type为jpeg
+                    mime_type = 'image/jpeg'
+                    
+                    print(f"✅ 图片压缩完成: {len(image_bytes)} 字节 ({len(image_bytes)/(1024*1024):.1f}MB)")
+                except Exception as compress_error:
+                    print(f"⚠️ 图片压缩失败，使用原图: {compress_error}")
+                    # 继续使用原始图片，检测原始格式
+                    if local_image_path.lower().endswith('.png'):
+                        mime_type = 'image/png'
+                    elif local_image_path.lower().endswith('.webp'):
+                        mime_type = 'image/webp'
+                    else:
+                        mime_type = 'image/jpeg'
+            else:
+                # 图片不大，检测原始格式
+                if local_image_path.lower().endswith('.png'):
+                    mime_type = 'image/png'
+                elif local_image_path.lower().endswith('.webp'):
+                    mime_type = 'image/webp'
+                else:
+                    mime_type = 'image/jpeg'
             
             print(f"📝 图片格式: {mime_type}")
             
@@ -1252,32 +1288,51 @@ CRITICAL: Please generate an actual image, not just text description. The output
 输出格式：每个元素用简短中文词语列出，用逗号分隔。
 """
             
-            # 使用官方推荐的 gemini-2.5-flash 方法传递图片和提示词
-            response = self.client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=[
-                    types.Part.from_bytes(
-                        data=image_bytes,
-                        mime_type=mime_type,
-                    ),
-                    analysis_prompt
-                ]
-            )
-            
-            # 使用官方推荐的简洁响应处理方式
-            elements_text = response.text
-            print(f"📝 AI元素分析结果: {elements_text[:100]}...")
-            
-            # 解析文本，提取元素列表
-            elements = [elem.strip() for elem in elements_text.split(',')]
-            elements = [elem for elem in elements if elem]  # 过滤空字符串
-            
-            print(f"✅ 提取到 {len(elements)} 个场景元素")
-            
-            return {
-                'success': True,
-                'elements': elements[:15]  # 限制数量
-            }
+            # 使用官方推荐的 gemini-2.5-flash 方法，添加重试机制处理网络问题
+            max_retries = 2
+            for attempt in range(max_retries + 1):
+                try:
+                    if attempt > 0:
+                        print(f"🔄 重试第 {attempt} 次...")
+                        await asyncio.sleep(attempt * 2)  # 递增延迟
+                    
+                    response = self.client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=[
+                            types.Part.from_bytes(
+                                data=image_bytes,
+                                mime_type=mime_type,
+                            ),
+                            analysis_prompt
+                        ]
+                    )
+                    
+                    # 使用官方推荐的简洁响应处理方式
+                    elements_text = response.text
+                    print(f"📝 AI元素分析结果: {elements_text[:100]}...")
+                    
+                    # 解析文本，提取元素列表
+                    elements = [elem.strip() for elem in elements_text.split(',')]
+                    elements = [elem for elem in elements if elem]  # 过滤空字符串
+                    
+                    print(f"✅ 提取到 {len(elements)} 个场景元素")
+                    
+                    return {
+                        'success': True,
+                        'elements': elements[:15]  # 限制数量
+                    }
+                    
+                except Exception as api_error:
+                    if "Connection reset by peer" in str(api_error) or "timeout" in str(api_error).lower():
+                        if attempt < max_retries:
+                            print(f"⚠️ 网络连接问题，准备重试: {api_error}")
+                            continue
+                        else:
+                            print(f"❌ 重试 {max_retries} 次后仍失败")
+                            raise api_error
+                    else:
+                        # 非网络错误，直接抛出
+                        raise api_error
                 
         except Exception as e:
             print(f"❌ 图片元素分析失败: {e}")
