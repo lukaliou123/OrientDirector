@@ -1349,7 +1349,8 @@ CRITICAL: Please generate an actual image, not just text description. The output
         meme_prompt: str, 
         historical_info: Dict,
         template_id: Optional[str] = None,
-        interaction_id: Optional[str] = None
+        interaction_id: Optional[str] = None,
+        companion_image_path: Optional[str] = None
     ) -> Dict:
         """
         生成历史梗图
@@ -1428,6 +1429,7 @@ CRITICAL: Please generate an actual image, not just text description. The output
             print(f"📷 开始加载图片素材...")
             print(f"   人物素材: {character_image_path}")
             print(f"   构图素材: {composition_image_path or '无'}")
+            print(f"   虚拟伙伴: {companion_image_path or '无'}")
             
             # 检查人物图片是否存在（必需）
             if not character_image_path or not os.path.exists(character_image_path):
@@ -1445,10 +1447,20 @@ CRITICAL: Please generate an actual image, not just text description. The output
             else:
                 print(f"ℹ️ 未使用构图素材")
             
+            # 加载虚拟伙伴图片（可选）
+            companion_image = None
+            if companion_image_path and os.path.exists(companion_image_path):
+                companion_image = Image.open(companion_image_path)
+                print(f"✅ 虚拟伙伴素材加载成功: {companion_image.size}")
+            else:
+                print(f"ℹ️ 未使用虚拟伙伴素材")
+            
             # 2. 构建多模态输入内容 - 与generate_historical_selfie相同的模式
             contents = [meme_generation_prompt, character_image]
             if composition_image is not None:
                 contents.append(composition_image)
+            if companion_image is not None:
+                contents.append(companion_image)
             
             print(f"🎯 多模态输入准备完成: {len(contents)} 个元素（提示词 + {len(contents)-1} 张图片）")
             

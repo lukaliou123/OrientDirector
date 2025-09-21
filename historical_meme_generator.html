@@ -441,6 +441,18 @@
                 </div>
             </div>
             
+            <!-- 虚拟伙伴图片上传区域 -->
+            <div class="form-group" id="companionImageSection" style="display: none;">
+                <label class="form-label">🧸 虚拟伙伴素材 (娃娃原型)：</label>
+                <div class="image-upload-area" id="companionUpload" onclick="document.getElementById('companionFile').click()">
+                    <div id="companionPreview">
+                        <p>🎭 点击上传虚拟伙伴图片</p>
+                        <small>将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片</small>
+                    </div>
+                </div>
+                <input type="file" id="companionFile" accept="image/*" style="display: none;" onchange="handleCompanionUpload(event)">
+            </div>
+            
             <div class="form-group">
                 <label class="form-label">💬 梗图创意Prompt：</label>
                 
@@ -581,6 +593,7 @@
             sceneElements: [],
             characterImage: null,
             compositionImage: null,
+            companionImage: null,
             finalMemeUrl: null,
             selectedLocation: null
         };
@@ -1060,6 +1073,24 @@
             }
         }
 
+        // 处理虚拟伙伴图片上传
+        function handleCompanionUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state.companionImage = e.target.result;
+                    const preview = document.getElementById('companionPreview');
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                        <div style="margin-top: 5px; font-size: 12px; color: #28a745;">✅ 虚拟伙伴素材已上传</div>
+                    `;
+                    console.log('🧸 虚拟伙伴图片已上传');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         // 检查梗图生成准备状态
         function checkMemeGenerationReady() {
             const btn = document.getElementById('generateMemeBtn');
@@ -1186,11 +1217,50 @@
                     document.getElementById('memePrompt').value = suggestion;
                 }
                 showInteractionSelection();
+                hideCompanionImageSection();
+            } else if (templateId === 'virtual_companion') {
+                // 虚拟伙伴模板
+                if (state.historicalInfo) {
+                    try {
+                        const basePrompt = processMemeTemplateOnClient(templateId, null);
+                        document.getElementById('memePrompt').value = basePrompt;
+                        console.log('📝 已生成虚拟伙伴模板基础prompt');
+                    } catch (error) {
+                        console.error('❌ 生成基础prompt失败:', error);
+                        const suggestion = "将生成虚拟伙伴历史自拍梗图，请上传虚拟伙伴图片";
+                        document.getElementById('memePrompt').value = suggestion;
+                    }
+                } else {
+                    const suggestion = "将生成虚拟伙伴历史自拍梗图，请先生成历史信息，然后上传虚拟伙伴图片";
+                    document.getElementById('memePrompt').value = suggestion;
+                }
+                hideInteractionSelection();
+                showCompanionImageSection();
             } else {
                 hideInteractionSelection();
+                hideCompanionImageSection();
             }
             
             console.log(`📋 已选择梗图模板: ${templateName} (${templateId})`);
+        }
+
+        // 虚拟伙伴图片区域控制函数
+        
+        // 显示虚拟伙伴图片上传区域
+        function showCompanionImageSection() {
+            document.getElementById('companionImageSection').style.display = 'block';
+        }
+
+        // 隐藏虚拟伙伴图片上传区域
+        function hideCompanionImageSection() {
+            document.getElementById('companionImageSection').style.display = 'none';
+            // 清除虚拟伙伴图片数据
+            state.companionImage = null;
+            const preview = document.getElementById('companionPreview');
+            preview.innerHTML = `
+                <p>🎭 点击上传虚拟伙伴图片</p>
+                <small>将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片</small>
+            `;
         }
 
         // 互动选择相关函数
@@ -1303,7 +1373,8 @@
             const templates = {
                 'cinematic_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: making awkward eye contact with the camera, reacting with shock or confusion.\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.',
                 'documentary_style': 'Create a documentary-style comparison meme featuring [person from pic1] as a time traveler.\nSplit screen composition: Left side shows modern person, right side shows [场景元素].\nText overlay: "Time Travel Documentary: [year] [location]"\nStyle: National Geographic documentary aesthetic, professional photography, historical accuracy.\nCaption: Humorous comparison between modern and ancient times.',
-                'interactive_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.'
+                'interactive_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.',
+                'virtual_companion': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, with the other arm holding a doll/figurine version of [character from pic3].\nVirtual doll: [character from pic3], rendered as a plush toy / collectible figurine, keeping its iconic traits [list: e.g. wooden body, big eyes / fluffy body, round ears].\nThe doll should look like a physical object being hugged or held, with fabric/texture details, consistent lighting, shadow, and depth of field.\nNo sticker effect — it must appear like a real toy captured in the photo.\nBackground: [场景元素].\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: travel vlog vibe with meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.'
             };
             
             let template = templates[templateId] || '';
@@ -1381,6 +1452,9 @@
             // 隐藏互动选择区域
             hideInteractionSelection();
             
+            // 隐藏虚拟伙伴图片区域
+            hideCompanionImageSection();
+            
             console.log('📋 已清除梗图模板选择');
         }
 
@@ -1406,6 +1480,11 @@
                 if (state.compositionImage) {
                     const compositionBlob = dataURLtoBlob(state.compositionImage);
                     formData.append('composition_image', compositionBlob);
+                }
+                
+                if (state.companionImage) {
+                    const companionBlob = dataURLtoBlob(state.companionImage);
+                    formData.append('companion_image', companionBlob);
                 }
                 
                 formData.append('scene_elements', JSON.stringify(state.sceneElements));

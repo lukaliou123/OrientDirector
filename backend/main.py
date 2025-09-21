@@ -2134,7 +2134,8 @@ async def generate_historical_meme(
     meme_prompt: str = Form(...),
     historical_info: str = Form(...),
     template_id: Optional[str] = Form(None),
-    interaction_id: Optional[str] = Form(None)
+    interaction_id: Optional[str] = Form(None),
+    companion_image: Optional[UploadFile] = File(None)
 ):
     """
     生成历史梗图
@@ -2179,6 +2180,13 @@ async def generate_historical_meme(
                 content = await composition_image.read()
                 f.write(content)
         
+        companion_image_path = None
+        if companion_image:
+            companion_image_path = f"/tmp/companion_{uuid.uuid4().hex}.{companion_image.filename.split('.')[-1]}"
+            with open(companion_image_path, "wb") as f:
+                content = await companion_image.read()
+                f.write(content)
+        
         # 使用nano_banana_service生成梗图
         result = await nano_banana_service.generate_historical_meme(
             character_image_path=character_image_path,
@@ -2187,7 +2195,8 @@ async def generate_historical_meme(
             meme_prompt=meme_prompt,
             historical_info=historical_info_dict,
             template_id=template_id,
-            interaction_id=interaction_id
+            interaction_id=interaction_id,
+            companion_image_path=companion_image_path
         )
         
         # 清理临时文件
@@ -2195,6 +2204,8 @@ async def generate_historical_meme(
             os.remove(character_image_path)
         if composition_image_path and os.path.exists(composition_image_path):
             os.remove(composition_image_path)
+        if companion_image_path and os.path.exists(companion_image_path):
+            os.remove(companion_image_path)
         
         if not result.get('success'):
             raise HTTPException(status_code=500, detail="梗图生成失败")
@@ -2217,6 +2228,8 @@ async def generate_historical_meme(
                 os.remove(character_image_path)
             if 'composition_image_path' in locals() and composition_image_path and os.path.exists(composition_image_path):
                 os.remove(composition_image_path)
+            if 'companion_image_path' in locals() and companion_image_path and os.path.exists(companion_image_path):
+                os.remove(companion_image_path)
         except:
             pass
         

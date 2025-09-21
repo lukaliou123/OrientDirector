@@ -35,7 +35,7 @@
       "id": "interactive_selfie",
       "name": "强互动自拍梗图",
       "description": "主角与历史人物强烈互动的搞笑自拍梗图",
-      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm's length, making an exaggerated expression.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.",
+      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm's length.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.",
       "placeholders": {
         "[reference image pic2]": "构图参考图片",
         "[person from pic1]": "人物图片",
@@ -48,6 +48,24 @@
       "tags": ["互动", "自拍", "搞笑", "梗图"],
       "usage_count": 0,
       "has_interactions": true
+    },
+    {
+      "id": "virtual_companion",
+      "name": "虚拟伙伴梗图",
+      "description": "主角手持基于上传图片制作的玩偶娃娃进行搞笑自拍",
+      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm's length, with the other arm holding a doll/figurine version of [character from pic3].\nVirtual doll: [character from pic3], rendered as a plush toy / collectible figurine, keeping its iconic traits [list: e.g. wooden body, big eyes / fluffy body, round ears].\nThe doll should look like a physical object being hugged or held, with fabric/texture details, consistent lighting, shadow, and depth of field.\nNo sticker effect — it must appear like a real toy captured in the photo.\nBackground: [场景元素].\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: travel vlog vibe with meme screenshot aesthetic.\nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.",
+      "placeholders": {
+        "[reference image pic2]": "构图参考图片",
+        "[person from pic1]": "人物图片",
+        "[character from pic3]": "虚拟伙伴原型图片",
+        "[场景元素]": "历史场景元素和背景",
+        "[year]": "历史年份",
+        "[location]": "历史地点"
+      },
+      "category": "companion",
+      "tags": ["虚拟伙伴", "玩偶", "创意", "梗图"],
+      "usage_count": 0,
+      "requires_companion_image": true
     }
   ],
   "interactions": {
