@@ -233,7 +233,7 @@ class HistoricalService:
     
     def generate_historical_description(self, properties: Dict, year: int) -> str:
         """
-        生成历史场景描述
+        生成历史场景描述 - AI增强版本
         
         Args:
             properties: 政治实体属性
@@ -246,7 +246,15 @@ class HistoricalService:
         ruler = properties.get('SUBJECTO') or ''
         cultural = properties.get('PARTOF') or ''
         
-        # 根据时期生成背景描述
+        # 🎨 尝试使用AI生成丰富的历史背景描述
+        try:
+            ai_description = self.generate_ai_enhanced_description(name, ruler, cultural, year)
+            if ai_description:
+                return ai_description
+        except Exception as e:
+            print(f"⚠️ AI历史描述生成失败，使用模板版本: {e}")
+        
+        # 🔄 后备方案：使用原有模板生成
         era_info = self.get_era_info(year)
         
         description = f"{era_info['era']}({year}年)，这里是{era_info['context']}{name}"
@@ -263,6 +271,60 @@ class HistoricalService:
         description += f"。{era_info['characteristics']}"
         
         return description
+    
+    def generate_ai_enhanced_description(self, political_entity: str, ruler: str, cultural_region: str, year: int) -> str:
+        """
+        使用AI生成丰富的历史背景描述
+        """
+        try:
+            # 导入nano_banana_service来使用Gemini API
+            from nano_banana_service import nano_banana_service
+            
+            if not nano_banana_service.client_available:
+                return None  # API不可用时返回None，使用模板版本
+            
+            # 构建AI提示词
+            prompt = f"""
+请为这个历史时空点生成一段生动、准确的历史背景描述（中文，100-150字）：
+
+历史信息：
+- 政治实体：{political_entity}
+- 年份：{year}年
+- 统治者/政权：{ruler if ruler else '未知'}
+- 文化区域：{cultural_region if cultural_region else '未知'}
+
+要求：
+1. 描述要生动具体，体现该时期的独特历史特色
+2. 包含政治、经济、文化、社会等多个维度
+3. 体现该地区在{year}年的具体历史状况
+4. 语言要优美流畅，适合向公众展示
+5. 突出该时空点的历史重要性和特色
+
+请直接输出描述文字，不要包含其他说明。
+"""
+            
+            print(f"🤖 使用AI生成历史背景描述: {political_entity} ({year}年)")
+            
+            # 调用Gemini API生成描述
+            response = nano_banana_service.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[prompt]
+            )
+            
+            ai_description = response.text.strip()
+            
+            # 验证生成结果的质量
+            if len(ai_description) > 50 and len(ai_description) < 300:
+                print(f"✅ AI历史描述生成成功: {len(ai_description)}字符")
+                print(f"📝 生成内容: {ai_description[:50]}...")
+                return ai_description
+            else:
+                print(f"⚠️ AI生成内容质量不符合要求，长度: {len(ai_description)}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ AI历史描述生成失败: {e}")
+            return None
     
     def get_era_info(self, year: int) -> Dict:
         """

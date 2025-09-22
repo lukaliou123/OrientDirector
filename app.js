@@ -4282,14 +4282,13 @@ function showStep(stepId) {
 }
 
 /**
- * 开始历史自拍流程
+ * 开始历史自拍流程（兼容旧版本调用）
  */
 function startHistoricalSelfie() {
-    logger.info('📸 用户选择进行时光自拍');
+    logger.info('📸 用户选择进行时光自拍（通过新流程）');
     
-    // 显示场景选择界面
-    document.getElementById('selfieQuestion').style.display = 'none';
-    document.getElementById('selfieSceneSelector').style.display = 'block';
+    // 使用新的步骤流程
+    showStep('step1SceneSelection');
     
     // 填充已访问的场景
     populateVisitedScenes();
@@ -4575,14 +4574,27 @@ function continueToSummary() {
  * 显示历史时光旅途总结
  */
 function showHistoricalJourneySummary() {
-    // 显示总结界面
-    document.getElementById('selfieQuestion').style.display = 'none';
-    document.getElementById('selfieSceneSelector').style.display = 'none'; 
-    document.getElementById('selfieResult').style.display = 'none';
-    document.getElementById('journeySummary').style.display = 'block';
+    // 隐藏所有meme创作步骤
+    const steps = ['step1SceneSelection', 'step2TemplateSelection', 'step3ImageUpload'];
+    steps.forEach(stepId => {
+        const element = document.getElementById(stepId);
+        if (element) element.style.display = 'none';
+    });
     
-    // 填充总结内容
-    populateJourneySummary();
+    // 隐藏自拍结果
+    const selfieResult = document.getElementById('selfieResult');
+    if (selfieResult) selfieResult.style.display = 'none';
+    
+    // 显示总结界面
+    const journeySummary = document.getElementById('journeySummary');
+    if (journeySummary) {
+        journeySummary.style.display = 'block';
+        // 填充总结内容
+        populateJourneySummary();
+        logger.info('📖 历史旅途总结已显示');
+    } else {
+        logger.error('❌ 找不到journeySummary元素');
+    }
 }
 
 /**
@@ -4735,9 +4747,9 @@ function shareJourney() {
  * 返回自拍询问
  */
 function backToSelfieQuestion() {
-    document.getElementById('selfieSceneSelector').style.display = 'none';
-    document.getElementById('selfieQuestion').style.display = 'block';
-    logger.info('🔙 返回自拍询问对话框');
+    // 在新流程中，这个函数等同于返回场景选择
+    showStep('step1SceneSelection');
+    logger.info('🔙 返回场景选择');
 }
 
 // ========================================
