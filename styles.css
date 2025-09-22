@@ -307,6 +307,63 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* 历史场景模板选择样式 */
+.historical-scene-template-selection {
+    background: linear-gradient(135deg, #fff3e0, #fafafa);
+    border: 1px solid #ffcc02;
+    border-left: 4px solid #ff9800;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.template-selection-header {
+    margin-bottom: 10px;
+}
+
+.historical-template-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.historical-template-btn {
+    margin: 4px;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    min-width: 160px;
+    text-align: left;
+}
+
+.historical-template-btn:hover {
+    border-color: #ff9800;
+    background: #fff3e0;
+    transform: translateY(-1px);
+}
+
+.historical-template-btn.selected {
+    border-color: #ff9800;
+    background: #fff3e0;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.historical-template-btn .template-name {
+    font-weight: bold;
+    margin-bottom: 2px;
+    color: #333;
+}
+
+.historical-template-btn .template-desc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.2;
+}
+
 .historical-toggle:hover {
     background: rgba(255, 255, 255, 0.3);
     border-color: rgba(255, 255, 255, 0.5);

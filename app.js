@@ -3504,6 +3504,7 @@ function updateHistoricalYear() {
     const customYearDiv = document.getElementById('customYearDiv');
     const selectedYearSpan = document.getElementById('selectedYear');
     const timeTravelBtn = document.getElementById('timeTravelBtn');
+    const templateSelection = document.getElementById('historicalSceneTemplateSelection');
     
     const selectedValue = periodSelect.value;
     
@@ -3513,6 +3514,26 @@ function updateHistoricalYear() {
         selectedYearSpan.textContent = '自定义年份';
         selectedHistoricalYear = null;
         timeTravelBtn.disabled = true;
+        templateSelection.style.display = 'none';
+        
+        // 监听自定义年份输入变化
+        const customInput = document.getElementById('customYearInput');
+        customInput.oninput = function() {
+            const year = parseInt(this.value);
+            if (!isNaN(year) && year >= -3000 && year <= 2024) {
+                selectedHistoricalYear = year;
+                selectedYearSpan.textContent = year < 0 ? `公元前${Math.abs(year)}年` : `公元${year}年`;
+                timeTravelBtn.disabled = false;
+                // 显示场景模板选择并加载模板
+                templateSelection.style.display = 'block';
+                loadHistoricalSceneTemplates();
+            } else {
+                selectedHistoricalYear = null;
+                selectedYearSpan.textContent = '自定义年份';
+                timeTravelBtn.disabled = true;
+                templateSelection.style.display = 'none';
+            }
+        };
         
     } else if (selectedValue) {
         // 选择预设年份
@@ -3527,13 +3548,17 @@ function updateHistoricalYear() {
         }
         
         timeTravelBtn.disabled = false;
+        // 显示场景模板选择并加载模板
+        templateSelection.style.display = 'block';
+        loadHistoricalSceneTemplates();
         logger.info(`📅 选择历史年份: ${selectedHistoricalYear}`);
         
     } else {
         // 未选择
         customYearDiv.style.display = 'none';
-        selectedYearSpan.textContent = '未选择';
+        templateSelection.style.display = 'none';
         selectedHistoricalYear = null;
+        selectedYearSpan.textContent = '未选择';
         timeTravelBtn.disabled = true;
     }
 }
@@ -3552,21 +3577,58 @@ async function startHistoricalExploration() {
         return;
     }
     
+    if (!selectedHistoricalTemplate) {
+        showError('请先选择一个历史场景风格模板');
+        return;
+    }
+    
     logger.info(`🏛️ 开始历史探索: ${selectedHistoricalYear}年`);
     logger.info(`📍 探索坐标: ${currentPosition.latitude}, ${currentPosition.longitude}`);
+    logger.info(`🎨 使用场景模板: ${selectedHistoricalTemplate}`);
     
-    showLoading(true, '正在穿越时空，探索历史场景...');
+    showLoading(true, '正在查询历史信息并生成自定义场景...');
     
     try {
-        const requestData = {
+        const startTime = Date.now();
+        let historicalData = null; // 存储第一步查询到的历史信息
+        
+        // 第一步：先查询历史信息
+        logger.info('🔍 第一步：查询历史信息...');
+        
+        const historicalQueryData = {
             latitude: currentPosition.latitude,
             longitude: currentPosition.longitude,
             year: selectedHistoricalYear
         };
         
-        const startTime = Date.now();
+        const historicalResponse = await fetch(API_CONFIG.getApiUrl('/api/query-historical-info'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(historicalQueryData)
+        });
         
-        const response = await fetch(API_CONFIG.getApiUrl('/api/generate-historical-scene'), {
+        if (!historicalResponse.ok) {
+            throw new Error(`历史信息查询失败: HTTP ${historicalResponse.status}`);
+        }
+        
+        historicalData = await historicalResponse.json();
+        logger.info(`✅ 历史信息查询完成: ${historicalData.historical_info.political_entity}`);
+        
+        // 更新加载提示
+        showLoading(true, `正在为${historicalData.historical_info.political_entity}生成场景模板...`);
+        
+        // 第二步：使用完整的历史信息生成自定义场景
+        logger.info('🎨 第二步：生成自定义历史场景...');
+        
+        const requestData = {
+            historical_info: historicalData.historical_info, // 使用查询到的完整历史信息
+            template_id: selectedHistoricalTemplate,
+            custom_prompt: "" // 使用模板默认prompt
+        };
+        
+        const response = await fetch(API_CONFIG.getApiUrl('/api/generate-custom-historical-scene'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3584,14 +3646,31 @@ async function startHistoricalExploration() {
         const data = await response.json();
         
         if (data.success) {
-            logger.success(`🎉 时空探索成功！发现：${data.historical_info.political_entity}`);
+            // 自定义场景生成的返回格式处理
+            const templateResult = data;
+            
+            // 构建与原始格式兼容的数据结构
+            const compatibleData = {
+                success: true,
+                historical_info: historicalData.historical_info, // 使用第一步查询到的历史信息
+                generated_scene: {
+                    images: [templateResult.image_url], // 转换为images数组格式
+                    scene_description: templateResult.scene_description || `使用${selectedHistoricalTemplate}模板生成的历史场景`,
+                    generation_time: templateResult.generation_time || 0,
+                    generation_model: 'Custom Template Generation',
+                    demo_mode: false,
+                    image_count: 1
+                }
+            };
+            
+            logger.success(`🎉 模板场景生成成功！发现：${historicalData.historical_info.political_entity}`);
             
             // 保存历史数据
-            currentHistoricalInfo = data.historical_info;
-            historicalSceneData = data.generated_scene;
+            currentHistoricalInfo = compatibleData.historical_info;
+            historicalSceneData = compatibleData.generated_scene;
             
             // 显示历史场景
-            displayHistoricalScene(data);
+            displayHistoricalScene(compatibleData);
             
         } else {
             throw new Error(data.error || '历史探索返回失败结果');
@@ -3689,26 +3768,26 @@ function displayHistoricalScene(data) {
                     </div>
                     <div class="detail-row">
                         <span class="label">📍 坐标:</span>
-                        <span class="value">${historicalInfo.coordinates.lat.toFixed(4)}, ${historicalInfo.coordinates.lng.toFixed(4)}</span>
+                        <span class="value">${historicalInfo.latitude ? historicalInfo.latitude.toFixed(4) : '--'}, ${historicalInfo.longitude ? historicalInfo.longitude.toFixed(4) : '--'}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">📊 边界精度:</span>
-                        <span class="value">${getHistoricalPrecisionText(historicalInfo.border_precision)}</span>
+                        <span class="value">${historicalInfo.border_precision || '未知'}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">🎭 时代:</span>
-                        <span class="value">${historicalInfo.time_period}</span>
+                        <span class="value">${historicalInfo.time_period || '古典时期'}</span>
                     </div>
                 </div>
                 
                 <div class="historical-description">
                     <h4>📜 历史背景</h4>
-                    <p>${historicalInfo.description}</p>
+                    <p>${historicalInfo.description || `古典时期(${historicalInfo.query_year}年)，这里是古代文明的${historicalInfo.political_entity}，属于${historicalInfo.cultural_region}文化圈。这是文字、哲学和艺术蓬勃发展的黄金时代`}</p>
                 </div>
             </div>
             
             <!-- AI生成的历史场景 -->
-            ${sceneData && sceneData.success ? `
+            ${sceneData ? `
                 <div class="generated-scene-card">
                     <div class="scene-header">
                         <h3>🎨 AI重现历史场景</h3>
@@ -3739,7 +3818,7 @@ function displayHistoricalScene(data) {
                     <div class="generation-stats">
                         <div class="stat-item">
                             <span class="stat-label">⚡ 生成耗时:</span>
-                            <span class="stat-value">${sceneData.generation_time.toFixed(2)}秒</span>
+                            <span class="stat-value">${sceneData.generation_time ? sceneData.generation_time.toFixed(2) : '0.00'}秒</span>
                         </div>
                         ${sceneData.image_count ? `
                             <div class="stat-item">
@@ -4037,6 +4116,104 @@ window.shareHistoricalScene = shareHistoricalScene;
 window.returnToRegularMode = returnToRegularMode;
 window.openHistoricalImageModal = openHistoricalImageModal;
 window.closeHistoricalImageModal = closeHistoricalImageModal;
+
+// ================ 历史场景模板选择功能 ================
+
+// 场景模板全局变量
+let selectedHistoricalTemplate = null;
+let historicalSceneTemplates = [];
+
+/**
+ * 加载历史场景模板
+ */
+async function loadHistoricalSceneTemplates() {
+    try {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/scene-templates'));
+        const data = await response.json();
+        
+        if (data.success) {
+            historicalSceneTemplates = data.templates;
+            displayHistoricalSceneTemplateButtons(data.templates);
+            logger.info('✅ 历史场景模板加载成功:', data.templates.length + '个模板');
+        } else {
+            console.error('❌ 历史场景模板加载失败');
+            document.getElementById('historicalSceneTemplateButtons').innerHTML = '<div style="color: #999;">暂无可用模板</div>';
+        }
+    } catch (error) {
+        console.error('❌ 历史场景模板加载错误:', error);
+        document.getElementById('historicalSceneTemplateButtons').innerHTML = '<div style="color: #999;">模板加载失败</div>';
+    }
+}
+
+/**
+ * 显示历史场景模板按钮
+ */
+function displayHistoricalSceneTemplateButtons(templates) {
+    const container = document.getElementById('historicalSceneTemplateButtons');
+    container.innerHTML = '';
+    
+    templates.forEach(template => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'historical-template-btn';
+        button.setAttribute('data-template-id', template.id);
+        
+        button.innerHTML = `
+            <div class="template-name">${template.name}</div>
+            <div class="template-desc">${template.description}</div>
+        `;
+        
+        button.onclick = () => selectHistoricalTemplate(template.id, template.name);
+        
+        container.appendChild(button);
+    });
+    
+    logger.info('🎨 历史场景模板按钮显示完成:', templates.length + '个');
+}
+
+/**
+ * 选择历史场景模板
+ */
+function selectHistoricalTemplate(templateId, templateName) {
+    selectedHistoricalTemplate = templateId;
+    
+    // 更新UI显示选中状态
+    document.querySelectorAll('.historical-template-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    const selectedBtn = document.querySelector(`[data-template-id="${templateId}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+    
+    // 显示选中的模板
+    document.getElementById('selectedHistoricalTemplate').textContent = templateName;
+    
+    logger.info('📋 已选择历史场景模板:', templateName + ' (' + templateId + ')');
+}
+
+/**
+ * 清除历史场景模板选择
+ */
+function clearHistoricalTemplate() {
+    selectedHistoricalTemplate = null;
+    
+    // 清除选中状态
+    document.querySelectorAll('.historical-template-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // 更新显示
+    document.getElementById('selectedHistoricalTemplate').textContent = '无';
+    
+    logger.info('🧹 已清除历史场景模板选择');
+}
+
+// 暴露历史场景模板功能到全局
+window.loadHistoricalSceneTemplates = loadHistoricalSceneTemplates;
+window.selectHistoricalTemplate = selectHistoricalTemplate;
+window.clearHistoricalTemplate = clearHistoricalTemplate;
 
 // ================ 时光自拍功能 ================
 

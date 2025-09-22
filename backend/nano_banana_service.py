@@ -191,18 +191,21 @@ class NanoBananaHistoricalService:
         # 获取模板内容
         template_content = template['template']
         
-        # 替换占位符
+        # 替换占位符 - 确保不会传入None值
+        political_entity = historical_info.get('political_entity') or 'Unknown'
+        query_year = historical_info.get('query_year') or 0
+        
         processed_prompt = template_content.replace(
-            '[historical location]', historical_info.get('political_entity', 'Unknown')
+            '[historical location]', political_entity
         ).replace(
-            '[year]', str(abs(historical_info.get('query_year', 0))) + (' CE' if historical_info.get('query_year', 0) >= 0 else ' BCE')
+            '[year]', str(abs(query_year)) + (' CE' if query_year >= 0 else ' BCE')
         )
         
         print(f"📝 场景模板处理完成:")
         print(f"   模板ID: {template_id}")
         print(f"   模板名称: {template['name']}")
-        print(f"   历史地点: {historical_info.get('political_entity', 'Unknown')}")
-        print(f"   历史年份: {historical_info.get('query_year', 0)}")
+        print(f"   历史地点: {political_entity}")
+        print(f"   历史年份: {query_year}")
         
         return processed_prompt
     
@@ -231,9 +234,9 @@ class NanoBananaHistoricalService:
     
     def build_historical_background_description(self, historical_info: Dict, scene_elements: List[str]) -> str:
         """构建英文历史背景描述"""
-        political_entity = historical_info.get('political_entity', '')
-        year = historical_info.get('query_year', 0)
-        cultural_region = historical_info.get('cultural_region', '')
+        political_entity = historical_info.get('political_entity') or 'Unknown Region'
+        year = historical_info.get('query_year') or 0
+        cultural_region = historical_info.get('cultural_region') or 'Unknown Culture'
         
         # 确定历史时期描述
         period_description = self.get_historical_period_description(year, political_entity)
@@ -301,9 +304,9 @@ class NanoBananaHistoricalService:
         processed_prompt = template_content.replace(
             '[场景元素]', background_description
         ).replace(
-            '[year]', str(abs(historical_info.get('query_year', 0))) + (' CE' if historical_info.get('query_year', 0) >= 0 else ' BCE')
+            '[year]', str(abs(historical_info.get('query_year') or 0)) + (' CE' if (historical_info.get('query_year') or 0) >= 0 else ' BCE')
         ).replace(
-            '[location]', historical_info.get('political_entity', 'Unknown')
+            '[location]', historical_info.get('political_entity') or 'Unknown'
         ).replace(
             '[interaction]', interaction_description
         )
@@ -334,8 +337,8 @@ class NanoBananaHistoricalService:
             print("🔍 无演示索引数据，无法匹配预生成场景")
             return None
         
-        political_entity = historical_info.get('political_entity', '')
-        year = historical_info.get('query_year', 0)
+        political_entity = historical_info.get('political_entity') or 'Unknown'
+        year = historical_info.get('query_year') or 0
         
         print(f"🔍 查找预生成场景:")
         print(f"   目标: {political_entity} ({year}年) 坐标({lat:.4f}, {lng:.4f})")
@@ -542,10 +545,10 @@ class NanoBananaHistoricalService:
         为Nano Banana创建历史场景提示词
         遵循官方文档的最佳实践
         """
-        political_entity = historical_info.get('political_entity', 'Unknown')
-        ruler_power = historical_info.get('ruler_or_power', '')
-        cultural_region = historical_info.get('cultural_region', '')
-        year = historical_info.get('query_year', 0)
+        political_entity = historical_info.get('political_entity') or 'Unknown'
+        ruler_power = historical_info.get('ruler_or_power') or ''
+        cultural_region = historical_info.get('cultural_region') or ''
+        year = historical_info.get('query_year') or 0
         
         print(f"🏛️ 为Nano Banana构建提示词:")
         print(f"   政治实体: {political_entity}")
@@ -764,8 +767,8 @@ Natural environment as it appeared in {year} AD:
     async def generate_demo_scene(self, historical_info: Dict, lat: float, lng: float) -> Dict:
         """演示模式场景生成"""
         
-        political_entity = historical_info.get('political_entity', 'Unknown')
-        year = historical_info.get('query_year', 0)
+        political_entity = historical_info.get('political_entity') or 'Unknown'
+        year = historical_info.get('query_year') or 0
         
         # 详细的历史场景描述
         descriptions = {

@@ -212,10 +212,10 @@ class HistoricalService:
         Returns:
             Dict: 格式化的结果
         """
-        political_entity = properties.get('NAME', '未知政治实体')
-        ruler_power = properties.get('SUBJECTO', '')
-        cultural_region = properties.get('PARTOF', '')
-        border_precision = properties.get('BORDERPRECISION', 1)
+        political_entity = properties.get('NAME') or '未知政治实体'
+        ruler_power = properties.get('SUBJECTO') or ''
+        cultural_region = properties.get('PARTOF') or ''
+        border_precision = properties.get('BORDERPRECISION') or 1
         
         return {
             'success': True,
@@ -242,9 +242,9 @@ class HistoricalService:
         Returns:
             str: 历史描述文本
         """
-        name = properties.get('NAME', '未知地区')
-        ruler = properties.get('SUBJECTO', '')
-        cultural = properties.get('PARTOF', '')
+        name = properties.get('NAME') or '未知地区'
+        ruler = properties.get('SUBJECTO') or ''
+        cultural = properties.get('PARTOF') or ''
         
         # 根据时期生成背景描述
         era_info = self.get_era_info(year)

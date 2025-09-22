@@ -125,6 +125,19 @@
                         </div>
                     </div>
                     
+                    <!-- 历史场景模板选择区域 -->
+                    <div class="historical-scene-template-selection" id="historicalSceneTemplateSelection" style="display: none; margin: 15px 0;">
+                        <div class="template-selection-header">
+                            <strong>📋 选择历史场景风格：</strong>
+                            <span id="selectedHistoricalTemplate" style="color: #666; margin-left: 10px;">无</span>
+                            <button type="button" onclick="clearHistoricalTemplate()" style="margin-left: 10px; padding: 2px 8px; font-size: 12px; border: 1px solid #ddd; background: white; border-radius: 3px; cursor: pointer;">清除</button>
+                        </div>
+                        <div id="historicalSceneTemplateButtons" class="historical-template-buttons" style="margin-top: 10px;">
+                            <!-- 场景模板按钮将在这里动态加载 -->
+                            <div style="color: #999; font-style: italic;">正在加载场景风格模板...</div>
+                        </div>
+                    </div>
+                    
                     <button class="time-travel-btn" id="timeTravelBtn" onclick="startHistoricalExploration()" disabled>
                         🚀 开始时空探索
                     </button>
