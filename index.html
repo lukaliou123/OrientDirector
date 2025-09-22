@@ -151,60 +151,81 @@
                     <p>与历史时刻留下永恒回忆</p>
                 </div>
                 
-                <!-- 自拍询问对话框 -->
-                <div class="selfie-question" id="selfieQuestion">
-                    <div class="question-content">
-                        <!-- 用户头像预览 -->
-                        <div class="user-avatar-preview">
-                            <div class="avatar-container" onclick="triggerAvatarUpload()" title="点击上传头像">
-                                <img src="http://localhost:8000/static/profile_photo/profile.jpg" 
-                                     alt="您的头像" 
-                                     class="avatar-image" 
-                                     id="avatarImage"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="avatar-placeholder" style="display: none;">
-                                    👤
-                                </div>
-                                <div class="avatar-upload-overlay">
-                                    📷
-                                </div>
-                            </div>
-                            <input type="file" 
-                                   id="avatarUpload" 
-                                   accept="image/*" 
-                                   style="display: none;" 
-                                   onchange="handleAvatarUpload(event)">
-                            <p class="avatar-label">您的角色 <span class="upload-hint">(点击上传)</span></p>
-                        </div>
-                        
-                        <div class="selfie-question-text">
-                            <p>🎭 想要与这个历史时代合影留念吗？</p>
-                            <p class="question-subtitle">选择一个场景，生成专属的时光自拍！</p>
-                        </div>
-                        
-                        <div class="question-actions">
-                            <button class="selfie-yes-btn" onclick="startHistoricalSelfie()">
-                                📸 是的，我要自拍！
-                            </button>
-                            <button class="selfie-no-btn" onclick="skipSelfie()">
-                                ❌ 不了，直接总结
-                            </button>
-                        </div>
+                <!-- 步骤1: 场景选择 -->
+                <div class="meme-step" id="step1SceneSelection">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">选择历史场景</div>
                     </div>
-                </div>
-                
-                <!-- 场景选择界面 -->
-                <div class="selfie-scene-selector" id="selfieSceneSelector" style="display: none;">
-                    <h4>🏛️ 选择自拍场景</h4>
+                    <p class="step-description">从您访问过的历史场景中选择一个作为meme背景</p>
                     <div class="visited-scenes" id="visitedScenes">
                         <!-- 动态填充已访问的场景 -->
                     </div>
-                    <div class="selfie-controls">
-                        <button class="back-btn" onclick="backToSelfieQuestion()">
-                            ← 返回
+                    <div class="step-controls">
+                        <button class="back-btn" onclick="skipSelfie()">
+                            ❌ 不了，直接总结
                         </button>
                     </div>
                 </div>
+                
+                <!-- 步骤2: meme模板选择 -->
+                <div class="meme-step" id="step2TemplateSelection" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">选择meme风格</div>
+                    </div>
+                    <p class="step-description">选择一个meme创作风格模板</p>
+                    
+                    <div class="template-selection-area">
+                        <div id="historicalMemeTemplateButtons" class="meme-template-buttons">
+                            <!-- meme模板按钮将在这里动态加载 -->
+                            <div style="color: #999; font-style: italic;">正在加载meme模板...</div>
+                        </div>
+                        <div class="selected-template-info" id="selectedTemplateInfo" style="display: none;">
+                            <strong>已选择：</strong>
+                            <span id="selectedTemplateDisplay">无</span>
+                            <button type="button" onclick="clearMemeTemplateSelection()" style="margin-left: 10px; padding: 2px 8px; font-size: 12px;">清除</button>
+                        </div>
+                    </div>
+                    
+                    <div class="step-controls" style="margin-top: 20px;">
+                        <button class="back-btn" onclick="backToSceneSelection()">
+                            ← 返回场景选择
+                        </button>
+                        <button class="next-btn" id="nextToUploadBtn" onclick="proceedToImageUpload()" disabled>
+                            下一步：上传图片 →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 步骤3: 图片上传 -->
+                <div class="meme-step" id="step3ImageUpload" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-title">上传角色图片</div>
+                    </div>
+                    <p class="step-description">上传您的角色图片，AI将为您生成历史meme</p>
+                    
+                    <div class="image-upload-section">
+                        <div class="upload-area" id="characterUploadArea" onclick="document.getElementById('characterFileInput').click()">
+                            <div id="characterPreviewArea">
+                                <p>📁 点击上传或拖放角色图片</p>
+                                <small>支持 JPG, PNG 格式</small>
+                            </div>
+                        </div>
+                        <input type="file" id="characterFileInput" accept="image/*" style="display: none;" onchange="handleCharacterImageUpload(event)">
+                    </div>
+                    
+                    <div class="step-controls" style="margin-top: 20px;">
+                        <button class="back-btn" onclick="backToTemplateSelection()">
+                            ← 返回模板选择
+                        </button>
+                        <button class="generate-btn" id="generateMemeBtn" onclick="generateHistoricalMeme()" disabled>
+                            🚀 生成历史meme
+                        </button>
+                    </div>
+                </div>
+                
                 
                 <!-- 自拍结果显示 -->
                 <div class="selfie-result" id="selfieResult" style="display: none;">

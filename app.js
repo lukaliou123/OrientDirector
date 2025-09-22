@@ -4222,27 +4222,56 @@ let visitedHistoricalScenes = []; // 已访问的历史场景记录
 let currentSelfieData = null;     // 当前自拍数据
 let journeyStartTime = null;      // 旅途开始时间
 
+// 新的meme创作流程变量
+let selectedSceneForMeme = null;  // 选中的场景数据
+let extractedSceneElements = [];  // 提取的场景元素
+let selectedMemeTemplate = null;  // 选中的meme模板
+let uploadedCharacterImage = null; // 上传的角色图片
+
+// 异步场景分析状态管理
+let sceneAnalysisPromise = null;  // 场景分析的Promise
+let isSceneAnalysisComplete = false; // 分析是否完成
+let analysisStartTime = null;     // 分析开始时间
+
 /**
- * 结束历史旅途，询问是否要自拍
+ * 结束历史旅途，直接进入场景选择
  */
 function endHistoricalJourney() {
-    logger.info('🏁 用户选择结束历史旅途');
+    logger.info('🏁 用户选择结束历史旅途，开始meme创作流程');
     
     // 显示自拍面板，隐藏当前场景
     const container = document.getElementById('placesContainer');
     const selfiePanel = document.getElementById('historicalSelfiePanel');
-    const selfieQuestion = document.getElementById('selfieQuestion');
     
     if (container) container.style.display = 'none';
     if (selfiePanel) selfiePanel.style.display = 'block';
-    if (selfieQuestion) selfieQuestion.style.display = 'block';
     
-    // 重置自拍相关UI
-    document.getElementById('selfieSceneSelector').style.display = 'none';
-    document.getElementById('selfieResult').style.display = 'none';
-    document.getElementById('journeySummary').style.display = 'none';
+    // 直接显示步骤1：场景选择
+    showStep('step1SceneSelection');
     
-    logger.info('📸 显示自拍询问对话框');
+    // 填充已访问的场景
+    populateVisitedScenes();
+    
+    logger.info('🏛️ 开始步骤1：场景选择');
+}
+
+/**
+ * 步骤管理函数（3步流程：场景选择→模板选择→图片上传）
+ */
+function showStep(stepId) {
+    // 隐藏所有步骤
+    const steps = ['step1SceneSelection', 'step2TemplateSelection', 'step3ImageUpload'];
+    steps.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = 'none';
+    });
+    
+    // 显示指定步骤
+    const targetStep = document.getElementById(stepId);
+    if (targetStep) {
+        targetStep.style.display = 'block';
+        logger.info(`📋 切换到步骤: ${stepId}`);
+    }
 }
 
 /**
@@ -4312,7 +4341,7 @@ function populateVisitedScenes() {
 }
 
 /**
- * 选择自拍场景
+ * 选择场景进行meme创作（异步分析版本）
  */
 function selectSelfieScene(sceneIndex) {
     const scene = visitedHistoricalScenes[sceneIndex];
@@ -4321,15 +4350,103 @@ function selectSelfieScene(sceneIndex) {
         return;
     }
     
-    logger.info(`🎯 用户选择与 ${scene.political_entity} (${scene.year}年) 自拍`);
+    selectedSceneForMeme = scene;
+    logger.info(`🎯 用户选择场景: ${scene.political_entity} (${scene.year}年)`);
     
-    // 显示自拍结果界面
-    document.getElementById('selfieSceneSelector').style.display = 'none';
-    document.getElementById('selfieResult').style.display = 'block';
+    // 🔄 启动后台异步场景分析（用户无感知）
+    startBackgroundSceneAnalysis(scene);
     
-    // 开始生成自拍
-    generateHistoricalSelfie(scene);
+    // 🚀 直接进入模板选择步骤（跳过分析界面）
+    showStep('step2TemplateSelection'); // 更新步骤编号
+    loadMemeTemplatesForHistory();
+    
+    logger.info('🎨 直接进入模板选择，场景分析在后台进行');
 }
+
+/**
+ * 启动后台场景分析（异步，用户无感知）
+ */
+function startBackgroundSceneAnalysis(scene) {
+    if (!scene.scene_data || !scene.scene_data.images) {
+        logger.warning('⚠️ 场景没有图片，跳过分析');
+        isSceneAnalysisComplete = true;
+        extractedSceneElements = ['历史建筑', '传统服饰', '古代氛围']; // 使用默认元素
+        return;
+    }
+    
+    const imageUrl = scene.scene_data.images[0];
+    analysisStartTime = Date.now();
+    isSceneAnalysisComplete = false;
+    extractedSceneElements = [];
+    
+    logger.info(`🔍 后台启动场景分析: ${imageUrl}`);
+    
+    // 创建异步分析Promise
+    sceneAnalysisPromise = analyzeSceneInBackground(imageUrl)
+        .then(elements => {
+            extractedSceneElements = elements;
+            isSceneAnalysisComplete = true;
+            const analysisTime = (Date.now() - analysisStartTime) / 1000;
+            logger.success(`✅ 后台场景分析完成 (${analysisTime.toFixed(1)}s)，提取到 ${elements.length} 个元素`);
+            
+            // 可选：在控制台显示分析结果（开发调试用）
+            console.log('🎨 分析元素:', elements.join(', '));
+        })
+        .catch(error => {
+            logger.warning(`⚠️ 后台场景分析失败，使用默认元素: ${error.message}`);
+            extractedSceneElements = ['历史建筑', '传统服饰', '古代氛围', '历史场景']; // 使用后备元素
+            isSceneAnalysisComplete = true;
+        });
+}
+
+/**
+ * 后台场景分析的实际执行函数
+ */
+async function analyzeSceneInBackground(imageUrl) {
+    const response = await fetch(API_CONFIG.getApiUrl('/api/analyze-scene-elements'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            image_url: imageUrl
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`分析失败: HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.success) {
+        return data.elements;
+    } else {
+        throw new Error(data.error || '场景分析失败');
+    }
+}
+
+/**
+ * 显示选中场景的预览
+ */
+function displaySelectedScenePreview(scene) {
+    const previewContainer = document.getElementById('selectedScenePreview');
+    if (!previewContainer) return;
+    
+    const imageUrl = scene.scene_data && scene.scene_data.images ? scene.scene_data.images[0] : null;
+    
+    previewContainer.innerHTML = `
+        <div class="scene-preview-card">
+            ${imageUrl ? 
+                `<img src="${imageUrl}" alt="${scene.political_entity}" />` :
+                `<div class="scene-placeholder">🏛️ ${scene.political_entity}</div>`
+            }
+            <h4>${scene.political_entity}</h4>
+            <p>${scene.year}年 • ${scene.description.substring(0, 80)}...</p>
+        </div>
+    `;
+}
+
 
 /**
  * 生成历史自拍（调用后端API）
@@ -4753,6 +4870,323 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// ================ 新的meme创作步骤功能 ================
+
+/**
+ * 进入模板选择步骤
+ */
+function proceedToTemplateSelection() {
+    showStep('step2TemplateSelection');
+    loadMemeTemplatesForHistory();
+    logger.info('🎨 进入步骤2：meme模板选择');
+}
+
+/**
+ * 返回场景选择（移除了场景分析步骤）
+ */
+function backToSceneSelection() {
+    showStep('step1SceneSelection');
+    selectedMemeTemplate = null;
+    selectedSceneForMeme = null;
+    extractedSceneElements = [];
+    isSceneAnalysisComplete = false;
+    sceneAnalysisPromise = null;
+    document.getElementById('selectedTemplateInfo').style.display = 'none';
+}
+
+/**
+ * 加载历史模式的meme模板
+ */
+async function loadMemeTemplatesForHistory() {
+    try {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/meme-templates'));
+        const data = await response.json();
+        
+        if (data.success) {
+            displayHistoricalMemeTemplateButtons(data.templates);
+            logger.info('✅ 历史meme模板加载成功:', data.templates.length + '个模板');
+        } else {
+            console.error('❌ meme模板加载失败');
+            document.getElementById('historicalMemeTemplateButtons').innerHTML = '<div style="color: #999;">暂无可用模板</div>';
+        }
+    } catch (error) {
+        console.error('❌ meme模板加载错误:', error);
+        document.getElementById('historicalMemeTemplateButtons').innerHTML = '<div style="color: #999;">模板加载失败</div>';
+    }
+}
+
+/**
+ * 显示历史meme模板按钮
+ */
+function displayHistoricalMemeTemplateButtons(templates) {
+    const container = document.getElementById('historicalMemeTemplateButtons');
+    container.innerHTML = '';
+    
+    templates.forEach(template => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'meme-template-btn-new';
+        button.setAttribute('data-meme-template-id', template.id);
+        
+        button.innerHTML = `
+            <div class="template-name-new">${template.name}</div>
+            <div class="template-desc-new">${template.description}</div>
+        `;
+        
+        button.onclick = () => selectMemeTemplateForHistory(template.id, template.name);
+        
+        container.appendChild(button);
+    });
+    
+    logger.info('🎨 历史meme模板按钮显示完成:', templates.length + '个');
+}
+
+/**
+ * 选择meme模板
+ */
+function selectMemeTemplateForHistory(templateId, templateName) {
+    selectedMemeTemplate = templateId;
+    
+    // 更新UI显示选中状态
+    document.querySelectorAll('.meme-template-btn-new').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    const selectedBtn = document.querySelector(`[data-meme-template-id="${templateId}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+    
+    // 显示选中信息
+    const infoDiv = document.getElementById('selectedTemplateInfo');
+    const displaySpan = document.getElementById('selectedTemplateDisplay');
+    displaySpan.textContent = templateName;
+    infoDiv.style.display = 'block';
+    
+    // 启用下一步按钮
+    document.getElementById('nextToUploadBtn').disabled = false;
+    
+    logger.info('📋 已选择meme模板:', templateName + ' (' + templateId + ')');
+}
+
+/**
+ * 清除meme模板选择
+ */
+function clearMemeTemplateSelection() {
+    selectedMemeTemplate = null;
+    
+    // 清除选中状态
+    document.querySelectorAll('.meme-template-btn-new').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // 隐藏选中信息
+    document.getElementById('selectedTemplateInfo').style.display = 'none';
+    
+    // 禁用下一步按钮
+    document.getElementById('nextToUploadBtn').disabled = true;
+    
+    logger.info('🧹 已清除meme模板选择');
+}
+
+/**
+ * 返回模板选择
+ */
+function backToTemplateSelection() {
+    showStep('step2TemplateSelection');
+    uploadedCharacterImage = null;
+    
+    // 重置图片上传区域
+    const uploadArea = document.getElementById('characterUploadArea');
+    const previewArea = document.getElementById('characterPreviewArea');
+    if (uploadArea) uploadArea.classList.remove('has-image');
+    if (previewArea) {
+        previewArea.innerHTML = `
+            <p>📁 点击上传或拖放角色图片</p>
+            <small>支持 JPG, PNG 格式</small>
+        `;
+    }
+}
+
+/**
+ * 进入图片上传步骤
+ */
+function proceedToImageUpload() {
+    showStep('step3ImageUpload');
+    logger.info('📷 进入步骤3：图片上传');
+}
+
+/**
+ * 处理角色图片上传
+ */
+function handleCharacterImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        uploadedCharacterImage = e.target.result;
+        
+        // 更新预览
+        const uploadArea = document.getElementById('characterUploadArea');
+        const previewArea = document.getElementById('characterPreviewArea');
+        
+        uploadArea.classList.add('has-image');
+        previewArea.innerHTML = `
+            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+            <p style="margin-top: 10px; color: #28a745; font-weight: bold;">✅ 角色图片已上传</p>
+        `;
+        
+        // 启用生成按钮
+        document.getElementById('generateMemeBtn').disabled = false;
+        
+        logger.info('📷 角色图片上传成功');
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 生成历史meme（智能等待版本）
+ */
+async function generateHistoricalMeme() {
+    if (!selectedSceneForMeme || !selectedMemeTemplate || !uploadedCharacterImage) {
+        logger.error('❌ 缺少必要的数据');
+        return;
+    }
+    
+    logger.info('🚀 开始生成历史meme');
+    
+    try {
+        // 显示生成进度
+        const generateBtn = document.getElementById('generateMemeBtn');
+        generateBtn.disabled = true;
+        
+        // 🎯 智能等待场景分析完成
+        if (!isSceneAnalysisComplete) {
+            logger.info('⏳ 场景分析尚未完成，等待分析结果...');
+            generateBtn.textContent = '⏳ 等待场景分析完成...';
+            
+            // 等待后台分析完成
+            if (sceneAnalysisPromise) {
+                await sceneAnalysisPromise;
+            }
+            
+            // 检查是否成功完成
+            if (!isSceneAnalysisComplete || extractedSceneElements.length === 0) {
+                logger.warning('⚠️ 场景分析超时或失败，使用默认元素');
+                extractedSceneElements = ['历史建筑', '传统服饰', '古代氛围', '历史场景'];
+            }
+            
+            const waitTime = (Date.now() - analysisStartTime) / 1000;
+            logger.success(`✅ 场景分析等待完成 (${waitTime.toFixed(1)}s)`);
+        }
+        
+        // 现在开始实际的meme生成
+        generateBtn.textContent = '🎨 正在生成meme...';
+        logger.info(`🎨 使用 ${extractedSceneElements.length} 个场景元素生成meme`);
+        
+        // 构建请求数据
+        const formData = new FormData();
+        
+        // 将base64转换为blob
+        const characterBlob = dataURLtoBlob(uploadedCharacterImage);
+        formData.append('character_image', characterBlob);
+        
+        formData.append('scene_elements', JSON.stringify(extractedSceneElements));
+        formData.append('meme_prompt', `使用${selectedMemeTemplate}模板生成历史meme`);
+        formData.append('historical_info', JSON.stringify({
+            political_entity: selectedSceneForMeme.political_entity,
+            query_year: selectedSceneForMeme.year,
+            cultural_region: selectedSceneForMeme.cultural_region || ''
+        }));
+        formData.append('template_id', selectedMemeTemplate);
+        
+        const response = await fetch(API_CONFIG.getApiUrl('/api/generate-historical-meme'), {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error(`meme生成失败: HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // 保存生成结果
+            currentSelfieData = {
+                scene: selectedSceneForMeme,
+                image_url: data.meme_url,
+                generated_time: new Date().toISOString(),
+                template_used: selectedMemeTemplate,
+                elements_used: extractedSceneElements
+            };
+            
+            // 显示生成结果
+            displayMemeResult(data.meme_url);
+            
+            logger.success('🎉 历史meme生成成功！');
+        } else {
+            throw new Error(data.error || 'meme生成失败');
+        }
+        
+    } catch (error) {
+        logger.error(`❌ meme生成失败: ${error.message}`);
+        showError(`meme生成失败: ${error.message}`);
+    } finally {
+        // 恢复按钮状态
+        const generateBtn = document.getElementById('generateMemeBtn');
+        generateBtn.textContent = '🚀 生成历史meme';
+        generateBtn.disabled = false;
+    }
+}
+
+/**
+ * 显示meme生成结果
+ */
+function displayMemeResult(memeUrl) {
+    // 修改现有的selfieResult来显示meme结果
+    const resultDiv = document.getElementById('selfieResult');
+    const imageElement = document.getElementById('selfieImage');
+    const descElement = document.getElementById('selfieDescription');
+    
+    if (imageElement) {
+        imageElement.src = memeUrl;
+        imageElement.alt = '历史meme';
+    }
+    
+    if (descElement) {
+        descElement.textContent = `您的专属历史meme创作完成！融合了${selectedSceneForMeme.political_entity}的历史元素。`;
+    }
+    
+    // 修改标题
+    const titleElement = resultDiv.querySelector('h4');
+    if (titleElement) {
+        titleElement.textContent = '🎨 您的历史meme';
+    }
+    
+    resultDiv.style.display = 'block';
+    
+    // 隐藏步骤3
+    showStep('');
+    document.getElementById('step3ImageUpload').style.display = 'none';
+}
+
+/**
+ * base64转blob工具函数
+ */
+function dataURLtoBlob(dataURL) {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+}
+
 // 全局暴露时光自拍功能
 window.endHistoricalJourney = endHistoricalJourney;
 window.startHistoricalSelfie = startHistoricalSelfie;
@@ -4767,3 +5201,14 @@ window.backToSelfieQuestion = backToSelfieQuestion;
 window.triggerAvatarUpload = triggerAvatarUpload;
 window.handleAvatarUpload = handleAvatarUpload;
 window.clearResults = clearResults;
+
+// 全局暴露新的meme创作功能
+window.showStep = showStep;
+window.backToSceneSelection = backToSceneSelection;
+window.proceedToTemplateSelection = proceedToTemplateSelection;
+window.selectMemeTemplateForHistory = selectMemeTemplateForHistory;
+window.clearMemeTemplateSelection = clearMemeTemplateSelection;
+window.backToTemplateSelection = backToTemplateSelection;
+window.proceedToImageUpload = proceedToImageUpload;
+window.handleCharacterImageUpload = handleCharacterImageUpload;
+window.generateHistoricalMeme = generateHistoricalMeme;
