@@ -202,18 +202,47 @@
                 <div class="meme-step" id="step3ImageUpload" style="display: none;">
                     <div class="step-header">
                         <div class="step-number">3</div>
-                        <div class="step-title">上传角色图片</div>
+                        <div class="step-title">上传创作素材</div>
                     </div>
-                    <p class="step-description">上传您的角色图片，AI将为您生成历史meme</p>
+                    <p class="step-description">上传您的创作素材，AI将为您生成历史meme</p>
                     
-                    <div class="image-upload-section">
-                        <div class="upload-area" id="characterUploadArea" onclick="document.getElementById('characterFileInput').click()">
-                            <div id="characterPreviewArea">
-                                <p>📁 点击上传或拖放角色图片</p>
-                                <small>支持 JPG, PNG 格式</small>
+                    <!-- 基础图片上传区域 -->
+                    <div class="upload-grid" id="basicUploadGrid">
+                        <!-- 人物素材（必需） -->
+                        <div class="upload-group">
+                            <label class="upload-label">👤 人物素材 (必需)</label>
+                            <div class="upload-area" id="characterUploadArea" onclick="document.getElementById('characterFileInput').click()">
+                                <div id="characterPreviewArea">
+                                    <p>📁 点击上传人物图片</p>
+                                    <small>支持 JPG, PNG 格式</small>
+                                </div>
+                            </div>
+                            <input type="file" id="characterFileInput" accept="image/*" style="display: none;" onchange="handleCharacterImageUpload(event)">
+                        </div>
+                        
+                        <!-- 构图素材（可选） -->
+                        <div class="upload-group">
+                            <label class="upload-label">🖼️ 构图素材 (可选)</label>
+                            <div class="upload-area" id="compositionUploadArea" onclick="document.getElementById('compositionFileInput').click()">
+                                <div id="compositionPreviewArea">
+                                    <p>📁 点击上传构图图片</p>
+                                    <small>可选，用于指定构图风格</small>
+                                </div>
+                            </div>
+                            <input type="file" id="compositionFileInput" accept="image/*" style="display: none;" onchange="handleCompositionImageUpload(event)">
+                        </div>
+                    </div>
+                    
+                    <!-- 虚拟伙伴上传区域（虚拟伙伴模板专用） -->
+                    <div class="upload-group companion-upload-section" id="companionUploadSection" style="display: none;">
+                        <label class="upload-label">🧸 虚拟伙伴素材 (娃娃原型)</label>
+                        <div class="upload-area companion-upload" id="companionUploadArea" onclick="document.getElementById('companionFileInput').click()">
+                            <div id="companionPreviewArea">
+                                <p>🎭 点击上传虚拟伙伴图片</p>
+                                <small>将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片</small>
                             </div>
                         </div>
-                        <input type="file" id="characterFileInput" accept="image/*" style="display: none;" onchange="handleCharacterImageUpload(event)">
+                        <input type="file" id="companionFileInput" accept="image/*" style="display: none;" onchange="handleCompanionImageUpload(event)">
                     </div>
                     
                     <div class="step-controls" style="margin-top: 20px;">
@@ -411,6 +440,37 @@
 
         <!-- Google街景遮罩层 -->
         <div class="streetview-overlay" id="streetviewOverlay" style="display: none;" onclick="closeStreetView()"></div>
+
+        <!-- 互动动作选择模态框 -->
+        <div class="interaction-modal-overlay" id="interactionModalOverlay" style="display: none;" onclick="closeInteractionModal()">
+            <div class="interaction-modal" onclick="event.stopPropagation()">
+                <div class="interaction-modal-header">
+                    <h3>🎭 选择互动动作</h3>
+                    <p>为您的强互动自拍选择一个有趣的动作</p>
+                    <button class="close-interaction-modal" onclick="closeInteractionModal()">✕</button>
+                </div>
+                
+                <div class="interaction-modal-content">
+                    <div id="interactionCategoriesContainer">
+                        <!-- 互动分类和按钮将在这里动态加载 -->
+                        <div class="loading-interactions">🔄 正在加载互动选项...</div>
+                    </div>
+                </div>
+                
+                <div class="interaction-modal-footer">
+                    <div class="selected-interaction-display" id="selectedInteractionDisplay" style="display: none;">
+                        <strong>已选择：</strong>
+                        <span id="selectedInteractionText">无</span>
+                    </div>
+                    <div class="interaction-modal-buttons">
+                        <button class="btn-cancel" onclick="closeInteractionModal()">取消</button>
+                        <button class="btn-confirm" id="confirmInteractionBtn" onclick="confirmInteractionSelection()" disabled>
+                            确认选择
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Google Maps JavaScript API 配置 -->

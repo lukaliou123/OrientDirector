@@ -4227,11 +4227,18 @@ let selectedSceneForMeme = null;  // 选中的场景数据
 let extractedSceneElements = [];  // 提取的场景元素
 let selectedMemeTemplate = null;  // 选中的meme模板
 let uploadedCharacterImage = null; // 上传的角色图片
+let uploadedCompositionImage = null; // 上传的构图图片
+let uploadedCompanionImage = null;   // 上传的虚拟伙伴图片
 
 // 异步场景分析状态管理
 let sceneAnalysisPromise = null;  // 场景分析的Promise
 let isSceneAnalysisComplete = false; // 分析是否完成
 let analysisStartTime = null;     // 分析开始时间
+
+// 互动选择状态管理
+let selectedInteractionId = null; // 选中的互动ID
+let selectedInteractionName = null; // 选中的互动名称
+let availableInteractions = null;  // 可用的互动数据
 
 /**
  * 结束历史旅途，直接进入场景选择
@@ -4891,7 +4898,20 @@ function backToSceneSelection() {
     extractedSceneElements = [];
     isSceneAnalysisComplete = false;
     sceneAnalysisPromise = null;
+    
+    // 清除互动选择
+    selectedInteractionId = null;
+    selectedInteractionName = null;
+    
+    // 清除图片上传状态
+    uploadedCharacterImage = null;
+    uploadedCompositionImage = null;
+    uploadedCompanionImage = null;
+    
+    // 隐藏模板选择信息
     document.getElementById('selectedTemplateInfo').style.display = 'none';
+    
+    logger.info('🔄 已重置到场景选择，清除所有状态');
 }
 
 /**
@@ -4963,10 +4983,28 @@ function selectMemeTemplateForHistory(templateId, templateName) {
     displaySpan.textContent = templateName;
     infoDiv.style.display = 'block';
     
-    // 启用下一步按钮
-    document.getElementById('nextToUploadBtn').disabled = false;
-    
     logger.info('📋 已选择meme模板:', templateName + ' (' + templateId + ')');
+    
+    // 🎭 特殊处理：不同模板的特殊逻辑
+    if (templateId === 'interactive_selfie') {
+        logger.info('🎭 检测到强互动模板，打开互动选择窗口');
+        // 先禁用下一步按钮，等待互动选择
+        document.getElementById('nextToUploadBtn').disabled = true;
+        openInteractionModal();
+    } else if (templateId === 'virtual_companion') {
+        logger.info('🧸 检测到虚拟伙伴模板，将在图片上传步骤显示虚拟伙伴上传区域');
+        // 直接启用下一步按钮
+        document.getElementById('nextToUploadBtn').disabled = false;
+        // 清除之前的互动选择
+        selectedInteractionId = null;
+        selectedInteractionName = null;
+    } else {
+        // 其他模板直接启用下一步按钮
+        document.getElementById('nextToUploadBtn').disabled = false;
+        // 清除之前的互动选择
+        selectedInteractionId = null;
+        selectedInteractionName = null;
+    }
 }
 
 /**
@@ -4983,10 +5021,19 @@ function clearMemeTemplateSelection() {
     // 隐藏选中信息
     document.getElementById('selectedTemplateInfo').style.display = 'none';
     
+    // 清除互动选择
+    selectedInteractionId = null;
+    selectedInteractionName = null;
+    
+    // 清除图片上传状态
+    uploadedCharacterImage = null;
+    uploadedCompositionImage = null;
+    uploadedCompanionImage = null;
+    
     // 禁用下一步按钮
     document.getElementById('nextToUploadBtn').disabled = true;
     
-    logger.info('🧹 已清除meme模板选择');
+    logger.info('🧹 已清除meme模板、互动选择和图片上传状态');
 }
 
 /**
@@ -4994,18 +5041,46 @@ function clearMemeTemplateSelection() {
  */
 function backToTemplateSelection() {
     showStep('step2TemplateSelection');
-    uploadedCharacterImage = null;
     
-    // 重置图片上传区域
-    const uploadArea = document.getElementById('characterUploadArea');
-    const previewArea = document.getElementById('characterPreviewArea');
-    if (uploadArea) uploadArea.classList.remove('has-image');
-    if (previewArea) {
-        previewArea.innerHTML = `
-            <p>📁 点击上传或拖放角色图片</p>
+    // 重置所有图片状态
+    uploadedCharacterImage = null;
+    uploadedCompositionImage = null;
+    uploadedCompanionImage = null;
+    
+    // 重置人物素材上传区域
+    const characterUploadArea = document.getElementById('characterUploadArea');
+    const characterPreviewArea = document.getElementById('characterPreviewArea');
+    if (characterUploadArea) characterUploadArea.classList.remove('has-image');
+    if (characterPreviewArea) {
+        characterPreviewArea.innerHTML = `
+            <p>📁 点击上传人物图片</p>
             <small>支持 JPG, PNG 格式</small>
         `;
     }
+    
+    // 重置构图素材上传区域
+    const compositionUploadArea = document.getElementById('compositionUploadArea');
+    const compositionPreviewArea = document.getElementById('compositionPreviewArea');
+    if (compositionUploadArea) compositionUploadArea.classList.remove('has-image');
+    if (compositionPreviewArea) {
+        compositionPreviewArea.innerHTML = `
+            <p>📁 点击上传构图图片</p>
+            <small>可选，用于指定构图风格</small>
+        `;
+    }
+    
+    // 重置虚拟伙伴素材上传区域
+    const companionUploadArea = document.getElementById('companionUploadArea');
+    const companionPreviewArea = document.getElementById('companionPreviewArea');
+    if (companionUploadArea) companionUploadArea.classList.remove('has-image');
+    if (companionPreviewArea) {
+        companionPreviewArea.innerHTML = `
+            <p>🎭 点击上传虚拟伙伴图片</p>
+            <small>将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片</small>
+        `;
+    }
+    
+    logger.info('🔄 已重置所有图片上传状态');
 }
 
 /**
@@ -5013,6 +5088,23 @@ function backToTemplateSelection() {
  */
 function proceedToImageUpload() {
     showStep('step3ImageUpload');
+    
+    // 🧸 根据模板类型显示相应的上传区域
+    const companionSection = document.getElementById('companionUploadSection');
+    
+    if (selectedMemeTemplate === 'virtual_companion') {
+        // 显示虚拟伙伴上传区域
+        if (companionSection) {
+            companionSection.style.display = 'block';
+            logger.info('🧸 虚拟伙伴模板：显示虚拟伙伴上传区域');
+        }
+    } else {
+        // 隐藏虚拟伙伴上传区域
+        if (companionSection) {
+            companionSection.style.display = 'none';
+        }
+    }
+    
     logger.info('📷 进入步骤3：图片上传');
 }
 
@@ -5033,16 +5125,95 @@ function handleCharacterImageUpload(event) {
         
         uploadArea.classList.add('has-image');
         previewArea.innerHTML = `
-            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-            <p style="margin-top: 10px; color: #28a745; font-weight: bold;">✅ 角色图片已上传</p>
+            <img src="${e.target.result}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
+            <p style="margin-top: 8px; color: #28a745; font-weight: bold; font-size: 0.8rem;">✅ 人物素材已上传</p>
         `;
         
-        // 启用生成按钮
-        document.getElementById('generateMemeBtn').disabled = false;
+        // 检查生成按钮状态
+        checkMemeGenerationReady();
         
-        logger.info('📷 角色图片上传成功');
+        logger.info('📷 人物素材上传成功');
     };
     reader.readAsDataURL(file);
+}
+
+/**
+ * 处理构图图片上传
+ */
+function handleCompositionImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        uploadedCompositionImage = e.target.result;
+        
+        // 更新预览
+        const uploadArea = document.getElementById('compositionUploadArea');
+        const previewArea = document.getElementById('compositionPreviewArea');
+        
+        uploadArea.classList.add('has-image');
+        previewArea.innerHTML = `
+            <img src="${e.target.result}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
+            <p style="margin-top: 8px; color: #007bff; font-weight: bold; font-size: 0.8rem;">✅ 构图素材已上传</p>
+        `;
+        
+        logger.info('🖼️ 构图素材上传成功');
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 处理虚拟伙伴图片上传
+ */
+function handleCompanionImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        uploadedCompanionImage = e.target.result;
+        
+        // 更新预览
+        const uploadArea = document.getElementById('companionUploadArea');
+        const previewArea = document.getElementById('companionPreviewArea');
+        
+        uploadArea.classList.add('has-image');
+        previewArea.innerHTML = `
+            <img src="${e.target.result}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
+            <p style="margin-top: 8px; color: #ff9800; font-weight: bold; font-size: 0.8rem;">✅ 虚拟伙伴素材已上传</p>
+        `;
+        
+        // 检查生成按钮状态
+        checkMemeGenerationReady();
+        
+        logger.info('🧸 虚拟伙伴素材上传成功');
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 检查meme生成准备状态
+ */
+function checkMemeGenerationReady() {
+    const generateBtn = document.getElementById('generateMemeBtn');
+    if (!generateBtn) return;
+    
+    let isReady = false;
+    
+    if (selectedMemeTemplate === 'virtual_companion') {
+        // 虚拟伙伴模板需要人物素材和虚拟伙伴素材
+        isReady = uploadedCharacterImage && uploadedCompanionImage;
+    } else {
+        // 其他模板只需要人物素材
+        isReady = uploadedCharacterImage;
+    }
+    
+    generateBtn.disabled = !isReady;
+    
+    if (isReady) {
+        logger.info('✅ meme生成条件已满足');
+    }
 }
 
 /**
@@ -5088,9 +5259,24 @@ async function generateHistoricalMeme() {
         // 构建请求数据
         const formData = new FormData();
         
-        // 将base64转换为blob
+        // 🖼️ 人物素材（必需）
         const characterBlob = dataURLtoBlob(uploadedCharacterImage);
         formData.append('character_image', characterBlob);
+        logger.info('📷 添加人物素材到请求');
+        
+        // 🖼️ 构图素材（可选）
+        if (uploadedCompositionImage) {
+            const compositionBlob = dataURLtoBlob(uploadedCompositionImage);
+            formData.append('composition_image', compositionBlob);
+            logger.info('🖼️ 添加构图素材到请求');
+        }
+        
+        // 🧸 虚拟伙伴素材（虚拟伙伴模板专用）
+        if (uploadedCompanionImage && selectedMemeTemplate === 'virtual_companion') {
+            const companionBlob = dataURLtoBlob(uploadedCompanionImage);
+            formData.append('companion_image', companionBlob);
+            logger.info('🧸 添加虚拟伙伴素材到请求');
+        }
         
         formData.append('scene_elements', JSON.stringify(extractedSceneElements));
         formData.append('meme_prompt', `使用${selectedMemeTemplate}模板生成历史meme`);
@@ -5100,6 +5286,12 @@ async function generateHistoricalMeme() {
             cultural_region: selectedSceneForMeme.cultural_region || ''
         }));
         formData.append('template_id', selectedMemeTemplate);
+        
+        // 🎭 如果选择了互动动作，添加到请求中
+        if (selectedInteractionId) {
+            formData.append('interaction_id', selectedInteractionId);
+            logger.info(`🎭 使用互动动作: ${selectedInteractionName} (${selectedInteractionId})`);
+        }
         
         const response = await fetch(API_CONFIG.getApiUrl('/api/generate-historical-meme'), {
             method: 'POST',
@@ -5119,7 +5311,13 @@ async function generateHistoricalMeme() {
                 image_url: data.meme_url,
                 generated_time: new Date().toISOString(),
                 template_used: selectedMemeTemplate,
-                elements_used: extractedSceneElements
+                interaction_used: selectedInteractionName,
+                elements_used: extractedSceneElements,
+                materials_used: {
+                    character_image: uploadedCharacterImage ? true : false,
+                    composition_image: uploadedCompositionImage ? true : false,
+                    companion_image: uploadedCompanionImage ? true : false
+                }
             };
             
             // 显示生成结果
@@ -5211,4 +5409,197 @@ window.clearMemeTemplateSelection = clearMemeTemplateSelection;
 window.backToTemplateSelection = backToTemplateSelection;
 window.proceedToImageUpload = proceedToImageUpload;
 window.handleCharacterImageUpload = handleCharacterImageUpload;
+window.handleCompositionImageUpload = handleCompositionImageUpload;
+window.handleCompanionImageUpload = handleCompanionImageUpload;
 window.generateHistoricalMeme = generateHistoricalMeme;
+
+// ================ 互动选择模态框功能 ================
+
+/**
+ * 打开互动选择模态框
+ */
+async function openInteractionModal() {
+    const modalOverlay = document.getElementById('interactionModalOverlay');
+    if (!modalOverlay) {
+        logger.error('❌ 找不到互动模态框元素');
+        return;
+    }
+    
+    // 显示模态框
+    modalOverlay.style.display = 'flex';
+    
+    // 加载互动数据
+    await loadInteractionData();
+    
+    logger.info('🎭 互动选择模态框已打开');
+}
+
+/**
+ * 关闭互动选择模态框
+ */
+function closeInteractionModal() {
+    const modalOverlay = document.getElementById('interactionModalOverlay');
+    if (modalOverlay) {
+        modalOverlay.style.display = 'none';
+    }
+    
+    // 清理临时选择变量
+    delete window.tempSelectedInteractionId;
+    delete window.tempSelectedInteractionName;
+    
+    // 重置模态框内的选择状态
+    document.querySelectorAll('.interaction-option-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    document.getElementById('selectedInteractionDisplay').style.display = 'none';
+    document.getElementById('confirmInteractionBtn').disabled = true;
+    
+    // 🎭 如果是强互动模板但没有选择互动动作，重置模板选择
+    if (selectedMemeTemplate === 'interactive_selfie' && !selectedInteractionId) {
+        clearMemeTemplateSelection();
+        logger.info('🚫 用户未选择互动动作，已重置强互动模板');
+    }
+    
+    logger.info('🎭 互动选择模态框已关闭');
+}
+
+/**
+ * 加载互动数据
+ */
+async function loadInteractionData() {
+    if (availableInteractions) {
+        // 如果已经加载过，直接显示
+        displayInteractionCategories(availableInteractions);
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_CONFIG.getApiUrl('/api/meme-templates'));
+        const data = await response.json();
+        
+        if (data.success && data.interactions) {
+            availableInteractions = data.interactions;
+            displayInteractionCategories(data.interactions);
+            logger.info('✅ 互动数据加载成功');
+        } else {
+            throw new Error('互动数据加载失败');
+        }
+    } catch (error) {
+        logger.error(`❌ 互动数据加载失败: ${error.message}`);
+        const container = document.getElementById('interactionCategoriesContainer');
+        container.innerHTML = '<div class="loading-interactions">❌ 互动数据加载失败</div>';
+    }
+}
+
+/**
+ * 显示互动分类和按钮
+ */
+function displayInteractionCategories(interactions) {
+    const container = document.getElementById('interactionCategoriesContainer');
+    container.innerHTML = '';
+    
+    Object.keys(interactions).forEach(categoryName => {
+        // 创建分类容器
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'interaction-category';
+        
+        // 分类标题
+        const titleElement = document.createElement('h4');
+        titleElement.textContent = categoryName;
+        categoryDiv.appendChild(titleElement);
+        
+        // 创建按钮网格容器
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'interaction-buttons-grid';
+        
+        // 添加该分类的互动按钮
+        interactions[categoryName].forEach(interaction => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'interaction-option-btn';
+            button.setAttribute('data-interaction-id', interaction.id);
+            
+            button.innerHTML = `
+                <div class="interaction-name">${interaction.name}</div>
+                <div class="interaction-desc">${interaction.description}</div>
+            `;
+            
+            button.onclick = () => selectInteractionOption(interaction.id, interaction.name);
+            
+            gridContainer.appendChild(button);
+        });
+        
+        categoryDiv.appendChild(gridContainer);
+        container.appendChild(categoryDiv);
+    });
+    
+    logger.info(`🎭 显示互动选项，共 ${Object.keys(interactions).length} 个分类`);
+}
+
+/**
+ * 选择互动选项
+ */
+function selectInteractionOption(interactionId, interactionName) {
+    // 清除之前的选中状态
+    document.querySelectorAll('.interaction-option-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // 设置新的选中状态
+    const selectedBtn = document.querySelector(`[data-interaction-id="${interactionId}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+    
+    // 更新选中信息显示
+    const displayDiv = document.getElementById('selectedInteractionDisplay');
+    const textSpan = document.getElementById('selectedInteractionText');
+    
+    textSpan.textContent = interactionName;
+    displayDiv.style.display = 'block';
+    
+    // 启用确认按钮
+    document.getElementById('confirmInteractionBtn').disabled = false;
+    
+    // 暂存选择（实际选择在确认时保存）
+    window.tempSelectedInteractionId = interactionId;
+    window.tempSelectedInteractionName = interactionName;
+    
+    logger.info(`🎯 暂选互动动作: ${interactionName} (${interactionId})`);
+}
+
+/**
+ * 确认互动选择
+ */
+function confirmInteractionSelection() {
+    if (!window.tempSelectedInteractionId) {
+        logger.error('❌ 没有选择互动动作');
+        return;
+    }
+    
+    // 保存选择
+    selectedInteractionId = window.tempSelectedInteractionId;
+    selectedInteractionName = window.tempSelectedInteractionName;
+    
+    // 更新模板显示信息，包含互动动作
+    const displaySpan = document.getElementById('selectedTemplateDisplay');
+    displaySpan.textContent = `强互动自拍梗图 (${selectedInteractionName})`;
+    
+    // 启用下一步按钮
+    document.getElementById('nextToUploadBtn').disabled = false;
+    
+    // 关闭模态框
+    closeInteractionModal();
+    
+    // 清理临时变量
+    delete window.tempSelectedInteractionId;
+    delete window.tempSelectedInteractionName;
+    
+    logger.success(`✅ 已确认互动选择: ${selectedInteractionName} (${selectedInteractionId})`);
+}
+
+// 全局暴露互动功能
+window.openInteractionModal = openInteractionModal;
+window.closeInteractionModal = closeInteractionModal;
+window.selectInteractionOption = selectInteractionOption;
+window.confirmInteractionSelection = confirmInteractionSelection;
