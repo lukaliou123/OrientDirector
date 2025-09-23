@@ -35,7 +35,7 @@
       "id": "interactive_selfie",
       "name": "强互动自拍梗图",
       "description": "主角与历史人物强烈互动的搞笑自拍梗图",
-      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm's length.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.",
+      "template": "A cinematic selfie screenshot, composition inspired by [reference image pic2].  \nForeground: [person from pic1], holding camera at arm's length.  \nInteraction: [interaction].  \nBackground: [场景元素], natural integration of all characters into the environment.  \nLighting: dynamic natural lighting with realistic shadows and reflections, cinematic teal-orange grade, soft ambient occlusion, subtle motion blur, and film grain.  \nCamera: shallow depth of field (sharp focus on selfie subject, slightly blurred background), slight wide-angle selfie distortion, and subtle handheld imperfections.  \nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.  \nOverlay text at top-left \"[year], [location]\", and a meme-style caption at bottom.  \n",
       "placeholders": {
         "[reference image pic2]": "构图参考图片",
         "[person from pic1]": "人物图片",

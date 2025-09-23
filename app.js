@@ -80,6 +80,13 @@ const PRESET_LOCATIONS = {
         country: "意大利",
         description: "永恒之城的历史见证，古罗马帝国的辉煌"
     },
+    constantinople: {
+        name: "君士坦丁堡圣索菲亚大教堂",
+        latitude: 41.0082,
+        longitude: 28.9784,
+        country: "土耳其",
+        description: "连接欧亚的古都，拜占庭帝国的辉煌中心"
+    },
     beijing: {
         name: "北京故宫",
         latitude: 39.9042,
