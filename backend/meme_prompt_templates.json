@@ -50,6 +50,44 @@
       "has_interactions": true
     },
     {
+      "id": "anime_selfie",
+      "name": "二次元自拍梗图",
+      "description": "根据人物制作在历史场景中的旅游照片，具有二次元风格和电影感",
+      "template": "Create a cinematic anime-style historical travel photo featuring [person from pic1] based on [reference image pic2].\nComposition: [person from pic1] naturally integrated into [场景元素], creating a seamless travel documentary feel with anime aesthetic.\nCharacter Scale: [person from pic1] should be properly scaled (25-35% of frame) and positioned naturally in the historical environment, interacting with background elements and NPCs.\nInteraction: [interaction] - character should actively engage with the historical setting, touching artifacts, gesturing toward landmarks, or reacting to period-appropriate activities.\nLighting Integration: Perfectly match the historical scene's lighting direction, intensity, and color temperature on the anime character. Create realistic shadows that the character would cast in this environment. Use rim lighting and ambient light that are consistent throughout. Add subtle environmental reflections on the character's skin, eyes, and clothing to enhance integration.\nColor Harmony: Harmonize the color palette between the anime character and historical background. Match saturation levels, contrast, and color grading so the character appears shot in the same conditions. Use color temperature matching (warm/cool tones) and ensure the character's colors complement the historical scene's palette.\nDepth and Blur: Create natural depth of field with the character sharp in focus and background with appropriate softness. Add atmospheric perspective and environmental elements like dust particles, ambient fog, or atmospheric haze that affect both character and background equally. Use subtle edge softening and light wrap around the character's silhouette for seamless blending.\nStyle: Travel documentation, vlog atmosphere with anime-inspired aesthetic, vibrant but harmonized colors, soft realistic shadows, and anime-style character proportions that feel naturally integrated.\nBackground: [场景元素] with period-appropriate details and historical accuracy, including background NPCs that react to the character's presence with realistic lighting and color consistency.\nOverlay text at top-left \"[year], [location]\", and a travel-style caption at bottom.\nOverall mood: Time-traveling historical photo with documentary and film lighting, character seamlessly blending into the historical environment while maintaining anime charm and visual coherence.",
+      "placeholders": {
+        "[reference image pic2]": "构图参考图片",
+        "[person from pic1]": "人物图片",
+        "[interaction]": "互动动作描述",
+        "[场景元素]": "历史场景元素和背景",
+        "[year]": "历史年份",
+        "[location]": "历史地点"
+      },
+      "category": "anime",
+      "tags": ["二次元", "自拍", "旅游", "历史", "电影感", "互动"],
+      "usage_count": 0,
+      "has_interactions": true
+    },
+    {
+      "id": "selfie_with_anime",
+      "name": "和二次元穿越自拍梗图",
+      "description": "真人与二次元角色在历史场景中的旅游合照，具有写实纪录片风格和胶片质感",
+      "template": "Create a realistic documentary-style historical travel photo featuring [person from pic1] and [character from pic3] based on [reference image pic2].\nComposition: Both [person from pic1] and [character from pic3] naturally integrated into [场景元素], creating a seamless travel documentary feel with realistic and anime aesthetic combination.\nCharacter Scale: [person from pic1] should be properly scaled (25-35% of frame) and [character from pic3] should be scaled proportionally, both positioned naturally in the historical environment, interacting with background elements and NPCs.\nInteraction: [interaction] - both characters should actively engage with the historical setting, touching artifacts, gesturing toward landmarks, or reacting to period-appropriate activities together.\nLighting Integration: Perfectly match the historical scene's lighting direction, intensity, and color temperature on both the real person and anime character. Create realistic shadows that both characters would cast in this environment. Use rim lighting and ambient light that are consistent throughout. Add subtle environmental reflections on both characters' skin, eyes, and clothing to enhance integration.\nColor Harmony: Harmonize the color palette between both characters and historical background. Match saturation levels, contrast, and color grading so both characters appear shot in the same conditions. Use color temperature matching (warm/cool tones) and ensure both characters' colors complement the historical scene's palette.\nDepth and Blur: Create natural depth of field with both characters sharp in focus and background with appropriate softness. Add atmospheric perspective and environmental elements like dust particles, ambient fog, or atmospheric haze that affect both characters and background equally. Use subtle edge softening and light wrap around both characters' silhouettes for seamless blending.\nStyle: Documentary travel photography with realistic film grain, historical authenticity, and natural interaction between real person and anime character. Use vintage film color grading, subtle grain texture, and authentic historical atmosphere. Both characters should feel naturally integrated into the historical moment.\nBackground: [场景元素] with period-appropriate details and historical accuracy, including background NPCs that react to both characters' presence with realistic lighting and color consistency.\nOverlay text at top-left \"[year], [location]\", and a documentary-style caption at bottom.\nOverall mood: Authentic historical travel photo with documentary film lighting, both real person and anime character seamlessly blending into the historical environment while maintaining realistic documentary aesthetic and historical authenticity.",
+      "placeholders": {
+        "[reference image pic2]": "构图参考图片",
+        "[person from pic1]": "人物图片",
+        "[character from pic3]": "真人图片",
+        "[interaction]": "互动动作描述",
+        "[场景元素]": "历史场景元素和背景",
+        "[year]": "历史年份",
+        "[location]": "历史地点"
+      },
+      "category": "anime",
+      "tags": ["二次元", "真人", "自拍", "旅游", "历史", "纪录片", "胶片"],
+      "usage_count": 0,
+      "has_interactions": true,
+      "requires_companion_image": true
+    },
+    {
       "id": "virtual_companion",
       "name": "虚拟伙伴梗图",
       "description": "主角手持基于上传图片制作的玩偶娃娃进行搞笑自拍",
@@ -67,6 +105,7 @@
       "usage_count": 0,
       "requires_companion_image": true
     }
+    
   ],
   "interactions": {
     "肢体动作类": [
@@ -180,6 +219,58 @@
         "id": "half_cut",
         "name": "半身被裁",
         "description": "角色半身被裁掉，只露一只眼或半张脸，制造糊图笑点"
+      }
+    ],
+    "二次元风格类": [
+      {
+        "id": "anime_pose",
+        "name": "动漫经典姿势",
+        "description": "摆出经典动漫角色姿势，如双手叉腰、单手比V、或动漫式挥手"
+      },
+      {
+        "id": "kawaii_expression",
+        "name": "可爱表情包",
+        "description": "做出超可爱的动漫表情，大眼睛闪闪发光，嘴巴微张"
+      },
+      {
+        "id": "anime_wave",
+        "name": "动漫式挥手",
+        "description": "像动漫角色一样挥手打招呼，动作夸张可爱"
+      },
+      {
+        "id": "magical_gesture",
+        "name": "魔法手势",
+        "description": "做出施法或召唤的手势，配合动漫式特效感"
+      },
+      {
+        "id": "anime_surprise",
+        "name": "动漫式惊讶",
+        "description": "动漫风格的惊讶表情，眼睛瞪大，嘴巴成O型"
+      },
+      {
+        "id": "cute_lean",
+        "name": "可爱倾斜",
+        "description": "身体微微倾斜，像动漫角色一样俏皮可爱"
+      },
+      {
+        "id": "anime_point",
+        "name": "动漫式指向",
+        "description": "单手指向某个方向，动作夸张，像在介绍什么"
+      },
+      {
+        "id": "sparkle_eyes",
+        "name": "星星眼",
+        "description": "眼睛闪闪发光，像看到什么令人兴奋的东西"
+      },
+      {
+        "id": "anime_peace",
+        "name": "动漫比耶",
+        "description": "比出动漫风格的V字手势，表情开心可爱"
+      },
+      {
+        "id": "magical_pose",
+        "name": "魔法少女姿势",
+        "description": "摆出魔法少女变身或施法的经典姿势"
       }
     ]
   },

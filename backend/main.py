@@ -2262,6 +2262,9 @@ async def get_meme_templates():
             # 如果模板支持互动选择，标记它
             if template.get('has_interactions'):
                 template_data['has_interactions'] = True
+            # 如果模板需要伙伴图片，标记它
+            if template.get('requires_companion_image'):
+                template_data['requires_companion_image'] = True
             simplified_templates.append(template_data)
         
         return {

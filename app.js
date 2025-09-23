@@ -5010,6 +5010,11 @@ function selectMemeTemplateForHistory(templateId, templateName) {
         // 先禁用下一步按钮，等待互动选择
         document.getElementById('nextToUploadBtn').disabled = true;
         openInteractionModal();
+    } else if (templateId === 'anime_selfie') {
+        logger.info('🎨 检测到二次元模板，打开互动选择窗口');
+        // 先禁用下一步按钮，等待互动选择
+        document.getElementById('nextToUploadBtn').disabled = true;
+        openInteractionModal();
     } else if (templateId === 'virtual_companion') {
         logger.info('🧸 检测到虚拟伙伴模板，将在图片上传步骤显示虚拟伙伴上传区域');
         // 直接启用下一步按钮
