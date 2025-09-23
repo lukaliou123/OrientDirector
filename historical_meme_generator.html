@@ -1262,6 +1262,31 @@
                 }
                 showInteractionSelection();
                 hideCompanionImageSection();
+            } else if (templateId === 'anime_selfie') {
+                // 二次元自拍模板
+                console.log('🎨 处理二次元自拍模板');
+                console.log('✅ 成功匹配到 anime_selfie 模板');
+                console.log('📊 历史信息状态:', state.historicalInfo);
+                
+                if (state.historicalInfo) {
+                    try {
+                        const basePrompt = processMemeTemplateOnClient(templateId, null);
+                        document.getElementById('memePrompt').value = basePrompt;
+                        console.log('📝 已生成二次元自拍模板基础prompt');
+                    } catch (error) {
+                        console.error('❌ 生成基础prompt失败:', error);
+                        const suggestion = "将生成二次元风格历史自拍梗图，请选择互动动作";
+                        document.getElementById('memePrompt').value = suggestion;
+                    }
+                } else {
+                    const suggestion = "将生成二次元风格历史自拍梗图，请先生成历史信息，然后选择互动动作";
+                    document.getElementById('memePrompt').value = suggestion;
+                }
+                
+                console.log('🎭 显示互动选择区域');
+                showInteractionSelection();
+                console.log('🎭 隐藏真人图片上传区域（二次元自拍不需要）');
+                hideCompanionImageSection();
             } else if (templateId === 'selfie_with_anime') {
                 // 和二次元穿越自拍模板
                 console.log('🎨 处理和二次元穿越自拍模板');
@@ -1318,17 +1343,35 @@
         
         // 显示虚拟伙伴图片上传区域
         function showCompanionImageSection() {
-            document.getElementById('companionImageSection').style.display = 'block';
+            const sectionElement = document.getElementById('companionImageSection');
+            if (sectionElement) {
+                sectionElement.style.display = 'block';
+            } else {
+                console.error('❌ 找不到 companionImageSection 元素');
+                return;
+            }
             
             // 根据选中的模板类型更新标签
             if (selectedMemeTemplate === 'selfie_with_anime') {
-                document.getElementById('companionImageLabel').textContent = '👤 真人图片：';
-                document.getElementById('companionPreviewText').textContent = '📷 点击上传真人图片';
-                document.getElementById('companionPreviewDesc').textContent = '用于与二次元角色合照的真实人物图片';
+                const labelElement = document.getElementById('companionImageLabel');
+                const textElement = document.getElementById('companionPreviewText');
+                const descElement = document.getElementById('companionPreviewDesc');
+                
+                if (labelElement) labelElement.textContent = '👤 真人图片：';
+                if (textElement) textElement.textContent = '📷 点击上传真人图片';
+                if (descElement) descElement.textContent = '用于与二次元角色合照的真实人物图片';
+                
+                console.log('✅ 已更新为真人图片上传模式');
             } else {
-                document.getElementById('companionImageLabel').textContent = '🧸 虚拟伙伴素材 (娃娃原型)：';
-                document.getElementById('companionPreviewText').textContent = '🎭 点击上传虚拟伙伴图片';
-                document.getElementById('companionPreviewDesc').textContent = '将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片';
+                const labelElement = document.getElementById('companionImageLabel');
+                const textElement = document.getElementById('companionPreviewText');
+                const descElement = document.getElementById('companionPreviewDesc');
+                
+                if (labelElement) labelElement.textContent = '🧸 虚拟伙伴素材 (娃娃原型)：';
+                if (textElement) textElement.textContent = '🎭 点击上传虚拟伙伴图片';
+                if (descElement) descElement.textContent = '将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片';
+                
+                console.log('✅ 已更新为虚拟伙伴上传模式');
             }
         }
 

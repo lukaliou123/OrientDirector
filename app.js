@@ -5012,6 +5012,7 @@ function selectMemeTemplateForHistory(templateId, templateName) {
         openInteractionModal();
     } else if (templateId === 'anime_selfie') {
         logger.info('🎨 检测到二次元模板，打开互动选择窗口');
+        console.log('🔍 Debug: anime_selfie 模板被选中，即将打开互动模态框');
         // 先禁用下一步按钮，等待互动选择
         document.getElementById('nextToUploadBtn').disabled = true;
         openInteractionModal();
@@ -5443,15 +5444,19 @@ window.generateHistoricalMeme = generateHistoricalMeme;
  * 打开互动选择模态框
  */
 async function openInteractionModal() {
+    console.log('🔍 Debug: openInteractionModal 被调用');
     const modalOverlay = document.getElementById('interactionModalOverlay');
     if (!modalOverlay) {
+        console.error('❌ 找不到互动模态框元素: interactionModalOverlay');
         logger.error('❌ 找不到互动模态框元素');
         return;
     }
     
+    console.log('🔍 Debug: 模态框元素找到，正在显示');
     // 显示模态框
     modalOverlay.style.display = 'flex';
     
+    console.log('🔍 Debug: 开始加载互动数据');
     // 加载互动数据
     await loadInteractionData();
     
@@ -5491,24 +5496,30 @@ function closeInteractionModal() {
  * 加载互动数据
  */
 async function loadInteractionData() {
+    console.log('🔍 Debug: loadInteractionData 被调用');
     if (availableInteractions) {
+        console.log('🔍 Debug: 使用缓存的互动数据');
         // 如果已经加载过，直接显示
         displayInteractionCategories(availableInteractions);
         return;
     }
     
     try {
+        console.log('🔍 Debug: 请求互动数据从 API');
         const response = await fetch(API_CONFIG.getApiUrl('/api/meme-templates'));
         const data = await response.json();
         
+        console.log('🔍 Debug: API 响应:', data);
         if (data.success && data.interactions) {
+            console.log('🔍 Debug: 互动数据结构:', Object.keys(data.interactions));
             availableInteractions = data.interactions;
             displayInteractionCategories(data.interactions);
             logger.info('✅ 互动数据加载成功');
         } else {
-            throw new Error('互动数据加载失败');
+            throw new Error('互动数据加载失败: success=' + data.success + ', interactions=' + !!data.interactions);
         }
     } catch (error) {
+        console.error('🔍 Debug: 互动数据加载错误:', error);
         logger.error(`❌ 互动数据加载失败: ${error.message}`);
         const container = document.getElementById('interactionCategoriesContainer');
         container.innerHTML = '<div class="loading-interactions">❌ 互动数据加载失败</div>';
@@ -5519,9 +5530,15 @@ async function loadInteractionData() {
  * 显示互动分类和按钮
  */
 function displayInteractionCategories(interactions) {
+    console.log('🔍 Debug: displayInteractionCategories 被调用，数据:', interactions);
     const container = document.getElementById('interactionCategoriesContainer');
+    if (!container) {
+        console.error('❌ 找不到 interactionCategoriesContainer 元素');
+        return;
+    }
     container.innerHTML = '';
     
+    console.log('🔍 Debug: 开始渲染互动分类，共 ' + Object.keys(interactions).length + ' 个分类');
     Object.keys(interactions).forEach(categoryName => {
         // 创建分类容器
         const categoryDiv = document.createElement('div');
