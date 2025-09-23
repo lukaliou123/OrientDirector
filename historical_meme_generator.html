@@ -444,11 +444,11 @@
             
             <!-- 虚拟伙伴图片上传区域 -->
             <div class="form-group" id="companionImageSection" style="display: none;">
-                <label class="form-label">🧸 虚拟伙伴素材 (娃娃原型)：</label>
+                <label class="form-label" id="companionImageLabel">🧸 虚拟伙伴素材 (娃娃原型)：</label>
                 <div class="image-upload-area" id="companionUpload" onclick="document.getElementById('companionFile').click()">
                     <div id="companionPreview">
-                        <p>🎭 点击上传虚拟伙伴图片</p>
-                        <small>将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片</small>
+                        <p id="companionPreviewText">🎭 点击上传虚拟伙伴图片</p>
+                        <small id="companionPreviewDesc">将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片</small>
                     </div>
                 </div>
                 <input type="file" id="companionFile" accept="image/*" style="display: none;" onchange="handleCompanionUpload(event)">
@@ -1089,11 +1089,24 @@
                 reader.onload = function(e) {
                     state.companionImage = e.target.result;
                     const preview = document.getElementById('companionPreview');
-                    preview.innerHTML = `
-                        <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                        <div style="margin-top: 5px; font-size: 12px; color: #28a745;">✅ 虚拟伙伴素材已上传</div>
-                    `;
-                    console.log('🧸 虚拟伙伴图片已上传');
+                    
+                    // 根据模板类型显示不同的成功消息
+                    if (selectedMemeTemplate === 'selfie_with_anime') {
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                            <div style="margin-top: 5px; font-size: 12px; color: #28a745;">✅ 真人图片已上传</div>
+                        `;
+                        console.log('👤 真人图片已上传');
+                    } else {
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                            <div style="margin-top: 5px; font-size: 12px; color: #28a745;">✅ 虚拟伙伴素材已上传</div>
+                        `;
+                        console.log('🧸 虚拟伙伴图片已上传');
+                    }
+                    
+                    // 检查生成准备状态
+                    checkMemeGenerationReady();
                 };
                 reader.readAsDataURL(file);
             }
@@ -1104,11 +1117,20 @@
             const btn = document.getElementById('generateMemeBtn');
             const prompt = document.getElementById('memePrompt').value;
             
-            if (state.characterImage && state.sceneElements.length > 0 && prompt.trim()) {
-                btn.disabled = false;
+            let isReady = false;
+            
+            if (selectedMemeTemplate === 'selfie_with_anime') {
+                // 和二次元穿越模板需要人物素材、真人图片、场景元素和提示词
+                isReady = state.characterImage && state.companionImage && state.sceneElements.length > 0 && prompt.trim();
+            } else if (selectedMemeTemplate === 'virtual_companion') {
+                // 虚拟伙伴模板需要人物素材、虚拟伙伴图片、场景元素和提示词
+                isReady = state.characterImage && state.companionImage && state.sceneElements.length > 0 && prompt.trim();
             } else {
-                btn.disabled = true;
+                // 其他模板只需要人物素材、场景元素和提示词
+                isReady = state.characterImage && state.sceneElements.length > 0 && prompt.trim();
             }
+            
+            btn.disabled = !isReady;
         }
 
         // 监听梗图提示词输入
@@ -1146,6 +1168,7 @@
             container.innerHTML = '';
             
             templates.forEach(template => {
+                console.log(`🔍 处理模板: ${template.id} - ${template.name}`);
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'meme-template-btn';
@@ -1166,7 +1189,12 @@
                     <div style="font-size: 11px; color: #666;">${template.description}</div>
                 `;
                 
-                button.onclick = () => selectMemeTemplate(template.id, template.name);
+                button.onclick = (e) => {
+                    console.log(`🖱️ 点击模板按钮: ${template.id} - ${template.name}`);
+                    e.target.style.borderColor = '#28a745';
+                    e.target.style.background = '#e8f5e8';
+                    selectMemeTemplate(template.id, template.name);
+                };
                 
                 // 悬停效果
                 button.onmouseover = () => {
@@ -1186,6 +1214,15 @@
 
         // 选择梗图模板
         function selectMemeTemplate(templateId, templateName) {
+            console.log(`🎯 选择梗图模板: ${templateId} - ${templateName}`);
+            console.log(`🔍 模板ID类型: ${typeof templateId}`);
+            console.log(`🔍 模板ID值: "${templateId}"`);
+            console.log(`🔍 模板ID长度: ${templateId.length}`);
+            console.log(`🔍 是否等于 'selfie_with_anime': ${templateId === 'selfie_with_anime'}`);
+            console.log(`🔍 字符串比较结果: "${templateId}" === "selfie_with_anime" = ${templateId === 'selfie_with_anime'}`);
+            console.log(`🔍 字符串长度比较: ${templateId.length} === ${'selfie_with_anime'.length} = ${templateId.length === 'selfie_with_anime'.length}`);
+            console.log(`🔍 字符串字符码: ${Array.from(templateId).map(c => c.charCodeAt(0)).join(',')}`);
+            console.log(`🔍 期望字符码: ${Array.from('selfie_with_anime').map(c => c.charCodeAt(0)).join(',')}`);
             selectedMemeTemplate = templateId;
             
             // 更新UI显示选中状态
@@ -1193,13 +1230,12 @@
                 btn.style.borderColor = '#ddd';
                 btn.style.background = 'white';
             });
-            event.target.style.borderColor = '#28a745';
-            event.target.style.background = '#e8f5e8';
             
             // 显示选中的模板
             document.getElementById('selectedMemeTemplate').textContent = templateName;
             
             // 根据模板类型提供提示
+            console.log(`🔍 开始条件判断，当前templateId: "${templateId}"`);
             if (templateId === 'cinematic_selfie') {
                 const suggestion = "将生成电影感历史穿越自拍梗图，自动融合历史场景元素";
                 document.getElementById('memePrompt').value = suggestion;
@@ -1226,6 +1262,31 @@
                 }
                 showInteractionSelection();
                 hideCompanionImageSection();
+            } else if (templateId === 'selfie_with_anime') {
+                // 和二次元穿越自拍模板
+                console.log('🎨 处理和二次元穿越自拍模板');
+                console.log('✅ 成功匹配到 selfie_with_anime 模板');
+                console.log('📊 历史信息状态:', state.historicalInfo);
+                
+                if (state.historicalInfo) {
+                    try {
+                        const basePrompt = processMemeTemplateOnClient(templateId, null);
+                        document.getElementById('memePrompt').value = basePrompt;
+                        console.log('📝 已生成和二次元穿越模板基础prompt');
+                    } catch (error) {
+                        console.error('❌ 生成基础prompt失败:', error);
+                        const suggestion = "将生成和二次元穿越历史自拍梗图，请选择互动动作并上传真人图片";
+                        document.getElementById('memePrompt').value = suggestion;
+                    }
+                } else {
+                    const suggestion = "将生成和二次元穿越历史自拍梗图，请先生成历史信息，然后选择互动动作并上传真人图片";
+                    document.getElementById('memePrompt').value = suggestion;
+                }
+                
+                console.log('🎭 显示互动选择区域');
+                showInteractionSelection();
+                console.log('👤 显示真人图片上传区域');
+                showCompanionImageSection();
             } else if (templateId === 'virtual_companion') {
                 // 虚拟伙伴模板
                 if (state.historicalInfo) {
@@ -1245,6 +1306,7 @@
                 hideInteractionSelection();
                 showCompanionImageSection();
             } else {
+                console.log(`❌ 未匹配到任何模板，templateId: "${templateId}"`);
                 hideInteractionSelection();
                 hideCompanionImageSection();
             }
@@ -1257,6 +1319,17 @@
         // 显示虚拟伙伴图片上传区域
         function showCompanionImageSection() {
             document.getElementById('companionImageSection').style.display = 'block';
+            
+            // 根据选中的模板类型更新标签
+            if (selectedMemeTemplate === 'selfie_with_anime') {
+                document.getElementById('companionImageLabel').textContent = '👤 真人图片：';
+                document.getElementById('companionPreviewText').textContent = '📷 点击上传真人图片';
+                document.getElementById('companionPreviewDesc').textContent = '用于与二次元角色合照的真实人物图片';
+            } else {
+                document.getElementById('companionImageLabel').textContent = '🧸 虚拟伙伴素材 (娃娃原型)：';
+                document.getElementById('companionPreviewText').textContent = '🎭 点击上传虚拟伙伴图片';
+                document.getElementById('companionPreviewDesc').textContent = '将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片';
+            }
         }
 
         // 隐藏虚拟伙伴图片上传区域
@@ -1382,6 +1455,8 @@
                 'cinematic_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: making awkward eye contact with the camera, reacting with shock or confusion.\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.',
                 'documentary_style': 'Create a documentary-style comparison meme featuring [person from pic1] as a time traveler.\nSplit screen composition: Left side shows modern person, right side shows [场景元素].\nText overlay: "Time Travel Documentary: [year] [location]"\nStyle: National Geographic documentary aesthetic, professional photography, historical accuracy.\nCaption: Humorous comparison between modern and ancient times.',
                 'interactive_selfie': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, making an exaggerated expression.\nInteraction: [interaction]\nBackground: [场景元素], natural integration of all characters into the environment.\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: chaotic but funny travel vlog vibe, meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.',
+                'anime_selfie': 'Create a cinematic anime-style historical travel photo featuring [person from pic1] based on [reference image pic2].\nComposition: [person from pic1] naturally integrated into [场景元素], creating a seamless travel documentary feel with anime aesthetic.\nCharacter Scale: [person from pic1] should be properly scaled (25-35% of frame) and positioned naturally in the historical environment, interacting with background elements and NPCs.\nInteraction: [interaction] - character should actively engage with the historical setting, touching artifacts, gesturing toward landmarks, or reacting to period-appropriate activities.\nLighting Integration: Perfectly match the historical scene\'s lighting direction, intensity, and color temperature on the anime character. Create realistic shadows that the character would cast in this environment. Use rim lighting and ambient light that are consistent throughout. Add subtle environmental reflections on the character\'s skin, eyes, and clothing to enhance integration.\nColor Harmony: Harmonize the color palette between the anime character and historical background. Match saturation levels, contrast, and color grading so the character appears shot in the same conditions. Use color temperature matching (warm/cool tones) and ensure the character\'s colors complement the historical scene\'s palette.\nDepth and Blur: Create natural depth of field with the character sharp in focus and background with appropriate softness. Add atmospheric perspective and environmental elements like dust particles, ambient fog, or atmospheric haze that affect both character and background equally. Use subtle edge softening and light wrap around the character\'s silhouette for seamless blending.\nStyle: Travel documentation, vlog atmosphere with anime-inspired aesthetic, vibrant but harmonized colors, soft realistic shadows, and anime-style character proportions that feel naturally integrated.\nBackground: [场景元素] with period-appropriate details and historical accuracy, including background NPCs that react to the character\'s presence with realistic lighting and color consistency.\nOverlay text at top-left "[year], [location]", and a travel-style caption at bottom.\nOverall mood: Time-traveling historical photo with documentary and film lighting, character seamlessly blending into the historical environment while maintaining anime charm and visual coherence.',
+                'selfie_with_anime': 'Create a realistic documentary-style historical travel photo featuring [person from pic1] and [character from pic3] based on [reference image pic2].\nComposition: Both [person from pic1] and [character from pic3] naturally integrated into [场景元素], creating a seamless travel documentary feel with realistic and anime aesthetic combination.\nCharacter Scale: [person from pic1] should be properly scaled (25-35% of frame) and [character from pic3] should be scaled proportionally, both positioned naturally in the historical environment, interacting with background elements and NPCs.\nInteraction: [interaction] - both characters should actively engage with the historical setting, touching artifacts, gesturing toward landmarks, or reacting to period-appropriate activities together.\nLighting Integration: Perfectly match the historical scene\'s lighting direction, intensity, and color temperature on both the real person and anime character. Create realistic shadows that both characters would cast in this environment. Use rim lighting and ambient light that are consistent throughout. Add subtle environmental reflections on both characters\' skin, eyes, and clothing to enhance integration.\nColor Harmony: Harmonize the color palette between both characters and historical background. Match saturation levels, contrast, and color grading so both characters appear shot in the same conditions. Use color temperature matching (warm/cool tones) and ensure both characters\' colors complement the historical scene\'s palette.\nDepth and Blur: Create natural depth of field with both characters sharp in focus and background with appropriate softness. Add atmospheric perspective and environmental elements like dust particles, ambient fog, or atmospheric haze that affect both characters and background equally. Use subtle edge softening and light wrap around both characters\' silhouettes for seamless blending.\nStyle: Documentary travel photography with realistic film grain, historical authenticity, and natural interaction between real person and anime character. Use vintage film color grading, subtle grain texture, and authentic historical atmosphere. Both characters should feel naturally integrated into the historical moment.\nBackground: [场景元素] with period-appropriate details and historical accuracy, including background NPCs that react to both characters\' presence with realistic lighting and color consistency.\nOverlay text at top-left "[year], [location]", and a documentary-style caption at bottom.\nOverall mood: Authentic historical travel photo with documentary film lighting, both real person and anime character seamlessly blending into the historical environment while maintaining realistic documentary aesthetic and historical authenticity.',
                 'virtual_companion': 'A cinematic selfie screenshot, composition inspired by [reference image pic2].\nForeground: [person from pic1], holding camera at arm\'s length, with the other arm holding a doll/figurine version of [character from pic3].\nVirtual doll: [character from pic3], rendered as a plush toy / collectible figurine, keeping its iconic traits [list: e.g. wooden body, big eyes / fluffy body, round ears].\nThe doll should look like a physical object being hugged or held, with fabric/texture details, consistent lighting, shadow, and depth of field.\nNo sticker effect — it must appear like a real toy captured in the photo.\nBackground: [场景元素].\nLighting: cinematic teal-orange grade, subtle motion blur, film grain.\nStyle: travel vlog vibe with meme screenshot aesthetic.\nOverlay text at top-left "[year], [location]", and a meme-style caption at bottom.'
             };
             
@@ -1663,3 +1738,4 @@
     </script>
 </body>
 </html>
+
