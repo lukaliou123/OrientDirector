@@ -5126,16 +5126,53 @@ function proceedToImageUpload() {
         // 显示虚拟伙伴上传区域
         if (companionSection) {
             companionSection.style.display = 'block';
+            updateCompanionUploadLabel('virtual_companion');
             logger.info('🧸 虚拟伙伴模板：显示虚拟伙伴上传区域');
         }
+    } else if (selectedMemeTemplate === 'selfie_with_anime') {
+        // 显示二次元角色上传区域
+        if (companionSection) {
+            companionSection.style.display = 'block';
+            updateCompanionUploadLabel('selfie_with_anime');
+            logger.info('🎭 和二次元穿越模板：显示二次元角色上传区域');
+        }
     } else {
-        // 隐藏虚拟伙伴上传区域
+        // 隐藏第三个上传区域
         if (companionSection) {
             companionSection.style.display = 'none';
         }
     }
     
     logger.info('📷 进入步骤3：图片上传');
+}
+
+/**
+ * 更新第三个上传框的标签文本
+ */
+function updateCompanionUploadLabel(templateType) {
+    const companionSection = document.getElementById('companionUploadSection');
+    if (!companionSection) {
+        logger.error('❌ 找不到companionUploadSection元素');
+        return;
+    }
+    
+    const labelElement = companionSection.querySelector('.upload-label');
+    const textElement = companionSection.querySelector('p');
+    const descElement = companionSection.querySelector('small');
+    
+    if (templateType === 'selfie_with_anime') {
+        // 和二次元穿越模板：显示二次元角色相关文本
+        if (labelElement) labelElement.textContent = '🎭 二次元角色素材 (动漫原型)';
+        if (textElement) textElement.textContent = '🎨 点击上传二次元角色图片';
+        if (descElement) descElement.textContent = '用于与真人合照的二次元角色（动漫人物、游戏角色等）';
+        logger.info('✅ 已更新为二次元角色上传标签');
+    } else {
+        // 虚拟伙伴模板：显示虚拟伙伴相关文本
+        if (labelElement) labelElement.textContent = '🧸 虚拟伙伴素材 (娃娃原型)';
+        if (textElement) textElement.textContent = '🎭 点击上传虚拟伙伴图片';
+        if (descElement) descElement.textContent = '将制作成玩偶娃娃，推荐卡通角色、宠物或任何想要娃娃化的图片';
+        logger.info('✅ 已更新为虚拟伙伴上传标签');
+    }
 }
 
 /**
@@ -5209,15 +5246,20 @@ function handleCompanionImageUpload(event) {
         const previewArea = document.getElementById('companionPreviewArea');
         
         uploadArea.classList.add('has-image');
+        const successText = selectedMemeTemplate === 'selfie_with_anime' ? 
+            '✅ 二次元角色图片已上传' : '✅ 虚拟伙伴素材已上传';
+        
         previewArea.innerHTML = `
             <img src="${e.target.result}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
-            <p style="margin-top: 8px; color: #ff9800; font-weight: bold; font-size: 0.8rem;">✅ 虚拟伙伴素材已上传</p>
+            <p style="margin-top: 8px; color: #ff9800; font-weight: bold; font-size: 0.8rem;">${successText}</p>
         `;
         
         // 检查生成按钮状态
         checkMemeGenerationReady();
         
-        logger.info('🧸 虚拟伙伴素材上传成功');
+        const logText = selectedMemeTemplate === 'selfie_with_anime' ? 
+            '🎭 二次元角色图片上传成功' : '🧸 虚拟伙伴素材上传成功';
+        logger.info(logText);
     };
     reader.readAsDataURL(file);
 }
@@ -5233,6 +5275,9 @@ function checkMemeGenerationReady() {
     
     if (selectedMemeTemplate === 'virtual_companion') {
         // 虚拟伙伴模板需要人物素材和虚拟伙伴素材
+        isReady = uploadedCharacterImage && uploadedCompanionImage;
+    } else if (selectedMemeTemplate === 'selfie_with_anime') {
+        // 和二次元穿越模板需要人物素材（真人）和二次元角色图片
         isReady = uploadedCharacterImage && uploadedCompanionImage;
     } else {
         // 其他模板只需要人物素材
@@ -5441,6 +5486,7 @@ window.proceedToImageUpload = proceedToImageUpload;
 window.handleCharacterImageUpload = handleCharacterImageUpload;
 window.handleCompositionImageUpload = handleCompositionImageUpload;
 window.handleCompanionImageUpload = handleCompanionImageUpload;
+window.updateCompanionUploadLabel = updateCompanionUploadLabel;
 window.generateHistoricalMeme = generateHistoricalMeme;
 
 // ================ 互动选择模态框功能 ================
