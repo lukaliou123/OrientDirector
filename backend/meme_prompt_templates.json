@@ -71,12 +71,12 @@
       "id": "selfie_with_anime",
       "name": "和二次元穿越自拍梗图",
       "description": "真人与二次元角色在历史场景中的旅游合照，具有写实纪录片风格和胶片质感",
-      "template": "Create a realistic documentary-style historical travel photo featuring [person from pic1] and [character from pic3] based on [reference image pic2].\nComposition: Both [person from pic1] and [character from pic3] naturally integrated into [场景元素], creating a seamless travel documentary feel with realistic and anime aesthetic combination.\nCharacter Scale: [person from pic1] should be properly scaled (25-35% of frame) and [character from pic3] should be scaled proportionally, both positioned naturally in the historical environment, interacting with background elements and NPCs.\nInteraction: [interaction] - both characters should actively engage with the historical setting, touching artifacts, gesturing toward landmarks, or reacting to period-appropriate activities together.\nLighting Integration: Perfectly match the historical scene's lighting direction, intensity, and color temperature on both the real person and anime character. Create realistic shadows that both characters would cast in this environment. Use rim lighting and ambient light that are consistent throughout. Add subtle environmental reflections on both characters' skin, eyes, and clothing to enhance integration.\nColor Harmony: Harmonize the color palette between both characters and historical background. Match saturation levels, contrast, and color grading so both characters appear shot in the same conditions. Use color temperature matching (warm/cool tones) and ensure both characters' colors complement the historical scene's palette.\nDepth and Blur: Create natural depth of field with both characters sharp in focus and background with appropriate softness. Add atmospheric perspective and environmental elements like dust particles, ambient fog, or atmospheric haze that affect both characters and background equally. Use subtle edge softening and light wrap around both characters' silhouettes for seamless blending.\nStyle: Documentary travel photography with realistic film grain, historical authenticity, and natural interaction between real person and anime character. Use vintage film color grading, subtle grain texture, and authentic historical atmosphere. Both characters should feel naturally integrated into the historical moment.\nBackground: [场景元素] with period-appropriate details and historical accuracy, including background NPCs that react to both characters' presence with realistic lighting and color consistency.\nOverlay text at top-left \"[year], [location]\", and a documentary-style caption at bottom.\nOverall mood: Authentic historical travel photo with documentary film lighting, both real person and anime character seamlessly blending into the historical environment while maintaining realistic documentary aesthetic and historical authenticity.",
+      "template": "Create a realistic documentary-style historical travel photo featuring [person from pic1] and [character from pic3] based on [reference image pic2].\nComposition: Both [person from pic1] and [character from pic3] naturally integrated into [场景元素], creating a seamless travel documentary feel with realistic and anime aesthetic combination. Both characters should be surrounded by background elements that enhance their integration - architectural details, historical artifacts, period-appropriate props, and environmental features that frame and complement their presence.\nCharacter Scale: [person from pic1] and [character from pic3] should be properly scaled (25-35% of frame), both positioned naturally in the historical environment, actively interacting with background elements, NPCs, and historical artifacts. Both characters should appear to be genuinely part of the historical moment, not superimposed.\nBackground Integration: Both characters must reference and adapt to the background's visual style, lighting conditions, and atmospheric elements. The real person should adopt period-appropriate clothing colors and textures that harmonize with the historical setting. The anime character should have lighting, shadows, and color grading that matches the background's artistic style and lighting direction.\nInteraction: [interaction_with_anime] - both characters should actively engage with the historical setting together, touching artifacts, gesturing toward landmarks, or reacting to period-appropriate activities. They should interact with each other and the environment in ways that feel natural and documentary-like, creating a sense of shared experience and discovery.\nLighting Integration: Perfectly match the historical scene's lighting direction, intensity, and color temperature on both the real person and anime character. Create realistic shadows that both characters would cast in this environment. Use rim lighting and ambient light that are consistent throughout. Add subtle environmental reflections on both characters' skin, eyes, and clothing to enhance integration. The lighting should make both characters appear to be lit by the same historical light sources.\nColor Harmony: Harmonize the color palette between both characters and historical background. Match saturation levels, contrast, and color grading so both characters appear shot in the same conditions. Use color temperature matching (warm/cool tones) and ensure both characters' colors complement the historical scene's palette. The anime character should have colors that feel natural within the historical color scheme.\nDepth and Blur: Create natural depth of field with both characters sharp in focus and background with appropriate softness. Add atmospheric perspective and environmental elements like dust particles, ambient fog, or atmospheric haze that affect both characters and background equally. Use subtle edge softening and light wrap around both characters' silhouettes for seamless blending. Add background bokeh and environmental elements that create depth and make both characters feel naturally embedded in the scene.\nStyle: Documentary travel photography with realistic film grain, historical authenticity, and natural interaction between real person and anime character. Use vintage film color grading, subtle grain texture, and authentic historical atmosphere. Both characters should feel naturally integrated into the historical moment, as if they were actually present during that time period.\nBackground: [场景元素] with period-appropriate details and historical accuracy, including background NPCs that react to both characters' presence with realistic lighting and color consistency. The background should be rich with historical details that both characters can interact with and reference.\nOverlay text at top-left \"[year], [location]\", and a documentary-style caption at bottom.\nOverall mood: Authentic historical travel photo with documentary film lighting, both real person and anime character seamlessly blending into the historical environment while maintaining realistic documentary aesthetic and historical authenticity. The image should feel like a genuine historical document that captures a moment of time travel and cultural exchange.",
       "placeholders": {
         "[reference image pic2]": "构图参考图片",
-        "[person from pic1]": "人物图片",
-        "[character from pic3]": "真人图片",
-        "[interaction]": "互动动作描述",
+        "[person from pic1]": "真人图片",
+        "[character from pic3]": "二次元角色图片",
+        "[interaction_with_anime]": "互动动作描述",
         "[场景元素]": "历史场景元素和背景",
         "[year]": "历史年份",
         "[location]": "历史地点"
@@ -274,6 +274,278 @@
       }
     ]
   },
+  "interaction_with_anime": {
+      "肢体动作类": [
+        {
+          "id": "travel_selfie",
+          "name": "旅游自拍",
+          "description": "[person from pic1]和[character from pic3]一起举着相机自拍，表情兴奋开心，像在记录历史时刻"
+        },
+        {
+          "id": "hug_pose",
+          "name": "拥抱姿势",
+          "description": "[person from pic1]轻轻拥抱[character from pic3]，或者[character from pic3]从后面抱住[person from pic1]，温馨亲密"
+        },
+        {
+          "id": "hand_holding",
+          "name": "牵手探索",
+          "description": "[person from pic1]和[character from pic3]手牵手，一起探索历史场景，像一对旅游伙伴"
+        },
+        {
+          "id": "back_to_back",
+          "name": "背靠背",
+          "description": "[person from pic1]和[character from pic3]背靠背站立，一起欣赏历史场景，展现默契"
+        },
+        {
+          "id": "shoulder_lean",
+          "name": "靠肩依偎",
+          "description": "[character from pic3]靠在[person from pic1]肩膀上，或者[person from pic1]靠在[character from pic3]肩膀上，亲密温馨"
+        },
+        {
+          "id": "dance_pose",
+          "name": "舞蹈姿势",
+          "description": "[person from pic1]和[character from pic3]摆出舞蹈姿势，在历史场景中翩翩起舞，充满活力"
+        }
+      ],
+      "表情互动类": [
+        {
+          "id": "surprised_look",
+          "name": "惊讶表情",
+          "description": "[person from pic1]和[character from pic3]同时露出惊讶表情，像被历史场景震撼到了"
+        },
+        {
+          "id": "laughing_together",
+          "name": "一起大笑",
+          "description": "[person from pic1]和[character from pic3]一起开怀大笑，像在分享什么有趣的历史故事"
+        },
+        {
+          "id": "excited_expression",
+          "name": "兴奋表情",
+          "description": "[person from pic1]和[character from pic3]都露出兴奋的表情，像发现了什么令人惊喜的历史秘密"
+        },
+        {
+          "id": "mysterious_smile",
+          "name": "神秘微笑",
+          "description": "[person from pic1]和[character from pic3]都露出神秘的微笑，像在分享什么只有他们知道的秘密"
+        },
+        {
+          "id": "wonder_expression",
+          "name": "惊叹表情",
+          "description": "[person from pic1]和[character from pic3]都露出惊叹的表情，像被历史建筑的宏伟所震撼"
+        }
+      ],
+      "道具/物品类": [
+        {
+          "id": "pointing_together",
+          "name": "一起指向景点",
+          "description": "[person from pic1]和[character from pic3]同时指向历史建筑或景点，像在介绍什么重要的历史地标"
+        },
+        {
+          "id": "holding_artifact",
+          "name": "共同持物",
+          "description": "[person from pic1]和[character from pic3]一起拿着历史文物或道具，像在展示什么重要的历史物品"
+        },
+        {
+          "id": "camera_pose",
+          "name": "相机合影",
+          "description": "[person from pic1]和[character from pic3]一起对着相机摆姿势，像在拍摄历史纪念照"
+        },
+        {
+          "id": "map_reading",
+          "name": "看地图",
+          "description": "[person from pic1]和[character from pic3]一起看地图或卷轴，像在规划历史探索路线"
+        },
+        {
+          "id": "candle_lighting",
+          "name": "点蜡烛",
+          "description": "[person from pic1]和[character from pic3]一起点蜡烛或举着烛台，营造神秘的历史氛围"
+        }
+      ],
+      "空间位置类": [
+        {
+          "id": "symmetric_pose",
+          "name": "对称姿势",
+          "description": "[person from pic1]和[character from pic3]在画面两侧摆出对称的姿势，形成平衡的构图"
+        },
+        {
+          "id": "foreground_background",
+          "name": "前后景",
+          "description": "[person from pic1]在前景，[character from pic3]在后景，或者相反，创造层次感"
+        },
+        {
+          "id": "side_by_side",
+          "name": "并排站立",
+          "description": "[person from pic1]和[character from pic3]并排站立，一起面对镜头，展现团结"
+        },
+        {
+          "id": "corner_positioning",
+          "name": "角落定位",
+          "description": "[person from pic1]和[character from pic3]分别站在画面的不同角落，形成对角线构图"
+        },
+        {
+          "id": "center_focus",
+          "name": "中心聚焦",
+          "description": "[person from pic1]和[character from pic3]都位于画面中心，成为视觉焦点"
+        }
+      ],
+      "二次元风格类": [
+        {
+          "id": "anime_pose_together",
+          "name": "动漫经典姿势",
+          "description": "[person from pic1]和[character from pic3]一起摆出经典动漫角色姿势，如双手叉腰、单手比V"
+        },
+        {
+          "id": "kawaii_expression_together",
+          "name": "可爱表情包",
+          "description": "[person from pic1]和[character from pic3]一起做出超可爱的表情，大眼睛闪闪发光"
+        },
+        {
+          "id": "anime_wave_together",
+          "name": "动漫式挥手",
+          "description": "[person from pic1]和[character from pic3]一起像动漫角色一样挥手打招呼，动作夸张可爱"
+        },
+        {
+          "id": "magical_gesture_together",
+          "name": "魔法手势",
+          "description": "[person from pic1]和[character from pic3]一起做出施法或召唤的手势，配合动漫式特效感"
+        },
+        {
+          "id": "anime_surprise_together",
+          "name": "动漫式惊讶",
+          "description": "[person from pic1]和[character from pic3]一起露出动漫风格的惊讶表情，眼睛瞪大，嘴巴成O型"
+        }
+      ],
+      "真人类型": [
+        {
+          "id": "thumbs_up",
+          "name": "点赞手势",
+          "description": "[person from pic1]和[character from pic3]同时竖起大拇指，为历史场景点赞，表达满意和兴奋"
+        },
+        {
+          "id": "peace_sign",
+          "name": "比耶手势",
+          "description": "[person from pic1]和[character from pic3]同时比出V字手势，表情开心，像在庆祝历史之旅"
+        },
+        {
+          "id": "waving_together",
+          "name": "一起挥手",
+          "description": "[person from pic1]和[character from pic3]一起向镜头挥手，像在向观众打招呼，展现友好"
+        },
+        {
+          "id": "high_five",
+          "name": "击掌庆祝",
+          "description": "[person from pic1]和[character from pic3]击掌庆祝，像在庆祝成功完成历史探索"
+        },
+        {
+          "id": "salute_pose",
+          "name": "敬礼姿势",
+          "description": "[person from pic1]和[character from pic3]一起敬礼，像在向历史致敬"
+        }
+      ],
+      "真人与二次元旅游互动类": [
+        {
+          "id": "mysterious_pose",
+          "name": "神秘姿势",
+          "description": "[person from pic1]和[character from pic3]摆出神秘姿势，像在探索什么历史秘密"
+        },
+        {
+          "id": "heroic_pose",
+          "name": "英雄姿势",
+          "description": "[person from pic1]和[character from pic3]摆出英雄姿势，像在历史场景中成为英雄"
+        },
+        {
+          "id": "cute_pose",
+          "name": "可爱姿势",
+          "description": "[person from pic1]和[character from pic3]摆出可爱的姿势，像在卖萌，展现可爱的一面"
+        },
+        {
+          "id": "adventure_pose",
+          "name": "冒险姿势",
+          "description": "[person from pic1]和[character from pic3]摆出冒险姿势，像在准备开始历史探险"
+        },
+        {
+          "id": "discovery_pose",
+          "name": "发现姿势",
+          "description": "[person from pic1]和[character from pic3]摆出发现姿势，像在展示什么重要的历史发现"
+        },
+        {
+          "id": "travel_selfie",
+          "name": "旅游自拍",
+          "description": "[person from pic1]和[character from pic3]一起举着相机自拍，表情兴奋开心，像在记录历史时刻"
+        },
+        {
+          "id": "pointing_together",
+          "name": "一起指向景点",
+          "description": "[person from pic1]和[character from pic3]同时指向历史建筑或景点，像在介绍什么重要的历史地标"
+        },
+        {
+          "id": "hug_pose",
+          "name": "拥抱姿势",
+          "description": "[person from pic1]轻轻拥抱[character from pic3]，或者[character from pic3]从后面抱住[person from pic1]，温馨亲密"
+        },
+        {
+          "id": "hand_holding",
+          "name": "牵手探索",
+          "description": "[person from pic1]和[character from pic3]手牵手，一起探索历史场景，像一对旅游伙伴"
+        },
+        {
+          "id": "back_to_back",
+          "name": "背靠背",
+          "description": "[person from pic1]和[character from pic3]背靠背站立，一起欣赏历史场景，展现默契"
+        },
+        {
+          "id": "shoulder_lean",
+          "name": "靠肩依偎",
+          "description": "[character from pic3]靠在[person from pic1]肩膀上，或者[person from pic1]靠在[character from pic3]肩膀上，亲密温馨"
+        },
+        {
+          "id": "dance_pose",
+          "name": "舞蹈姿势",
+          "description": "[person from pic1]和[character from pic3]摆出舞蹈姿势，在历史场景中翩翩起舞，充满活力"
+        },
+        {
+          "id": "thumbs_up",
+          "name": "点赞手势",
+          "description": "[person from pic1]和[character from pic3]同时竖起大拇指，为历史场景点赞，表达满意和兴奋"
+        },
+        {
+          "id": "peace_sign",
+          "name": "比耶手势",
+          "description": "[person from pic1]和[character from pic3]同时比出V字手势，表情开心，像在庆祝历史之旅"
+        },
+        {
+          "id": "waving_together",
+          "name": "一起挥手",
+          "description": "[person from pic1]和[character from pic3]一起向镜头挥手，像在向观众打招呼，展现友好"
+        },
+        {
+          "id": "surprised_look",
+          "name": "惊讶表情",
+          "description": "[person from pic1]和[character from pic3]同时露出惊讶表情，像被历史场景震撼到了"
+        },
+        {
+          "id": "laughing_together",
+          "name": "一起大笑",
+          "description": "[person from pic1]和[character from pic3]一起开怀大笑，像在分享什么有趣的历史故事"
+        },
+        {
+          "id": "mysterious_pose",
+          "name": "神秘姿势",
+          "description": "[person from pic1]和[character from pic3]摆出神秘姿势，像在探索什么历史秘密"
+        },
+        {
+          "id": "heroic_pose",
+          "name": "英雄姿势",
+          "description": "[person from pic1]和[character from pic3]摆出英雄姿势，像在历史场景中成为英雄"
+        },
+        {
+          "id": "cute_pose",
+          "name": "可爱姿势",
+          "description": "[person from pic1]和[character from pic3]摆出可爱的姿势，像在卖萌，展现可爱的一面"
+        }
+      ]
+    },
+  
   "scene_element_translations": {
     "中世纪建筑": "medieval timber-framed buildings",
     "石头教堂": "stone churches with rounded arches",

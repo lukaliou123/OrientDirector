@@ -309,6 +309,8 @@ class NanoBananaHistoricalService:
             '[location]', historical_info.get('political_entity') or 'Unknown'
         ).replace(
             '[interaction]', interaction_description
+        ).replace(
+            '[interaction_with_anime]', interaction_description  # 同样使用interaction_description
         )
         
         print(f"📝 模板处理完成:")
@@ -319,11 +321,17 @@ class NanoBananaHistoricalService:
         return processed_prompt
     
     def get_interaction_description(self, interaction_id: str) -> str:
-        """根据interaction_id获取互动描述"""
+        """根据interaction_id获取互动描述，支持从interactions和interaction_with_anime中查找"""
+        # 先在普通interactions中查找
         interactions = self.meme_templates.get('interactions', {})
-        
-        # 遍历所有互动分类查找匹配的ID
         for category_name, category_interactions in interactions.items():
+            for interaction in category_interactions:
+                if interaction.get('id') == interaction_id:
+                    return interaction.get('description', '')
+        
+        # 在interaction_with_anime中查找
+        interaction_with_anime = self.meme_templates.get('interaction_with_anime', {})
+        for category_name, category_interactions in interaction_with_anime.items():
             for interaction in category_interactions:
                 if interaction.get('id') == interaction_id:
                     return interaction.get('description', '')

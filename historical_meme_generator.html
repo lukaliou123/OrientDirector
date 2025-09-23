@@ -1094,9 +1094,9 @@
                     if (selectedMemeTemplate === 'selfie_with_anime') {
                         preview.innerHTML = `
                             <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                            <div style="margin-top: 5px; font-size: 12px; color: #28a745;">✅ 真人图片已上传</div>
+                            <div style="margin-top: 5px; font-size: 12px; color: #28a745;">✅ 二次元角色图片已上传</div>
                         `;
-                        console.log('👤 真人图片已上传');
+                        console.log('🎭 二次元角色图片已上传');
                     } else {
                         preview.innerHTML = `
                             <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
@@ -1120,7 +1120,7 @@
             let isReady = false;
             
             if (selectedMemeTemplate === 'selfie_with_anime') {
-                // 和二次元穿越模板需要人物素材、真人图片、场景元素和提示词
+                // 和二次元穿越模板需要人物素材（真人）、二次元角色图片、场景元素和提示词
                 isReady = state.characterImage && state.companionImage && state.sceneElements.length > 0 && prompt.trim();
             } else if (selectedMemeTemplate === 'virtual_companion') {
                 // 虚拟伙伴模板需要人物素材、虚拟伙伴图片、场景元素和提示词
@@ -1140,6 +1140,7 @@
         let selectedMemeTemplate = null;
         let selectedInteraction = null;
         let currentInteractions = {};
+        let currentInteractionWithAnime = {};
 
         // 加载梗图模板
         async function loadMemeTemplates() {
@@ -1150,7 +1151,9 @@
                 if (data.success) {
                     console.log('✅ 梗图模板加载成功:', data.templates);
                     console.log('🎭 互动数据加载成功:', data.interactions);
+                    console.log('🎭 和二次元穿越互动数据加载成功:', data.interaction_with_anime);
                     currentInteractions = data.interactions || {};
+                    currentInteractionWithAnime = data.interaction_with_anime || {};
                     displayMemeTemplateButtons(data.templates);
                 } else {
                     console.error('❌ 梗图模板加载失败');
@@ -1300,17 +1303,17 @@
                         console.log('📝 已生成和二次元穿越模板基础prompt');
                     } catch (error) {
                         console.error('❌ 生成基础prompt失败:', error);
-                        const suggestion = "将生成和二次元穿越历史自拍梗图，请选择互动动作并上传真人图片";
+                        const suggestion = "将生成和二次元穿越历史自拍梗图，请选择互动动作并上传二次元角色图片";
                         document.getElementById('memePrompt').value = suggestion;
                     }
                 } else {
-                    const suggestion = "将生成和二次元穿越历史自拍梗图，请先生成历史信息，然后选择互动动作并上传真人图片";
+                    const suggestion = "将生成和二次元穿越历史自拍梗图，请先生成历史信息，然后选择互动动作并上传二次元角色图片";
                     document.getElementById('memePrompt').value = suggestion;
                 }
                 
                 console.log('🎭 显示互动选择区域');
                 showInteractionSelection();
-                console.log('👤 显示真人图片上传区域');
+                console.log('🎭 显示二次元角色图片上传区域');
                 showCompanionImageSection();
             } else if (templateId === 'virtual_companion') {
                 // 虚拟伙伴模板
@@ -1357,11 +1360,11 @@
                 const textElement = document.getElementById('companionPreviewText');
                 const descElement = document.getElementById('companionPreviewDesc');
                 
-                if (labelElement) labelElement.textContent = '👤 真人图片：';
-                if (textElement) textElement.textContent = '📷 点击上传真人图片';
-                if (descElement) descElement.textContent = '用于与二次元角色合照的真实人物图片';
+                if (labelElement) labelElement.textContent = '🎭 二次元角色图片：';
+                if (textElement) textElement.textContent = '🎨 点击上传二次元角色图片';
+                if (descElement) descElement.textContent = '用于与真人合照的二次元角色图片（动漫人物、游戏角色等）';
                 
-                console.log('✅ 已更新为真人图片上传模式');
+                console.log('✅ 已更新为二次元角色图片上传模式');
             } else {
                 const labelElement = document.getElementById('companionImageLabel');
                 const textElement = document.getElementById('companionPreviewText');
@@ -1392,7 +1395,14 @@
         // 显示互动选择区域
         function showInteractionSelection() {
             document.getElementById('interactionSelection').style.display = 'block';
-            displayInteractionButtons(currentInteractions);
+            // 根据选中的模板决定使用哪种互动数据
+            if (selectedMemeTemplate === 'selfie_with_anime') {
+                console.log('🎭 使用和二次元穿越专用互动数据');
+                displayInteractionButtons(currentInteractionWithAnime);
+            } else {
+                console.log('🎭 使用普通互动数据');
+                displayInteractionButtons(currentInteractions);
+            }
         }
 
         // 隐藏互动选择区域
@@ -1516,14 +1526,19 @@
                 
                 // 获取互动描述
                 let interactionDescription = "making awkward eye contact with the camera, reacting with shock or confusion.";
-                if (interactionId && currentInteractions) {
-                    // 在所有互动分类中查找匹配的ID
-                    for (const categoryName of Object.keys(currentInteractions)) {
-                        const interactions = currentInteractions[categoryName];
-                        const foundInteraction = interactions.find(interaction => interaction.id === interactionId);
-                        if (foundInteraction) {
-                            interactionDescription = foundInteraction.description;
-                            break;
+                if (interactionId) {
+                    // 根据模板类型决定在哪个数据源中查找
+                    const interactionSource = (templateId === 'selfie_with_anime') ? currentInteractionWithAnime : currentInteractions;
+                    
+                    if (interactionSource) {
+                        // 在所有互动分类中查找匹配的ID
+                        for (const categoryName of Object.keys(interactionSource)) {
+                            const interactions = interactionSource[categoryName];
+                            const foundInteraction = interactions.find(interaction => interaction.id === interactionId);
+                            if (foundInteraction) {
+                                interactionDescription = foundInteraction.description;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1532,7 +1547,8 @@
                     .replace(/\[场景元素\]/g, sceneElementsText)
                     .replace(/\[year\]/g, year)
                     .replace(/\[location\]/g, location)
-                    .replace(/\[interaction\]/g, interactionDescription);
+                    .replace(/\[interaction\]/g, interactionDescription)
+                    .replace(/\[interaction_with_anime\]/g, interactionDescription);
             }
             
             return template;

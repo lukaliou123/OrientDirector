@@ -2271,7 +2271,8 @@ async def get_meme_templates():
             'success': True,
             'templates': simplified_templates,
             'total_count': len(simplified_templates),
-            'interactions': nano_banana_service.meme_templates.get('interactions', {})
+            'interactions': nano_banana_service.meme_templates.get('interactions', {}),
+            'interaction_with_anime': nano_banana_service.meme_templates.get('interaction_with_anime', {})
         }
         
     except Exception as e:

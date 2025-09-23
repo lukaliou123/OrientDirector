@@ -5016,6 +5016,11 @@ function selectMemeTemplateForHistory(templateId, templateName) {
         // 先禁用下一步按钮，等待互动选择
         document.getElementById('nextToUploadBtn').disabled = true;
         openInteractionModal();
+    } else if (templateId === 'selfie_with_anime') {
+        logger.info('🎭 检测到和二次元穿越模板，打开专用互动选择窗口');
+        // 先禁用下一步按钮，等待互动选择
+        document.getElementById('nextToUploadBtn').disabled = true;
+        openInteractionModalWithAnime();
     } else if (templateId === 'virtual_companion') {
         logger.info('🧸 检测到虚拟伙伴模板，将在图片上传步骤显示虚拟伙伴上传区域');
         // 直接启用下一步按钮
@@ -5464,6 +5469,29 @@ async function openInteractionModal() {
 }
 
 /**
+ * 打开和二次元穿越专用互动选择模态框
+ */
+async function openInteractionModalWithAnime() {
+    console.log('🔍 Debug: openInteractionModalWithAnime 被调用');
+    const modalOverlay = document.getElementById('interactionModalOverlay');
+    if (!modalOverlay) {
+        console.error('❌ 找不到互动模态框元素: interactionModalOverlay');
+        logger.error('❌ 找不到互动模态框元素');
+        return;
+    }
+    
+    console.log('🔍 Debug: 模态框元素找到，正在显示');
+    // 显示模态框
+    modalOverlay.style.display = 'flex';
+    
+    console.log('🔍 Debug: 开始加载和二次元穿越互动数据');
+    // 加载和二次元穿越专用互动数据
+    await loadInteractionWithAnimeData();
+    
+    logger.info('🎭 和二次元穿越互动选择模态框已打开');
+}
+
+/**
  * 关闭互动选择模态框
  */
 function closeInteractionModal() {
@@ -5523,6 +5551,35 @@ async function loadInteractionData() {
         logger.error(`❌ 互动数据加载失败: ${error.message}`);
         const container = document.getElementById('interactionCategoriesContainer');
         container.innerHTML = '<div class="loading-interactions">❌ 互动数据加载失败</div>';
+    }
+}
+
+/**
+ * 加载和二次元穿越专用互动数据
+ */
+async function loadInteractionWithAnimeData() {
+    console.log('🔍 Debug: loadInteractionWithAnimeData 被调用');
+    
+    try {
+        console.log('🔍 Debug: 请求和二次元穿越互动数据从 API');
+        const response = await fetch(API_CONFIG.getApiUrl('/api/meme-templates'));
+        const data = await response.json();
+        
+        console.log('🔍 Debug: API 响应:', data);
+        if (data.success && data.interaction_with_anime) {
+            console.log('🔍 Debug: 和二次元穿越互动数据结构:', Object.keys(data.interaction_with_anime));
+            displayInteractionCategories(data.interaction_with_anime);
+            logger.info('✅ 和二次元穿越互动数据加载成功');
+        } else {
+            throw new Error('和二次元穿越互动数据加载失败: success=' + data.success + ', interaction_with_anime=' + !!data.interaction_with_anime);
+        }
+    } catch (error) {
+        console.error('🔍 Debug: 和二次元穿越互动数据加载错误:', error);
+        logger.error(`❌ 和二次元穿越互动数据加载失败: ${error.message}`);
+        const container = document.getElementById('interactionCategoriesContainer');
+        if (container) {
+            container.innerHTML = '<div class="loading-interactions">❌ 和二次元穿越互动数据加载失败</div>';
+        }
     }
 }
 
@@ -5641,6 +5698,7 @@ function confirmInteractionSelection() {
 
 // 全局暴露互动功能
 window.openInteractionModal = openInteractionModal;
+window.openInteractionModalWithAnime = openInteractionModalWithAnime;
 window.closeInteractionModal = closeInteractionModal;
 window.selectInteractionOption = selectInteractionOption;
 window.confirmInteractionSelection = confirmInteractionSelection;
