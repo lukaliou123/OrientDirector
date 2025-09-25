@@ -2126,6 +2126,67 @@ async def analyze_scene_elements(request: SceneAnalysisRequest):
             detail=f"场景元素分析失败: {str(e)}"
         )
 
+@app.post("/api/analyze-scene-elements-file", response_model=SceneAnalysisResponse)
+async def analyze_scene_elements_file(image_file: UploadFile = File(...)):
+    """
+    分析上传的场景图文件，提取关键元素
+    支持用户直接上传图片进行AI分析
+    """
+    start_time = time.time()
+    
+    try:
+        print(f"🔍 开始分析上传的场景图文件: {image_file.filename}")
+        
+        # 验证文件类型
+        if not image_file.content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=400, 
+                detail=f"不支持的文件类型: {image_file.content_type}"
+            )
+        
+        # 读取文件数据
+        image_data = await image_file.read()
+        file_size = len(image_data)
+        
+        print(f"📁 文件信息: {image_file.filename} ({file_size} 字节, {image_file.content_type})")
+        
+        # 检查文件大小 (10MB限制)
+        if file_size > 10 * 1024 * 1024:  # 10MB
+            raise HTTPException(
+                status_code=400,
+                detail="文件过大，请上传小于10MB的图片"
+            )
+        
+        # 使用新的文件分析方法
+        result = await nano_banana_service.analyze_image_elements_from_bytes(
+            image_data, 
+            image_file.content_type
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(status_code=500, detail=result.get('error', '图片分析失败'))
+        
+        analysis_time = time.time() - start_time
+        
+        print(f"✅ 文件场景分析完成: {len(result['elements'])} 个元素，耗时 {analysis_time:.2f}s")
+        
+        return SceneAnalysisResponse(
+            success=True,
+            elements=result['elements'],
+            analysis_time=analysis_time
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        analysis_time = time.time() - start_time
+        print(f"❌ 文件场景元素分析失败: {e}")
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"文件场景元素分析失败: {str(e)}"
+        )
+
 @app.post("/api/generate-historical-meme", response_model=HistoricalMemeResponse)
 async def generate_historical_meme(
     character_image: UploadFile = File(...),

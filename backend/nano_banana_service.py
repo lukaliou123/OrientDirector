@@ -1351,6 +1351,146 @@ CRITICAL: Please generate an actual image, not just text description. The output
                 'success': False,
                 'error': str(e)
             }
+
+    async def analyze_image_elements_from_bytes(self, image_data: bytes, content_type: str) -> Dict:
+        """
+        直接从图片字节数据分析场景元素
+        专为用户上传的文件设计
+        
+        Args:
+            image_data: 图片字节数据
+            content_type: MIME类型 (如 'image/jpeg', 'image/png')
+        """
+        if not self.client_available:
+            print("🎭 API未配置，使用演示模式...")
+            # 演示模式：返回预设元素
+            return {
+                'success': True,
+                'elements': ['现代建筑', '城市街道', '汽车', '行人', '商店招牌', '交通设施', '天空', '都市景观']
+            }
+        
+        try:
+            print(f"📷 开始分析用户上传图片: {len(image_data)} 字节, {content_type}")
+            
+            # 图片压缩处理（如果需要）
+            processed_data = image_data
+            mime_type = content_type
+            
+            # 如果图片超过1MB，进行压缩以提高API成功率
+            if len(image_data) > 1024 * 1024:  # 1MB
+                print(f"📉 图片较大({len(image_data)/(1024*1024):.1f}MB)，进行压缩...")
+                try:
+                    from PIL import Image
+                    from io import BytesIO
+                    
+                    # 从字节数据加载图片
+                    img = Image.open(BytesIO(image_data))
+                    
+                    # 压缩图片：保持比例，最大尺寸1024
+                    max_size = 1024
+                    if max(img.size) > max_size:
+                        ratio = max_size / max(img.size)
+                        new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
+                        img = img.resize(new_size, Image.Resampling.LANCZOS)
+                        print(f"🔧 图片压缩: {img.size}")
+                    
+                    # 转换为字节
+                    img_buffer = BytesIO()
+                    img.save(img_buffer, format='JPEG', quality=85, optimize=True)
+                    processed_data = img_buffer.getvalue()
+                    mime_type = 'image/jpeg'
+                    
+                    print(f"✅ 图片压缩完成: {len(processed_data)} 字节 ({len(processed_data)/(1024*1024):.1f}MB)")
+                    
+                except Exception as compress_error:
+                    print(f"⚠️ 图片压缩失败，使用原图: {compress_error}")
+                    processed_data = image_data
+                    mime_type = content_type
+            
+            print(f"📝 最终图片格式: {mime_type}")
+            
+            # 构建图片分析提示
+            analysis_prompt = """
+请仔细分析这张场景图片，并提取其中的关键视觉元素。
+输出时请尽量简短，突出场景特征和物体特征。
+
+必须包含：
+- 建筑风格与结构（如现代建筑、古建筑、住宅、商业楼等）
+- 交通工具与道路（如汽车、自行车、马车、道路类型等）
+- 人物与服饰（如行人、工作者、服装风格等）
+- 环境与景观（如街道、公园、自然景观、天空等）
+- 色彩与氛围（如光线、季节、时间特征等）
+- 文化与时代元素（如招牌、标识、装饰风格等）
+
+输出格式：每个元素用简短中文词语列出，用逗号分隔。
+例如：现代建筑, 城市街道, 汽车, 行人, 商店招牌, 蓝天白云
+"""
+            
+            # 使用官方推荐的 gemini-2.5-flash 方法，添加重试机制
+            max_retries = 2
+            for attempt in range(max_retries + 1):
+                try:
+                    if attempt > 0:
+                        print(f"🔄 重试第 {attempt} 次...")
+                        await asyncio.sleep(attempt * 2)  # 递增延迟
+                    
+                    response = self.client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=[
+                            types.Part.from_bytes(
+                                data=processed_data,
+                                mime_type=mime_type,
+                            ),
+                            analysis_prompt
+                        ]
+                    )
+                    
+                    # 使用官方推荐的简洁响应处理方式
+                    elements_text = response.text
+                    print(f"📝 AI元素分析结果: {elements_text[:150]}...")
+                    
+                    # 解析文本，提取元素列表
+                    elements = [elem.strip() for elem in elements_text.split(',')]
+                    elements = [elem for elem in elements if elem and len(elem) > 1]  # 过滤空字符串和单字符
+                    
+                    # 去除可能的序号和特殊字符
+                    cleaned_elements = []
+                    for elem in elements:
+                        # 移除序号前缀 (如 "1. 现代建筑" -> "现代建筑")
+                        elem = elem.split('. ')[-1] if '. ' in elem else elem
+                        # 移除引号和其他标点
+                        elem = elem.strip('"\'。！？.,;')
+                        if elem and len(elem) > 1:
+                            cleaned_elements.append(elem)
+                    
+                    print(f"✅ 提取到 {len(cleaned_elements)} 个场景元素: {', '.join(cleaned_elements[:5])}...")
+                    
+                    return {
+                        'success': True,
+                        'elements': cleaned_elements[:20]  # 限制数量，避免过多元素
+                    }
+                    
+                except Exception as api_error:
+                    if ("Connection reset by peer" in str(api_error) or 
+                        "timeout" in str(api_error).lower() or
+                        "network" in str(api_error).lower()):
+                        
+                        if attempt < max_retries:
+                            print(f"⚠️ 网络连接问题，准备重试: {api_error}")
+                            continue
+                        else:
+                            print(f"❌ 重试 {max_retries} 次后仍失败")
+                            raise api_error
+                    else:
+                        # 非网络错误，直接抛出
+                        raise api_error
+                
+        except Exception as e:
+            print(f"❌ 用户上传图片元素分析失败: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
     
     async def generate_historical_meme(
         self, 

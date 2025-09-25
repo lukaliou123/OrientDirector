@@ -216,6 +216,22 @@
             border: 1px solid #b3d9ff;
         }
 
+        .scene-element.clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scene-element.clickable:hover {
+            background: #cce7ff;
+            border-color: #0099ff;
+        }
+
+        .scene-element.selected {
+            background: #0066cc;
+            color: white;
+            border-color: #0052a3;
+        }
+
         .two-column {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -279,6 +295,58 @@
         <div class="header">
             <h1>🎨 历史梗图生成器</h1>
             <p>将历史与现代完美融合，创造独特的梗图体验</p>
+        </div>
+
+        <!-- 工作模式选择 -->
+        <div class="step-container" id="modeSelector">
+            <div class="step-header">
+                <div class="step-number">🎯</div>
+                <div class="step-title">选择工作模式</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">🔀 选择您的工作流程：</label>
+                <select id="workModeSelect" class="form-control" onchange="handleWorkModeChange()">
+                    <option value="generate">🏛️ 历史场景生成模式 - 完整体验从历史查询到场景生成</option>
+                    <option value="upload">📤 自定义场景上传模式 - 直接上传场景图快速测试</option>
+                </select>
+            </div>
+            
+            <div class="historical-info-display" id="modeDescription">
+                <h4>🏛️ 历史场景生成模式</h4>
+                <p>完整的历史梗图制作体验：</p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>选择历史时期和地点</li>
+                    <li>AI生成该时期的历史场景图</li>
+                    <li>解构场景元素</li>
+                    <li>制作个性化梗图</li>
+                </ul>
+                <p><small>💡 推荐新手使用，可以体验完整的时间穿越创作过程</small></p>
+            </div>
+        </div>
+
+        <!-- 自定义场景上传区域 -->
+        <div class="step-container" id="customUploadSection" style="display: none;">
+            <div class="step-header">
+                <div class="step-number">📤</div>
+                <div class="step-title">上传自定义场景图</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">🖼️ 上传您的场景图片：</label>
+                <div class="image-upload-area" id="customSceneUpload" onclick="document.getElementById('customSceneFile').click()">
+                    <div id="customScenePreview">
+                        <p>📁 点击上传或拖放场景图片</p>
+                        <small>支持 JPG, PNG 格式，将直接用于元素解构</small>
+                    </div>
+                </div>
+                <input type="file" id="customSceneFile" accept="image/*" style="display: none;" onchange="handleCustomSceneUpload(event)">
+            </div>
+            
+            <div class="historical-info-display" style="display: none;" id="customSceneInfo">
+                <h4>✅ 场景图片已上传</h4>
+                <p>图片将直接进入元素解构步骤，跳过历史查询和场景生成。</p>
+            </div>
         </div>
 
         <!-- 步骤1: 历史时期选择 -->
@@ -399,9 +467,42 @@
                 <div class="step-title">解构历史场景</div>
             </div>
             
-            <p>点击下方按钮，AI将分析历史场景图，提取关键元素用于梗图制作：</p>
+            <!-- 历史场景生成模式的说明 -->
+            <div id="step3HistoricalMode">
+                <p>点击下方按钮，AI将分析历史场景图，提取关键元素用于梗图制作：</p>
+                <button class="btn" onclick="analyzeSceneElements()">🔍 解构场景元素</button>
+            </div>
             
-            <button class="btn" onclick="analyzeSceneElements()">🔍 解构场景元素</button>
+            <!-- 自定义上传模式的AI分析 -->
+            <div id="step3CustomMode" style="display: none;">
+                <p>点击下方按钮，AI将自动分析您上传的场景图，提取关键元素用于梗图制作：</p>
+                
+                <button class="btn" onclick="analyzeCustomSceneElements()">🤖 AI自动分析场景元素</button>
+                
+                <!-- 可选的手动补充功能 -->
+                <div id="manualEditSection" style="display: none; margin-top: 20px;">
+                    <hr style="margin: 20px 0;">
+                    <h5 style="color: #666; margin-bottom: 15px;">🔧 可选：手动调整元素</h5>
+                    <p style="color: #666; font-size: 14px;">如果AI分析的结果不够准确，您可以手动调整：</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">🏷️ 场景元素标签（用逗号分隔）：</label>
+                        <textarea id="customSceneElements" class="form-control" rows="3" 
+                                  placeholder="AI分析结果将显示在这里，您可以手动调整"
+                                  oninput="handleCustomElementsInput()"></textarea>
+                        <small style="color: #666;">💡 提示：可以删除、修改或添加元素标签</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">🎨 快速标签选择：</label>
+                        <div id="commonElementTags" class="scene-elements" style="margin-bottom: 15px;">
+                            <!-- 常用标签按钮将在这里显示 -->
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="processCustomSceneElements()">✅ 确认调整后的元素</button>
+                </div>
+            </div>
             
             <div id="sceneAnalysisResult" style="display: none;">
                 <h4>🎯 提取的场景元素：</h4>
@@ -603,12 +704,145 @@
             compositionImage: null,
             companionImage: null,
             finalMemeUrl: null,
-            selectedLocation: null
+            selectedLocation: null,
+            workMode: 'generate', // 'generate' 或 'upload'
+            customSceneUrl: null // 自定义上传的场景图URL
         };
 
         // API基础URL
         const API_BASE = window.location.hostname === 'localhost' ? 
             'http://localhost:8000' : '';
+
+        // 工作模式切换处理
+        function handleWorkModeChange() {
+            const selector = document.getElementById('workModeSelect');
+            const selectedMode = selector.value;
+            state.workMode = selectedMode;
+            
+            const modeDescription = document.getElementById('modeDescription');
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+            const customUploadSection = document.getElementById('customUploadSection');
+            const step3HistoricalMode = document.getElementById('step3HistoricalMode');
+            const step3CustomMode = document.getElementById('step3CustomMode');
+            
+            if (selectedMode === 'generate') {
+                // 历史场景生成模式
+                modeDescription.innerHTML = `
+                    <h4>🏛️ 历史场景生成模式</h4>
+                    <p>完整的历史梗图制作体验：</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>选择历史时期和地点</li>
+                        <li>AI生成该时期的历史场景图</li>
+                        <li>解构场景元素</li>
+                        <li>制作个性化梗图</li>
+                    </ul>
+                    <p><small>💡 推荐新手使用，可以体验完整的时间穿越创作过程</small></p>
+                `;
+                
+                // 显示历史模式的步骤，隐藏上传区域
+                step1.style.display = 'block';
+                step2.style.display = 'block';
+                customUploadSection.style.display = 'none';
+                
+                // 显示历史模式的步骤3，隐藏自定义模式的步骤3
+                step3HistoricalMode.style.display = 'block';
+                step3CustomMode.style.display = 'none';
+                
+                // 重置步骤3标题
+                const step3Title = step3.querySelector('.step-title');
+                step3Title.textContent = '解构历史场景';
+                
+                // 清除自定义场景数据
+                state.customSceneUrl = null;
+                
+                console.log('🔄 切换到历史场景生成模式');
+                
+            } else if (selectedMode === 'upload') {
+                // 自定义场景上传模式
+                modeDescription.innerHTML = `
+                    <h4>📤 自定义场景上传模式</h4>
+                    <p>快速测试和创作流程：</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>直接上传任意场景图片</li>
+                        <li>AI解构图片元素</li>
+                        <li>制作个性化梗图</li>
+                    </ul>
+                    <p><small>💡 适合有经验的用户或想要使用特定图片的场景</small></p>
+                `;
+                
+                // 隐藏历史模式的步骤，显示上传区域
+                step1.style.display = 'none';
+                step2.style.display = 'none';
+                customUploadSection.style.display = 'block';
+                
+                // 隐藏历史模式的步骤3，显示自定义模式的步骤3
+                step3HistoricalMode.style.display = 'none';
+                step3CustomMode.style.display = 'block';
+                
+                // 更新步骤3标题
+                const step3Title = step3.querySelector('.step-title');
+                step3Title.textContent = '解构自定义场景';
+                
+                // 初始化常用标签
+                initCommonElementTags();
+                
+                console.log('🔄 切换到自定义场景上传模式');
+            }
+        }
+
+        // 处理自定义场景图片上传
+        function handleCustomSceneUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageUrl = e.target.result;
+                    state.customSceneUrl = imageUrl;
+                    
+                    // 更新预览
+                    const preview = document.getElementById('customScenePreview');
+                    preview.innerHTML = `<img src="${imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+                    
+                    // 显示上传成功信息
+                    const info = document.getElementById('customSceneInfo');
+                    info.innerHTML = `
+                        <h4>✅ 场景图片已上传</h4>
+                        <p>现在可以使用AI自动分析图片中的场景元素了！</p>
+                        <p><small>💡 AI将识别图片中的建筑、物体、环境等元素，用于后续梗图制作</small></p>
+                    `;
+                    info.style.display = 'block';
+                    
+                    // 启用步骤3
+                    enableStep(3);
+                    
+                    // 创建虚拟的历史信息（用于模板处理）
+                    state.historicalInfo = {
+                        political_entity: "自定义场景",
+                        query_year: new Date().getFullYear(),
+                        cultural_region: "用户上传",
+                        ruler_or_power: "N/A"
+                    };
+                    
+                    // 清空之前的分析结果
+                    state.sceneElements = [];
+                    const resultDiv = document.getElementById('sceneAnalysisResult');
+                    if (resultDiv) {
+                        resultDiv.style.display = 'none';
+                    }
+                    
+                    // 隐藏手动调整区域（等待AI分析后再显示）
+                    const manualEditSection = document.getElementById('manualEditSection');
+                    if (manualEditSection) {
+                        manualEditSection.style.display = 'none';
+                    }
+                    
+                    console.log('📤 自定义场景图片上传成功，等待AI分析');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
         // 预设地点选择处理
         function handlePresetLocationChange() {
@@ -1002,13 +1236,14 @@
             resultDiv.style.display = 'block';
         }
 
-        // 步骤3: 解构场景元素
+        // 步骤3: 解构场景元素（历史场景生成模式）
         async function analyzeSceneElements() {
             if (!state.sceneImageUrl) {
                 alert('请先生成历史场景图');
                 return;
             }
 
+            console.log('🔍 开始解构生成的历史场景图');
             showLoading(true);
             
             try {
@@ -1032,12 +1267,178 @@
                 displaySceneElements(data.elements);
                 enableStep(4);
                 
+                console.log(`✅ 历史场景图解构完成，提取了${data.elements.length}个元素`);
+                
             } catch (error) {
                 console.error('场景解构错误:', error);
                 alert('场景解构失败，请重试');
             } finally {
                 showLoading(false);
             }
+        }
+
+        // 自定义场景元素处理函数
+        let selectedCommonElements = [];
+
+        // 初始化常用元素标签
+        function initCommonElementTags() {
+            const commonElements = [
+                '现代建筑', '古代建筑', '街道', '汽车', '行人', 
+                '商店招牌', '城市景观', '自然风光', '山脉', '河流', 
+                '树木', '花草', '天空', '云朵', '阳光', 
+                '室内装饰', '家具', '灯光', '墙壁', '窗户',
+                '传统服饰', '现代服装', '动物', '食物', '工具',
+                '科技产品', '艺术品', '雕像', '桥梁', '广场'
+            ];
+            
+            const container = document.getElementById('commonElementTags');
+            container.innerHTML = '';
+            
+            commonElements.forEach(element => {
+                const tag = document.createElement('div');
+                tag.className = 'scene-element clickable';
+                tag.textContent = element;
+                tag.onclick = () => toggleCommonElement(tag, element);
+                container.appendChild(tag);
+            });
+        }
+
+        // 切换常用元素的选择状态
+        function toggleCommonElement(tagElement, element) {
+            if (selectedCommonElements.includes(element)) {
+                // 取消选择
+                selectedCommonElements = selectedCommonElements.filter(e => e !== element);
+                tagElement.classList.remove('selected');
+            } else {
+                // 添加选择
+                selectedCommonElements.push(element);
+                tagElement.classList.add('selected');
+            }
+            
+            // 更新文本框
+            updateCustomElementsTextarea();
+        }
+
+        // 更新自定义元素文本框
+        function updateCustomElementsTextarea() {
+            const textarea = document.getElementById('customSceneElements');
+            const manualElements = textarea.value.split(',').map(e => e.trim()).filter(e => e);
+            
+            // 合并手动输入和选择的元素，去重
+            const allElements = [...new Set([...manualElements, ...selectedCommonElements])];
+            textarea.value = allElements.join(', ');
+        }
+
+        // 处理自定义元素输入变化
+        function handleCustomElementsInput() {
+            const textarea = document.getElementById('customSceneElements');
+            const elements = textarea.value.split(',').map(e => e.trim()).filter(e => e);
+            
+            // 更新选择的常用元素状态
+            document.querySelectorAll('#commonElementTags .scene-element').forEach(tag => {
+                const element = tag.textContent;
+                if (elements.includes(element)) {
+                    tag.classList.add('selected');
+                    if (!selectedCommonElements.includes(element)) {
+                        selectedCommonElements.push(element);
+                    }
+                } else {
+                    tag.classList.remove('selected');
+                    selectedCommonElements = selectedCommonElements.filter(e => e !== element);
+                }
+            });
+        }
+
+        // AI分析自定义上传的场景图片
+        async function analyzeCustomSceneElements() {
+            if (!state.customSceneUrl) {
+                alert('请先上传自定义场景图');
+                return;
+            }
+
+            console.log('🤖 开始AI分析用户上传的场景图');
+            showLoading(true);
+            
+            try {
+                // 将base64数据转换为文件格式上传
+                const blob = dataURLtoBlob(state.customSceneUrl);
+                const formData = new FormData();
+                formData.append('image_file', blob, 'custom_scene.jpg');
+                
+                const response = await fetch(`${API_BASE}/api/analyze-scene-elements-file`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || '场景分析失败');
+                }
+
+                const data = await response.json();
+                state.sceneElements = data.elements;
+                
+                // 显示AI分析结果
+                displaySceneElements(data.elements);
+                enableStep(4);
+                
+                // 同时在手动调整区域显示结果（方便用户微调）
+                const textarea = document.getElementById('customSceneElements');
+                if (textarea) {
+                    textarea.value = data.elements.join(', ');
+                }
+                
+                // 显示手动调整区域
+                const manualEditSection = document.getElementById('manualEditSection');
+                if (manualEditSection) {
+                    manualEditSection.style.display = 'block';
+                    // 初始化常用标签
+                    initCommonElementTags();
+                }
+                
+                console.log(`✅ AI分析完成，提取了${data.elements.length}个元素:`, data.elements);
+                
+            } catch (error) {
+                console.error('AI场景分析错误:', error);
+                alert(`AI分析失败：${error.message}\n\n请尝试手动调整分析，或检查图片是否清晰可识别。`);
+                
+                // 分析失败时，显示手动调整区域让用户手动输入
+                const manualEditSection = document.getElementById('manualEditSection');
+                if (manualEditSection) {
+                    manualEditSection.style.display = 'block';
+                    initCommonElementTags();
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 处理自定义场景元素确认（手动调整后）
+        function processCustomSceneElements() {
+            const textarea = document.getElementById('customSceneElements');
+            const elementsText = textarea.value.trim();
+            
+            if (!elementsText) {
+                alert('请至少输入一些场景元素');
+                return;
+            }
+            
+            // 解析元素
+            const elements = elementsText.split(',').map(e => e.trim()).filter(e => e);
+            
+            if (elements.length === 0) {
+                alert('请输入有效的场景元素');
+                return;
+            }
+            
+            // 保存到状态
+            state.sceneElements = elements;
+            
+            // 显示结果
+            displaySceneElements(elements);
+            enableStep(4);
+            
+            console.log(`✅ 手动调整场景元素完成，共${elements.length}个元素:`, elements);
         }
 
         // 显示场景元素
@@ -1732,6 +2133,19 @@
         // 创作新梗图
         function createNew() {
             if (confirm('确定要开始新的创作吗？当前进度将被重置。')) {
+                // 重置所有状态
+                state.historicalInfo = null;
+                state.sceneImageUrl = null;
+                state.sceneElements = [];
+                state.characterImage = null;
+                state.compositionImage = null;
+                state.companionImage = null;
+                state.finalMemeUrl = null;
+                state.selectedLocation = null;
+                state.workMode = 'generate';
+                state.customSceneUrl = null;
+                
+                // 重置界面
                 location.reload();
             }
         }
@@ -1758,18 +2172,29 @@
                     if (files.length > 0) {
                         const file = files[0];
                         if (file.type.startsWith('image/')) {
-                            // 触发对应的文件输入
-                            const fileInput = area.onclick.toString().includes('characterFile') ? 
-                                document.getElementById('characterFile') : 
-                                document.getElementById('compositionFile');
+                            // 根据区域ID确定对应的文件输入
+                            let fileInput = null;
+                            const areaId = area.id;
                             
-                            // 创建新的文件列表
-                            const dt = new DataTransfer();
-                            dt.items.add(file);
-                            fileInput.files = dt.files;
+                            if (areaId === 'characterUpload') {
+                                fileInput = document.getElementById('characterFile');
+                            } else if (areaId === 'compositionUpload') {
+                                fileInput = document.getElementById('compositionFile');
+                            } else if (areaId === 'companionUpload') {
+                                fileInput = document.getElementById('companionFile');
+                            } else if (areaId === 'customSceneUpload') {
+                                fileInput = document.getElementById('customSceneFile');
+                            }
                             
-                            // 触发change事件
-                            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            if (fileInput) {
+                                // 创建新的文件列表
+                                const dt = new DataTransfer();
+                                dt.items.add(file);
+                                fileInput.files = dt.files;
+                                
+                                // 触发change事件
+                                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
                         }
                     }
                 });
@@ -1779,6 +2204,9 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             setupDragAndDrop();
+            
+            // 初始化默认工作模式
+            handleWorkModeChange();
             
             // 初始化默认地点选择
             handlePresetLocationChange();
@@ -1790,6 +2218,7 @@
             loadMemeTemplates();
             
             console.log('🎨 历史梗图生成器已初始化');
+            console.log('🎯 默认工作模式: 历史场景生成模式');
             console.log('📍 默认地点: 北京故宫');
             console.log('📋 正在加载场景模板...');
             console.log('📋 正在加载梗图模板...');
