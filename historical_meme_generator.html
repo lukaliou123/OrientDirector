@@ -1641,12 +1641,38 @@
             // 根据模板类型提供提示
             console.log(`🔍 开始条件判断，当前templateId: "${templateId}"`);
             if (templateId === 'cinematic_selfie') {
-                const suggestion = "将生成电影感历史穿越自拍梗图，自动融合历史场景元素";
-                document.getElementById('memePrompt').value = suggestion;
+                // 电影感自拍模板
+                if (state.historicalInfo) {
+                    try {
+                        const basePrompt = processMemeTemplateOnClient(templateId, null);
+                        document.getElementById('memePrompt').value = basePrompt;
+                        console.log('📝 已生成电影感自拍模板基础prompt');
+                    } catch (error) {
+                        console.error('❌ 生成电影感自拍prompt失败:', error);
+                        const suggestion = "将生成电影感历史穿越自拍梗图，自动融合历史场景元素";
+                        document.getElementById('memePrompt').value = suggestion;
+                    }
+                } else {
+                    const suggestion = "将生成电影感历史穿越自拍梗图，请先生成历史信息后查看完整prompt";
+                    document.getElementById('memePrompt').value = suggestion;
+                }
                 hideInteractionSelection();
             } else if (templateId === 'documentary_style') {
-                const suggestion = "将生成纪录片风格历史对比梗图，专业且有趣";
-                document.getElementById('memePrompt').value = suggestion;
+                // 纪录片风格模板
+                if (state.historicalInfo) {
+                    try {
+                        const basePrompt = processMemeTemplateOnClient(templateId, null);
+                        document.getElementById('memePrompt').value = basePrompt;
+                        console.log('📝 已生成纪录片风格模板基础prompt');
+                    } catch (error) {
+                        console.error('❌ 生成纪录片风格prompt失败:', error);
+                        const suggestion = "将生成纪录片风格历史对比梗图，专业且有趣";
+                        document.getElementById('memePrompt').value = suggestion;
+                    }
+                } else {
+                    const suggestion = "将生成纪录片风格历史对比梗图，请先生成历史信息后查看完整prompt";
+                    document.getElementById('memePrompt').value = suggestion;
+                }
                 hideInteractionSelection();
             } else if (templateId === 'interactive_selfie') {
                 // 如果有历史信息，生成基础的prompt
@@ -1921,9 +1947,14 @@
                 const location = state.historicalInfo.political_entity;
                 
                 // 构建场景元素描述
-                const sceneElementsText = state.sceneElements && state.sceneElements.length > 0 
-                    ? state.sceneElements.join(', ') 
-                    : 'historical scene elements';
+                let sceneElementsText;
+                if (state.sceneElements && state.sceneElements.length > 0) {
+                    sceneElementsText = state.sceneElements.join(', ');
+                } else if (state.workMode === 'upload') {
+                    sceneElementsText = 'your uploaded scene elements (please analyze the scene first)';
+                } else {
+                    sceneElementsText = 'historical scene elements';
+                }
                 
                 // 获取互动描述
                 let interactionDescription = "making awkward eye contact with the camera, reacting with shock or confusion.";

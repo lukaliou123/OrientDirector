@@ -15,6 +15,7 @@ from typing import Dict, Optional, List
 import time
 import asyncio
 import uuid
+from datetime import datetime
 from dotenv import load_dotenv
 from prompt_database import prompt_db
 
@@ -74,6 +75,10 @@ class NanoBananaHistoricalService:
         # 加载场景提示词模板
         self.scene_templates = self.load_scene_templates()
         
+        # 设置提示词日志文件路径
+        self.prompt_log_file = os.path.join(project_root, "logs", "prompt_usage.log")
+        os.makedirs(os.path.dirname(self.prompt_log_file), exist_ok=True)
+        
         print(f"🎨 Nano Banana历史服务已初始化")
         print(f"   API状态: {'已配置' if self.client_available else '未配置'}")
         print(f"   演示模式: {'开启' if self.demo_mode else '关闭'}")
@@ -82,6 +87,7 @@ class NanoBananaHistoricalService:
         print(f"   人像目录: {self.char_images_dir}")
         print(f"   构图目录: {self.composition_images_dir}")
         print(f"   预生成目录: {self.pregenerated_dir}")
+        print(f"   提示词日志: {self.prompt_log_file}")
         print(f"   梗图模板: {len(self.meme_templates.get('templates', []))} 个")
         print(f"   场景模板: {len(self.scene_templates.get('scene_templates', []))} 个")
         if self.demo_mode and self.demo_scenes_index:
@@ -1492,6 +1498,45 @@ CRITICAL: Please generate an actual image, not just text description. The output
                 'error': str(e)
             }
     
+    def log_prompt_usage(self, prompt: str, template_id: Optional[str], historical_info: Dict):
+        """
+        记录提示词使用情况到日志文件
+        
+        Args:
+            prompt: 最终使用的提示词
+            template_id: 模板ID（如果有）
+            historical_info: 历史背景信息
+        """
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_entry = {
+                "timestamp": timestamp,
+                "template_id": template_id or "none",
+                "historical_location": historical_info.get('political_entity', 'Unknown'),
+                "historical_year": historical_info.get('query_year', 'Unknown'),
+                "prompt_length": len(prompt),
+                "prompt_preview": prompt[:200] + "..." if len(prompt) > 200 else prompt,
+                "full_prompt": prompt
+            }
+            
+            # 写入日志文件
+            with open(self.prompt_log_file, 'a', encoding='utf-8') as f:
+                f.write(f"\n{'='*80}\n")
+                f.write(f"时间: {log_entry['timestamp']}\n")
+                f.write(f"模板ID: {log_entry['template_id']}\n")
+                f.write(f"历史地点: {log_entry['historical_location']}\n")
+                f.write(f"历史年份: {log_entry['historical_year']}\n")
+                f.write(f"提示词长度: {log_entry['prompt_length']} 字符\n")
+                f.write(f"{'='*80}\n")
+                f.write("完整提示词:\n")
+                f.write(f"{log_entry['full_prompt']}\n")
+                f.write(f"{'='*80}\n\n")
+            
+            print(f"📝 提示词已记录到日志文件: {self.prompt_log_file}")
+            
+        except Exception as e:
+            print(f"⚠️ 提示词日志记录失败: {e}")
+    
     async def generate_historical_meme(
         self, 
         character_image_path: str, 
@@ -1523,24 +1568,29 @@ CRITICAL: Please generate an actual image, not just text description. The output
             }
         
         try:
-            print(f"🎨 开始生成梗图: {meme_prompt}")
+            print(f"🎨 开始生成梗图")
             print(f"🏛️ 历史背景: {historical_info['political_entity']} ({historical_info['query_year']}年)")
             print(f"🎯 场景元素: {', '.join(scene_elements)}")
             if template_id:
-                print(f"📋 使用预设模板: {template_id}")
+                print(f"📋 模板ID: {template_id}")
             if interaction_id:
-                print(f"🎭 使用互动动作: {interaction_id}")
+                print(f"🎭 互动动作: {interaction_id}")
             
-            # 构建提示词：使用模板或自定义
-            if template_id:
-                # 使用预设模板并自动填充
-                meme_generation_prompt = self.process_meme_template(
-                    template_id, historical_info, scene_elements, interaction_id
-                )
-                print(f"✅ 预设模板处理完成，最终提示词长度: {len(meme_generation_prompt)} 字符")
-            else:
-                # 使用传统的自定义提示词构建方式
-                meme_generation_prompt = f"""
+            # 🔥 关键修改：直接使用用户在文本框中输入的提示词
+            # 不再根据template_id重新生成，确保用户修改的内容被使用
+            meme_generation_prompt = meme_prompt.strip()
+            
+            # 如果用户没有输入任何内容，才使用后备方案
+            if not meme_generation_prompt:
+                if template_id:
+                    # 使用预设模板作为后备
+                    meme_generation_prompt = self.process_meme_template(
+                        template_id, historical_info, scene_elements, interaction_id
+                    )
+                    print(f"⚠️ 文本框为空，使用模板生成后备提示词")
+                else:
+                    # 使用基础模板作为后备
+                    meme_generation_prompt = f"""
 创建一个结合历史与现代元素的创意梗图，要求如下：
 
 📍 历史背景：
@@ -1549,8 +1599,6 @@ CRITICAL: Please generate an actual image, not just text description. The output
 
 🎨 场景元素（来自历史场景解构）:
 {', '.join(scene_elements)}
-
-💡 创意要求: {meme_prompt}
 
 🎯 梗图制作指南：
 1. 将人物自然地融入历史场景中
@@ -1561,7 +1609,18 @@ CRITICAL: Please generate an actual image, not just text description. The output
 
 请生成一张高质量的创意梗图，兼具历史感和娱乐性。
 """
-                print(f"📝 自定义提示词构建完成，长度: {len(meme_generation_prompt)} 字符")
+                    print(f"⚠️ 文本框为空且无模板，使用基础后备提示词")
+            
+            # 显示最终使用的提示词
+            print(f"\n🎯 【最终发送的提示词】:")
+            print(f"{'='*50}")
+            print(meme_generation_prompt)
+            print(f"{'='*50}")
+            print(f"📏 提示词长度: {len(meme_generation_prompt)} 字符")
+            print(f"💬 用户原始输入: {meme_prompt[:100]}{'...' if len(meme_prompt) > 100 else ''}")
+            
+            # 记录到提示词日志文件
+            self.log_prompt_usage(meme_generation_prompt, template_id, historical_info)
             
             # 记录prompt使用到数据库
             prompt_id = prompt_db.record_prompt_usage(

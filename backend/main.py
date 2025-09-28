@@ -2221,9 +2221,11 @@ async def generate_historical_meme(
         scene_elements_list = json.loads(scene_elements)
         historical_info_dict = json.loads(historical_info)
         
-        print(f"💬 梗图提示: {meme_prompt}")
+        print(f"💬 【用户输入的梗图提示】: {meme_prompt}")
         print(f"🏛️ 场景元素: {scene_elements_list}")
         print(f"🎯 模板ID: {template_id or '无'}")
+        print(f"🎭 互动ID: {interaction_id or '无'}")
+        print(f"📝 提示词长度: {len(meme_prompt)} 字符")
         
         # 保存上传的图片
         character_image_path = None
